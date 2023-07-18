@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:mobile_ess/screens/user/home/detail_pengumuman/pengumuman_screen.dart';
 import 'package:mobile_ess/screens/user/home/request_attendance/request_attendance_karwayan_screen.dart';
 import 'package:mobile_ess/themes/constant.dart';
@@ -71,9 +72,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Colors.grey[100],
                     borderRadius: BorderRadius.circular(5.0),
                   ),
-                  child: IconsContainerWidget(
-                    context: context,
-                  ),
+                  child: const IconsContainerWidget(
+                      // context: context,
+                      ),
                 ),
               ],
             ),
@@ -85,11 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
             fontSizeLeft: textSmall,
             fontSizeRight: textSmall,
             onTab: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (ctx) =>
-                          const RequestAttendanceKaryawanScreen()));
+              Get.toNamed('/user/main/home/request_attendance');
             },
           ),
           const JadwalKerjaCardWidget(),

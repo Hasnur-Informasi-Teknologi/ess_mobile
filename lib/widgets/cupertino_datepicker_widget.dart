@@ -19,36 +19,49 @@ class _CupertinoDatePickerWidgetState extends State<CupertinoDatePickerWidget> {
 
     return CupertinoPageScaffold(
       backgroundColor: Colors.white,
-      child: Center(
-        child: CupertinoButton(
-          child: Text(
-            '${dateTime.day}-${dateTime.month}-${dateTime.year}',
-            style: TextStyle(
-              color: Colors.grey[700],
-              fontSize: textMedium,
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.w300,
-            ),
-          ),
-          onPressed: () {
-            showCupertinoModalPopup(
-              context: context,
-              builder: (BuildContext context) => SizedBox(
-                height: 250,
-                child: CupertinoDatePicker(
-                  backgroundColor: Colors.white,
-                  initialDateTime: dateTime,
-                  onDateTimeChanged: (DateTime newTime) {
-                    setState(() => dateTime = newTime);
-                    print(dateTime);
-                  },
-                  use24hFormat: true,
-                  mode: CupertinoDatePickerMode.date,
+      child: CupertinoButton(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(color: Colors.grey)),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Icon(
+                Icons.calendar_month_outlined,
+                color: Colors.grey,
+              ),
+              Text(
+                '${dateTime.day}-${dateTime.month}-${dateTime.year}',
+                style: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: textMedium,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w300,
                 ),
               ),
-            );
-          },
+            ],
+          ),
         ),
+        onPressed: () {
+          showCupertinoModalPopup(
+            context: context,
+            builder: (BuildContext context) => SizedBox(
+              height: 250,
+              child: CupertinoDatePicker(
+                backgroundColor: Colors.white,
+                initialDateTime: dateTime,
+                onDateTimeChanged: (DateTime newTime) {
+                  setState(() => dateTime = newTime);
+                  print(dateTime);
+                },
+                use24hFormat: true,
+                mode: CupertinoDatePickerMode.date,
+              ),
+            ),
+          );
+        },
       ),
     );
   }

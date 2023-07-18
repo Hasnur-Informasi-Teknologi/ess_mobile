@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:mobile_ess/screens/user/home/request_attendance/ubah_data_kehadiran_screen.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/cupertino_datepicker_widget.dart';
@@ -25,7 +26,7 @@ class _RequestAttendanceKaryawanScreenState
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            Get.back();
           },
         ),
         title: const Text(
@@ -44,11 +45,8 @@ class _RequestAttendanceKaryawanScreenState
                   height: 35,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (ctx) =>
-                                  const UbahDataKehadiranScreen()));
+                      Get.toNamed(
+                          '/user/main/home/request_attendance/ubah_data_kehadiran');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey[300],

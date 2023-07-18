@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mobile_ess/helpers/router.dart';
 import 'package:mobile_ess/providers/auth_provider.dart';
 import 'package:mobile_ess/splash_screen.dart';
 
@@ -29,7 +30,9 @@ class _MyAppState extends State<MyApp> {
           primarySwatch: Colors.amber,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: const SplashScreen(),
+        // home: const SplashScreen(),
+        initialRoute: '/splash',
+        routes: routers(),
       ),
     );
   }

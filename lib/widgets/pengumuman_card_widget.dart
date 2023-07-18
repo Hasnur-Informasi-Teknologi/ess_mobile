@@ -1,6 +1,7 @@
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:mobile_ess/screens/user/home/detail_pengumuman/detail_pengumuman_screen.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
@@ -13,10 +14,7 @@ class PengumumanCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (ctx) => const DetailPengumumanScreen()));
+        Get.toNamed('/user/main/home/pengumuman/detail_pengumuman');
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),

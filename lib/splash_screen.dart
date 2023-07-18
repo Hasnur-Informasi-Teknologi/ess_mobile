@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:get/get.dart';
 import 'package:mobile_ess/providers/auth_provider.dart';
 import 'package:mobile_ess/screens/authentication/signin_screen.dart';
 import 'package:mobile_ess/screens/user/home/home_screen.dart';
@@ -51,27 +52,48 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (_isUserLogin) {
       final userId = prefs.getString('userId');
-      // const userId = '78220012';
       try {
-        await Provider.of<AuthProvider>(context, listen: false)
-            .checkDeviceId(
-                userId!,
-                (Platform.isAndroid)
-                    ? deviceDataId['id']
-                    : deviceDataId['identifierForVendor'])
-            .then((_) => Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (ctx) => const HomeScreen())));
+        Get.offAllNamed('/');
+
+        // await Provider.of<AuthProvider>(context, listen: false)
+        //     .checkDeviceId(
+        //         userId!,
+        //         (Platform.isAndroid)
+        //             ? deviceDataId['id']
+        //             : deviceDataId['identifierForVendor'])
+        //     .then(
+        //       (_) => Navigator.pushReplacement(
+        //         context,
+        //         MaterialPageRoute(
+        //           builder: (ctx) => const HomeScreen(),
+        //         ),
+        //       ),
+        //     );
       } catch (e) {
-        Future.delayed(
-            const Duration(seconds: 1),
-            () => Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (ctx) => const SignInScreen())));
+        Get.offAllNamed('/');
+
+        // Future.delayed(
+        //   const Duration(seconds: 1),
+        //   () => Navigator.pushReplacement(
+        //     context,
+        //     MaterialPageRoute(
+        //       builder: (ctx) => const SignInScreen(),
+        //     ),
+        //   ),
+        // );
       }
     } else {
-      Future.delayed(
-          const Duration(seconds: 2),
-          () => Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (ctx) => const SignInScreen())));
+      Get.offAllNamed('/');
+
+      // Future.delayed(
+      //   const Duration(seconds: 2),
+      //   () => Navigator.pushReplacement(
+      //     context,
+      //     MaterialPageRoute(
+      //       builder: (ctx) => const SignInScreen(),
+      //     ),
+      //   ),
+      // );
     }
   }
 

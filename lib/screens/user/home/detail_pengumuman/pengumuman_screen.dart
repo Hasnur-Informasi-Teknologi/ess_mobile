@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:mobile_ess/widgets/pengumuman_card_widget.dart';
 
 class PengumumanScreen extends StatelessWidget {
@@ -15,7 +16,7 @@ class PengumumanScreen extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            Get.back();
           },
         ),
         title: const Text(

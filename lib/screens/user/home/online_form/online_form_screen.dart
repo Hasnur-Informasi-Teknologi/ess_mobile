@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_ess/screens/user/home/form_aplikasi_training_screen/form_aplikasi_training_screen.dart';
+import 'package:get/get.dart';
+import 'package:mobile_ess/screens/user/home/online_form/form_aplikasi_training_screen/form_aplikasi_training_screen.dart';
 import 'package:mobile_ess/themes/constant.dart';
 
 class OnlineFormScreen extends StatelessWidget {
@@ -18,7 +19,8 @@ class OnlineFormScreen extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            Get.back();
+            // Navigator.pop(context);
           },
         ),
         title: const Text(
@@ -45,7 +47,7 @@ class OnlineFormScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(8.0),
                 child: InkWell(
                   onTap: () {
-                    handleIconTap(context, index);
+                    handleIconTap(index);
                   },
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -160,15 +162,10 @@ class OnlineFormScreen extends StatelessWidget {
     }
   }
 
-  void handleIconTap(BuildContext context, int index) {
+  void handleIconTap(int index) {
     switch (index) {
       case 0:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (ctx) => const FormAplikasiTrainingScreen(),
-          ),
-        );
+        Get.toNamed('/user/main/home/online_form/aplikasi_training');
         break;
       case 1:
         return print('Documents');

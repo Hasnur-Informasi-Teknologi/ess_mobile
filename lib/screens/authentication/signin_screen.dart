@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:get/get.dart';
 import 'package:mobile_ess/models/http_exception.dart';
 import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/themes/constant.dart';
@@ -54,10 +55,7 @@ class _SignInScreenState extends State<SignInScreen> {
       //     .then((_) => Navigator.pushReplacement(context,
       //         MaterialPageRoute(builder: (ctx) => const HomeScreen())));
 
-      Future.delayed(
-          const Duration(seconds: 2),
-          () => Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (ctx) => const MainScreen())));
+      Get.offAllNamed('/user/main');
     } on HttpException catch (e) {
       String errorMessage = '';
 
@@ -75,12 +73,18 @@ class _SignInScreenState extends State<SignInScreen> {
       //     () => Navigator.pushReplacement(context,
       //         MaterialPageRoute(builder: (ctx) => const HomeScreen())));
     } catch (e) {
-      // _showErrorDialog('USER NOT REGISTERED');
+      Get.offAllNamed('/user/main');
 
-      Future.delayed(
-          const Duration(seconds: 2),
-          () => Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (ctx) => const MainScreen())));
+      // _showErrorDialog('USER NOT REGISTERED');
+      // Future.delayed(
+      //   const Duration(seconds: 2),
+      //   () => Navigator.pushReplacement(
+      //     context,
+      //     MaterialPageRoute(
+      //       builder: (ctx) => const MainScreen(),
+      //     ),
+      //   ),
+      // );
     }
 
     setState(() {

@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/instance_manager.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/button_two_row_widget.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
@@ -39,7 +41,7 @@ class _UbahDataKehadiranScreenState extends State<UbahDataKehadiranScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            Get.back();
           },
         ),
         title: const Text(

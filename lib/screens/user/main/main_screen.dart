@@ -26,39 +26,42 @@ class MainScreen extends StatelessWidget {
           ],
         );
       }),
-      bottomNavigationBar: Obx(() {
-        return BottomNavigationBar(
-          // backgroundColor: Colors.amber,
-          currentIndex: controller.selectedIndex.value,
-          onTap: (index) => controller.changePage(index),
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.home,
+      bottomNavigationBar: Obx(
+        () {
+          return BottomNavigationBar(
+            selectedItemColor: Colors.amber,
+            unselectedItemColor: Colors.grey,
+            currentIndex: controller.selectedIndex.value,
+            onTap: (index) => controller.changePage(index),
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.home,
+                ),
+                label: 'Home',
               ),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.file_open_rounded,
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.file_open_rounded,
+                ),
+                label: 'Submition',
               ),
-              label: 'Submition',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(
-                Icons.history,
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.history,
+                ),
+                label: 'History',
               ),
-              label: 'History',
-            ),
-            // BottomNavigationBarItem(
-            //   icon: Icon(
-            //     Icons.person,
-            //   ),
-            //   label: 'Profile',
-            // ),
-          ],
-        );
-      }),
+              BottomNavigationBarItem(
+                icon: Icon(
+                  Icons.person,
+                ),
+                label: 'Profile',
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 }

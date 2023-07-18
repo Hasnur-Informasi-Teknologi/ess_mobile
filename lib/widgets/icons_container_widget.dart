@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:get/get.dart';
 import 'package:mobile_ess/screens/user/home/online_form/online_form_screen.dart';
 import 'package:mobile_ess/themes/constant.dart';
 
 class IconsContainerWidget extends StatelessWidget {
-  final BuildContext context;
+  // final BuildContext context;
 
-  const IconsContainerWidget({Key? key, required this.context})
-      : super(key: key);
+  const IconsContainerWidget({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +23,7 @@ class IconsContainerWidget extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: InkWell(
             onTap: () {
-              handleIconTap(context, index);
+              handleIconTap(index);
             },
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -106,15 +106,16 @@ class IconsContainerWidget extends StatelessWidget {
     }
   }
 
-  void handleIconTap(BuildContext context, int index) {
+  void handleIconTap(int index) {
     switch (index) {
       case 0:
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (ctx) => const OnlineFormScreen(),
-          ),
-        );
+        Get.toNamed('/user/main/home/online_form');
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (ctx) => const OnlineFormScreen(),
+        //   ),
+        // );
         break;
       case 1:
         return print('Documents');
