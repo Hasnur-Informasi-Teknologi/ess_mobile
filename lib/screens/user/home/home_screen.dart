@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mobile_ess/screens/user/home/detail_pengumuman/pengumuman_screen.dart';
+import 'package:mobile_ess/screens/user/home/pengumuman/pengumuman_screen.dart';
 import 'package:mobile_ess/screens/user/home/request_attendance/request_attendance_karwayan_screen.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/header_profile_widget.dart';
@@ -30,7 +30,8 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 0,
         backgroundColor: Colors.white,
         title: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
+          padding:
+              const EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

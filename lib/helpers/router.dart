@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_ess/screens/authentication/signin_screen.dart';
-import 'package:mobile_ess/screens/user/home/detail_pengumuman/detail_pengumuman_screen.dart';
-import 'package:mobile_ess/screens/user/home/detail_pengumuman/pengumuman_screen.dart';
+import 'package:mobile_ess/screens/user/home/pengumuman/detail_pengumuman_screen.dart';
+import 'package:mobile_ess/screens/user/home/pengumuman/pengumuman_screen.dart';
 import 'package:mobile_ess/screens/user/home/online_form/form_aplikasi_training_screen/form_aplikasi_training_screen.dart';
 import 'package:mobile_ess/screens/user/home/online_form/online_form_screen.dart';
 import 'package:mobile_ess/screens/user/home/request_attendance/request_attendance_karwayan_screen.dart';

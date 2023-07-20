@@ -167,7 +167,8 @@ class _FormAplikasiTrainingScreenState
                     height: sizedBoxHeightTall,
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
                     child: TextFormField(
                       controller: _nomorController,
                       // validator: (value) {

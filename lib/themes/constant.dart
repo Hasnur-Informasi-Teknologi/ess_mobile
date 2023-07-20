@@ -18,3 +18,6 @@ const double sizedBoxHeightShort = 8;
 const double textLarge = 18;
 const double textMedium = 14;
 const double textSmall = 12;
+
+const double paddingHorizontalNarrow = 15;
+const double paddingHorizontalWide = 25;
