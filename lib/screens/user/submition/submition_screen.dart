@@ -4,7 +4,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/button_two_row_widget.dart';
-import 'package:mobile_ess/widgets/form_aplikasi_training_widget.dart';
+import 'package:mobile_ess/widgets/submition_card_widget.dart';
 import 'package:mobile_ess/widgets/row_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 
@@ -190,7 +190,7 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
                                 ),
                                 Column(
                                   children: List.generate(4, (index) {
-                                    return const FormAplikasiTrainingWidget();
+                                    return const SubmitionCardWidget();
                                   }),
                                 ),
                               ],
@@ -218,7 +218,7 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
                                 ),
                                 Column(
                                   children: List.generate(4, (index) {
-                                    return const FormAplikasiTrainingWidget();
+                                    return const SubmitionCardWidget();
                                   }),
                                 ),
                               ],
@@ -246,7 +246,7 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
                                 ),
                                 Column(
                                   children: List.generate(4, (index) {
-                                    return const FormAplikasiTrainingWidget();
+                                    return const SubmitionCardWidget();
                                   }),
                                 ),
                               ],

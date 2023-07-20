@@ -4,8 +4,8 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/row_widget.dart';
 
-class FormAplikasiTrainingWidget extends StatelessWidget {
-  const FormAplikasiTrainingWidget({super.key});
+class SubmitionCardWidget extends StatelessWidget {
+  const SubmitionCardWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
