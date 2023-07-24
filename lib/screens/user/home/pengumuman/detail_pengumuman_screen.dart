@@ -1,8 +1,5 @@
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/row_widget.dart';
 
 class DetailPengumumanScreen extends StatelessWidget {
@@ -10,6 +7,12 @@ class DetailPengumumanScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalWide = size.width * 0.0585;
+    double padding10 = size.width * 0.023;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -27,9 +30,10 @@ class DetailPengumumanScreen extends StatelessWidget {
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+        padding: EdgeInsets.symmetric(
+            horizontal: paddingHorizontalWide, vertical: padding10),
         child: Column(
-          children: const [
+          children: [
             SizedBox(
               height: sizedBoxHeightExtraTall,
             ),

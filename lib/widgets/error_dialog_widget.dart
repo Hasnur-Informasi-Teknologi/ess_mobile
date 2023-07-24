@@ -11,6 +11,10 @@ class ErrorDialogWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double padding5 = size.width * 0.0115;
+    double padding10 = size.width * 0.023;
+
     return AlertDialog(
       title: const Text(
         'errorDialogTitle',
@@ -26,13 +30,13 @@ class ErrorDialogWidget extends StatelessWidget {
       actions: <Widget>[
         Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5),
+          padding: EdgeInsets.symmetric(horizontal: padding5),
           child: OutlinedButton(
             style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Color(primaryYellow))),
-            child: const Padding(
-              padding: EdgeInsets.all(10),
-              child: Text('OK',
+            child: Padding(
+              padding: EdgeInsets.all(padding10),
+              child: const Text('OK',
                   style: TextStyle(
                       fontWeight: FontWeight.w700, color: Color(primaryBlack))),
             ),

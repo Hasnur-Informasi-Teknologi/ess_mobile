@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 const primaryYellow = 0xFFFFD116;
 const primaryBlack = 0xFF17252A;
 const textPlaceholder = 0xFFAAAAAA;
@@ -11,13 +13,35 @@ const buttonBlue = 0xFF3C73A8;
 
 const boxDate = 0xFFC69821;
 
-const double sizedBoxHeightExtraTall = 20;
-const double sizedBoxHeightTall = 15;
-const double sizedBoxHeightShort = 8;
 
-const double textLarge = 18;
-const double textMedium = 14;
-const double textSmall = 12;
+// double textSmall = size.width * 0.027;  // 12 px
+// double textMedium = size.width * 0.0329; // 14 px
+// double textLarge = size.width * 0.04; // 18 px
+// double textExtraLarge = size.width * 0.07; // 30 px
 
-const double paddingHorizontalNarrow = 15;
-const double paddingHorizontalWide = 25;
+// double sizedBoxHeightShort = size.height * 0.0086; // 8 px
+// double sizedBoxHeightTall = size.height * 0.0163; // 15 px
+// double sizedBoxHeightExtraTall = size.height * 0.0215; // 20 px
+
+// double paddingHorizontalNarrow = size.width * 0.035; // 15 px
+// double paddingHorizontalWide = size.width * 0.0585; // 25 px
+
+// double padding5 = size.width * 0.0115; // 5 px
+// double padding8 = size.width * 0.0188; // 8 px
+// double padding10 = size.width * 0.023; // 10 px
+// double padding20 = size.width * 0.047; // 20 px
+// double padding40 = size.width * 0.095; // 40 px
+
+
+
+
+// const double sizedBoxHeightExtraTall = 20;
+// const double sizedBoxHeightTall = 15;
+// const double sizedBoxHeightShort = 8;
+
+// const double textLarge = 18;
+// const double textMedium = 14;
+// const double textSmall = 12;
+
+// const double paddingHorizontalNarrow = 15;
+// const double paddingHorizontalWide = 25;

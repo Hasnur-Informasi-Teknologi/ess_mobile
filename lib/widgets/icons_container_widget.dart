@@ -12,46 +12,52 @@ class IconsContainerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textSmall = size.width * 0.027;
+    double icon = size.width * 0.06;
+    double sizedBoxHeightExtraShort = size.width * 0.02;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalExtraNarrow = size.width * 0.02;
+    double padding5 = size.width * 0.0188;
+
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
-        childAspectRatio: 1.0,
+        childAspectRatio: 1,
       ),
       itemCount: 8, // Jumlah total item
       itemBuilder: (BuildContext context, int index) {
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: InkWell(
-            onTap: () {
-              handleIconTap(index);
-            },
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(100.0),
-                  child: Container(
-                    color: const Color(primaryYellow),
-                    padding: const EdgeInsets.all(10.0),
-                    child: Icon(
-                      getIcon(index), // Mendapatkan ikon berdasarkan indeks
-                      color: Colors.grey[700],
-                      size: 25.0,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 5.0),
-                Text(
-                  getText(index),
-                  textAlign:
-                      TextAlign.center, // Mendapatkan teks berdasarkan indeks
-                  style: TextStyle(
+        return InkWell(
+          onTap: () {
+            handleIconTap(index);
+          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // SizedBox(height: sizedBoxHeightExtraTall),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(100.0),
+                child: Container(
+                  color: const Color(primaryYellow),
+                  padding: EdgeInsets.all(paddingHorizontalExtraNarrow),
+                  child: Icon(
+                    getIcon(index), // Mendapatkan ikon berdasarkan indeks
                     color: Colors.grey[700],
-                    fontSize: 10.0,
+                    size: icon,
                   ),
                 ),
-              ],
-            ),
+              ),
+              SizedBox(height: sizedBoxHeightExtraShort),
+              Text(
+                getText(index),
+                textAlign:
+                    TextAlign.center, // Mendapatkan teks berdasarkan indeks
+                style: TextStyle(
+                  color: Colors.grey[700],
+                  fontSize: textSmall,
+                ),
+              ),
+            ],
           ),
         );
       },

@@ -20,15 +20,22 @@ class RowWithButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textSmall = size.width * 0.027;
+    double paddingHorizontalWide = size.width * 0.0585;
+    double padding5 = size.width * 0.0115;
+    double padding10 = size.width * 0.023;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+      padding: EdgeInsets.symmetric(
+          horizontal: paddingHorizontalWide, vertical: padding10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             textLeft!,
             style: TextStyle(
-              color: Color(primaryBlack),
+              color: const Color(primaryBlack),
               fontSize: fontSizeLeft ?? textSmall,
               fontFamily: 'Poppins',
               fontWeight: fontWeightLeft ?? FontWeight.w700,
@@ -37,7 +44,7 @@ class RowWithButtonWidget extends StatelessWidget {
           InkWell(
             onTap: onTab,
             child: Container(
-              padding: const EdgeInsets.all(5.0),
+              padding: EdgeInsets.all(padding5),
               decoration: BoxDecoration(
                 color: Colors.grey[100],
                 borderRadius: BorderRadius.circular(2.0),
@@ -45,7 +52,7 @@ class RowWithButtonWidget extends StatelessWidget {
               child: Text(
                 textRight!,
                 style: TextStyle(
-                  color: Color(primaryBlack),
+                  color: const Color(primaryBlack),
                   fontSize: fontSizeRight ?? textSmall,
                   fontFamily: 'Poppins',
                   fontWeight: fontWeightRight ?? FontWeight.w700,

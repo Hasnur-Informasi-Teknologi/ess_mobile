@@ -10,21 +10,27 @@ class SubmitionCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double padding5 = size.width * 0.0188;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          margin: const EdgeInsets.symmetric(vertical: sizedBoxHeightExtraTall),
-          height: size.height * 0.23,
+          margin: EdgeInsets.symmetric(vertical: sizedBoxHeightExtraTall),
+          height: size.height * 0.254,
           width: size.width * 0.9,
           decoration: BoxDecoration(
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(5.0),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(paddingHorizontalNarrow),
+            padding: EdgeInsets.all(paddingHorizontalNarrow),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const RowWidget(
                   textLeft: 'Prioritas',
@@ -32,7 +38,7 @@ class SubmitionCardWidget extends StatelessWidget {
                   fontWeightLeft: FontWeight.w300,
                   fontWeightRight: FontWeight.w300,
                 ),
-                const SizedBox(
+                SizedBox(
                   height: sizedBoxHeightShort,
                 ),
                 const RowWidget(
@@ -41,7 +47,7 @@ class SubmitionCardWidget extends StatelessWidget {
                   fontWeightLeft: FontWeight.w300,
                   fontWeightRight: FontWeight.w300,
                 ),
-                const SizedBox(
+                SizedBox(
                   height: sizedBoxHeightShort,
                 ),
                 const RowWidget(
@@ -50,7 +56,7 @@ class SubmitionCardWidget extends StatelessWidget {
                   fontWeightLeft: FontWeight.w300,
                   fontWeightRight: FontWeight.w300,
                 ),
-                const SizedBox(
+                SizedBox(
                   height: sizedBoxHeightShort,
                 ),
                 const RowWidget(
@@ -59,7 +65,7 @@ class SubmitionCardWidget extends StatelessWidget {
                   fontWeightLeft: FontWeight.w300,
                   fontWeightRight: FontWeight.w300,
                 ),
-                const SizedBox(
+                SizedBox(
                   height: sizedBoxHeightShort,
                 ),
                 const RowWidget(
@@ -68,7 +74,7 @@ class SubmitionCardWidget extends StatelessWidget {
                   fontWeightLeft: FontWeight.w300,
                   fontWeightRight: FontWeight.w300,
                 ),
-                const SizedBox(
+                SizedBox(
                   height: sizedBoxHeightShort,
                 ),
                 const RowWidget(
@@ -77,7 +83,7 @@ class SubmitionCardWidget extends StatelessWidget {
                   fontWeightLeft: FontWeight.w300,
                   fontWeightRight: FontWeight.w300,
                 ),
-                const SizedBox(
+                SizedBox(
                   height: sizedBoxHeightExtraTall,
                 ),
                 Row(
@@ -88,7 +94,7 @@ class SubmitionCardWidget extends StatelessWidget {
                       child: Container(
                         width: size.width * 0.4,
                         height: size.height * 0.04,
-                        padding: const EdgeInsets.all(5.0),
+                        padding: EdgeInsets.all(padding5),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(5.0),
@@ -96,7 +102,7 @@ class SubmitionCardWidget extends StatelessWidget {
                         child: Center(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: const [
+                            children: [
                               Icon(Icons.details_sharp),
                               Text(
                                 'Detail',
@@ -117,7 +123,7 @@ class SubmitionCardWidget extends StatelessWidget {
                       child: Container(
                         width: size.width * 0.4,
                         height: size.height * 0.04,
-                        padding: const EdgeInsets.all(5.0),
+                        padding: EdgeInsets.all(padding5),
                         decoration: BoxDecoration(
                           color: const Color(primaryYellow),
                           borderRadius: BorderRadius.circular(5.0),
@@ -125,7 +131,7 @@ class SubmitionCardWidget extends StatelessWidget {
                         child: Center(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: const [
+                            children: [
                               Icon(Icons.download_rounded),
                               Text(
                                 'Unduhan',

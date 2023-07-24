@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:get/get.dart';
 import 'package:mobile_ess/themes/constant.dart';
-import 'package:mobile_ess/widgets/button_two_row_widget.dart';
 import 'package:mobile_ess/widgets/submition_card_widget.dart';
-import 'package:mobile_ess/widgets/row_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 
 class SubmitionScreen extends StatefulWidget {
@@ -28,6 +23,12 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
+    double sizedBoxHeightTall = size.height * 0.0163;
+    double sizedBoxHeightExtraTall = size.height * 0.047;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double paddingHorizontalWide = size.width * 0.0585;
 
     return DefaultTabController(
       length: 3,
@@ -37,8 +38,7 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
           elevation: 0,
           backgroundColor: Colors.white,
           title: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -53,8 +53,11 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const TitleWidget(title: 'Riwayat Persetujuan'),
-            const SizedBox(
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+              child: TitleWidget(title: 'Riwayat Persetujuan'),
+            ),
+            SizedBox(
               height: sizedBoxHeightTall,
             ),
             Form(
@@ -62,8 +65,8 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
                 key: _formKey,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: paddingHorizontalWide),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
                     child: TextFormField(
                       controller: _trainingController,
                       decoration: InputDecoration(
@@ -87,7 +90,7 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
                         filled: true,
                         fillColor: Colors.white,
                         hintText: 'Form Aplikasi Training',
-                        hintStyle: const TextStyle(
+                        hintStyle: TextStyle(
                           fontSize: textMedium,
                           fontFamily: 'Poppins',
                           color: Color(textPlaceholder),
@@ -95,12 +98,12 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(
+                  SizedBox(
                     height: sizedBoxHeightExtraTall,
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: paddingHorizontalWide),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
                     child: TextFormField(
                       controller: _searchController,
                       decoration: InputDecoration(
@@ -124,7 +127,7 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
                         filled: true,
                         fillColor: Colors.white,
                         hintText: 'Search',
-                        hintStyle: const TextStyle(
+                        hintStyle: TextStyle(
                           fontSize: textMedium,
                           fontFamily: 'Poppins',
                           color: Color(textPlaceholder),
@@ -135,7 +138,7 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
                 ],
               ),
             ),
-            const SizedBox(
+            SizedBox(
               height: sizedBoxHeightExtraTall,
             ),
             Expanded(
@@ -146,7 +149,8 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
                     indicatorColor: Colors.black,
                     labelColor: Colors.black,
                     unselectedLabelColor: Colors.grey,
-                    labelPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    labelPadding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
                     tabs: const [
                       Tab(
                         text: 'Terkirim',
@@ -171,14 +175,15 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
                       children: [
                         SingleChildScrollView(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                const SizedBox(
+                                SizedBox(
                                   height: sizedBoxHeightExtraTall,
                                 ),
-                                const Text(
+                                Text(
                                   'Persetujuan Form Aplikasi Training',
                                   textAlign: TextAlign.start,
                                   style: TextStyle(
@@ -199,14 +204,15 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
                         ),
                         SingleChildScrollView(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                const SizedBox(
+                                SizedBox(
                                   height: sizedBoxHeightExtraTall,
                                 ),
-                                const Text(
+                                Text(
                                   'Persetujuan Form Aplikasi Training',
                                   textAlign: TextAlign.start,
                                   style: TextStyle(
@@ -227,14 +233,15 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
                         ),
                         SingleChildScrollView(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                const SizedBox(
+                                SizedBox(
                                   height: sizedBoxHeightExtraTall,
                                 ),
-                                const Text(
+                                Text(
                                   'Persetujuan Form Aplikasi Training',
                                   textAlign: TextAlign.start,
                                   style: TextStyle(

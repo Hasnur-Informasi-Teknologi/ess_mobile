@@ -17,11 +17,17 @@ class _CupertinoDatePickerWidgetState extends State<CupertinoDatePickerWidget> {
   Widget build(BuildContext context) {
     DateTime dateTime = DateTime(3000, 2, 1, 10, 20);
 
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double padding5 = size.width * 0.0115;
+
     return CupertinoPageScaffold(
       backgroundColor: Colors.white,
       child: CupertinoButton(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+          padding: EdgeInsets.symmetric(
+              horizontal: paddingHorizontalNarrow, vertical: padding5),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(5),
               border: Border.all(color: Colors.grey)),
@@ -34,7 +40,7 @@ class _CupertinoDatePickerWidgetState extends State<CupertinoDatePickerWidget> {
               ),
               Text(
                 '${dateTime.day}-${dateTime.month}-${dateTime.year}',
-                style: const TextStyle(
+                style: TextStyle(
                   color: Colors.grey,
                   fontSize: textMedium,
                   fontFamily: 'Poppins',

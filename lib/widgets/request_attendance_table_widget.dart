@@ -7,10 +7,13 @@ class RequestAttendanceTableWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    double textSmall = size.width * 0.027;
+    double sizedBoxHeightTall = size.height * 0.0163;
+    double padding5 = size.width * 0.0115;
 
     return Column(
       children: [
-        const SizedBox(
+        SizedBox(
           height: sizedBoxHeightTall,
         ),
         Row(
@@ -27,12 +30,12 @@ class RequestAttendanceTableWidget extends StatelessWidget {
             ),
             Container(
               width: size.width * 1 / 7,
-              padding: const EdgeInsets.all(5.0),
+              padding: EdgeInsets.all(padding5),
               decoration: BoxDecoration(
                 color: Colors.red[400],
                 borderRadius: BorderRadius.circular(2.0),
               ),
-              child: const Text(
+              child: Text(
                 '08.00',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -45,12 +48,12 @@ class RequestAttendanceTableWidget extends StatelessWidget {
             ),
             Container(
               width: size.width * 1 / 7,
-              padding: const EdgeInsets.all(5.0),
+              padding: EdgeInsets.all(padding5),
               decoration: BoxDecoration(
                 color: Colors.green[600],
                 borderRadius: BorderRadius.circular(2.0),
               ),
-              child: const Text(
+              child: Text(
                 '17.00',
                 textAlign: TextAlign.center,
                 style: TextStyle(

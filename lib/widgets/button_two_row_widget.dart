@@ -15,6 +15,8 @@ class ButtonTwoRowWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double padding5 = size.width * 0.0115;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -24,7 +26,7 @@ class ButtonTwoRowWidget extends StatelessWidget {
           child: Container(
             width: size.width * 0.45,
             height: size.height * 0.04,
-            padding: const EdgeInsets.all(5.0),
+            padding: EdgeInsets.all(padding5),
             decoration: BoxDecoration(
               color: Colors.grey[100],
               borderRadius: BorderRadius.circular(5.0),
@@ -32,7 +34,7 @@ class ButtonTwoRowWidget extends StatelessWidget {
             child: Center(
               child: Text(
                 textLeft!,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Color(primaryBlack),
                   fontSize: textMedium,
                   fontFamily: 'Poppins',
@@ -47,7 +49,7 @@ class ButtonTwoRowWidget extends StatelessWidget {
           child: Container(
             width: size.width * 0.45,
             height: size.height * 0.04,
-            padding: const EdgeInsets.all(5.0),
+            padding: EdgeInsets.all(padding5),
             decoration: BoxDecoration(
               color: const Color(primaryYellow),
               borderRadius: BorderRadius.circular(5.0),
@@ -55,7 +57,7 @@ class ButtonTwoRowWidget extends StatelessWidget {
             child: Center(
               child: Text(
                 textRight!,
-                style: const TextStyle(
+                style: TextStyle(
                   color: Color(primaryBlack),
                   fontSize: textMedium,
                   fontFamily: 'Poppins',

@@ -19,6 +19,9 @@ class ThreeRowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

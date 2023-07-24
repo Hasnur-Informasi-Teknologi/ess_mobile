@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mobile_ess/screens/user/home/request_attendance/ubah_data_kehadiran_screen.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/cupertino_datepicker_widget.dart';
 import 'package:mobile_ess/widgets/request_attendance_table_widget.dart';
@@ -17,6 +16,13 @@ class _RequestAttendanceKaryawanScreenState
     extends State<RequestAttendanceKaryawanScreen> {
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textSmall = size.width * 0.027;
+    double textMedium = size.width * 0.0329;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalWide = size.width * 0.0585;
+    double padding10 = size.width * 0.023;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -36,7 +42,8 @@ class _RequestAttendanceKaryawanScreenState
       body: ListView(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+            padding: EdgeInsets.symmetric(
+                horizontal: paddingHorizontalWide, vertical: padding10),
             child: Column(
               children: [
                 const CupertinoDatePickerWidget(),
@@ -54,7 +61,7 @@ class _RequestAttendanceKaryawanScreenState
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text(
+                    child: Text(
                       'Request Attandance',
                       style: TextStyle(
                           color: Color(primaryBlack),
@@ -65,7 +72,7 @@ class _RequestAttendanceKaryawanScreenState
                     ),
                   ),
                 ),
-                const SizedBox(
+                SizedBox(
                   height: sizedBoxHeightExtraTall,
                 ),
                 Row(

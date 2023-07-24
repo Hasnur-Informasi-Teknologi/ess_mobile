@@ -20,13 +20,16 @@ class RowWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textSmall = size.width * 0.027;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           textLeft!,
           style: TextStyle(
-            color: Color(primaryBlack),
+            color: const Color(primaryBlack),
             fontSize: fontSizeLeft ?? textSmall,
             fontFamily: 'Poppins',
             fontWeight: fontWeightLeft ?? FontWeight.w700,
@@ -35,7 +38,7 @@ class RowWidget extends StatelessWidget {
         Text(
           textRight!,
           style: TextStyle(
-            color: Color(primaryBlack),
+            color: const Color(primaryBlack),
             fontSize: fontSizeRight ?? textSmall,
             fontFamily: 'Poppins',
             fontWeight: fontWeightRight ?? FontWeight.w700,

@@ -13,18 +13,18 @@ class TitleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 25),
-      child: Text(
-        title!,
-        textAlign: TextAlign.start,
-        style: TextStyle(
-            color: Color(primaryBlack),
-            fontSize: fontSize ?? textLarge,
-            fontFamily: 'Poppins',
-            letterSpacing: 0.9,
-            fontWeight: fontWeight ?? FontWeight.w700),
-      ),
+    Size size = MediaQuery.of(context).size;
+    double textLarge = size.width * 0.04;
+
+    return Text(
+      title!,
+      textAlign: TextAlign.start,
+      style: TextStyle(
+          color: const Color(primaryBlack),
+          fontSize: fontSize ?? textLarge,
+          fontFamily: 'Poppins',
+          letterSpacing: 0.9,
+          fontWeight: fontWeight ?? FontWeight.w700),
     );
   }
 }

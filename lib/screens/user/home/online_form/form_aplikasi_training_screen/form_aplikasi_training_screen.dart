@@ -45,6 +45,13 @@ class _FormAplikasiTrainingScreenState
   Widget build(BuildContext context) {
     DateTime dateTime = DateTime(3000, 2, 1, 10, 20);
     Size size = MediaQuery.of(context).size;
+    double textSmall = size.width * 0.027;
+    double textMedium = size.width * 0.0329;
+    double sizedBoxHeightTall = size.height * 0.0163;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double padding5 = size.width * 0.0115;
 
     return DefaultTabController(
       length: 4,
@@ -71,30 +78,31 @@ class _FormAplikasiTrainingScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(
+                  SizedBox(
                     height: sizedBoxHeightExtraTall,
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
                     child: Text(
                       'Prioritas',
                       textAlign: TextAlign.start,
                       style: TextStyle(
-                          color: Color(primaryBlack),
+                          color: const Color(primaryBlack),
                           fontSize: textMedium,
                           fontFamily: 'Poppins',
                           letterSpacing: 0.9,
                           fontWeight: FontWeight.w700),
                     ),
                   ),
-                  const SizedBox(
+                  SizedBox(
                     height: sizedBoxHeightShort,
                   ),
                   ListTile(
-                    title: const Text(
+                    title: Text(
                       'Tinggi',
                       style: TextStyle(
-                          color: Color(primaryBlack),
+                          color: const Color(primaryBlack),
                           fontSize: textMedium,
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w300),
@@ -110,10 +118,10 @@ class _FormAplikasiTrainingScreenState
                     ),
                   ),
                   ListTile(
-                    title: const Text(
+                    title: Text(
                       'Normal',
                       style: TextStyle(
-                          color: Color(primaryBlack),
+                          color: const Color(primaryBlack),
                           fontSize: textMedium,
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w300),
@@ -129,10 +137,10 @@ class _FormAplikasiTrainingScreenState
                     ),
                   ),
                   ListTile(
-                    title: const Text(
+                    title: Text(
                       'Rendah',
                       style: TextStyle(
-                          color: Color(primaryBlack),
+                          color: const Color(primaryBlack),
                           fontSize: textMedium,
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w300),
@@ -147,27 +155,28 @@ class _FormAplikasiTrainingScreenState
                       },
                     ),
                   ),
-                  const SizedBox(
+                  SizedBox(
                     height: sizedBoxHeightTall,
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
                     child: Text(
                       'Nomor',
                       textAlign: TextAlign.start,
                       style: TextStyle(
-                          color: Color(primaryBlack),
+                          color: const Color(primaryBlack),
                           fontSize: textMedium,
                           fontFamily: 'Poppins',
                           letterSpacing: 0.9,
                           fontWeight: FontWeight.w700),
                     ),
                   ),
-                  const SizedBox(
+                  SizedBox(
                     height: sizedBoxHeightTall,
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(
+                    padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
                     child: TextFormField(
                       controller: _nomorController,
@@ -199,24 +208,25 @@ class _FormAplikasiTrainingScreenState
                         filled: true,
                         fillColor: Colors.white,
                         hintText: '0001/LND/HJU/V/2023',
-                        hintStyle: const TextStyle(
+                        hintStyle: TextStyle(
                           fontSize: textMedium,
                           fontFamily: 'Poppins',
-                          color: Color(textPlaceholder),
+                          color: const Color(textPlaceholder),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(
+                  SizedBox(
                     height: sizedBoxHeightExtraTall,
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
                     child: Text(
                       'Tangal Pengajuan',
                       textAlign: TextAlign.start,
                       style: TextStyle(
-                          color: Color(primaryBlack),
+                          color: const Color(primaryBlack),
                           fontSize: textMedium,
                           fontFamily: 'Poppins',
                           letterSpacing: 0.9,
@@ -226,8 +236,9 @@ class _FormAplikasiTrainingScreenState
                   CupertinoButton(
                     child: Container(
                       width: size.width,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 15, vertical: 5),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: paddingHorizontalNarrow,
+                          vertical: padding5),
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5),
                           border: Border.all(color: Colors.grey)),
@@ -240,7 +251,7 @@ class _FormAplikasiTrainingScreenState
                           ),
                           Text(
                             '${dateTime.day}-${dateTime.month}-${dateTime.year}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.grey,
                               fontSize: textMedium,
                               fontFamily: 'Poppins',
@@ -269,13 +280,14 @@ class _FormAplikasiTrainingScreenState
                       );
                     },
                   ),
-                  const SizedBox(
+                  SizedBox(
                     height: sizedBoxHeightShort,
                   ),
                   SingleChildScrollView(
                     child: Container(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 15, vertical: 5),
+                      margin: EdgeInsets.symmetric(
+                          horizontal: paddingHorizontalNarrow,
+                          vertical: padding5),
                       width: double.infinity,
                       height: 400,
                       child: Column(
@@ -285,8 +297,8 @@ class _FormAplikasiTrainingScreenState
                             indicatorColor: Colors.black,
                             labelColor: Colors.black,
                             unselectedLabelColor: Colors.grey,
-                            labelPadding:
-                                const EdgeInsets.symmetric(horizontal: 16),
+                            labelPadding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow),
                             tabs: const [
                               Tab(
                                 text: 'Diajukan oleh',
@@ -314,16 +326,16 @@ class _FormAplikasiTrainingScreenState
                               children: [
                                 SingleChildScrollView(
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 5),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: padding5),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightExtraTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'NRP : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -331,7 +343,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -362,17 +374,17 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: '78220012',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Nama : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -380,7 +392,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -411,17 +423,17 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: 'Hasnur',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Jabatan : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -429,7 +441,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -460,17 +472,17 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: 'Programmer',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Divisi/Department : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -478,7 +490,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -509,17 +521,17 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: 'Business Solution',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Entitas : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -527,7 +539,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -559,17 +571,17 @@ class _FormAplikasiTrainingScreenState
                                             fillColor: Colors.white,
                                             hintText:
                                                 'PT Hasnur Informasi Teknologi',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Tanggal Mulai Bekerja : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -577,7 +589,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -608,17 +620,17 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: 'dd/mm/yyyy',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Total Mengikuti Kegiatan Training : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -626,7 +638,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -657,14 +669,14 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: '2 Kali',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightExtraTall,
                                         ),
                                       ],
@@ -673,24 +685,24 @@ class _FormAplikasiTrainingScreenState
                                 ),
                                 SingleChildScrollView(
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 5),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: padding5),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightExtraTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'NRP : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -721,25 +733,26 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: '78220012',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Nama : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -770,17 +783,17 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: 'Hasnur',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Jabatan : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -788,7 +801,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -819,17 +832,17 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: 'Programmer',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Divisi/Department : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -837,7 +850,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -868,17 +881,17 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: 'Business Solution',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Entitas : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -886,7 +899,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -918,17 +931,17 @@ class _FormAplikasiTrainingScreenState
                                             fillColor: Colors.white,
                                             hintText:
                                                 'PT Hasnur Informasi Teknologi',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Tanggal Mulai Bekerja : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -936,7 +949,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -967,17 +980,17 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: 'dd/mm/yyyy',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Total Mengikuti Kegiatan Training : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -985,7 +998,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -1016,14 +1029,14 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: '2 Kali',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightExtraTall,
                                         ),
                                       ],
@@ -1032,16 +1045,16 @@ class _FormAplikasiTrainingScreenState
                                 ),
                                 SingleChildScrollView(
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 5),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: padding5),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightExtraTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'NRP : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -1049,7 +1062,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -1080,17 +1093,17 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: '78220012',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Nama : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -1098,7 +1111,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -1129,17 +1142,17 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: 'Hasnur',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Jabatan : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -1147,7 +1160,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -1178,17 +1191,17 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: 'Programmer',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Divisi/Department : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -1196,7 +1209,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -1227,17 +1240,17 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: 'Business Solution',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Entitas : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -1245,7 +1258,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -1277,17 +1290,17 @@ class _FormAplikasiTrainingScreenState
                                             fillColor: Colors.white,
                                             hintText:
                                                 'PT Hasnur Informasi Teknologi',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Tanggal Mulai Bekerja : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -1295,7 +1308,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -1326,17 +1339,17 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: 'dd/mm/yyyy',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Total Mengikuti Kegiatan Training : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -1344,7 +1357,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -1375,14 +1388,14 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: '2 Kali',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightExtraTall,
                                         ),
                                       ],
@@ -1391,16 +1404,16 @@ class _FormAplikasiTrainingScreenState
                                 ),
                                 SingleChildScrollView(
                                   child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 5),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: padding5),
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightExtraTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'NRP : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -1408,7 +1421,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -1439,17 +1452,17 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: '78220012',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Nama : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -1457,7 +1470,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -1488,17 +1501,17 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: 'Hasnur',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Jabatan : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -1506,7 +1519,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -1537,17 +1550,17 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: 'Programmer',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Divisi/Department : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -1555,7 +1568,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -1586,17 +1599,17 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: 'Business Solution',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Entitas : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -1604,7 +1617,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -1636,17 +1649,17 @@ class _FormAplikasiTrainingScreenState
                                             fillColor: Colors.white,
                                             hintText:
                                                 'PT Hasnur Informasi Teknologi',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Tanggal Mulai Bekerja : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -1654,7 +1667,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -1685,17 +1698,17 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: 'dd/mm/yyyy',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        const Text(
+                                        Text(
                                           'Total Mengikuti Kegiatan Training : ',
                                           style: TextStyle(
                                               color: Color(primaryBlack),
@@ -1703,7 +1716,7 @@ class _FormAplikasiTrainingScreenState
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
                                         TextFormField(
@@ -1734,14 +1747,14 @@ class _FormAplikasiTrainingScreenState
                                             filled: true,
                                             fillColor: Colors.white,
                                             hintText: '2 Kali',
-                                            hintStyle: const TextStyle(
+                                            hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
                                               color: Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
-                                        const SizedBox(
+                                        SizedBox(
                                           height: sizedBoxHeightExtraTall,
                                         ),
                                       ],
@@ -1751,7 +1764,7 @@ class _FormAplikasiTrainingScreenState
                               ],
                             ),
                           ),
-                          const SizedBox(
+                          SizedBox(
                             height: sizedBoxHeightTall,
                           ),
                           SizedBox(

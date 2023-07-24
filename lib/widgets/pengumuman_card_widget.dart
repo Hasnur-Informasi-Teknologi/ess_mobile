@@ -12,20 +12,28 @@ class PengumumanCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textSmall = size.width * 0.027;
+    double sizedBoxHeightTall = size.height * 0.0163;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double paddingHorizontalWide = size.width * 0.0585;
+    double padding10 = size.width * 0.023;
+
     return InkWell(
       onTap: () {
         Get.toNamed('/user/main/home/pengumuman/detail_pengumuman');
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+        padding: EdgeInsets.symmetric(
+            horizontal: paddingHorizontalWide, vertical: padding10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            LineWidget(),
+          children: [
+            const LineWidget(),
             SizedBox(
               height: sizedBoxHeightTall,
             ),
-            RowWidget(
+            const RowWidget(
               textLeft: 'Undangan Pengajian Hasnur Group',
               textRight: 'Kamis, 22 Juni 2023',
               fontWeightLeft: FontWeight.w700,
@@ -37,7 +45,7 @@ class PengumumanCardWidget extends StatelessWidget {
             Text(
               '10 April 2023 08.00 WITA',
               style: TextStyle(
-                  color: Color(primaryBlack),
+                  color: const Color(primaryBlack),
                   fontSize: textSmall,
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.w300),
@@ -48,7 +56,7 @@ class PengumumanCardWidget extends StatelessWidget {
             Text(
               'Zoom Meeting',
               style: TextStyle(
-                  color: Color(primaryBlack),
+                  color: const Color(primaryBlack),
                   fontSize: textSmall,
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.w300),

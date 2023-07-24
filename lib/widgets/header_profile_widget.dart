@@ -23,8 +23,21 @@ class HeaderProfileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textSmall = size.width * 0.027;
+    double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
+
+    double sizedBoxHeightTall = size.height * 0.0163;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double paddingHorizontalWide = size.width * 0.0585;
+    double padding20 = size.width * 0.047;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+      padding: EdgeInsets.symmetric(horizontal: padding20, vertical: padding20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -35,7 +48,7 @@ class HeaderProfileWidget extends StatelessWidget {
               children: [
                 Text(
                   _userName!.toUpperCase(),
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: Color(primaryBlack),
                       fontSize: textLarge,
                       fontFamily: 'Poppins',
@@ -45,9 +58,9 @@ class HeaderProfileWidget extends StatelessWidget {
                 const SizedBox(height: 5),
                 Text(
                   '$_posision',
-                  style: const TextStyle(
+                  style: TextStyle(
                       color: Color(primaryBlack),
-                      fontSize: 14,
+                      fontSize: textMedium,
                       letterSpacing: 0.9,
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w500),

@@ -9,6 +9,11 @@ class OnlineFormScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    double textSmall = size.width * 0.027;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double padding5 = size.width * 0.0115;
+    double padding8 = size.width * 0.0188;
+    double padding10 = size.width * 0.023;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -29,7 +34,7 @@ class OnlineFormScreen extends StatelessWidget {
       ),
       body: Center(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
           height: size.height,
           width: size.width,
           decoration: BoxDecoration(
@@ -44,7 +49,7 @@ class OnlineFormScreen extends StatelessWidget {
             itemCount: 15, // Jumlah total item
             itemBuilder: (BuildContext context, int index) {
               return Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding: EdgeInsets.all(padding8),
                 child: InkWell(
                   onTap: () {
                     handleIconTap(index);
@@ -56,7 +61,7 @@ class OnlineFormScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(100.0),
                         child: Container(
                           color: const Color(primaryYellow),
-                          padding: const EdgeInsets.all(10.0),
+                          padding: EdgeInsets.all(padding10),
                           child: Icon(
                             getIcon(
                                 index), // Mendapatkan ikon berdasarkan indeks
@@ -65,14 +70,14 @@ class OnlineFormScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 5.0),
+                      SizedBox(height: padding10),
                       Text(
                         getText(index),
                         textAlign: TextAlign
                             .center, // Mendapatkan teks berdasarkan indeks
                         style: TextStyle(
                           color: Colors.grey[700],
-                          fontSize: 10.0,
+                          fontSize: textSmall,
                         ),
                       ),
                     ],

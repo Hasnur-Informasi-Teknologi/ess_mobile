@@ -139,6 +139,18 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textSmall = size.width * 0.027;
+    double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
+    double textExtraLarge = size.width * 0.07;
+    double sizedBoxHeightTall = size.height * 0.0163;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double padding10 = size.width * 0.023;
+    double padding40 = size.width * 0.095;
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
           statusBarColor: Color(secondaryBackground),
@@ -156,184 +168,202 @@ class _SignInScreenState extends State<SignInScreen> {
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 15),
+                      SizedBox(height: paddingHorizontalNarrow),
                       Image.asset('assets/images/logo-hasnur.png', width: 100),
-                      const SizedBox(height: 15),
-                      const Padding(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                      SizedBox(height: paddingHorizontalNarrow),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: padding40, vertical: padding10),
                         child: Text(
                           'Employee Self Service Login',
                           style: TextStyle(
-                            fontSize: 30,
+                            fontSize: textExtraLarge,
                             fontWeight: FontWeight.w700,
                             fontFamily: 'Poppins',
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      SizedBox(height: sizedBoxHeightExtraTall),
                       Container(
                         width: MediaQuery.of(context).size.width * 0.87,
-                        height: MediaQuery.of(context).size.height * 0.5,
+                        height: MediaQuery.of(context).size.height * 0.53,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10.0),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 15, vertical: 40),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow,
+                              vertical: padding40),
                           child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              const Text(
-                                'SELAMAT DATANG',
-                                style: TextStyle(
-                                    fontSize: 25,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(primaryYellow)),
+                              Column(
+                                children: [
+                                  Text(
+                                    'SELAMAT DATANG',
+                                    style: TextStyle(
+                                        fontSize: textExtraLarge,
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(primaryYellow)),
+                                  ),
+                                  SizedBox(
+                                    height: sizedBoxHeightTall,
+                                  ),
+                                  Text(
+                                    'Silahkan masukkan NRP dan Password Anda untuk melakukan login',
+                                    style: TextStyle(
+                                        fontSize: textLarge,
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black),
+                                  ),
+                                  SizedBox(
+                                    height: sizedBoxHeightTall,
+                                  ),
+                                ],
                               ),
-                              const SizedBox(
-                                height: 15,
-                              ),
-                              const Text(
-                                'Silahkan masukkan NRP dan Password Anda untuk melakukan login',
-                                style: TextStyle(
-                                    fontSize: 16,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black),
-                              ),
-                              const SizedBox(
-                                height: 15,
-                              ),
-                              Form(
-                                key: _formKey,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'NRP : ',
-                                      style: TextStyle(
-                                          color: Color(primaryBlack),
-                                          fontSize: textMedium,
-                                          fontFamily: 'Poppins',
-                                          fontWeight: FontWeight.w300),
-                                    ),
-                                    const SizedBox(
-                                      height: sizedBoxHeightShort,
-                                    ),
-                                    TextFormField(
-                                      controller: _nrpController,
-                                      validator: _validatorNrp,
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            borderSide: const BorderSide(
-                                                color: Colors.transparent,
-                                                width: 0)),
-                                        focusedBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            borderSide: const BorderSide(
-                                                color: Colors.black, width: 1)),
-                                        enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            borderSide: const BorderSide(
-                                                color: Colors.grey, width: 0)),
-                                        constraints: BoxConstraints(
-                                            maxHeight: _maxHeight),
-                                        filled: true,
-                                        fillColor:
-                                            const Color(secondaryBackground),
-                                        hintText: 'Masukkan NRP Anda',
-                                        hintStyle: const TextStyle(
-                                          fontSize: textSmall,
-                                          fontFamily: 'Poppins',
-                                          color: Color(textPlaceholder),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: sizedBoxHeightTall),
-                                    const Text(
-                                      'Password : ',
-                                      style: TextStyle(
-                                          color: Color(primaryBlack),
-                                          fontSize: textMedium,
-                                          fontFamily: 'Poppins',
-                                          fontWeight: FontWeight.w300),
-                                    ),
-                                    const SizedBox(
-                                      height: sizedBoxHeightShort,
-                                    ),
-                                    TextFormField(
-                                      controller: _passController,
-                                      obscureText: _obscureText,
-                                      validator: _validatorPassword,
-                                      decoration: InputDecoration(
-                                          border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0)),
-                                          focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1)),
-                                          enabledBorder: OutlineInputBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            borderSide: const BorderSide(
-                                                color: Colors.grey, width: 0),
-                                          ),
-                                          constraints: BoxConstraints(
-                                              maxHeight: _maxHeightPass),
-                                          filled: true,
-                                          fillColor:
-                                              const Color(secondaryBackground),
-                                          hintText: 'Masukkan Password Anda',
-                                          hintStyle: const TextStyle(
-                                            fontSize: textSmall,
-                                            fontFamily: 'Poppins',
-                                            color: Color(textPlaceholder),
-                                          ),
-                                          suffixIcon: IconButton(
-                                              onPressed: _showPassword,
-                                              icon: Icon(_obscureText
-                                                  ? Icons.visibility
-                                                  : Icons.visibility_off))),
-                                    ),
-                                    const SizedBox(height: 15),
-                                    SizedBox(
-                                      width: double.infinity,
-                                      height: 50,
-                                      child: ElevatedButton(
-                                        onPressed: _signIn,
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              const Color(primaryYellow),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          'Login',
+                              Column(
+                                children: [
+                                  Form(
+                                    key: _formKey,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'NRP : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: 16,
+                                              color: const Color(primaryBlack),
+                                              fontSize: textMedium,
                                               fontFamily: 'Poppins',
-                                              letterSpacing: 0.9,
-                                              fontWeight: FontWeight.w700),
+                                              fontWeight: FontWeight.w300),
                                         ),
-                                      ),
-                                    )
-                                  ],
-                                ),
+                                        SizedBox(
+                                          height: sizedBoxHeightShort,
+                                        ),
+                                        TextFormField(
+                                          controller: _nrpController,
+                                          validator: _validatorNrp,
+                                          decoration: InputDecoration(
+                                            border: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                                borderSide: const BorderSide(
+                                                    color: Colors.transparent,
+                                                    width: 0)),
+                                            focusedBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                                borderSide: const BorderSide(
+                                                    color: Colors.black,
+                                                    width: 1)),
+                                            enabledBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                                borderSide: const BorderSide(
+                                                    color: Colors.grey,
+                                                    width: 0)),
+                                            constraints: BoxConstraints(
+                                                maxHeight: _maxHeight),
+                                            filled: true,
+                                            fillColor: const Color(
+                                                secondaryBackground),
+                                            hintText: 'Masukkan NRP Anda',
+                                            hintStyle: TextStyle(
+                                              fontSize: textSmall,
+                                              fontFamily: 'Poppins',
+                                              color:
+                                                  const Color(textPlaceholder),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(height: sizedBoxHeightTall),
+                                        Text(
+                                          'Password : ',
+                                          style: TextStyle(
+                                              color: const Color(primaryBlack),
+                                              fontSize: textMedium,
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.w300),
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightShort,
+                                        ),
+                                        TextFormField(
+                                          controller: _passController,
+                                          obscureText: _obscureText,
+                                          validator: _validatorPassword,
+                                          decoration: InputDecoration(
+                                              border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                  borderSide: const BorderSide(
+                                                      color: Colors.transparent,
+                                                      width: 0)),
+                                              focusedBorder: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                  borderSide: const BorderSide(
+                                                      color: Colors.black,
+                                                      width: 1)),
+                                              enabledBorder: OutlineInputBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                                borderSide: const BorderSide(
+                                                    color: Colors.grey,
+                                                    width: 0),
+                                              ),
+                                              constraints: BoxConstraints(
+                                                  maxHeight: _maxHeightPass),
+                                              filled: true,
+                                              fillColor: const Color(
+                                                  secondaryBackground),
+                                              hintText:
+                                                  'Masukkan Password Anda',
+                                              hintStyle: TextStyle(
+                                                fontSize: textSmall,
+                                                fontFamily: 'Poppins',
+                                                color: const Color(
+                                                    textPlaceholder),
+                                              ),
+                                              suffixIcon: IconButton(
+                                                  onPressed: _showPassword,
+                                                  icon: Icon(_obscureText
+                                                      ? Icons.visibility
+                                                      : Icons.visibility_off))),
+                                        ),
+                                        SizedBox(height: sizedBoxHeightTall),
+                                        SizedBox(
+                                          width: double.infinity,
+                                          height: 50,
+                                          child: ElevatedButton(
+                                            onPressed: _signIn,
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  const Color(primaryYellow),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              'Login',
+                                              style: TextStyle(
+                                                  color:
+                                                      const Color(primaryBlack),
+                                                  fontSize: textMedium,
+                                                  fontFamily: 'Poppins',
+                                                  letterSpacing: 0.9,
+                                                  fontWeight: FontWeight.w700),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),

@@ -31,7 +31,7 @@ class _MyAppState extends State<MyApp> {
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         // home: const SplashScreen(),
-        initialRoute: '/splash',
+        initialRoute: '/',
         routes: routers(),
       ),
     );
