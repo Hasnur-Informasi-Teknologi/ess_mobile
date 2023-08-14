@@ -6,19 +6,19 @@ import 'package:get/get.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/button_two_row_widget.dart';
 
-class FormAplikasiTrainingScreen extends StatefulWidget {
-  const FormAplikasiTrainingScreen({super.key});
+class FormAplikasiRecruitmentScreen extends StatefulWidget {
+  const FormAplikasiRecruitmentScreen({super.key});
 
   @override
-  State<FormAplikasiTrainingScreen> createState() =>
-      _FormAplikasiTrainingScreenState();
+  State<FormAplikasiRecruitmentScreen> createState() =>
+      _FormAplikasiRecruitmentScreenState();
 }
 
-List<String> options = ['Tinggi', 'Normal', 'Rendah'];
-
-class _FormAplikasiTrainingScreenState
-    extends State<FormAplikasiTrainingScreen> {
-  String currentOption = options[0];
+class _FormAplikasiRecruitmentScreenState
+    extends State<FormAplikasiRecruitmentScreen> {
+  bool? _isTinggiChecked = false;
+  bool? _isNormalChecked = false;
+  bool? _isRendahChecked = false;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nrpController = TextEditingController();
@@ -31,14 +31,6 @@ class _FormAplikasiTrainingScreenState
 
   final _nomorController = TextEditingController();
   double _maxHeightNomor = 40.0;
-
-  List<String> items = [
-    'Diajukan Oleh',
-    'Informasi Training',
-    'Evaluasi Pra - Training',
-    'Evaluasi Hasil Training'
-  ];
-
   int current = 0;
 
   @override
@@ -68,7 +60,7 @@ class _FormAplikasiTrainingScreenState
             },
           ),
           title: const Text(
-            'Form Aplikasi Training',
+            'Form Aplikasi Rekrutmen',
           ),
         ),
         body: ListView(
@@ -98,63 +90,71 @@ class _FormAplikasiTrainingScreenState
                   SizedBox(
                     height: sizedBoxHeightShort,
                   ),
-                  ListTile(
-                    title: Text(
-                      'Tinggi',
-                      style: TextStyle(
-                          color: const Color(primaryBlack),
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w300),
-                    ),
-                    leading: Radio(
-                      value: options[0],
-                      groupValue: currentOption,
-                      onChanged: (value) {
-                        setState(() {
-                          currentOption = value.toString();
-                        });
-                      },
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      buildCheckbox('Tinggi', _isTinggiChecked),
+                      buildCheckbox('Normal', _isNormalChecked),
+                      buildCheckbox('Rendah', _isRendahChecked),
+                    ],
                   ),
-                  ListTile(
-                    title: Text(
-                      'Normal',
-                      style: TextStyle(
-                          color: const Color(primaryBlack),
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w300),
-                    ),
-                    leading: Radio(
-                      value: options[1],
-                      groupValue: currentOption,
-                      onChanged: (value) {
-                        setState(() {
-                          currentOption = value.toString();
-                        });
-                      },
-                    ),
-                  ),
-                  ListTile(
-                    title: Text(
-                      'Rendah',
-                      style: TextStyle(
-                          color: const Color(primaryBlack),
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w300),
-                    ),
-                    leading: Radio(
-                      value: options[2],
-                      groupValue: currentOption,
-                      onChanged: (value) {
-                        setState(() {
-                          currentOption = value.toString();
-                        });
-                      },
-                    ),
-                  ),
+                  // ListTile(
+                  //   title: Text(
+                  //     'Tinggi',
+                  //     style: TextStyle(
+                  //         color: const Color(primaryBlack),
+                  //         fontSize: textMedium,
+                  //         fontFamily: 'Poppins',
+                  //         fontWeight: FontWeight.w300),
+                  //   ),
+                  //   leading: Radio(
+                  //     value: options[0],
+                  //     groupValue: currentOption,
+                  //     onChanged: (value) {
+                  //       setState(() {
+                  //         currentOption = value.toString();
+                  //       });
+                  //     },
+                  //   ),
+                  // ),
+                  // ListTile(
+                  //   title: Text(
+                  //     'Normal',
+                  //     style: TextStyle(
+                  //         color: const Color(primaryBlack),
+                  //         fontSize: textMedium,
+                  //         fontFamily: 'Poppins',
+                  //         fontWeight: FontWeight.w300),
+                  //   ),
+                  //   leading: Radio(
+                  //     value: options[1],
+                  //     groupValue: currentOption,
+                  //     onChanged: (value) {
+                  //       setState(() {
+                  //         currentOption = value.toString();
+                  //       });
+                  //     },
+                  //   ),
+                  // ),
+                  // ListTile(
+                  //   title: Text(
+                  //     'Rendah',
+                  //     style: TextStyle(
+                  //         color: const Color(primaryBlack),
+                  //         fontSize: textMedium,
+                  //         fontFamily: 'Poppins',
+                  //         fontWeight: FontWeight.w300),
+                  //   ),
+                  //   leading: Radio(
+                  //     value: options[2],
+                  //     groupValue: currentOption,
+                  //     onChanged: (value) {
+                  //       setState(() {
+                  //         currentOption = value.toString();
+                  //       });
+                  //     },
+                  //   ),
+                  // ),
                   SizedBox(
                     height: sizedBoxHeightTall,
                   ),
@@ -304,13 +304,13 @@ class _FormAplikasiTrainingScreenState
                                 text: 'Diajukan oleh',
                               ),
                               Tab(
-                                text: 'Informasi Training',
+                                text: 'Permintaan Rekrutmen Karyawan',
                               ),
                               Tab(
-                                text: 'Evaluasi Pra - Training',
+                                text: 'Kualifikasi',
                               ),
                               Tab(
-                                text: 'Evaluasi Hasil Training',
+                                text: 'Informasi Tambahan',
                               ),
                             ],
                             onTap: (index) {
@@ -1790,6 +1790,25 @@ class _FormAplikasiTrainingScreenState
           ],
         ),
       ),
+    );
+  }
+
+  Widget buildCheckbox(String label, bool? value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Checkbox(
+          value: value ?? false,
+          onChanged: (newValue) {
+            setState(() {
+              _isTinggiChecked = label == 'Tinggi' ? newValue : false;
+              _isNormalChecked = label == 'Normal' ? newValue : false;
+              _isRendahChecked = label == 'Rendah' ? newValue : false;
+            });
+          },
+        ),
+        Text(label),
+      ],
     );
   }
 }

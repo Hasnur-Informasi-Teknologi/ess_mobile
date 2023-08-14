@@ -29,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double paddingHorizontalNarrow = size.width * 0.035;
     double paddingHorizontalWide = size.width * 0.0585;
+    double padding10 = size.width * 0.023;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -88,30 +89,38 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
             child: const TitleWidget(title: 'Kehadiran'),
           ),
-          RowWithButtonWidget(
-            textLeft: 'Jangan lupa Absen Pagi Ini!',
-            textRight: 'Request attendance',
-            fontSizeLeft: textSmall,
-            fontSizeRight: textSmall,
-            onTab: () {
-              Get.toNamed('/user/main/home/request_attendance');
-            },
+          Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: paddingHorizontalWide, vertical: padding10),
+            child: RowWithButtonWidget(
+              textLeft: 'Jangan lupa Absen Pagi Ini!',
+              textRight: 'Request attendance',
+              fontSizeLeft: textSmall,
+              fontSizeRight: textSmall,
+              onTab: () {
+                Get.toNamed('/user/main/home/request_attendance');
+              },
+            ),
           ),
           const JadwalKerjaCardWidget(),
           SizedBox(
             height: sizedBoxHeightExtraTall,
           ),
-          RowWithButtonWidget(
-            textLeft: 'Pengumuman',
-            textRight: 'Lihat Semua',
-            fontSizeLeft: textLarge,
-            fontSizeRight: textSmall,
-            onTab: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (ctx) => const PengumumanScreen()));
-            },
+          Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: paddingHorizontalWide, vertical: padding10),
+            child: RowWithButtonWidget(
+              textLeft: 'Pengumuman',
+              textRight: 'Lihat Semua',
+              fontSizeLeft: textLarge,
+              fontSizeRight: textSmall,
+              onTab: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (ctx) => const PengumumanScreen()));
+              },
+            ),
           ),
           Column(
             children: List.generate(4, (index) {

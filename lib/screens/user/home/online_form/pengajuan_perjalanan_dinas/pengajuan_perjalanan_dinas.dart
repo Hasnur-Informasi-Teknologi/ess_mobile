@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_ess/themes/constant.dart';
 
-class OnlineFormScreen extends StatelessWidget {
-  const OnlineFormScreen({super.key});
+class PengajuanPerjalananDinas extends StatelessWidget {
+  const PengajuanPerjalananDinas({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +45,7 @@ class OnlineFormScreen extends StatelessWidget {
               crossAxisCount: 3,
               childAspectRatio: 1.0,
             ),
-            itemCount: 10, // Jumlah total item
+            itemCount: 2, // Jumlah total item
             itemBuilder: (BuildContext context, int index) {
               return Padding(
                 padding: EdgeInsets.all(padding8),
@@ -97,22 +97,6 @@ class OnlineFormScreen extends StatelessWidget {
         return Icons.assessment;
       case 1:
         return Icons.business_center;
-      case 2:
-        return Icons.check_circle;
-      case 3:
-        return Icons.account_balance_wallet;
-      case 4:
-        return Icons.assignment_ind;
-      case 5:
-        return Icons.home;
-      case 6:
-        return Icons.person;
-      case 7:
-        return Icons.settings;
-      case 8:
-        return Icons.assignment;
-      case 9:
-        return Icons.description;
       default:
         return Icons.error;
     }
@@ -122,25 +106,9 @@ class OnlineFormScreen extends StatelessWidget {
     // Mengembalikan teks berdasarkan indeks
     switch (index) {
       case 0:
-        return 'Pengajuan Training';
+        return 'Form Rencana Biaya Perjalanan Dinas';
       case 1:
-        return 'Pengajuan Aplikasi Recruitment';
-      case 2:
-        return 'Pengajuan Perjalanan Dinas';
-      case 3:
-        return 'Pengajuan Fasilitas Kesehatan';
-      case 4:
-        return 'Pengajuan Izin';
-      case 5:
-        return 'Pengajuan Bantuan Komunikasi';
-      case 6:
-        return 'Pengajuan Hardware & Software';
-      case 7:
-        return 'Pengajuan Surat Keterangan';
-      case 8:
-        return 'Pengajuan Cuti';
-      case 9:
-        return 'Penilaian Kinerja Karyawan';
+        return '-';
       default:
         return 'Error';
     }
@@ -149,28 +117,12 @@ class OnlineFormScreen extends StatelessWidget {
   void handleIconTap(int index) {
     switch (index) {
       case 0:
-        Get.toNamed('/user/main/home/online_form/aplikasi_training');
+        Get.toNamed(
+            '/user/main/home/online_form/pengajuan_perjalanan_dinas/form_rencana_biaya_perjalanan_dinas');
         break;
       case 1:
         Get.toNamed('/user/main/home/online_form/aplikasi_recruitment');
         break;
-      case 2:
-        Get.toNamed('/user/main/home/online_form/pengajuan_perjalanan_dinas');
-        break;
-      case 3:
-        return print('Documents');
-      case 4:
-        return print('Documents');
-      case 5:
-        return print('Documents');
-      case 6:
-        return print('Documents');
-      case 7:
-        return print('Documents');
-      case 8:
-        return print('Documents');
-      case 9:
-        return print('Documents');
       default:
         return print('Error');
     }

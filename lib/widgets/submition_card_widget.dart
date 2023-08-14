@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:get/get.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/row_widget.dart';
 
@@ -90,7 +91,10 @@ class SubmitionCardWidget extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Get.toNamed(
+                            '/user/main/submition/aplikasi_training/detail_aplikasi_training');
+                      },
                       child: Container(
                         width: size.width * 0.4,
                         height: size.height * 0.04,

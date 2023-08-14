@@ -26,42 +26,38 @@ class RowWithButtonWidget extends StatelessWidget {
     double padding5 = size.width * 0.0115;
     double padding10 = size.width * 0.023;
 
-    return Padding(
-      padding: EdgeInsets.symmetric(
-          horizontal: paddingHorizontalWide, vertical: padding10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            textLeft!,
-            style: TextStyle(
-              color: const Color(primaryBlack),
-              fontSize: fontSizeLeft ?? textSmall,
-              fontFamily: 'Poppins',
-              fontWeight: fontWeightLeft ?? FontWeight.w700,
-            ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          textLeft!,
+          style: TextStyle(
+            color: const Color(primaryBlack),
+            fontSize: fontSizeLeft ?? textSmall,
+            fontFamily: 'Poppins',
+            fontWeight: fontWeightLeft ?? FontWeight.w700,
           ),
-          InkWell(
-            onTap: onTab,
-            child: Container(
-              padding: EdgeInsets.all(padding5),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(2.0),
-              ),
-              child: Text(
-                textRight!,
-                style: TextStyle(
-                  color: const Color(primaryBlack),
-                  fontSize: fontSizeRight ?? textSmall,
-                  fontFamily: 'Poppins',
-                  fontWeight: fontWeightRight ?? FontWeight.w700,
-                ),
+        ),
+        InkWell(
+          onTap: onTab,
+          child: Container(
+            padding: EdgeInsets.all(padding5),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(2.0),
+            ),
+            child: Text(
+              textRight!,
+              style: TextStyle(
+                color: const Color(primaryBlack),
+                fontSize: fontSizeRight ?? textSmall,
+                fontFamily: 'Poppins',
+                fontWeight: fontWeightRight ?? FontWeight.w700,
               ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
