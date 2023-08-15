@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_ess/screens/admin/main/dashboard.dart';
 import 'package:mobile_ess/screens/authentication/signin_screen.dart';
+import 'package:mobile_ess/screens/test.dart';
 import 'package:mobile_ess/screens/user/home/online_form/aplikasi_recruitment/form_aplikasi_recruitment_screen.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_fasilitas_kesehatan/form_detail_pengajuan_rawat_inap.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_fasilitas_kesehatan/form_detail_pengajuan_rawat_jalan.dart';
@@ -75,5 +77,8 @@ Map<String, Widget Function(BuildContext)> routers() {
         const DetailPengumumanScreen(),
     '/user/main/submition/aplikasi_training/detail_aplikasi_training':
         (context) => const DetailAplikasiTraining(),
+    // =================== ADMIN ====================
+     '/admin/main': (context) => const AdminMainScreen(),
+     '/test': (context) =>  TestScreen(),
   };
 }
