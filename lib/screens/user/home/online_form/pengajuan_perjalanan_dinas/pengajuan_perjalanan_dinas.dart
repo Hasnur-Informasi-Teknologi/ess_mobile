@@ -28,7 +28,7 @@ class PengajuanPerjalananDinas extends StatelessWidget {
           },
         ),
         title: const Text(
-          'Online Form',
+          'Pengajuan Perjalanan Dinas',
         ),
       ),
       body: Center(
@@ -106,9 +106,9 @@ class PengajuanPerjalananDinas extends StatelessWidget {
     // Mengembalikan teks berdasarkan indeks
     switch (index) {
       case 0:
-        return 'Form Rencana Biaya Perjalanan Dinas';
+        return 'Rencana Biaya Perjalanan Dinas';
       case 1:
-        return '-';
+        return 'Laporan Aktivitas & Biaya Perjalanan Dinas';
       default:
         return 'Error';
     }
@@ -121,7 +121,8 @@ class PengajuanPerjalananDinas extends StatelessWidget {
             '/user/main/home/online_form/pengajuan_perjalanan_dinas/form_rencana_biaya_perjalanan_dinas');
         break;
       case 1:
-        Get.toNamed('/user/main/home/online_form/aplikasi_recruitment');
+        Get.toNamed(
+            '/user/main/home/online_form/pengajuan_perjalanan_dinas/form_laporan_aktivitas_dan_biaya_perjalanan_dinas');
         break;
       default:
         return print('Error');
