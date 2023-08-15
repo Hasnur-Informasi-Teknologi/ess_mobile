@@ -22,10 +22,10 @@ class IconsContainerWidget extends StatelessWidget {
 
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        childAspectRatio: 1,
+        crossAxisCount: 3,
+        childAspectRatio: 1.2,
       ),
-      itemCount: 8, // Jumlah total item
+      itemCount: 6, // Jumlah total item
       itemBuilder: (BuildContext context, int index) {
         return InkWell(
           onTap: () {
@@ -76,12 +76,8 @@ class IconsContainerWidget extends StatelessWidget {
       case 3:
         return Icons.account_balance_wallet;
       case 4:
-        return Icons.assignment_ind;
-      case 5:
-        return Icons.home;
-      case 6:
         return Icons.person;
-      case 7:
+      case 5:
         return Icons.settings;
       default:
         return Icons.error;
@@ -100,12 +96,8 @@ class IconsContainerWidget extends StatelessWidget {
       case 3:
         return 'Transactions';
       case 4:
-        return 'Assigment Interviewer';
-      case 5:
-        return 'Applications';
-      case 6:
         return 'User Administrations';
-      case 7:
+      case 5:
         return 'Settings';
       default:
         return 'Error';
@@ -132,10 +124,6 @@ class IconsContainerWidget extends StatelessWidget {
       case 4:
         return print('Documents');
       case 5:
-        return print('Documents');
-      case 6:
-        return print('Documents');
-      case 7:
         return print('Documents');
       default:
         return print('Error');
