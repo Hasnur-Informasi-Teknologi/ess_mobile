@@ -200,14 +200,20 @@ class _SignInScreenState extends State<SignInScreen> {
                             children: [
                               Column(
                                 children: [
-                                  Text(
-                                    'SELAMAT DATANG',
-                                    style: TextStyle(
-                                        fontSize: textExtraLarge,
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.bold,
-                                        color: const Color(primaryYellow)),
+                                  GestureDetector(
+                                    onTap: () { // on doubletap, drag
+                                      Get.toNamed('/admin/main');
+                                    },
+                                    child:  Text(
+                                      'SELAMAT DATANG',
+                                      style: TextStyle(
+                                          fontSize: textExtraLarge,
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.bold,
+                                          color: const Color(primaryYellow)),
+                                    ),
                                   ),
+                                 
                                   SizedBox(
                                     height: sizedBoxHeightTall,
                                   ),
