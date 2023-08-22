@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mobile_ess/themes/constant.dart';
+import 'package:mobile_ess/widgets/line_widget.dart';
 import 'package:mobile_ess/widgets/title_center_widget.dart';
 import 'package:mobile_ess/widgets/title_center_with_badge_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 
-class DetailAplikasiTraining extends StatelessWidget {
-  const DetailAplikasiTraining({super.key});
+class DetailFormSuratIzinKeluar extends StatelessWidget {
+  const DetailFormSuratIzinKeluar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,6 +15,7 @@ class DetailAplikasiTraining extends StatelessWidget {
 
     double textMedium = size.width * 0.0329; // 14 px
     double textLarge = size.width * 0.04; // 18 px
+    double padding10 = size.width * 0.023;
     double padding20 = size.width * 0.047; // 20 px
     double paddingHorizontalNarrow = size.width * 0.035; // 15 px
     double paddingHorizontalWide = size.width * 0.0585; // 25 px
@@ -33,7 +36,7 @@ class DetailAplikasiTraining extends StatelessWidget {
           },
         ),
         title: Text(
-          'Detail Pengajuan Aplikasi Training',
+          'Persetujuan Form Surat Izin Keluar',
           style: TextStyle(
             color: Colors.black,
             fontSize: textLarge,
@@ -45,38 +48,10 @@ class DetailAplikasiTraining extends StatelessWidget {
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.symmetric(
-              horizontal: paddingHorizontalWide, vertical: padding20),
+              horizontal: paddingHorizontalNarrow, vertical: padding20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TitleCenterWithBadgeWidget(
-                textLeft: 'Prioritas',
-                textRight: 'Rendah',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-                color: Colors.red,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'No',
-                textRight: '2323232943',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Tanggal Pengajuan',
-                textRight: 'dd/mm/yyyy',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightExtraTall,
-              ),
               const TitleWidget(title: 'Diajukan Oleh'),
               const SizedBox(
                 height: sizedBoxHeightTall,
@@ -101,16 +76,7 @@ class DetailAplikasiTraining extends StatelessWidget {
               ),
               TitleCenterWidget(
                 textLeft: 'Jabatan',
-                textRight: 'Programmer',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Divisi/Department',
-                textRight: 'Business Solution',
+                textRight: 'Manager',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -124,24 +90,15 @@ class DetailAplikasiTraining extends StatelessWidget {
                 fontSizeRight: textMedium,
               ),
               const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Tanggal Mulai Bekerja',
-                textRight: '2 Kali',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
                 height: sizedBoxHeightExtraTall,
               ),
-              const TitleWidget(title: 'Informasi Kegiatan Training'),
+              const TitleWidget(title: 'Keterangan'),
               const SizedBox(
                 height: sizedBoxHeightTall,
               ),
               TitleCenterWidget(
-                textLeft: 'Tanggal Training',
-                textRight: '12/05/2023',
+                textLeft: 'Group',
+                textRight: 'Satu Departemen',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -149,8 +106,8 @@ class DetailAplikasiTraining extends StatelessWidget {
                 height: sizedBoxHeightShort,
               ),
               TitleCenterWidget(
-                textLeft: 'Judul Training',
-                textRight: 'Basis Data',
+                textLeft: 'Tanggal',
+                textRight: '03/09/2023',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -158,8 +115,8 @@ class DetailAplikasiTraining extends StatelessWidget {
                 height: sizedBoxHeightShort,
               ),
               TitleCenterWidget(
-                textLeft: 'Institusi Training',
-                textRight: 'Kominfo',
+                textLeft: 'Jam keluar',
+                textRight: '09.00 WIB',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -167,8 +124,8 @@ class DetailAplikasiTraining extends StatelessWidget {
                 height: sizedBoxHeightShort,
               ),
               TitleCenterWidget(
-                textLeft: 'Biaya Training',
-                textRight: 'Rp 11.000.000',
+                textLeft: 'Jam Kembali',
+                textRight: '13.00 WIB',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -176,8 +133,8 @@ class DetailAplikasiTraining extends StatelessWidget {
                 height: sizedBoxHeightShort,
               ),
               TitleCenterWidget(
-                textLeft: 'Lokasi Training',
-                textRight: 'Banjarbaru',
+                textLeft: 'Keperluan',
+                textRight: 'Acara Keluarga',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -185,57 +142,8 @@ class DetailAplikasiTraining extends StatelessWidget {
                 height: sizedBoxHeightShort,
               ),
               TitleCenterWidget(
-                textLeft: 'Lampiran',
-                textRight: 'Lihat Dokumen',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Jenis Training',
-                textRight: 'Sertifikasi Training',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Periode Ikatan Dinas',
-                textRight: '1 Tahun',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightExtraTall,
-              ),
-              const TitleWidget(title: 'Evaluasi Pra Training'),
-              const SizedBox(
-                height: sizedBoxHeightTall,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Fungsi Training',
-                textRight: 'Sangat Direkomendasikan',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Tujuan Objektif',
-                textRight: 'Pengembangan Karir',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Penugasan Karwayan',
-                textRight: 'Penugasan Kerja',
+                textLeft: 'Keterangan',
+                textRight: 'Kembali Ke Kantor',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),

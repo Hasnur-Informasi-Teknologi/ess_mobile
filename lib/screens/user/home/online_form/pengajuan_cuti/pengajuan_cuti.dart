@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_ess/themes/constant.dart';
 
-class PengajuanIzin extends StatelessWidget {
-  const PengajuanIzin({super.key});
+class PengajuanCuti extends StatelessWidget {
+  const PengajuanCuti({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class PengajuanIzin extends StatelessWidget {
           },
         ),
         title: const Text(
-          'Pengajuan Izin',
+          'Pengajuan Cuti',
         ),
       ),
       body: Center(
@@ -106,9 +106,9 @@ class PengajuanIzin extends StatelessWidget {
     // Mengembalikan teks berdasarkan indeks
     switch (index) {
       case 0:
-        return 'Pengajuan Izin Keluar';
+        return 'Pengajuan Cuti';
       case 1:
-        return 'Pengajuan Lembur';
+        return 'Pengajuan Perpanjangan Cuti';
       default:
         return 'Error';
     }
@@ -118,11 +118,11 @@ class PengajuanIzin extends StatelessWidget {
     switch (index) {
       case 0:
         Get.toNamed(
-            '/user/main/home/online_form/pengajuan_izin/form_surat_izin_keluar');
+            '/user/main/home/online_form/pengajuan_cuti/form_pengajuan_cuti');
         break;
       case 1:
         Get.toNamed(
-            '/user/main/home/online_form/pengajuan_izin/form_pengajuan_lembur');
+            '/user/main/home/online_form/pengajuan_cuti/form_pengajuan_perpanjangan_cuti');
         break;
       default:
         return print('Error');

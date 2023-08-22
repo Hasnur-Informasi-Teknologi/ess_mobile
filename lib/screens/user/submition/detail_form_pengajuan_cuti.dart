@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mobile_ess/themes/constant.dart';
+import 'package:mobile_ess/widgets/line_widget.dart';
 import 'package:mobile_ess/widgets/title_center_widget.dart';
 import 'package:mobile_ess/widgets/title_center_with_badge_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 
-class DetailAplikasiTraining extends StatelessWidget {
-  const DetailAplikasiTraining({super.key});
+class DetailFormPengajuanCuti extends StatelessWidget {
+  const DetailFormPengajuanCuti({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -13,6 +15,7 @@ class DetailAplikasiTraining extends StatelessWidget {
 
     double textMedium = size.width * 0.0329; // 14 px
     double textLarge = size.width * 0.04; // 18 px
+    double padding10 = size.width * 0.023;
     double padding20 = size.width * 0.047; // 20 px
     double paddingHorizontalNarrow = size.width * 0.035; // 15 px
     double paddingHorizontalWide = size.width * 0.0585; // 25 px
@@ -33,7 +36,7 @@ class DetailAplikasiTraining extends StatelessWidget {
           },
         ),
         title: Text(
-          'Detail Pengajuan Aplikasi Training',
+          'Persetujuan Pengajuan Cuti',
           style: TextStyle(
             color: Colors.black,
             fontSize: textLarge,
@@ -45,45 +48,17 @@ class DetailAplikasiTraining extends StatelessWidget {
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.symmetric(
-              horizontal: paddingHorizontalWide, vertical: padding20),
+              horizontal: paddingHorizontalNarrow, vertical: padding20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TitleCenterWithBadgeWidget(
-                textLeft: 'Prioritas',
-                textRight: 'Rendah',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-                color: Colors.red,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'No',
-                textRight: '2323232943',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Tanggal Pengajuan',
-                textRight: 'dd/mm/yyyy',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightExtraTall,
-              ),
               const TitleWidget(title: 'Diajukan Oleh'),
               const SizedBox(
                 height: sizedBoxHeightTall,
               ),
               TitleCenterWidget(
                 textLeft: 'NRP',
-                textRight: 'HG219942',
+                textRight: 'HG8293829',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -92,25 +67,7 @@ class DetailAplikasiTraining extends StatelessWidget {
               ),
               TitleCenterWidget(
                 textLeft: 'Nama',
-                textRight: 'M. Abdullah Sani',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Jabatan',
-                textRight: 'Programmer',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Divisi/Department',
-                textRight: 'Business Solution',
+                textRight: 'Nama Karyawan',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -127,21 +84,48 @@ class DetailAplikasiTraining extends StatelessWidget {
                 height: sizedBoxHeightShort,
               ),
               TitleCenterWidget(
-                textLeft: 'Tanggal Mulai Bekerja',
-                textRight: '2 Kali',
+                textLeft: 'Jabatan',
+                textRight: 'System Analyst',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              TitleCenterWidget(
+                textLeft: 'Atasan',
+                textRight: 'Nama Atasan',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              TitleCenterWidget(
+                textLeft: 'Atasan dari Atasan',
+                textRight: 'Nama Atasan dari Atasan',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              TitleCenterWidget(
+                textLeft: 'Nama Karyawan Pengganti',
+                textRight: 'Nama Karyawan Pengganti',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
               const SizedBox(
                 height: sizedBoxHeightExtraTall,
               ),
-              const TitleWidget(title: 'Informasi Kegiatan Training'),
+              const TitleWidget(title: 'Keterangan Cuti'),
               const SizedBox(
                 height: sizedBoxHeightTall,
               ),
               TitleCenterWidget(
-                textLeft: 'Tanggal Training',
-                textRight: '12/05/2023',
+                textLeft: 'Jenis Cuti',
+                textRight: 'Cuti Tahunan Tidak Dibayar',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -149,75 +133,21 @@ class DetailAplikasiTraining extends StatelessWidget {
                 height: sizedBoxHeightShort,
               ),
               TitleCenterWidget(
-                textLeft: 'Judul Training',
-                textRight: 'Basis Data',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Institusi Training',
-                textRight: 'Kominfo',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Biaya Training',
-                textRight: 'Rp 11.000.000',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Lokasi Training',
-                textRight: 'Banjarbaru',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Lampiran',
-                textRight: 'Lihat Dokumen',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Jenis Training',
-                textRight: 'Sertifikasi Training',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Periode Ikatan Dinas',
-                textRight: '1 Tahun',
+                textLeft: 'Keperluan Cuti',
+                textRight: 'Libur Lebaran',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
               const SizedBox(
                 height: sizedBoxHeightExtraTall,
               ),
-              const TitleWidget(title: 'Evaluasi Pra Training'),
+              const TitleWidget(title: 'Catatan Cuti'),
               const SizedBox(
                 height: sizedBoxHeightTall,
               ),
               TitleCenterWidget(
-                textLeft: 'Fungsi Training',
-                textRight: 'Sangat Direkomendasikan',
+                textLeft: 'Cuti Yang Akan Diambil',
+                textRight: '4 Hari',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -225,8 +155,21 @@ class DetailAplikasiTraining extends StatelessWidget {
                 height: sizedBoxHeightShort,
               ),
               TitleCenterWidget(
-                textLeft: 'Tujuan Objektif',
-                textRight: 'Pengembangan Karir',
+                textLeft: 'Sisa Cuti',
+                textRight: '12 Hari',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightExtraTall,
+              ),
+              const TitleWidget(title: 'Tanggal Pengajuan Cuti'),
+              const SizedBox(
+                height: sizedBoxHeightTall,
+              ),
+              TitleCenterWidget(
+                textLeft: 'Tanggal Mulai',
+                textRight: 'dd/mm/yyyy',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -234,13 +177,28 @@ class DetailAplikasiTraining extends StatelessWidget {
                 height: sizedBoxHeightShort,
               ),
               TitleCenterWidget(
-                textLeft: 'Penugasan Karwayan',
-                textRight: 'Penugasan Kerja',
+                textLeft: 'Tanggal berakhir',
+                textRight: 'dd/mm/yyyy',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
               const SizedBox(
                 height: sizedBoxHeightShort,
+              ),
+              TitleCenterWidget(
+                textLeft: 'Alamat Cuti',
+                textRight: 'Alamat Cuti',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              TitleCenterWidget(
+                textLeft: 'No Telepon',
+                textRight: '0000-0000-0000',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
               ),
             ],
           ),

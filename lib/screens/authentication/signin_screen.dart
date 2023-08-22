@@ -201,10 +201,11 @@ class _SignInScreenState extends State<SignInScreen> {
                               Column(
                                 children: [
                                   GestureDetector(
-                                    onTap: () { // on doubletap, drag
+                                    onTap: () {
+                                      // on doubletap, drag
                                       Get.toNamed('/admin/main');
                                     },
-                                    child:  Text(
+                                    child: Text(
                                       'SELAMAT DATANG',
                                       style: TextStyle(
                                           fontSize: textExtraLarge,
@@ -213,14 +214,13 @@ class _SignInScreenState extends State<SignInScreen> {
                                           color: const Color(primaryYellow)),
                                     ),
                                   ),
-                                 
                                   SizedBox(
                                     height: sizedBoxHeightTall,
                                   ),
                                   Text(
                                     'Silahkan masukkan NRP dan Password Anda untuk melakukan login',
                                     style: TextStyle(
-                                        fontSize: textLarge,
+                                        fontSize: textMedium,
                                         fontFamily: 'Poppins',
                                         fontWeight: FontWeight.bold,
                                         color: Colors.black),

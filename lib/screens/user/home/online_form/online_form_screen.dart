@@ -173,7 +173,8 @@ class OnlineFormScreen extends StatelessWidget {
         Get.toNamed('/user/main/home/online_form/pengajuan_surat_keterangan');
         break;
       case 8:
-        return print('Documents');
+        Get.toNamed('/user/main/home/online_form/pengajuan_cuti');
+        break;
       case 9:
         return print('Documents');
       default:

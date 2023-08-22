@@ -3,12 +3,16 @@ import 'package:mobile_ess/screens/admin/main/dashboard.dart';
 import 'package:mobile_ess/screens/authentication/signin_screen.dart';
 import 'package:mobile_ess/screens/test.dart';
 import 'package:mobile_ess/screens/user/home/online_form/aplikasi_recruitment/form_aplikasi_recruitment_screen.dart';
+import 'package:mobile_ess/screens/user/home/online_form/pengajuan_cuti/form_pengajuan_cuti.dart';
+import 'package:mobile_ess/screens/user/home/online_form/pengajuan_cuti/form_pengajuan_perpanjangan_cuti.dart';
+import 'package:mobile_ess/screens/user/home/online_form/pengajuan_cuti/pengajuan_cuti.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_fasilitas_kesehatan/form_detail_pengajuan_rawat_inap.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_fasilitas_kesehatan/form_detail_pengajuan_rawat_jalan.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_fasilitas_kesehatan/form_pengajuan_rawat_inap.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_fasilitas_kesehatan/form_pengajuan_rawat_jalan.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_fasilitas_kesehatan/pengajuan_fasilitas_kesehatan.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_hardware_software/form_permintaan_hardware_software.dart';
+import 'package:mobile_ess/screens/user/home/online_form/pengajuan_izin/form_pengajuan_lembur.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_izin/form_surat_izin_keluar.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_izin/pengajuan_izin.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_perjalanan_dinas/form_input_biaya_perjalanan_dinas.dart';
@@ -26,6 +30,14 @@ import 'package:mobile_ess/screens/user/home/request_attendance/request_attendan
 import 'package:mobile_ess/screens/user/home/request_attendance/ubah_data_kehadiran_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/screens/user/submition/detail_aplikasi_training.dart';
+import 'package:mobile_ess/screens/user/submition/detail_form_bantuan_fasilitas_komunikasi_setelah_full_approve.dart';
+import 'package:mobile_ess/screens/user/submition/detail_form_pengajuan_cuti.dart';
+import 'package:mobile_ess/screens/user/submition/detail_form_pengajuan_lembur.dart';
+import 'package:mobile_ess/screens/user/submition/detail_form_pengajuan_perpanjangan_cuti.dart';
+import 'package:mobile_ess/screens/user/submition/detail_form_penggantian_biaya_rawat_inap_setelah_full_approve.dart';
+import 'package:mobile_ess/screens/user/submition/detail_form_permintaan_hardware_dan_software.dart';
+import 'package:mobile_ess/screens/user/submition/detail_form_surat_izin_keluar.dart';
+import 'package:mobile_ess/screens/user/submition/detail_form_surat_keterangan.dart';
 import 'package:mobile_ess/splash_screen.dart';
 
 Map<String, Widget Function(BuildContext)> routers() {
@@ -64,10 +76,18 @@ Map<String, Widget Function(BuildContext)> routers() {
         const PengajuanIzin(),
     '/user/main/home/online_form/pengajuan_izin/form_surat_izin_keluar':
         (context) => const FormSuratIzinKeluar(),
+    '/user/main/home/online_form/pengajuan_izin/form_pengajuan_lembur':
+        (context) => const FormPengajuanLembur(),
     '/user/main/home/online_form/pengajuan_hardware_software': (context) =>
         const FormPermintaanHardwareSoftware(),
     '/user/main/home/online_form/pengajuan_surat_keterangan': (context) =>
         const FormSuratKeterangan(),
+    '/user/main/home/online_form/pengajuan_cuti': (context) =>
+        const PengajuanCuti(),
+    '/user/main/home/online_form/pengajuan_cuti/form_pengajuan_cuti':
+        (context) => const FormPengajuanCuti(),
+    '/user/main/home/online_form/pengajuan_cuti/form_pengajuan_perpanjangan_cuti':
+        (context) => const FormPengajuanPerpanjanganCuti(),
     '/user/main/home/request_attendance': (context) =>
         const RequestAttendanceKaryawanScreen(),
     '/user/main/home/request_attendance/ubah_data_kehadiran': (context) =>
@@ -75,10 +95,12 @@ Map<String, Widget Function(BuildContext)> routers() {
     '/user/main/home/pengumuman': (context) => const PengumumanScreen(),
     '/user/main/home/pengumuman/detail_pengumuman': (context) =>
         const DetailPengumumanScreen(),
+    // '/user/main/submition/aplikasi_training/detail_aplikasi_training':
+    //     (context) => const DetailAplikasiTraining(),
     '/user/main/submition/aplikasi_training/detail_aplikasi_training':
-        (context) => const DetailAplikasiTraining(),
+        (context) => const DetailFormPengajuanLembur(),
     // =================== ADMIN ====================
-     '/admin/main': (context) => const AdminMainScreen(),
-     '/test': (context) =>  TestScreen(),
+    '/admin/main': (context) => const AdminMainScreen(),
+    '/test': (context) => TestScreen(),
   };
 }
