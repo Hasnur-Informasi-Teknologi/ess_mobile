@@ -26,6 +26,7 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
     double textMedium = size.width * 0.0329;
     double textLarge = size.width * 0.04;
     double sizedBoxHeightTall = size.height * 0.0163;
+    double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.047;
     double paddingHorizontalNarrow = size.width * 0.035;
     double paddingHorizontalWide = size.width * 0.0585;
@@ -99,7 +100,7 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
                     ),
                   ),
                   SizedBox(
-                    height: sizedBoxHeightExtraTall,
+                    height: sizedBoxHeightTall,
                   ),
                   Padding(
                     padding:
@@ -139,7 +140,7 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
               ),
             ),
             SizedBox(
-              height: sizedBoxHeightExtraTall,
+              height: sizedBoxHeightShort,
             ),
             Expanded(
               child: Column(

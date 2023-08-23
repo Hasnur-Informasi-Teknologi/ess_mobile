@@ -25,7 +25,7 @@ class IconsContainerWidget extends StatelessWidget {
         crossAxisCount: 3,
         childAspectRatio: 1.2,
       ),
-      itemCount: 6, // Jumlah total item
+      itemCount: 3, // Jumlah total item
       itemBuilder: (BuildContext context, int index) {
         return InkWell(
           onTap: () {
@@ -72,9 +72,9 @@ class IconsContainerWidget extends StatelessWidget {
       case 1:
         return Icons.description;
       case 2:
-        return Icons.group;
-      case 3:
         return Icons.account_balance_wallet;
+      case 3:
+        return Icons.group;
       case 4:
         return Icons.person;
       case 5:
@@ -92,9 +92,9 @@ class IconsContainerWidget extends StatelessWidget {
       case 1:
         return 'Documents';
       case 2:
-        return 'Employee';
-      case 3:
         return 'Transactions';
+      case 3:
+        return 'Employee';
       case 4:
         return 'User Administrations';
       case 5:
@@ -116,9 +116,11 @@ class IconsContainerWidget extends StatelessWidget {
         // );
         break;
       case 1:
-        return print('Documents');
+        Get.toNamed('/user/main/home/documents');
+        break;
       case 2:
-        return print('Documents');
+        Get.toNamed('/user/main/home/transactions');
+        break;
       case 3:
         return print('Documents');
       case 4:

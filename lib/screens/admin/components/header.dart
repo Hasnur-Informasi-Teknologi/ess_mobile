@@ -5,7 +5,7 @@ import 'package:mobile_ess/screens/admin/components/employeeMonitoring.dart';
 import 'package:mobile_ess/screens/user/home/pengumuman/pengumuman_screen.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/header_profile_widget.dart';
-import 'package:mobile_ess/widgets/icons_container_widget.dart';
+import 'package:mobile_ess/screens/user/home/icons_container_widget.dart';
 import 'package:mobile_ess/widgets/jadwal_kerja_card_widget.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
 import 'package:mobile_ess/widgets/pengumuman_card_widget.dart';
@@ -64,11 +64,12 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double paddingHorizontalWide = size.width * 0.0585;
     double padding10 = size.width * 0.023;
-    
+
     @override
     void initState() {
       super.initState();
     }
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -152,7 +153,8 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
                     child: DropdownButton<String>(
                       style: TextStyle(
                         fontSize: 10,
-                        color: Colors.black, // Set the font size for the dropdown items
+                        color: Colors
+                            .black, // Set the font size for the dropdown items
                       ),
                       value: selectionValue,
                       iconSize: 24,
@@ -181,8 +183,6 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
     );
   }
 }
-
-
 
 class ComponentType1 extends StatelessWidget {
   @override

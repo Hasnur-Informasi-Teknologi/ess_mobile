@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_ess/screens/admin/main/dashboard.dart';
 import 'package:mobile_ess/screens/authentication/signin_screen.dart';
 import 'package:mobile_ess/screens/test.dart';
+import 'package:mobile_ess/screens/user/home/documents/documents_screen.dart';
 import 'package:mobile_ess/screens/user/home/online_form/aplikasi_recruitment/form_aplikasi_recruitment_screen.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_cuti/form_pengajuan_cuti.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_cuti/form_pengajuan_perpanjangan_cuti.dart';
@@ -28,6 +29,7 @@ import 'package:mobile_ess/screens/user/home/online_form/aplikasi_training/form_
 import 'package:mobile_ess/screens/user/home/online_form/online_form_screen.dart';
 import 'package:mobile_ess/screens/user/home/request_attendance/request_attendance_karwayan_screen.dart';
 import 'package:mobile_ess/screens/user/home/request_attendance/ubah_data_kehadiran_screen.dart';
+import 'package:mobile_ess/screens/user/home/transactions/transactions_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/screens/user/submition/detail_aplikasi_training.dart';
 import 'package:mobile_ess/screens/user/submition/detail_form_bantuan_fasilitas_komunikasi_setelah_full_approve.dart';
@@ -99,6 +101,8 @@ Map<String, Widget Function(BuildContext)> routers() {
     //     (context) => const DetailAplikasiTraining(),
     '/user/main/submition/aplikasi_training/detail_aplikasi_training':
         (context) => const DetailFormPengajuanLembur(),
+    '/user/main/home/transactions': (context) => const TransactionsScreen(),
+    '/user/main/home/documents': (context) => const DocomentsScreen(),
     // =================== ADMIN ====================
     '/admin/main': (context) => const AdminMainScreen(),
     '/test': (context) => TestScreen(),
