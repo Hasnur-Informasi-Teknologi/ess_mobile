@@ -23,15 +23,9 @@ class _FormAplikasiTrainingScreenState
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nrpController = TextEditingController();
-  final TextEditingController _judulTrainingController =
-      TextEditingController();
-  final TextEditingController _fungsiTrainingController =
-      TextEditingController();
-  final TextEditingController _ringkasanTrainingController =
-      TextEditingController();
 
   final _nomorController = TextEditingController();
-  double _maxHeightNomor = 40.0;
+  final double _maxHeightNomor = 40.0;
 
   List<String> items = [
     'Diajukan Oleh',
@@ -280,7 +274,6 @@ class _FormAplikasiTrainingScreenState
                             initialDateTime: dateTime,
                             onDateTimeChanged: (DateTime newTime) {
                               setState(() => dateTime = newTime);
-                              print(dateTime);
                             },
                             use24hFormat: true,
                             mode: CupertinoDatePickerMode.date,
@@ -302,6 +295,7 @@ class _FormAplikasiTrainingScreenState
                       child: Column(
                         children: [
                           TabBar(
+                            isScrollable: true,
                             indicatorSize: TabBarIndicatorSize.label,
                             indicatorColor: Colors.black,
                             labelColor: Colors.black,
@@ -347,7 +341,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'NRP : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -386,7 +380,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -396,7 +391,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Nama : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -435,7 +430,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -445,7 +441,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Jabatan : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -484,7 +480,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -494,7 +491,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Divisi/Department : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -533,7 +530,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -543,7 +541,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Entitas : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -583,7 +581,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -593,7 +592,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Tanggal Mulai Bekerja : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -632,7 +631,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -642,7 +642,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Total Mengikuti Kegiatan Training : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -681,7 +681,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -795,7 +796,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -805,7 +807,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Jabatan : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -844,7 +846,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -854,7 +857,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Divisi/Department : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -893,7 +896,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -903,7 +907,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Entitas : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -943,7 +947,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -953,7 +958,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Tanggal Mulai Bekerja : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -992,7 +997,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -1002,7 +1008,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Total Mengikuti Kegiatan Training : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -1041,7 +1047,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -1066,7 +1073,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'NRP : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -1105,7 +1112,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -1115,7 +1123,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Nama : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -1154,7 +1162,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -1164,7 +1173,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Jabatan : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -1203,7 +1212,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -1213,7 +1223,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Divisi/Department : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -1252,7 +1262,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -1262,7 +1273,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Entitas : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -1302,7 +1313,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -1312,7 +1324,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Tanggal Mulai Bekerja : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -1351,7 +1363,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -1361,7 +1374,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Total Mengikuti Kegiatan Training : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -1400,7 +1413,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -1425,7 +1439,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'NRP : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -1464,7 +1478,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -1474,7 +1489,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Nama : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -1513,7 +1528,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -1523,7 +1539,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Jabatan : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -1562,7 +1578,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -1572,7 +1589,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Divisi/Department : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -1611,7 +1628,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -1621,7 +1639,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Entitas : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -1661,7 +1679,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -1671,7 +1690,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Tanggal Mulai Bekerja : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -1710,7 +1729,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -1720,7 +1740,7 @@ class _FormAplikasiTrainingScreenState
                                         Text(
                                           'Total Mengikuti Kegiatan Training : ',
                                           style: TextStyle(
-                                              color: Color(primaryBlack),
+                                              color: const Color(primaryBlack),
                                               fontSize: textMedium,
                                               fontFamily: 'Poppins',
                                               fontWeight: FontWeight.w300),
@@ -1759,7 +1779,8 @@ class _FormAplikasiTrainingScreenState
                                             hintStyle: TextStyle(
                                               fontSize: textSmall,
                                               fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
+                                              color:
+                                                  const Color(textPlaceholder),
                                             ),
                                           ),
                                         ),
@@ -1781,12 +1802,8 @@ class _FormAplikasiTrainingScreenState
                             child: ButtonTwoRowWidget(
                               textLeft: 'Draft',
                               textRight: 'Submit',
-                              onTabLeft: () {
-                                print('Cancel');
-                              },
-                              onTabRight: () {
-                                print('Cancel');
-                              },
+                              onTabLeft: () {},
+                              onTabRight: () {},
                             ),
                           ),
                         ],

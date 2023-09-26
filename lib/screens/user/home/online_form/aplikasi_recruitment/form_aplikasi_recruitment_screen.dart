@@ -98,63 +98,6 @@ class _FormAplikasiRecruitmentScreenState
                       buildCheckbox('Rendah', _isRendahChecked),
                     ],
                   ),
-                  // ListTile(
-                  //   title: Text(
-                  //     'Tinggi',
-                  //     style: TextStyle(
-                  //         color: const Color(primaryBlack),
-                  //         fontSize: textMedium,
-                  //         fontFamily: 'Poppins',
-                  //         fontWeight: FontWeight.w300),
-                  //   ),
-                  //   leading: Radio(
-                  //     value: options[0],
-                  //     groupValue: currentOption,
-                  //     onChanged: (value) {
-                  //       setState(() {
-                  //         currentOption = value.toString();
-                  //       });
-                  //     },
-                  //   ),
-                  // ),
-                  // ListTile(
-                  //   title: Text(
-                  //     'Normal',
-                  //     style: TextStyle(
-                  //         color: const Color(primaryBlack),
-                  //         fontSize: textMedium,
-                  //         fontFamily: 'Poppins',
-                  //         fontWeight: FontWeight.w300),
-                  //   ),
-                  //   leading: Radio(
-                  //     value: options[1],
-                  //     groupValue: currentOption,
-                  //     onChanged: (value) {
-                  //       setState(() {
-                  //         currentOption = value.toString();
-                  //       });
-                  //     },
-                  //   ),
-                  // ),
-                  // ListTile(
-                  //   title: Text(
-                  //     'Rendah',
-                  //     style: TextStyle(
-                  //         color: const Color(primaryBlack),
-                  //         fontSize: textMedium,
-                  //         fontFamily: 'Poppins',
-                  //         fontWeight: FontWeight.w300),
-                  //   ),
-                  //   leading: Radio(
-                  //     value: options[2],
-                  //     groupValue: currentOption,
-                  //     onChanged: (value) {
-                  //       setState(() {
-                  //         currentOption = value.toString();
-                  //       });
-                  //     },
-                  //   ),
-                  // ),
                   SizedBox(
                     height: sizedBoxHeightTall,
                   ),
@@ -293,6 +236,7 @@ class _FormAplikasiRecruitmentScreenState
                       child: Column(
                         children: [
                           TabBar(
+                            isScrollable: true,
                             indicatorSize: TabBarIndicatorSize.label,
                             indicatorColor: Colors.black,
                             labelColor: Colors.black,

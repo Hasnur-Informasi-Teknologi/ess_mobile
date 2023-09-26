@@ -1,5 +1,4 @@
 // ignore_for_file: unused_field, must_be_immutable
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_ess/themes/constant.dart';
 
