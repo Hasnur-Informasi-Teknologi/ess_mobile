@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_ess/helpers/router.dart';
 import 'package:mobile_ess/providers/auth_provider.dart';
-import 'package:mobile_ess/splash_screen.dart';
 
 import 'package:provider/provider.dart';
 

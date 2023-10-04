@@ -14,7 +14,6 @@ class DetailAplikasiTraining extends StatelessWidget {
     double textMedium = size.width * 0.0329; // 14 px
     double textLarge = size.width * 0.04; // 18 px
     double padding20 = size.width * 0.047; // 20 px
-    double paddingHorizontalNarrow = size.width * 0.035; // 15 px
     double paddingHorizontalWide = size.width * 0.0585; // 25 px
     const double sizedBoxHeightTall = 15;
     const double sizedBoxHeightShort = 8;

@@ -1,12 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mobile_ess/screens/user/home/pengumuman/pengumuman_screen.dart';
 import 'package:mobile_ess/themes/constant.dart';
-import 'package:mobile_ess/widgets/line_widget.dart';
-import 'package:mobile_ess/widgets/row_widget.dart';
-import 'package:mobile_ess/widgets/row_with_button_widget.dart';
-import 'package:mobile_ess/widgets/title_center_widget.dart';
+import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 
 class FormSuratIzinKeluar extends StatefulWidget {
@@ -35,16 +31,12 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
     DateTime jamKeluar = DateTime(3000, 2, 1, 17, 10);
     DateTime jamKembali = DateTime(3000, 2, 1, 17, 10);
     Size size = MediaQuery.of(context).size;
-    double textSmall = size.width * 0.027;
     double textMedium = size.width * 0.0329;
     double textLarge = size.width * 0.04;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightShort = size.height * 0.0086;
-    double sizedBoxHeightExtraTall = size.height * 0.0215;
     double paddingHorizontalNarrow = size.width * 0.035;
-    double paddingHorizontalWide = size.width * 0.0585;
     double padding5 = size.width * 0.0115;
-    double padding10 = size.width * 0.023;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -76,15 +68,10 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'Tanggal',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Tanggal',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 CupertinoButton(
@@ -140,15 +127,10 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'NRP *',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'NRP *',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -157,42 +139,10 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: '78220012',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: '78220012',
                   ),
                 ),
                 SizedBox(
@@ -201,15 +151,10 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'Nama',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Nama',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -218,42 +163,10 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'Nama Karyawan',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: 'Nama Karyawan',
                   ),
                 ),
                 SizedBox(
@@ -262,15 +175,10 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'Jabatan',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Jabatan',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -279,42 +187,10 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'Bussiness Solution',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: 'Bussiness Solution',
                   ),
                 ),
                 SizedBox(
@@ -323,15 +199,10 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'Entitas',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Entitas',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -340,42 +211,10 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'PT Hasnur Informasi Teknologi',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: 'PT Hasnur Informasi Teknologi',
                   ),
                 ),
                 SizedBox(
@@ -384,15 +223,10 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'Atasan *',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Atasan *',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -401,42 +235,10 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'Nama Atasan',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: 'Nama Atasan',
                   ),
                 ),
                 SizedBox(
@@ -445,15 +247,10 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'Pengajuan Untuk *',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Pengajuan Untuk *',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -462,42 +259,10 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'Group',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: 'Group',
                   ),
                 ),
                 SizedBox(
@@ -506,15 +271,10 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'Group',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Group',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -523,42 +283,10 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'Nama',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: 'Nama',
                   ),
                 ),
                 SizedBox(
@@ -567,14 +295,10 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'Jam Keluar',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: textMedium,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w700,
-                    ),
+                  child: TitleWidget(
+                    title: 'Jam Keluar',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 CupertinoButton(
@@ -626,14 +350,10 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'Jam Kembali',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: textMedium,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w700,
-                    ),
+                  child: TitleWidget(
+                    title: 'Jam Kembali',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 CupertinoButton(
@@ -685,15 +405,10 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'Keperluan',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Keperluan',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textLarge,
                   ),
                 ),
                 Column(
@@ -712,15 +427,10 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'Keterangan',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Keterangan',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textLarge,
                   ),
                 ),
                 Column(

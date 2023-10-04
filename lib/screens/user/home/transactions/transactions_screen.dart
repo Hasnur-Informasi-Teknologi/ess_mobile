@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/row_widget.dart';
 import 'package:mobile_ess/widgets/row_with_button_widget.dart';
-import 'package:mobile_ess/widgets/submition_card_widget.dart';
-import 'package:mobile_ess/widgets/title_center_widget.dart';
-import 'package:mobile_ess/widgets/title_widget.dart';
 
 class TransactionsScreen extends StatefulWidget {
   const TransactionsScreen({super.key});
@@ -21,17 +16,15 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   final TextEditingController _trainingController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
 
-  double _maxHeightTraining = 40.0;
-  double _maxHeightSearch = 40.0;
+  final double _maxHeightTraining = 40.0;
+  final double _maxHeightSearch = 40.0;
 
   int current = 0;
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    double textSmall = size.width * 0.027;
     double textMedium = size.width * 0.0329;
-    double textLarge = size.width * 0.04;
     double padding10 = size.width * 0.023;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightTall = size.height * 0.0163;

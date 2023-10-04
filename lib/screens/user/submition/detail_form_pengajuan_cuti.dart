@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mobile_ess/themes/constant.dart';
-import 'package:mobile_ess/widgets/line_widget.dart';
 import 'package:mobile_ess/widgets/title_center_widget.dart';
-import 'package:mobile_ess/widgets/title_center_with_badge_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 
 class DetailFormPengajuanCuti extends StatelessWidget {
@@ -15,10 +12,8 @@ class DetailFormPengajuanCuti extends StatelessWidget {
 
     double textMedium = size.width * 0.0329; // 14 px
     double textLarge = size.width * 0.04; // 18 px
-    double padding10 = size.width * 0.023;
     double padding20 = size.width * 0.047; // 20 px
     double paddingHorizontalNarrow = size.width * 0.035; // 15 px
-    double paddingHorizontalWide = size.width * 0.0585; // 25 px
     const double sizedBoxHeightTall = 15;
     const double sizedBoxHeightShort = 8;
     const double sizedBoxHeightExtraTall = 20;

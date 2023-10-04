@@ -2,13 +2,10 @@
 
 import 'package:get/get.dart';
 import 'package:mobile_ess/models/http_exception.dart';
-import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/error_dialog_widget.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile_ess/widgets/text_form_field_widget.dart';
+import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -24,7 +21,7 @@ class _SignInScreenState extends State<SignInScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nrpController = TextEditingController();
   final _passController = TextEditingController();
-  double _maxHeight = 40.0;
+  double maxHeight = 40.0;
   double _maxHeightPass = 40.0;
 
   bool _obscureText = true;
@@ -100,20 +97,20 @@ class _SignInScreenState extends State<SignInScreen> {
         });
   }
 
-  String? _validatorNrp(value) {
+  String? validatorNrp(dynamic value) {
     if (value == null || value.isEmpty) {
       setState(() {
-        _maxHeight = 60.0;
+        maxHeight = 60.0;
       });
       return 'NRP Kosong';
     } else if (value.length < 8) {
       setState(() {
-        _maxHeight = 60.0;
+        maxHeight = 60.0;
       });
       return 'Password Kosong';
     }
     setState(() {
-      _maxHeight = 40.0;
+      maxHeight = 40.0;
     });
     return null;
   }
@@ -142,7 +139,6 @@ class _SignInScreenState extends State<SignInScreen> {
     Size size = MediaQuery.of(context).size;
     double textSmall = size.width * 0.027;
     double textMedium = size.width * 0.0329;
-    double textLarge = size.width * 0.04;
     double textExtraLarge = size.width * 0.06;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightShort = size.height * 0.0086;
@@ -239,63 +235,25 @@ class _SignInScreenState extends State<SignInScreen> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            'NRP : ',
-                                            style: TextStyle(
-                                                color:
-                                                    const Color(primaryBlack),
-                                                fontSize: textMedium,
-                                                fontFamily: 'Poppins',
-                                                fontWeight: FontWeight.w300),
+                                          TitleWidget(
+                                            title: 'NRP : ',
+                                            fontSize: textMedium,
+                                            fontWeight: FontWeight.w300,
                                           ),
                                           SizedBox(
                                             height: sizedBoxHeightShort,
                                           ),
-                                          TextFormField(
+                                          TextFormFieldWidget(
                                             controller: _nrpController,
-                                            validator: _validatorNrp,
-                                            decoration: InputDecoration(
-                                              border: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.transparent,
-                                                      width: 0)),
-                                              focusedBorder: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.black,
-                                                      width: 1)),
-                                              enabledBorder: OutlineInputBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  borderSide: const BorderSide(
-                                                      color: Colors.grey,
-                                                      width: 0)),
-                                              constraints: BoxConstraints(
-                                                  maxHeight: _maxHeight),
-                                              filled: true,
-                                              fillColor: const Color(
-                                                  secondaryBackground),
-                                              hintText: 'Masukkan NRP Anda',
-                                              hintStyle: TextStyle(
-                                                fontSize: textSmall,
-                                                fontFamily: 'Poppins',
-                                                color: const Color(
-                                                    textPlaceholder),
-                                              ),
-                                            ),
+                                            // validator: validatorNrp,
+                                            hintText: 'Masukkan NRP Anda',
+                                            maxHeightConstraints: maxHeight,
                                           ),
                                           SizedBox(height: sizedBoxHeightTall),
-                                          Text(
-                                            'Password : ',
-                                            style: TextStyle(
-                                                color:
-                                                    const Color(primaryBlack),
-                                                fontSize: textMedium,
-                                                fontFamily: 'Poppins',
-                                                fontWeight: FontWeight.w300),
+                                          TitleWidget(
+                                            title: 'Password : ',
+                                            fontSize: textMedium,
+                                            fontWeight: FontWeight.w300,
                                           ),
                                           SizedBox(
                                             height: sizedBoxHeightShort,
@@ -303,7 +261,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                           TextFormField(
                                             controller: _passController,
                                             obscureText: _obscureText,
-                                            validator: _validatorPassword,
+                                            // validator: _validatorPassword,
                                             decoration: InputDecoration(
                                                 border: OutlineInputBorder(
                                                     borderRadius: BorderRadius

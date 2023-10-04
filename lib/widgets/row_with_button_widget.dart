@@ -22,9 +22,7 @@ class RowWithButtonWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textSmall = size.width * 0.027;
-    double paddingHorizontalWide = size.width * 0.0585;
     double padding5 = size.width * 0.0115;
-    double padding10 = size.width * 0.023;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

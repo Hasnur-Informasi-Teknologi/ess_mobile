@@ -1,12 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
-import 'package:mobile_ess/widgets/row_with_button_widget.dart';
-import 'package:mobile_ess/widgets/title_center_widget.dart';
+import 'package:mobile_ess/widgets/text_form_field_widget.dart';
+import 'package:mobile_ess/widgets/title_widget.dart';
 
 class FormPengajuanCuti extends StatefulWidget {
   const FormPengajuanCuti({super.key});
@@ -32,16 +30,13 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     DateTime tanggalKembaliKerja = DateTime(3000, 2, 1, 10, 20);
 
     Size size = MediaQuery.of(context).size;
-    double textSmall = size.width * 0.027;
     double textMedium = size.width * 0.0329;
-    double textLarge = size.width * 0.04;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double paddingHorizontalNarrow = size.width * 0.035;
     double paddingHorizontalWide = size.width * 0.0585;
     double padding5 = size.width * 0.0115;
-    double padding10 = size.width * 0.023;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -81,15 +76,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
-                            child: Text(
-                              'Atasan',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: const Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.9,
-                                  fontWeight: FontWeight.w700),
+                            child: TitleWidget(
+                              title: 'Atasan',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
                             ),
                           ),
                           SizedBox(
@@ -98,43 +88,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
-                            child: TextFormField(
+                            child: TextFormFieldWidget(
                               controller: _namaController,
-                              // validator: (value) {
-                              //   if (value == null || value.isEmpty) {
-                              //     return 'NRP Kosong';
-                              //   } else if (value.length < 8) {
-                              //     return 'Password Kosong';
-                              //   }
-                              //   return null;
-                              // },
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                  borderSide: const BorderSide(
-                                    color: Colors.transparent,
-                                    width: 0,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    borderSide: const BorderSide(
-                                        color: Colors.black, width: 1)),
-                                enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    borderSide: const BorderSide(
-                                        color: Colors.grey, width: 0)),
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightNama),
-                                filled: true,
-                                fillColor: Colors.white,
-                                hintText: 'Pilih Entitas',
-                                hintStyle: TextStyle(
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  color: const Color(textPlaceholder),
-                                ),
-                              ),
+                              maxHeightConstraints: _maxHeightNama,
+                              hintText: 'Pilih Entitas',
                             ),
                           ),
                         ],
@@ -148,15 +105,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
-                            child: Text(
-                              ' ',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: const Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.9,
-                                  fontWeight: FontWeight.w700),
+                            child: TitleWidget(
+                              title: ' ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
                             ),
                           ),
                           SizedBox(
@@ -165,43 +117,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
-                            child: TextFormField(
+                            child: TextFormFieldWidget(
                               controller: _namaController,
-                              // validator: (value) {
-                              //   if (value == null || value.isEmpty) {
-                              //     return 'NRP Kosong';
-                              //   } else if (value.length < 8) {
-                              //     return 'Password Kosong';
-                              //   }
-                              //   return null;
-                              // },
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                  borderSide: const BorderSide(
-                                    color: Colors.transparent,
-                                    width: 0,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    borderSide: const BorderSide(
-                                        color: Colors.black, width: 1)),
-                                enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    borderSide: const BorderSide(
-                                        color: Colors.grey, width: 0)),
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightNama),
-                                filled: true,
-                                fillColor: Colors.white,
-                                hintText: 'Pilih Atasan',
-                                hintStyle: TextStyle(
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  color: const Color(textPlaceholder),
-                                ),
-                              ),
+                              maxHeightConstraints: _maxHeightNama,
+                              hintText: 'Pilih Atasan',
                             ),
                           ),
                         ],
@@ -215,15 +134,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                  child: Text(
-                    'Atasan dari Atasan',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Atasan dari Atasan',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -232,42 +146,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'Pilih Atasan dari Atasan',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: 'Pilih Atasan dari Atasan',
                   ),
                 ),
                 SizedBox(
@@ -284,15 +166,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
-                            child: Text(
-                              'Karyawan Pengganti',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: const Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.9,
-                                  fontWeight: FontWeight.w700),
+                            child: TitleWidget(
+                              title: 'Karyawan Pengganti',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
                             ),
                           ),
                           SizedBox(
@@ -301,43 +178,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
-                            child: TextFormField(
+                            child: TextFormFieldWidget(
                               controller: _namaController,
-                              // validator: (value) {
-                              //   if (value == null || value.isEmpty) {
-                              //     return 'NRP Kosong';
-                              //   } else if (value.length < 8) {
-                              //     return 'Password Kosong';
-                              //   }
-                              //   return null;
-                              // },
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                  borderSide: const BorderSide(
-                                    color: Colors.transparent,
-                                    width: 0,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    borderSide: const BorderSide(
-                                        color: Colors.black, width: 1)),
-                                enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    borderSide: const BorderSide(
-                                        color: Colors.grey, width: 0)),
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightNama),
-                                filled: true,
-                                fillColor: Colors.white,
-                                hintText: 'Pilih Entitas',
-                                hintStyle: TextStyle(
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  color: const Color(textPlaceholder),
-                                ),
-                              ),
+                              maxHeightConstraints: _maxHeightNama,
+                              hintText: 'Pilih Entitas',
                             ),
                           ),
                         ],
@@ -351,15 +195,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
-                            child: Text(
-                              ' ',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: const Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.9,
-                                  fontWeight: FontWeight.w700),
+                            child: TitleWidget(
+                              title: ' ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
                             ),
                           ),
                           SizedBox(
@@ -368,43 +207,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
-                            child: TextFormField(
+                            child: TextFormFieldWidget(
                               controller: _namaController,
-                              // validator: (value) {
-                              //   if (value == null || value.isEmpty) {
-                              //     return 'NRP Kosong';
-                              //   } else if (value.length < 8) {
-                              //     return 'Password Kosong';
-                              //   }
-                              //   return null;
-                              // },
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                  borderSide: const BorderSide(
-                                    color: Colors.transparent,
-                                    width: 0,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    borderSide: const BorderSide(
-                                        color: Colors.black, width: 1)),
-                                enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    borderSide: const BorderSide(
-                                        color: Colors.grey, width: 0)),
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightNama),
-                                filled: true,
-                                fillColor: Colors.white,
-                                hintText: 'Pilih Pengganti',
-                                hintStyle: TextStyle(
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  color: const Color(textPlaceholder),
-                                ),
-                              ),
+                              maxHeightConstraints: _maxHeightNama,
+                              hintText: 'Pilih Pengganti',
                             ),
                           ),
                         ],
@@ -418,15 +224,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                  child: Text(
-                    'Keterangan Cuti',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Keterangan Cuti',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -460,15 +261,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                  child: Text(
-                    'Keperluan Cuti',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Keperluan Cuti',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -477,42 +273,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'Keperluan Cuti',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: 'Keperluan Cuti',
                   ),
                 ),
                 SizedBox(
@@ -521,15 +285,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                  child: Text(
-                    'Catatan Cuti',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Catatan Cuti',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -554,15 +313,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
-                            child: Text(
-                              'Cuti Yang Diambil',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: const Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.9,
-                                  fontWeight: FontWeight.w700),
+                            child: TitleWidget(
+                              title: 'Cuti Yang Diambil',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
                             ),
                           ),
                           SizedBox(
@@ -571,43 +325,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
-                            child: TextFormField(
+                            child: TextFormFieldWidget(
                               controller: _namaController,
-                              // validator: (value) {
-                              //   if (value == null || value.isEmpty) {
-                              //     return 'NRP Kosong';
-                              //   } else if (value.length < 8) {
-                              //     return 'Password Kosong';
-                              //   }
-                              //   return null;
-                              // },
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                  borderSide: const BorderSide(
-                                    color: Colors.transparent,
-                                    width: 0,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    borderSide: const BorderSide(
-                                        color: Colors.black, width: 1)),
-                                enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    borderSide: const BorderSide(
-                                        color: Colors.grey, width: 0)),
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightNama),
-                                filled: true,
-                                fillColor: Colors.white,
-                                hintText: '4 Hari',
-                                hintStyle: TextStyle(
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  color: const Color(textPlaceholder),
-                                ),
-                              ),
+                              maxHeightConstraints: _maxHeightNama,
+                              hintText: '4 Hari',
                             ),
                           ),
                         ],
@@ -621,15 +342,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
-                            child: Text(
-                              'Sisa Cuti',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: const Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.9,
-                                  fontWeight: FontWeight.w700),
+                            child: TitleWidget(
+                              title: 'Sisa Cuti',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
                             ),
                           ),
                           SizedBox(
@@ -638,43 +354,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
-                            child: TextFormField(
+                            child: TextFormFieldWidget(
                               controller: _namaController,
-                              // validator: (value) {
-                              //   if (value == null || value.isEmpty) {
-                              //     return 'NRP Kosong';
-                              //   } else if (value.length < 8) {
-                              //     return 'Password Kosong';
-                              //   }
-                              //   return null;
-                              // },
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                  borderSide: const BorderSide(
-                                    color: Colors.transparent,
-                                    width: 0,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    borderSide: const BorderSide(
-                                        color: Colors.black, width: 1)),
-                                enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    borderSide: const BorderSide(
-                                        color: Colors.grey, width: 0)),
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightNama),
-                                filled: true,
-                                fillColor: Colors.white,
-                                hintText: '12 Hari',
-                                hintStyle: TextStyle(
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  color: const Color(textPlaceholder),
-                                ),
-                              ),
+                              maxHeightConstraints: _maxHeightNama,
+                              hintText: '12 Hari',
                             ),
                           ),
                         ],
@@ -688,15 +371,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                  child: Text(
-                    'Tanggal Pengajuan Cuti',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Tanggal Pengajuan Cuti',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -721,15 +399,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
-                            child: Text(
-                              'Tanggal Mulai',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: const Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.9,
-                                  fontWeight: FontWeight.w700),
+                            child: TitleWidget(
+                              title: 'Tanggal Mulai',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
                             ),
                           ),
                           CupertinoButton(
@@ -791,15 +464,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
-                            child: Text(
-                              'Tanggal Berakhir',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: const Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.9,
-                                  fontWeight: FontWeight.w700),
+                            child: TitleWidget(
+                              title: 'Tanggal Berakhir',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
                             ),
                           ),
                           CupertinoButton(
@@ -861,15 +529,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                  child: Text(
-                    'Tanggal Kembali Kerja',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Tanggal Kembali Kerja',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 CupertinoButton(
@@ -922,15 +585,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                  child: Text(
-                    'Alamat Cuti',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Alamat Cuti',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -939,42 +597,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'Alamat Cuti',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: 'Alamat Cuti',
                   ),
                 ),
                 SizedBox(
@@ -983,15 +609,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                  child: Text(
-                    'No Telepon',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'No Telepon',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -1000,42 +621,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: '089XXXX',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: '089XXXX',
                   ),
                 ),
               ],

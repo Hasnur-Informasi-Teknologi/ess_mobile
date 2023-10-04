@@ -31,15 +31,9 @@ import 'package:mobile_ess/screens/user/home/request_attendance/request_attendan
 import 'package:mobile_ess/screens/user/home/request_attendance/ubah_data_kehadiran_screen.dart';
 import 'package:mobile_ess/screens/user/home/transactions/transactions_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen.dart';
-import 'package:mobile_ess/screens/user/submition/detail_aplikasi_training.dart';
-import 'package:mobile_ess/screens/user/submition/detail_form_bantuan_fasilitas_komunikasi_setelah_full_approve.dart';
-import 'package:mobile_ess/screens/user/submition/detail_form_pengajuan_cuti.dart';
+
 import 'package:mobile_ess/screens/user/submition/detail_form_pengajuan_lembur.dart';
-import 'package:mobile_ess/screens/user/submition/detail_form_pengajuan_perpanjangan_cuti.dart';
-import 'package:mobile_ess/screens/user/submition/detail_form_penggantian_biaya_rawat_inap_setelah_full_approve.dart';
-import 'package:mobile_ess/screens/user/submition/detail_form_permintaan_hardware_dan_software.dart';
-import 'package:mobile_ess/screens/user/submition/detail_form_surat_izin_keluar.dart';
-import 'package:mobile_ess/screens/user/submition/detail_form_surat_keterangan.dart';
+
 import 'package:mobile_ess/splash_screen.dart';
 
 Map<String, Widget Function(BuildContext)> routers() {

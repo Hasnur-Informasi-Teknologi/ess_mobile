@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
-import 'package:mobile_ess/screens/user/home/online_form/online_form_screen.dart';
 import 'package:mobile_ess/themes/constant.dart';
 
 class IconsContainerWidget extends StatelessWidget {
@@ -16,9 +13,7 @@ class IconsContainerWidget extends StatelessWidget {
     double textSmall = size.width * 0.027;
     double icon = size.width * 0.06;
     double sizedBoxHeightExtraShort = size.width * 0.02;
-    double sizedBoxHeightExtraTall = size.height * 0.0215;
     double paddingHorizontalExtraNarrow = size.width * 0.02;
-    double padding5 = size.width * 0.0188;
 
     return GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

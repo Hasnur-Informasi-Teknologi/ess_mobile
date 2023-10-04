@@ -61,8 +61,8 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> checkDeviceId(String nrp, dynamic deviceDataId) async {
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString('userId');
+      // SharedPreferences prefs = await SharedPreferences.getInstance();
+      // final userId = prefs.getString('userId');
       final response = await http.post(
           Uri.parse('http://202.165.33.98/api/check_device'),
           headers: <String, String>{

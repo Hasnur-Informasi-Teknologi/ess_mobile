@@ -10,7 +10,6 @@ class PengajuanFasilitasKesehatan extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     double textSmall = size.width * 0.027;
     double paddingHorizontalNarrow = size.width * 0.035;
-    double padding5 = size.width * 0.0115;
     double padding8 = size.width * 0.0188;
     double padding10 = size.width * 0.023;
 

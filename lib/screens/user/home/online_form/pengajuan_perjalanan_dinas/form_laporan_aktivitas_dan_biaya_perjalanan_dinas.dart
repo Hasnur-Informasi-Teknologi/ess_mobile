@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
-import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
 import 'package:mobile_ess/widgets/row_with_button_widget.dart';
+import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_center_widget.dart';
+import 'package:mobile_ess/widgets/title_widget.dart';
 
 class FormLaporanAktivitasDanBiayaPerjalananDinas extends StatefulWidget {
   const FormLaporanAktivitasDanBiayaPerjalananDinas({super.key});
@@ -19,23 +18,17 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
     extends State<FormLaporanAktivitasDanBiayaPerjalananDinas> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
-  double _maxHeightNama = 40.0;
+  final double _maxHeightNama = 40.0;
 
-  bool? _isKasbon = false;
-  bool? _isNonKasbon = false;
   @override
   Widget build(BuildContext context) {
-    DateTime dateTime = DateTime(3000, 2, 1, 10, 20);
     Size size = MediaQuery.of(context).size;
     double textSmall = size.width * 0.027;
     double textMedium = size.width * 0.0329;
-    double textLarge = size.width * 0.04;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightShort = size.height * 0.0086;
-    double sizedBoxHeightExtraTall = size.height * 0.0215;
     double paddingHorizontalNarrow = size.width * 0.035;
     double paddingHorizontalWide = size.width * 0.0585;
-    double padding5 = size.width * 0.0115;
     double padding10 = size.width * 0.023;
 
     return Scaffold(
@@ -68,15 +61,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: Text(
-                      'Trip Number',
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                          color: const Color(primaryBlack),
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          letterSpacing: 0.9,
-                          fontWeight: FontWeight.w700),
+                    child: TitleWidget(
+                      title: 'Trip Number',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
                     ),
                   ),
                   SizedBox(
@@ -85,42 +73,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: TextFormField(
+                    child: TextFormFieldWidget(
                       controller: _namaController,
-                      // validator: (value) {
-                      //   if (value == null || value.isEmpty) {
-                      //     return 'NRP Kosong';
-                      //   } else if (value.length < 8) {
-                      //     return 'Password Kosong';
-                      //   }
-                      //   return null;
-                      // },
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
-                            width: 0,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide: const BorderSide(
-                                color: Colors.black, width: 1)),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide:
-                                const BorderSide(color: Colors.grey, width: 0)),
-                        constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: '1234',
-                        hintStyle: TextStyle(
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          color: const Color(textPlaceholder),
-                        ),
-                      ),
+                      maxHeightConstraints: _maxHeightNama,
+                      hintText: '1234',
                     ),
                   ),
                   SizedBox(
@@ -129,15 +85,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: Text(
-                      'Accounting doc.',
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                          color: const Color(primaryBlack),
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          letterSpacing: 0.9,
-                          fontWeight: FontWeight.w700),
+                    child: TitleWidget(
+                      title: 'Accounting doc.',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
                     ),
                   ),
                   SizedBox(
@@ -146,42 +97,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: TextFormField(
+                    child: TextFormFieldWidget(
                       controller: _namaController,
-                      // validator: (value) {
-                      //   if (value == null || value.isEmpty) {
-                      //     return 'NRP Kosong';
-                      //   } else if (value.length < 8) {
-                      //     return 'Password Kosong';
-                      //   }
-                      //   return null;
-                      // },
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
-                            width: 0,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide: const BorderSide(
-                                color: Colors.black, width: 1)),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide:
-                                const BorderSide(color: Colors.grey, width: 0)),
-                        constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: '232423',
-                        hintStyle: TextStyle(
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          color: const Color(textPlaceholder),
-                        ),
-                      ),
+                      maxHeightConstraints: _maxHeightNama,
+                      hintText: '232423',
                     ),
                   ),
                   SizedBox(
@@ -190,15 +109,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: Text(
-                      'NRP',
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                          color: const Color(primaryBlack),
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          letterSpacing: 0.9,
-                          fontWeight: FontWeight.w700),
+                    child: TitleWidget(
+                      title: 'NRP',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
                     ),
                   ),
                   SizedBox(
@@ -207,42 +121,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: TextFormField(
+                    child: TextFormFieldWidget(
                       controller: _namaController,
-                      // validator: (value) {
-                      //   if (value == null || value.isEmpty) {
-                      //     return 'NRP Kosong';
-                      //   } else if (value.length < 8) {
-                      //     return 'Password Kosong';
-                      //   }
-                      //   return null;
-                      // },
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
-                            width: 0,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide: const BorderSide(
-                                color: Colors.black, width: 1)),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide:
-                                const BorderSide(color: Colors.grey, width: 0)),
-                        constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: '78220012',
-                        hintStyle: TextStyle(
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          color: const Color(textPlaceholder),
-                        ),
-                      ),
+                      maxHeightConstraints: _maxHeightNama,
+                      hintText: '78220012',
                     ),
                   ),
                   SizedBox(
@@ -251,15 +133,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: Text(
-                      'Nama',
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                          color: const Color(primaryBlack),
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          letterSpacing: 0.9,
-                          fontWeight: FontWeight.w700),
+                    child: TitleWidget(
+                      title: 'Nama',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
                     ),
                   ),
                   SizedBox(
@@ -268,42 +145,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: TextFormField(
+                    child: TextFormFieldWidget(
                       controller: _namaController,
-                      // validator: (value) {
-                      //   if (value == null || value.isEmpty) {
-                      //     return 'NRP Kosong';
-                      //   } else if (value.length < 8) {
-                      //     return 'Password Kosong';
-                      //   }
-                      //   return null;
-                      // },
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
-                            width: 0,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide: const BorderSide(
-                                color: Colors.black, width: 1)),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide:
-                                const BorderSide(color: Colors.grey, width: 0)),
-                        constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: 'Nama',
-                        hintStyle: TextStyle(
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          color: const Color(textPlaceholder),
-                        ),
-                      ),
+                      maxHeightConstraints: _maxHeightNama,
+                      hintText: 'Nama',
                     ),
                   ),
                   SizedBox(
@@ -312,15 +157,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: Text(
-                      'Department',
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                          color: const Color(primaryBlack),
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          letterSpacing: 0.9,
-                          fontWeight: FontWeight.w700),
+                    child: TitleWidget(
+                      title: 'Department',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
                     ),
                   ),
                   SizedBox(
@@ -329,42 +169,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: TextFormField(
+                    child: TextFormFieldWidget(
                       controller: _namaController,
-                      // validator: (value) {
-                      //   if (value == null || value.isEmpty) {
-                      //     return 'NRP Kosong';
-                      //   } else if (value.length < 8) {
-                      //     return 'Password Kosong';
-                      //   }
-                      //   return null;
-                      // },
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
-                            width: 0,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide: const BorderSide(
-                                color: Colors.black, width: 1)),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide:
-                                const BorderSide(color: Colors.grey, width: 0)),
-                        constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: 'Departmen HRGS',
-                        hintStyle: TextStyle(
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          color: const Color(textPlaceholder),
-                        ),
-                      ),
+                      maxHeightConstraints: _maxHeightNama,
+                      hintText: 'Departmen HRGS',
                     ),
                   ),
                   SizedBox(
@@ -373,15 +181,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: Text(
-                      'Perusahaan',
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                          color: const Color(primaryBlack),
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          letterSpacing: 0.9,
-                          fontWeight: FontWeight.w700),
+                    child: TitleWidget(
+                      title: 'Perusahaan',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
                     ),
                   ),
                   SizedBox(
@@ -390,42 +193,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: TextFormField(
+                    child: TextFormFieldWidget(
                       controller: _namaController,
-                      // validator: (value) {
-                      //   if (value == null || value.isEmpty) {
-                      //     return 'NRP Kosong';
-                      //   } else if (value.length < 8) {
-                      //     return 'Password Kosong';
-                      //   }
-                      //   return null;
-                      // },
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
-                            width: 0,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide: const BorderSide(
-                                color: Colors.black, width: 1)),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide:
-                                const BorderSide(color: Colors.grey, width: 0)),
-                        constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: 'PT Hasnur Informasi Teknologi',
-                        hintStyle: TextStyle(
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          color: const Color(textPlaceholder),
-                        ),
-                      ),
+                      maxHeightConstraints: _maxHeightNama,
+                      hintText: 'PT Hasnur Informasi Teknologi',
                     ),
                   ),
                   SizedBox(
@@ -434,15 +205,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: Text(
-                      'Lokasi Dinas',
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                          color: const Color(primaryBlack),
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          letterSpacing: 0.9,
-                          fontWeight: FontWeight.w700),
+                    child: TitleWidget(
+                      title: 'Lokasi Dinas',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
                     ),
                   ),
                   SizedBox(
@@ -451,42 +217,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: TextFormField(
+                    child: TextFormFieldWidget(
                       controller: _namaController,
-                      // validator: (value) {
-                      //   if (value == null || value.isEmpty) {
-                      //     return 'NRP Kosong';
-                      //   } else if (value.length < 8) {
-                      //     return 'Password Kosong';
-                      //   }
-                      //   return null;
-                      // },
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
-                            width: 0,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide: const BorderSide(
-                                color: Colors.black, width: 1)),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide:
-                                const BorderSide(color: Colors.grey, width: 0)),
-                        constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: 'PT Hasnur Jaya Utama',
-                        hintStyle: TextStyle(
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          color: const Color(textPlaceholder),
-                        ),
-                      ),
+                      maxHeightConstraints: _maxHeightNama,
+                      hintText: 'PT Hasnur Informasi Teknologi',
                     ),
                   ),
                   SizedBox(
@@ -495,15 +229,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: Text(
-                      'Periode Dinas',
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                          color: const Color(primaryBlack),
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          letterSpacing: 0.9,
-                          fontWeight: FontWeight.w700),
+                    child: TitleWidget(
+                      title: 'Periode Dinas',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
                     ),
                   ),
                   SizedBox(
@@ -512,42 +241,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: TextFormField(
+                    child: TextFormFieldWidget(
                       controller: _namaController,
-                      // validator: (value) {
-                      //   if (value == null || value.isEmpty) {
-                      //     return 'NRP Kosong';
-                      //   } else if (value.length < 8) {
-                      //     return 'Password Kosong';
-                      //   }
-                      //   return null;
-                      // },
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
-                            width: 0,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide: const BorderSide(
-                                color: Colors.black, width: 1)),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide:
-                                const BorderSide(color: Colors.grey, width: 0)),
-                        constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: '----',
-                        hintStyle: TextStyle(
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          color: const Color(textPlaceholder),
-                        ),
-                      ),
+                      maxHeightConstraints: _maxHeightNama,
+                      hintText: '----',
                     ),
                   ),
                   SizedBox(
@@ -620,15 +317,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: Text(
-                      'Catatan :',
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                          color: const Color(primaryBlack),
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          letterSpacing: 0.9,
-                          fontWeight: FontWeight.w700),
+                    child: TitleWidget(
+                      title: 'Catatan :',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
                     ),
                   ),
                   SizedBox(
@@ -637,42 +329,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: TextFormField(
+                    child: TextFormFieldWidget(
                       controller: _namaController,
-                      // validator: (value) {
-                      //   if (value == null || value.isEmpty) {
-                      //     return 'NRP Kosong';
-                      //   } else if (value.length < 8) {
-                      //     return 'Password Kosong';
-                      //   }
-                      //   return null;
-                      // },
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
-                            width: 0,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide: const BorderSide(
-                                color: Colors.black, width: 1)),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide:
-                                const BorderSide(color: Colors.grey, width: 0)),
-                        constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: '----',
-                        hintStyle: TextStyle(
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          color: const Color(textPlaceholder),
-                        ),
-                      ),
+                      maxHeightConstraints: _maxHeightNama,
+                      hintText: '----',
                     ),
                   ),
                   SizedBox(
@@ -753,15 +413,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                             Padding(
                               padding: EdgeInsets.symmetric(
                                   horizontal: paddingHorizontalNarrow),
-                              child: Text(
-                                'Jumlah Kas Diterima',
-                                textAlign: TextAlign.start,
-                                style: TextStyle(
-                                    color: const Color(primaryBlack),
-                                    fontSize: textMedium,
-                                    fontFamily: 'Poppins',
-                                    letterSpacing: 0.9,
-                                    fontWeight: FontWeight.w700),
+                              child: TitleWidget(
+                                title: 'Jumlah Kas Diterima',
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
                               ),
                             ),
                             SizedBox(
@@ -770,43 +425,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                             Padding(
                               padding: EdgeInsets.symmetric(
                                   horizontal: paddingHorizontalNarrow),
-                              child: TextFormField(
+                              child: TextFormFieldWidget(
                                 controller: _namaController,
-                                // validator: (value) {
-                                //   if (value == null || value.isEmpty) {
-                                //     return 'NRP Kosong';
-                                //   } else if (value.length < 8) {
-                                //     return 'Password Kosong';
-                                //   }
-                                //   return null;
-                                // },
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    borderSide: const BorderSide(
-                                      color: Colors.transparent,
-                                      width: 0,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                      borderSide: const BorderSide(
-                                          color: Colors.black, width: 1)),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                      borderSide: const BorderSide(
-                                          color: Colors.grey, width: 0)),
-                                  constraints:
-                                      BoxConstraints(maxHeight: _maxHeightNama),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  hintText: '----',
-                                  hintStyle: TextStyle(
-                                    fontSize: textMedium,
-                                    fontFamily: 'Poppins',
-                                    color: const Color(textPlaceholder),
-                                  ),
-                                ),
+                                maxHeightConstraints: _maxHeightNama,
+                                hintText: '----',
                               ),
                             ),
                           ],
@@ -820,15 +442,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                             Padding(
                               padding: EdgeInsets.symmetric(
                                   horizontal: paddingHorizontalNarrow),
-                              child: Text(
-                                'Kelebihan Kas',
-                                textAlign: TextAlign.start,
-                                style: TextStyle(
-                                    color: const Color(primaryBlack),
-                                    fontSize: textMedium,
-                                    fontFamily: 'Poppins',
-                                    letterSpacing: 0.9,
-                                    fontWeight: FontWeight.w700),
+                              child: TitleWidget(
+                                title: 'Kelebihan Kas',
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
                               ),
                             ),
                             SizedBox(
@@ -837,43 +454,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                             Padding(
                               padding: EdgeInsets.symmetric(
                                   horizontal: paddingHorizontalNarrow),
-                              child: TextFormField(
+                              child: TextFormFieldWidget(
                                 controller: _namaController,
-                                // validator: (value) {
-                                //   if (value == null || value.isEmpty) {
-                                //     return 'NRP Kosong';
-                                //   } else if (value.length < 8) {
-                                //     return 'Password Kosong';
-                                //   }
-                                //   return null;
-                                // },
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    borderSide: const BorderSide(
-                                      color: Colors.transparent,
-                                      width: 0,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                      borderSide: const BorderSide(
-                                          color: Colors.black, width: 1)),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                      borderSide: const BorderSide(
-                                          color: Colors.grey, width: 0)),
-                                  constraints:
-                                      BoxConstraints(maxHeight: _maxHeightNama),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  hintText: '----',
-                                  hintStyle: TextStyle(
-                                    fontSize: textMedium,
-                                    fontFamily: 'Poppins',
-                                    color: const Color(textPlaceholder),
-                                  ),
-                                ),
+                                maxHeightConstraints: _maxHeightNama,
+                                hintText: '----',
                               ),
                             ),
                           ],
@@ -895,15 +479,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                             Padding(
                               padding: EdgeInsets.symmetric(
                                   horizontal: paddingHorizontalNarrow),
-                              child: Text(
-                                'Jumlah Pengurangan',
-                                textAlign: TextAlign.start,
-                                style: TextStyle(
-                                    color: const Color(primaryBlack),
-                                    fontSize: textMedium,
-                                    fontFamily: 'Poppins',
-                                    letterSpacing: 0.9,
-                                    fontWeight: FontWeight.w700),
+                              child: TitleWidget(
+                                title: 'Jumlah Pengurangan',
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
                               ),
                             ),
                             SizedBox(
@@ -912,43 +491,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                             Padding(
                               padding: EdgeInsets.symmetric(
                                   horizontal: paddingHorizontalNarrow),
-                              child: TextFormField(
+                              child: TextFormFieldWidget(
                                 controller: _namaController,
-                                // validator: (value) {
-                                //   if (value == null || value.isEmpty) {
-                                //     return 'NRP Kosong';
-                                //   } else if (value.length < 8) {
-                                //     return 'Password Kosong';
-                                //   }
-                                //   return null;
-                                // },
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    borderSide: const BorderSide(
-                                      color: Colors.transparent,
-                                      width: 0,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                      borderSide: const BorderSide(
-                                          color: Colors.black, width: 1)),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                      borderSide: const BorderSide(
-                                          color: Colors.grey, width: 0)),
-                                  constraints:
-                                      BoxConstraints(maxHeight: _maxHeightNama),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  hintText: '----',
-                                  hintStyle: TextStyle(
-                                    fontSize: textMedium,
-                                    fontFamily: 'Poppins',
-                                    color: const Color(textPlaceholder),
-                                  ),
-                                ),
+                                maxHeightConstraints: _maxHeightNama,
+                                hintText: '----',
                               ),
                             ),
                           ],
@@ -962,15 +508,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                             Padding(
                               padding: EdgeInsets.symmetric(
                                   horizontal: paddingHorizontalNarrow),
-                              child: Text(
-                                'Kekurangan Kas',
-                                textAlign: TextAlign.start,
-                                style: TextStyle(
-                                    color: const Color(primaryBlack),
-                                    fontSize: textMedium,
-                                    fontFamily: 'Poppins',
-                                    letterSpacing: 0.9,
-                                    fontWeight: FontWeight.w700),
+                              child: TitleWidget(
+                                title: 'Pengurangan Kas',
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
                               ),
                             ),
                             SizedBox(
@@ -979,43 +520,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                             Padding(
                               padding: EdgeInsets.symmetric(
                                   horizontal: paddingHorizontalNarrow),
-                              child: TextFormField(
+                              child: TextFormFieldWidget(
                                 controller: _namaController,
-                                // validator: (value) {
-                                //   if (value == null || value.isEmpty) {
-                                //     return 'NRP Kosong';
-                                //   } else if (value.length < 8) {
-                                //     return 'Password Kosong';
-                                //   }
-                                //   return null;
-                                // },
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(5),
-                                    borderSide: const BorderSide(
-                                      color: Colors.transparent,
-                                      width: 0,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                      borderSide: const BorderSide(
-                                          color: Colors.black, width: 1)),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(5),
-                                      borderSide: const BorderSide(
-                                          color: Colors.grey, width: 0)),
-                                  constraints:
-                                      BoxConstraints(maxHeight: _maxHeightNama),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  hintText: '----',
-                                  hintStyle: TextStyle(
-                                    fontSize: textMedium,
-                                    fontFamily: 'Poppins',
-                                    color: const Color(textPlaceholder),
-                                  ),
-                                ),
+                                maxHeightConstraints: _maxHeightNama,
+                                hintText: '----',
                               ),
                             ),
                           ],
@@ -1029,15 +537,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Padding(
                     padding:
                         EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                    child: Text(
-                      'Catatan :',
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                          color: const Color(primaryBlack),
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          letterSpacing: 0.9,
-                          fontWeight: FontWeight.w700),
+                    child: TitleWidget(
+                      title: 'Catatan :',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
                     ),
                   ),
                   SizedBox(
@@ -1046,42 +549,10 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Padding(
                     padding:
                         EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                    child: TextFormField(
+                    child: TextFormFieldWidget(
                       controller: _namaController,
-                      // validator: (value) {
-                      //   if (value == null || value.isEmpty) {
-                      //     return 'NRP Kosong';
-                      //   } else if (value.length < 8) {
-                      //     return 'Password Kosong';
-                      //   }
-                      //   return null;
-                      // },
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
-                            width: 0,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide: const BorderSide(
-                                color: Colors.black, width: 1)),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide:
-                                const BorderSide(color: Colors.grey, width: 0)),
-                        constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: '----',
-                        hintStyle: TextStyle(
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          color: const Color(textPlaceholder),
-                        ),
-                      ),
+                      maxHeightConstraints: _maxHeightNama,
+                      hintText: '----',
                     ),
                   ),
                 ],

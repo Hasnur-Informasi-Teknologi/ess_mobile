@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
-import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/button_two_row_widget.dart';
+import 'package:mobile_ess/widgets/text_form_field_widget.dart';
+import 'package:mobile_ess/widgets/title_widget.dart';
 
 class FormAplikasiRecruitmentScreen extends StatefulWidget {
   const FormAplikasiRecruitmentScreen({super.key});
@@ -21,24 +22,21 @@ class _FormAplikasiRecruitmentScreenState
   bool? _isRendahChecked = false;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _nomorController = TextEditingController();
   final TextEditingController _nrpController = TextEditingController();
-  final TextEditingController _judulTrainingController =
-      TextEditingController();
-  final TextEditingController _fungsiTrainingController =
-      TextEditingController();
-  final TextEditingController _ringkasanTrainingController =
-      TextEditingController();
+  final TextEditingController _namaController = TextEditingController();
+  final TextEditingController _jabatanController = TextEditingController();
+  final TextEditingController _entitasController = TextEditingController();
 
-  final _nomorController = TextEditingController();
-  double _maxHeightNomor = 40.0;
+  final double _maxHeightNomor = 40.0;
   int current = 0;
 
   @override
   Widget build(BuildContext context) {
     DateTime dateTime = DateTime(3000, 2, 1, 10, 20);
     Size size = MediaQuery.of(context).size;
-    double textSmall = size.width * 0.027;
     double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
@@ -76,15 +74,10 @@ class _FormAplikasiRecruitmentScreenState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: Text(
-                      'Prioritas',
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                          color: const Color(primaryBlack),
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          letterSpacing: 0.9,
-                          fontWeight: FontWeight.w700),
+                    child: TitleWidget(
+                      title: 'Prioritas',
+                      fontWeight: FontWeight.w700,
+                      fontSize: textMedium,
                     ),
                   ),
                   SizedBox(
@@ -104,15 +97,10 @@ class _FormAplikasiRecruitmentScreenState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: Text(
-                      'Nomor',
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                          color: const Color(primaryBlack),
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          letterSpacing: 0.9,
-                          fontWeight: FontWeight.w700),
+                    child: TitleWidget(
+                      title: 'Nomor',
+                      fontWeight: FontWeight.w700,
+                      fontSize: textMedium,
                     ),
                   ),
                   SizedBox(
@@ -121,42 +109,10 @@ class _FormAplikasiRecruitmentScreenState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: TextFormField(
+                    child: TextFormFieldWidget(
                       controller: _nomorController,
-                      // validator: (value) {
-                      //   if (value == null || value.isEmpty) {
-                      //     return 'NRP Kosong';
-                      //   } else if (value.length < 8) {
-                      //     return 'Password Kosong';
-                      //   }
-                      //   return null;
-                      // },
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
-                            width: 0,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide: const BorderSide(
-                                color: Colors.black, width: 1)),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide:
-                                const BorderSide(color: Colors.grey, width: 0)),
-                        constraints: BoxConstraints(maxHeight: _maxHeightNomor),
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: '0001/LND/HJU/V/2023',
-                        hintStyle: TextStyle(
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          color: const Color(textPlaceholder),
-                        ),
-                      ),
+                      maxHeightConstraints: _maxHeightNomor,
+                      hintText: '0001/LND/HJU/V/2023',
                     ),
                   ),
                   SizedBox(
@@ -165,15 +121,10 @@ class _FormAplikasiRecruitmentScreenState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: Text(
-                      'Tangal Pengajuan',
-                      textAlign: TextAlign.start,
-                      style: TextStyle(
-                          color: const Color(primaryBlack),
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          letterSpacing: 0.9,
-                          fontWeight: FontWeight.w700),
+                    child: TitleWidget(
+                      title: 'Tangal Pengajuan',
+                      fontWeight: FontWeight.w700,
+                      fontSize: textMedium,
                     ),
                   ),
                   CupertinoButton(
@@ -238,7 +189,6 @@ class _FormAplikasiRecruitmentScreenState
                           TabBar(
                             isScrollable: true,
                             indicatorSize: TabBarIndicatorSize.label,
-                            indicatorColor: Colors.black,
                             labelColor: Colors.black,
                             unselectedLabelColor: Colors.grey,
                             labelPadding: EdgeInsets.symmetric(
@@ -279,346 +229,75 @@ class _FormAplikasiRecruitmentScreenState
                                         SizedBox(
                                           height: sizedBoxHeightExtraTall,
                                         ),
-                                        Text(
-                                          'NRP : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
-                                        ),
-                                        SizedBox(
-                                          height: sizedBoxHeightShort,
-                                        ),
-                                        TextFormField(
-                                          controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: '78220012',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                        TitleWidget(
+                                          title: 'Diajukan Oleh',
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: textLarge,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        Text(
-                                          'Nama : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
+                                        TitleWidget(
+                                          title: 'NRP : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        TextFormField(
+                                        TextFormFieldWidget(
                                           controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: 'Hasnur',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: '78220012',
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        Text(
-                                          'Jabatan : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
+                                        TitleWidget(
+                                          title: 'Nama : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        TextFormField(
-                                          controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: 'Programmer',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                        TextFormFieldWidget(
+                                          controller: _namaController,
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: 'Hasnur',
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        Text(
-                                          'Divisi/Department : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
+                                        TitleWidget(
+                                          title: 'Jabatan : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        TextFormField(
-                                          controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: 'Business Solution',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                        TextFormFieldWidget(
+                                          controller: _jabatanController,
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: 'Programmer',
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        Text(
-                                          'Entitas : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
+                                        TitleWidget(
+                                          title: 'Entitas : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        TextFormField(
-                                          controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText:
-                                                'PT Hasnur Informasi Teknologi',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          height: sizedBoxHeightTall,
-                                        ),
-                                        Text(
-                                          'Tanggal Mulai Bekerja : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
-                                        ),
-                                        SizedBox(
-                                          height: sizedBoxHeightShort,
-                                        ),
-                                        TextFormField(
-                                          controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: 'dd/mm/yyyy',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          height: sizedBoxHeightShort,
-                                        ),
-                                        Text(
-                                          'Total Mengikuti Kegiatan Training : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
-                                        ),
-                                        SizedBox(
-                                          height: sizedBoxHeightShort,
-                                        ),
-                                        TextFormField(
-                                          controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: '2 Kali',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                        TextFormFieldWidget(
+                                          controller: _entitasController,
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText:
+                                              'PT Hasnur Informasi Teknologi',
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightExtraTall,
@@ -638,347 +317,205 @@ class _FormAplikasiRecruitmentScreenState
                                         SizedBox(
                                           height: sizedBoxHeightExtraTall,
                                         ),
-                                        Text(
-                                          'NRP : ',
-                                          style: TextStyle(
-                                              color: const Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
-                                        ),
-                                        SizedBox(
-                                          height: sizedBoxHeightShort,
-                                        ),
-                                        TextFormField(
-                                          controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: '78220012',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color:
-                                                  const Color(textPlaceholder),
-                                            ),
-                                          ),
+                                        TitleWidget(
+                                          title:
+                                              'Permintaan Rekrutmen Karyawan Untuk',
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: textLarge,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        Text(
-                                          'Nama : ',
-                                          style: TextStyle(
-                                              color: const Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
+                                        TitleWidget(
+                                          title: 'Atasan Langsung * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        TextFormField(
+                                        TextFormFieldWidget(
                                           controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: 'Hasnur',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: 'Ayudia',
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        Text(
-                                          'Jabatan : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
+                                        TitleWidget(
+                                          title: 'Entitas * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        TextFormField(
+                                        TextFormFieldWidget(
                                           controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: 'Programmer',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText:
+                                              'PT Hasnur Informasi Teknologi',
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        Text(
-                                          'Divisi/Department : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
+                                        TitleWidget(
+                                          title: 'Lokasi Kerja * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        TextFormField(
+                                        TextFormFieldWidget(
                                           controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: 'Business Solution',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText:
+                                              'BanjarBaru, Kalimantan Selatan',
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        Text(
-                                          'Entitas : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
+                                        TitleWidget(
+                                          title: 'Divisi/Department : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        TextFormField(
+                                        TextFormFieldWidget(
                                           controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText:
-                                                'PT Hasnur Informasi Teknologi',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: 'Business Solution',
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        Text(
-                                          'Tanggal Mulai Bekerja : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
+                                        TitleWidget(
+                                          title: 'Jabatan * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        TextFormField(
+                                        TextFormFieldWidget(
                                           controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: 'System Analist',
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightTall,
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: padding5),
+                                              child: SizedBox(
+                                                width: size.width * 0.43,
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    TitleWidget(
+                                                      title: 'Pangkat * : ',
+                                                      fontWeight:
+                                                          FontWeight.w300,
+                                                      fontSize: textMedium,
+                                                    ),
+                                                    SizedBox(
+                                                      height:
+                                                          sizedBoxHeightShort,
+                                                    ),
+                                                    TextFormFieldWidget(
+                                                      controller:
+                                                          _namaController,
+                                                      maxHeightConstraints:
+                                                          _maxHeightNomor,
+                                                      hintText: 'Minimun',
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
                                             ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: 'dd/mm/yyyy',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                            Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: padding5),
+                                              child: SizedBox(
+                                                width: size.width * 0.43,
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(''),
+                                                    SizedBox(
+                                                      height:
+                                                          sizedBoxHeightShort,
+                                                    ),
+                                                    TextFormFieldWidget(
+                                                      controller:
+                                                          _namaController,
+                                                      maxHeightConstraints:
+                                                          _maxHeightNomor,
+                                                      hintText: 'Maksimum',
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightTall,
+                                        ),
+                                        TitleWidget(
+                                          title: 'Estimasi Mulai Bekerja * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        Text(
-                                          'Total Mengikuti Kegiatan Training : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
-                                        ),
-                                        SizedBox(
-                                          height: sizedBoxHeightShort,
-                                        ),
-                                        TextFormField(
+                                        TextFormFieldWidget(
                                           controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: '2 Kali',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: 'dd/mm/yyyy',
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightShort,
+                                        ),
+                                        TitleWidget(
+                                          title: 'Jumlah * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightShort,
+                                        ),
+                                        TextFormFieldWidget(
+                                          controller: _nrpController,
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: '2 Orang',
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightShort,
+                                        ),
+                                        TitleWidget(
+                                          title: 'Catatan * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightShort,
+                                        ),
+                                        TextFormFieldWidget(
+                                          controller: _nrpController,
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: 'Sangat Diperlukan',
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightExtraTall,
@@ -998,349 +535,223 @@ class _FormAplikasiRecruitmentScreenState
                                         SizedBox(
                                           height: sizedBoxHeightExtraTall,
                                         ),
-                                        Text(
-                                          'NRP : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
-                                        ),
-                                        SizedBox(
-                                          height: sizedBoxHeightShort,
-                                        ),
-                                        TextFormField(
-                                          controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: '78220012',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                        TitleWidget(
+                                          title: 'Kualifikasi yang Dibutuhkan',
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: textLarge,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        Text(
-                                          'Nama : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
+                                        TitleWidget(
+                                          title: 'Pendidikan * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        TextFormField(
+                                        TextFormFieldWidget(
                                           controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: 'Hasnur',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: 'S1',
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        Text(
-                                          'Jabatan : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
+                                        TitleWidget(
+                                          title: 'Jurusan Utama * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        TextFormField(
+                                        TextFormFieldWidget(
                                           controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: 'Programmer',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: 'Sistem Informasi',
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        Text(
-                                          'Divisi/Department : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
+                                        TitleWidget(
+                                          title: 'Jurusan Lainnya * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        TextFormField(
+                                        TextFormFieldWidget(
                                           controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: 'Business Solution',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: 'Sistem Informasi',
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        Text(
-                                          'Entitas : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
+                                        TitleWidget(
+                                          title: 'IPK / Nilai * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        TextFormField(
+                                        TextFormFieldWidget(
                                           controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText:
-                                                'PT Hasnur Informasi Teknologi',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: '> 3.5',
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        Text(
-                                          'Tanggal Mulai Bekerja : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
+                                        TitleWidget(
+                                          title: 'Sertifikasi * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        TextFormField(
+                                        TextFormFieldWidget(
                                           controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: '---',
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightTall,
+                                        ),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: padding5),
+                                              child: SizedBox(
+                                                width: size.width * 0.43,
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    TitleWidget(
+                                                      title:
+                                                          'Rentang Usia * : ',
+                                                      fontWeight:
+                                                          FontWeight.w300,
+                                                      fontSize: textMedium,
+                                                    ),
+                                                    SizedBox(
+                                                      height:
+                                                          sizedBoxHeightShort,
+                                                    ),
+                                                    TextFormFieldWidget(
+                                                      controller:
+                                                          _namaController,
+                                                      maxHeightConstraints:
+                                                          _maxHeightNomor,
+                                                      hintText: 'Minimun',
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
                                             ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: 'dd/mm/yyyy',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                            Padding(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: padding5),
+                                              child: SizedBox(
+                                                width: size.width * 0.43,
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(''),
+                                                    SizedBox(
+                                                      height:
+                                                          sizedBoxHeightShort,
+                                                    ),
+                                                    TextFormFieldWidget(
+                                                      controller:
+                                                          _namaController,
+                                                      maxHeightConstraints:
+                                                          _maxHeightNomor,
+                                                      hintText: 'Maksimum',
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightTall,
+                                        ),
+                                        TitleWidget(
+                                          title: 'Jenis Kelamin * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        Text(
-                                          'Total Mengikuti Kegiatan Training : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
-                                        ),
-                                        SizedBox(
-                                          height: sizedBoxHeightShort,
-                                        ),
-                                        TextFormField(
+                                        TextFormFieldWidget(
                                           controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: '2 Kali',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: 'Perempuan',
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightShort,
+                                        ),
+                                        TitleWidget(
+                                          title: 'Pengalaman Kerja * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightShort,
+                                        ),
+                                        TextFormFieldWidget(
+                                          controller: _nrpController,
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: 'Minimal 1 Tahun',
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightExtraTall,
+                                        ),
+                                        TitleWidget(
+                                          title: 'Soft Skill * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightShort,
+                                        ),
+                                        TextFormFieldWidget(
+                                          controller: _nrpController,
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: 'Percaya Diri',
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightTall,
+                                        ),
+                                        TitleWidget(
+                                          title: 'Hard Skill * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightShort,
+                                        ),
+                                        TextFormFieldWidget(
+                                          controller: _nrpController,
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText:
+                                              'Pengatahuan Tentang Database',
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightTall,
                                         ),
                                       ],
                                     ),
@@ -1357,349 +768,184 @@ class _FormAplikasiRecruitmentScreenState
                                         SizedBox(
                                           height: sizedBoxHeightExtraTall,
                                         ),
-                                        Text(
-                                          'NRP : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
+                                        TitleWidget(
+                                          title: 'Tujuan Jabatan * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        TextFormField(
+                                        TextFormFieldWidget(
                                           controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: '78220012',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText:
+                                              'Pengatahuan Tentang Database',
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        Text(
-                                          'Nama : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
+                                        TitleWidget(
+                                          title: 'Tujuan & Tanggung Jawab * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        TextFormField(
+                                        TextFormFieldWidget(
                                           controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: 'Hasnur',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                          hintText:
+                                              'Bertanggung Jawab untuk ...',
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        Text(
-                                          'Jabatan : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
+                                        TitleWidget(
+                                          title:
+                                              'Lampiran Struktur Organisasi * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        TextFormField(
+                                        TextFormFieldWidget(
                                           controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: 'Programmer',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: 'Lampiran',
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        Text(
-                                          'Divisi/Department : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
+                                        TitleWidget(
+                                          title: 'Status Karyawan * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        TextFormField(
+                                        TextFormFieldWidget(
                                           controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: 'Business Solution',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                          hintText: 'Kontrak',
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        Text(
-                                          'Entitas : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
+                                        TitleWidget(
+                                          title: 'Tahun * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        TextFormField(
+                                        TextFormFieldWidget(
                                           controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText:
-                                                'PT Hasnur Informasi Teknologi',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: '1',
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
                                         ),
-                                        Text(
-                                          'Tanggal Mulai Bekerja : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
+                                        TitleWidget(
+                                          title: 'Bulan * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        TextFormField(
+                                        TextFormFieldWidget(
                                           controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: 'dd/mm/yyyy',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: '-',
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightTall,
+                                        ),
+                                        TitleWidget(
+                                          title:
+                                              'Status Aplikasi Rekrutmen * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightShort,
                                         ),
-                                        Text(
-                                          'Total Mengikuti Kegiatan Training : ',
-                                          style: TextStyle(
-                                              color: Color(primaryBlack),
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300),
-                                        ),
-                                        SizedBox(
-                                          height: sizedBoxHeightShort,
-                                        ),
-                                        TextFormField(
+                                        TextFormFieldWidget(
                                           controller: _nrpController,
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.transparent,
-                                                  width: 0),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              borderSide: const BorderSide(
-                                                  color: Colors.black,
-                                                  width: 1),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(5),
-                                                borderSide: const BorderSide(
-                                                    color: Colors.grey,
-                                                    width: 0)),
-                                            constraints: BoxConstraints(
-                                                maxHeight: _maxHeightNomor),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            hintText: '2 Kali',
-                                            hintStyle: TextStyle(
-                                              fontSize: textSmall,
-                                              fontFamily: 'Poppins',
-                                              color: Color(textPlaceholder),
-                                            ),
-                                          ),
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: 'Baru (New Hire)',
                                         ),
                                         SizedBox(
-                                          height: sizedBoxHeightExtraTall,
+                                          height: sizedBoxHeightTall,
+                                        ),
+                                        TitleWidget(
+                                          title: 'Nama * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightShort,
+                                        ),
+                                        TextFormFieldWidget(
+                                          controller: _nrpController,
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: 'Hasnur',
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightTall,
+                                        ),
+                                        TitleWidget(
+                                          title: 'Jabatan * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightShort,
+                                        ),
+                                        TextFormFieldWidget(
+                                          controller: _nrpController,
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: 'System Analys',
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightTall,
+                                        ),
+                                        TitleWidget(
+                                          title: 'Pangkat * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightShort,
+                                        ),
+                                        TextFormFieldWidget(
+                                          controller: _nrpController,
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText: 'Senior',
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightTall,
+                                        ),
+                                        TitleWidget(
+                                          title: 'Entitas * : ',
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightShort,
+                                        ),
+                                        TextFormFieldWidget(
+                                          controller: _nrpController,
+                                          maxHeightConstraints: _maxHeightNomor,
+                                          hintText:
+                                              'PT Hasnur Informasi Teknologi',
+                                        ),
+                                        SizedBox(
+                                          height: sizedBoxHeightTall,
                                         ),
                                       ],
                                     ),

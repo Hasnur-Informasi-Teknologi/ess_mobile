@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 const primaryYellow = 0xFFFFD116;
 const primaryBlack = 0xFF17252A;
 const textPlaceholder = 0xFFAAAAAA;
@@ -13,7 +11,7 @@ const buttonBlue = 0xFF3C73A8;
 
 const boxDate = 0xFFC69821;
 
-
+// double icon = size.width * 0.05;
 // double textSmall = size.width * 0.027;  // 12 px
 // double textMedium = size.width * 0.0329; // 14 px
 // double textLarge = size.width * 0.04; // 18 px

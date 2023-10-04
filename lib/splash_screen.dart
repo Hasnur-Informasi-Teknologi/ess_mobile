@@ -5,14 +5,8 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:get/get.dart';
-import 'package:mobile_ess/providers/auth_provider.dart';
-import 'package:mobile_ess/screens/authentication/signin_screen.dart';
-import 'package:mobile_ess/screens/user/home/home_screen.dart';
 import 'package:mobile_ess/themes/constant.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -51,7 +45,7 @@ class _SplashScreenState extends State<SplashScreen> {
     }
 
     if (_isUserLogin) {
-      final userId = prefs.getString('userId');
+      // final userId = prefs.getString('userId');
       try {
         Get.offAllNamed('/');
 

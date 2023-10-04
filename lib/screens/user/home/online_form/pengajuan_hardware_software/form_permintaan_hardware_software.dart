@@ -1,12 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mobile_ess/screens/user/home/pengumuman/pengumuman_screen.dart';
 import 'package:mobile_ess/themes/constant.dart';
-import 'package:mobile_ess/widgets/line_widget.dart';
-import 'package:mobile_ess/widgets/row_widget.dart';
-import 'package:mobile_ess/widgets/row_with_button_widget.dart';
-import 'package:mobile_ess/widgets/title_center_widget.dart';
+import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 
 class FormPermintaanHardwareSoftware extends StatefulWidget {
@@ -21,7 +17,7 @@ class _FormPermintaanHardwareSoftwareState
     extends State<FormPermintaanHardwareSoftware> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
-  double _maxHeightNama = 40.0;
+  final double _maxHeightNama = 40.0;
 
   bool? _isDesktop = false;
   bool? _isPrinter = false;
@@ -41,16 +37,12 @@ class _FormPermintaanHardwareSoftwareState
   Widget build(BuildContext context) {
     DateTime dateTime = DateTime(3000, 2, 1, 10, 20);
     Size size = MediaQuery.of(context).size;
-    double textSmall = size.width * 0.027;
     double textMedium = size.width * 0.0329;
-    double textLarge = size.width * 0.04;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double paddingHorizontalNarrow = size.width * 0.035;
-    double paddingHorizontalWide = size.width * 0.0585;
     double padding5 = size.width * 0.0115;
-    double padding10 = size.width * 0.023;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -82,15 +74,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'Tipe Karyawan',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Tipe Karyawan',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -99,42 +86,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'Karyawan Baru',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: 'Karyawan Baru',
                   ),
                 ),
                 SizedBox(
@@ -143,15 +98,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'NRP',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'NRP',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -160,42 +110,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: '78220012',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: '78220012',
                   ),
                 ),
                 SizedBox(
@@ -204,15 +122,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'Nama',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Nama',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -221,42 +134,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'Nama',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: 'Nama',
                   ),
                 ),
                 SizedBox(
@@ -265,15 +146,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'Departemen',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Departemen',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -282,42 +158,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'Departemen',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: 'Departemen',
                   ),
                 ),
                 SizedBox(
@@ -326,15 +170,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'Lokasi',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Lokasi',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -343,42 +182,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'Lokasi',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: 'Lokasi',
                   ),
                 ),
                 SizedBox(
@@ -387,15 +194,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'Tanggal Pengajuan',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Tanggal Pengajuan',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 CupertinoButton(
@@ -451,15 +253,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'Diminta Oleh',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Diminta Oleh',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -468,42 +265,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'Diminta Oleh',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: 'Diminta Oleh',
                   ),
                 ),
                 SizedBox(
@@ -512,15 +277,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'No Telepon',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'No Telepon',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -529,42 +289,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'No Telepon',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: 'No Telepon',
                   ),
                 ),
                 SizedBox(
@@ -584,6 +312,7 @@ class _FormPermintaanHardwareSoftwareState
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: TitleWidget(
                     title: 'Hardware',
+                    fontWeight: FontWeight.w300,
                     fontSize: textMedium,
                   ),
                 ),
@@ -634,6 +363,7 @@ class _FormPermintaanHardwareSoftwareState
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: TitleWidget(
                     title: 'Software',
+                    fontWeight: FontWeight.w300,
                     fontSize: textMedium,
                   ),
                 ),
@@ -685,15 +415,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'Penjelasan',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Penjelasan',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -702,42 +427,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'Penjelasan',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: 'Penjelasan',
                   ),
                 ),
                 SizedBox(
@@ -746,15 +439,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'Tambahan Permintaan Hardware & Software Lainnya',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Tambahan Permintaan Hardware & Software Lainnya',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -763,43 +451,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText:
-                          'Tambahan Permintaan Hardware & Software Lainnya',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: 'Tambahan Permintaan Hardware & Software Lainnya',
                   ),
                 ),
                 SizedBox(
@@ -808,15 +463,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Text(
-                    'Keterangan',
-                    textAlign: TextAlign.start,
-                    style: TextStyle(
-                        color: const Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        letterSpacing: 0.9,
-                        fontWeight: FontWeight.w700),
+                  child: TitleWidget(
+                    title: 'Keterangan',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
                   ),
                 ),
                 SizedBox(
@@ -825,42 +475,10 @@ class _FormPermintaanHardwareSoftwareState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
+                  child: TextFormFieldWidget(
                     controller: _namaController,
-                    // validator: (value) {
-                    //   if (value == null || value.isEmpty) {
-                    //     return 'NRP Kosong';
-                    //   } else if (value.length < 8) {
-                    //     return 'Password Kosong';
-                    //   }
-                    //   return null;
-                    // },
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                        borderSide: const BorderSide(
-                          color: Colors.transparent,
-                          width: 0,
-                        ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.black, width: 1)),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide:
-                              const BorderSide(color: Colors.grey, width: 0)),
-                      constraints: BoxConstraints(maxHeight: _maxHeightNama),
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'Keterangan',
-                      hintStyle: TextStyle(
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        color: const Color(textPlaceholder),
-                      ),
-                    ),
+                    maxHeightConstraints: _maxHeightNama,
+                    hintText: 'Keterangan',
                   ),
                 ),
                 SizedBox(
