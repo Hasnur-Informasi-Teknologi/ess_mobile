@@ -2,12 +2,16 @@
 
 import 'package:get/get.dart';
 import 'package:mobile_ess/models/http_exception.dart';
+import 'package:mobile_ess/providers/auth_provider.dart';
+import 'package:mobile_ess/screens/user/home/home_screen.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/error_dialog_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -45,14 +49,12 @@ class _SignInScreenState extends State<SignInScreen> {
     userPass = _passController.text;
 
     try {
-      // SharedPreferences prefs = await SharedPreferences.getInstance();
-      // prefs.setBool('isUserLogin', true);
-      // await Provider.of<AuthProvider>(context, listen: false)
-      //     .signIn(userNrp!, userPass!)
-      //     .then((_) => Navigator.pushReplacement(context,
-      //         MaterialPageRoute(builder: (ctx) => const HomeScreen())));
+      await Provider.of<AuthProvider>(context, listen: false)
+          .signIn(userNrp!, userPass!)
+          .then((_) => Navigator.pushReplacement(context,
+              MaterialPageRoute(builder: (ctx) => const HomeScreen())));
 
-      Get.offAllNamed('/user/main');
+      // Get.offAllNamed('/user/main');
     } on HttpException catch (e) {
       String errorMessage = '';
 
@@ -70,7 +72,9 @@ class _SignInScreenState extends State<SignInScreen> {
       //     () => Navigator.pushReplacement(context,
       //         MaterialPageRoute(builder: (ctx) => const HomeScreen())));
     } catch (e) {
-      Get.offAllNamed('/user/main');
+      print(e);
+      print('Gagal Fetching Data');
+      // Get.offAllNamed('/user/main');
 
       // _showErrorDialog('USER NOT REGISTERED');
       // Future.delayed(
@@ -264,8 +268,9 @@ class _SignInScreenState extends State<SignInScreen> {
                                             // validator: _validatorPassword,
                                             decoration: InputDecoration(
                                                 border: OutlineInputBorder(
-                                                    borderRadius: BorderRadius
-                                                        .circular(5),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5),
                                                     borderSide: const BorderSide(
                                                         color:
                                                             Colors.transparent,
@@ -291,12 +296,11 @@ class _SignInScreenState extends State<SignInScreen> {
                                                 constraints: BoxConstraints(
                                                     maxHeight: _maxHeightPass),
                                                 filled: true,
-                                                fillColor: const Color(
-                                                    secondaryBackground),
+                                                fillColor: Colors.white,
                                                 hintText:
                                                     'Masukkan Password Anda',
                                                 hintStyle: TextStyle(
-                                                  fontSize: textSmall,
+                                                  fontSize: textMedium,
                                                   fontFamily: 'Poppins',
                                                   color: const Color(
                                                       textPlaceholder),

@@ -37,17 +37,19 @@ class _SplashScreenState extends State<SplashScreen> {
       deviceData = _readIosDeviceInfo(await deviceInfoPlugin.iosInfo);
     }
 
-    if (prefs.getBool('isUserLogin') != null) {
-      setState(() {
-        _isUserLogin = prefs.getBool('isUserLogin')!;
-        deviceDataId = deviceData;
-      });
-    }
+    // if (prefs.getString('token') != null) {
+    //   setState(() {
+    //     _isUserLogin = prefs.getBool('isUserLogin')!;
+    //     deviceDataId = deviceData;
+    //   });
+    // }
 
-    if (_isUserLogin) {
+    if (prefs.getString('token') != null) {
       // final userId = prefs.getString('userId');
       try {
-        Get.offAllNamed('/');
+        print('ada token');
+        Future.delayed(
+            const Duration(seconds: 2), () => {Get.offAllNamed('/user/main')});
 
         // await Provider.of<AuthProvider>(context, listen: false)
         //     .checkDeviceId(
@@ -64,6 +66,7 @@ class _SplashScreenState extends State<SplashScreen> {
         //       ),
         //     );
       } catch (e) {
+        print('belum ada token 1');
         Get.offAllNamed('/');
 
         // Future.delayed(
@@ -77,17 +80,9 @@ class _SplashScreenState extends State<SplashScreen> {
         // );
       }
     } else {
-      Get.offAllNamed('/');
+      print('belum ada token 2');
 
-      // Future.delayed(
-      //   const Duration(seconds: 2),
-      //   () => Navigator.pushReplacement(
-      //     context,
-      //     MaterialPageRoute(
-      //       builder: (ctx) => const SignInScreen(),
-      //     ),
-      //   ),
-      // );
+      Future.delayed(const Duration(seconds: 2), () => {Get.offAllNamed('/')});
     }
   }
 

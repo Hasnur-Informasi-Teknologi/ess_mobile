@@ -10,7 +10,10 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> signIn(String nrp, String password) async {
     try {
-      final response = await http.post(Uri.parse('$_apiUrl/sign_in'),
+      print('sebelum response');
+      print(nrp);
+      print(password);
+      final response = await http.post(Uri.parse('$_apiUrl/login'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
@@ -19,17 +22,15 @@ class AuthProvider with ChangeNotifier {
             'password': password,
           }));
 
-      print('response');
       final responseData = jsonDecode(response.body);
+      print(responseData);
 
-      if (responseData['message'] != 'Success') {
-        throw HttpException(responseData['message']);
+      if (responseData['status'] != true) {
+        throw HttpException(responseData['status']);
       }
 
       final prefs = await SharedPreferences.getInstance();
-      prefs.setBool('isUserLogin', true);
-      prefs.setString('userId', responseData['data']['nrp']);
-      prefs.setString('entity', responseData['data']['entity'].toString());
+      prefs.setString('token', responseData['token']);
 
       notifyListeners();
     } catch (e) {

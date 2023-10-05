@@ -9,6 +9,7 @@ import 'package:mobile_ess/widgets/line_widget.dart';
 import 'package:mobile_ess/widgets/pengumuman_card_widget.dart';
 import 'package:mobile_ess/widgets/row_with_button_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,6 +20,17 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String? _userName, _pt, _imageUrl, _webUrl;
+
+  Future<void> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('token'));
+  }
+
+  Future<void> logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    print(prefs.remove('token'));
+    Get.offAllNamed('/');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +63,14 @@ class _HomeScreenState extends State<HomeScreen> {
               IconButton(
                 icon: const Icon(Icons.notifications),
                 onPressed: () {
+                  getToken();
+                  // Aksi ketika ikon lonceng di tekan
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.logout),
+                onPressed: () {
+                  logout();
                   // Aksi ketika ikon lonceng di tekan
                 },
               ),
