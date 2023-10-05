@@ -176,6 +176,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                 decoration: BoxDecoration(
                                   color: Colors.grey[100],
                                   borderRadius: BorderRadius.circular(5.0),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.grey.withOpacity(0.3),
+                                        offset: const Offset(1.1, 1.1),
+                                        blurRadius: 10.0),
+                                  ],
                                 ),
                                 child: Padding(
                                   padding:
@@ -252,6 +258,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                 decoration: BoxDecoration(
                                   color: Colors.grey[100],
                                   borderRadius: BorderRadius.circular(5.0),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.grey.withOpacity(0.3),
+                                        offset: const Offset(1.1, 1.1),
+                                        blurRadius: 10.0),
+                                  ],
                                 ),
                                 child: Padding(
                                   padding:
@@ -328,6 +340,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                 decoration: BoxDecoration(
                                   color: Colors.grey[100],
                                   borderRadius: BorderRadius.circular(5.0),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: Colors.grey.withOpacity(0.3),
+                                        offset: const Offset(1.1, 1.1),
+                                        blurRadius: 10.0),
+                                  ],
                                 ),
                                 child: Padding(
                                   padding:
