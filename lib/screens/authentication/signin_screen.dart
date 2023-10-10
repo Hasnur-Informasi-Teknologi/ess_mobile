@@ -163,7 +163,7 @@ class _SignInScreenState extends State<SignInScreen> {
           toolbarHeight: 0,
         ),
         body: _isLoading
-            ? const CircularProgressIndicator()
+            ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: padding40),
@@ -191,6 +191,12 @@ class _SignInScreenState extends State<SignInScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(10.0),
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Colors.grey.withOpacity(0.3),
+                                  offset: const Offset(1.1, 1.1),
+                                  blurRadius: 10.0),
+                            ],
                           ),
                           child: Padding(
                             padding: EdgeInsets.symmetric(

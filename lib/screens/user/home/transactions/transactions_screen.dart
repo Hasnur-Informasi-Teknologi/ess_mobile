@@ -1,8 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mobile_ess/helpers/url_helper.dart';
+import 'package:mobile_ess/providers/auth_provider.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/row_widget.dart';
+import 'package:http/http.dart' as http;
 import 'package:mobile_ess/widgets/row_with_button_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TransactionsScreen extends StatefulWidget {
   const TransactionsScreen({super.key});
@@ -12,12 +18,71 @@ class TransactionsScreen extends StatefulWidget {
 }
 
 class _TransactionsScreenState extends State<TransactionsScreen> {
+  List<Map<String, dynamic>> dataKaryawan = [];
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _trainingController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
 
   final double _maxHeightTraining = 40.0;
   final double _maxHeightSearch = 40.0;
+
+  final String _apiUrl = API_URL;
+
+  @override
+  void initState() {
+    super.initState();
+    getDataTransaksi();
+    getDataKaryawan();
+  }
+
+  Future<void> getDataTransaksi() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? token = prefs.getString('token');
+
+    if (token != null) {
+      try {
+        final response = await http.get(
+            Uri.parse(
+                "$_apiUrl/get_data_detail_plafon?page=1&perPage=5&search=''"),
+            headers: <String, String>{
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Authorization': 'Bearer $token'
+            });
+        final responseData = jsonDecode(response.body);
+      } catch (e) {
+        // print(e);
+      }
+    }
+  }
+
+  Future<void> getDataKaryawan() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token != null) {
+      try {
+        final response = await http.get(
+          Uri.parse('$_apiUrl/get_data_karyawan'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+        );
+
+        final responseData = jsonDecode(response.body);
+        print(responseData);
+
+        final dataKaryawanApi = responseData['data']['data'];
+
+        setState(() {
+          dataKaryawan = List<Map<String, dynamic>>.from(dataKaryawanApi);
+          print(dataKaryawan.length);
+        });
+      } catch (e) {}
+    } else {
+      print('tidak ada token home');
+    }
+  }
 
   int current = 0;
 
@@ -163,9 +228,17 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           },
                         ),
                       ),
-                      Column(
-                        children: [
-                          Column(
+                      ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: dataKaryawan.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          if (dataKaryawan.isEmpty) {
+                            return const Center(
+                              child: Text('Data Karyawan Kosong'),
+                            );
+                          }
+                          final karyawan = dataKaryawan[index];
+                          return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Container(
@@ -190,54 +263,55 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      const RowWidget(
-                                        textLeft: 'Prioritas',
-                                        textRight: 'Normal',
+                                      RowWidget(
+                                        textLeft: 'Nama Karyawan',
+                                        textRight:
+                                            '${karyawan['nama_karyawan']}',
                                         fontWeightLeft: FontWeight.w300,
                                         fontWeightRight: FontWeight.w300,
                                       ),
                                       SizedBox(
                                         height: sizedBoxHeightShort,
                                       ),
-                                      const RowWidget(
-                                        textLeft: 'Tanggal Pengajuan',
-                                        textRight: 'dd/mm/yyyy',
-                                        fontWeightLeft: FontWeight.w300,
-                                        fontWeightRight: FontWeight.w300,
-                                      ),
-                                      SizedBox(
-                                        height: sizedBoxHeightShort,
-                                      ),
-                                      const RowWidget(
-                                        textLeft: 'Diajukan Oleh',
-                                        textRight: 'Nama',
-                                        fontWeightLeft: FontWeight.w300,
-                                        fontWeightRight: FontWeight.w300,
-                                      ),
-                                      SizedBox(
-                                        height: sizedBoxHeightShort,
-                                      ),
-                                      const RowWidget(
+                                      RowWidget(
                                         textLeft: 'NRP',
-                                        textRight: 'HG78220012',
+                                        textRight: '${karyawan['nrp']}',
                                         fontWeightLeft: FontWeight.w300,
                                         fontWeightRight: FontWeight.w300,
                                       ),
                                       SizedBox(
                                         height: sizedBoxHeightShort,
                                       ),
-                                      const RowWidget(
-                                        textLeft: 'Judul Training',
-                                        textRight: 'Basic Data',
+                                      RowWidget(
+                                        textLeft: 'Email',
+                                        textRight: '${karyawan['email']}',
                                         fontWeightLeft: FontWeight.w300,
                                         fontWeightRight: FontWeight.w300,
                                       ),
                                       SizedBox(
                                         height: sizedBoxHeightShort,
                                       ),
-                                      const RowWidget(
-                                        textLeft: 'Fungsi Training',
-                                        textRight: 'Sangat Direkomendasikan',
+                                      RowWidget(
+                                        textLeft: 'Tanggal Masuk',
+                                        textRight: '${karyawan['tgl_masuk']}',
+                                        fontWeightLeft: FontWeight.w300,
+                                        fontWeightRight: FontWeight.w300,
+                                      ),
+                                      SizedBox(
+                                        height: sizedBoxHeightShort,
+                                      ),
+                                      RowWidget(
+                                        textLeft: 'Entitas',
+                                        textRight: '${karyawan['entitas']}',
+                                        fontWeightLeft: FontWeight.w300,
+                                        fontWeightRight: FontWeight.w300,
+                                      ),
+                                      SizedBox(
+                                        height: sizedBoxHeightShort,
+                                      ),
+                                      RowWidget(
+                                        textLeft: 'Lokasi',
+                                        textRight: '${karyawan['lokasi']}',
                                         fontWeightLeft: FontWeight.w300,
                                         fontWeightRight: FontWeight.w300,
                                       ),
@@ -246,172 +320,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                 ),
                               )
                             ],
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                margin: EdgeInsets.symmetric(
-                                    vertical: sizedBoxHeightShort),
-                                height: size.height * 0.21,
-                                width: size.width * 0.9,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[100],
-                                  borderRadius: BorderRadius.circular(5.0),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.grey.withOpacity(0.3),
-                                        offset: const Offset(1.1, 1.1),
-                                        blurRadius: 10.0),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding:
-                                      EdgeInsets.all(paddingHorizontalNarrow),
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const RowWidget(
-                                        textLeft: 'Prioritas',
-                                        textRight: 'Normal',
-                                        fontWeightLeft: FontWeight.w300,
-                                        fontWeightRight: FontWeight.w300,
-                                      ),
-                                      SizedBox(
-                                        height: sizedBoxHeightShort,
-                                      ),
-                                      const RowWidget(
-                                        textLeft: 'Tanggal Pengajuan',
-                                        textRight: 'dd/mm/yyyy',
-                                        fontWeightLeft: FontWeight.w300,
-                                        fontWeightRight: FontWeight.w300,
-                                      ),
-                                      SizedBox(
-                                        height: sizedBoxHeightShort,
-                                      ),
-                                      const RowWidget(
-                                        textLeft: 'Diajukan Oleh',
-                                        textRight: 'Nama',
-                                        fontWeightLeft: FontWeight.w300,
-                                        fontWeightRight: FontWeight.w300,
-                                      ),
-                                      SizedBox(
-                                        height: sizedBoxHeightShort,
-                                      ),
-                                      const RowWidget(
-                                        textLeft: 'NRP',
-                                        textRight: 'HG78220012',
-                                        fontWeightLeft: FontWeight.w300,
-                                        fontWeightRight: FontWeight.w300,
-                                      ),
-                                      SizedBox(
-                                        height: sizedBoxHeightShort,
-                                      ),
-                                      const RowWidget(
-                                        textLeft: 'Judul Training',
-                                        textRight: 'Basic Data',
-                                        fontWeightLeft: FontWeight.w300,
-                                        fontWeightRight: FontWeight.w300,
-                                      ),
-                                      SizedBox(
-                                        height: sizedBoxHeightShort,
-                                      ),
-                                      const RowWidget(
-                                        textLeft: 'Fungsi Training',
-                                        textRight: 'Sangat Direkomendasikan',
-                                        fontWeightLeft: FontWeight.w300,
-                                        fontWeightRight: FontWeight.w300,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                margin: EdgeInsets.symmetric(
-                                    vertical: sizedBoxHeightShort),
-                                height: size.height * 0.21,
-                                width: size.width * 0.9,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[100],
-                                  borderRadius: BorderRadius.circular(5.0),
-                                  boxShadow: [
-                                    BoxShadow(
-                                        color: Colors.grey.withOpacity(0.3),
-                                        offset: const Offset(1.1, 1.1),
-                                        blurRadius: 10.0),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding:
-                                      EdgeInsets.all(paddingHorizontalNarrow),
-                                  child: Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const RowWidget(
-                                        textLeft: 'Prioritas',
-                                        textRight: 'Normal',
-                                        fontWeightLeft: FontWeight.w300,
-                                        fontWeightRight: FontWeight.w300,
-                                      ),
-                                      SizedBox(
-                                        height: sizedBoxHeightShort,
-                                      ),
-                                      const RowWidget(
-                                        textLeft: 'Tanggal Pengajuan',
-                                        textRight: 'dd/mm/yyyy',
-                                        fontWeightLeft: FontWeight.w300,
-                                        fontWeightRight: FontWeight.w300,
-                                      ),
-                                      SizedBox(
-                                        height: sizedBoxHeightShort,
-                                      ),
-                                      const RowWidget(
-                                        textLeft: 'Diajukan Oleh',
-                                        textRight: 'Nama',
-                                        fontWeightLeft: FontWeight.w300,
-                                        fontWeightRight: FontWeight.w300,
-                                      ),
-                                      SizedBox(
-                                        height: sizedBoxHeightShort,
-                                      ),
-                                      const RowWidget(
-                                        textLeft: 'NRP',
-                                        textRight: 'HG78220012',
-                                        fontWeightLeft: FontWeight.w300,
-                                        fontWeightRight: FontWeight.w300,
-                                      ),
-                                      SizedBox(
-                                        height: sizedBoxHeightShort,
-                                      ),
-                                      const RowWidget(
-                                        textLeft: 'Judul Training',
-                                        textRight: 'Basic Data',
-                                        fontWeightLeft: FontWeight.w300,
-                                        fontWeightRight: FontWeight.w300,
-                                      ),
-                                      SizedBox(
-                                        height: sizedBoxHeightShort,
-                                      ),
-                                      const RowWidget(
-                                        textLeft: 'Fungsi Training',
-                                        textRight: 'Sangat Direkomendasikan',
-                                        fontWeightLeft: FontWeight.w300,
-                                        fontWeightRight: FontWeight.w300,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              )
-                            ],
-                          )
-                        ],
+                          );
+                        },
                       ),
                     ],
                   ),

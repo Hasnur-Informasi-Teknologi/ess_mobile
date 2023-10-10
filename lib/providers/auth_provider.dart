@@ -10,9 +10,6 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> signIn(String nrp, String password) async {
     try {
-      print('sebelum response');
-      print(nrp);
-      print(password);
       final response = await http.post(Uri.parse('$_apiUrl/login'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
@@ -38,27 +35,27 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<void> signOut() async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final userId = prefs.getString('userId');
+  // Future<void> signOut() async {
+  //   try {
+  //     SharedPreferences prefs = await SharedPreferences.getInstance();
+  //     final userId = prefs.getString('userId');
 
-      final response = await http.get(Uri.parse('$_apiUrl/sign_out/$userId'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8'
-          });
-      final responseData = jsonDecode(response.body);
+  //     final response = await http.get(Uri.parse('$_apiUrl/sign_out/$userId'),
+  //         headers: <String, String>{
+  //           'Content-Type': 'application/json; charset=UTF-8'
+  //         });
+  //     final responseData = jsonDecode(response.body);
 
-      if (responseData['message'] != 'Success') {
-        throw HttpException(responseData['message']);
-      }
+  //     if (responseData['message'] != 'Success') {
+  //       throw HttpException(responseData['message']);
+  //     }
 
-      prefs.remove('isUserLogin');
-      prefs.remove('userId');
-    } catch (e) {
-      throw e;
-    }
-  }
+  //     prefs.remove('isUserLogin');
+  //     prefs.remove('userId');
+  //   } catch (e) {
+  //     throw e;
+  //   }
+  // }
 
   Future<void> checkDeviceId(String nrp, dynamic deviceDataId) async {
     try {
