@@ -1,11 +1,12 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/screens/user/home/pengumuman/pengumuman_screen.dart';
-import 'package:mobile_ess/themes/constant.dart';
+import 'package:http/http.dart' as http;
 import 'package:mobile_ess/widgets/header_profile_widget.dart';
 import 'package:mobile_ess/screens/user/home/icons_container_widget.dart';
 import 'package:mobile_ess/widgets/jadwal_kerja_card_widget.dart';
-import 'package:mobile_ess/widgets/line_widget.dart';
 import 'package:mobile_ess/widgets/pengumuman_card_widget.dart';
 import 'package:mobile_ess/widgets/row_with_button_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
@@ -20,6 +21,33 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   String? _userName, _pt, _imageUrl, _webUrl;
+  final String _apiUrl = API_URL;
+
+  @override
+  void initState() {
+    super.initState();
+    getDataKaryawan();
+  }
+
+  Future<void> getDataKaryawan() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    if (token != null) {
+      try {
+        final response = await http.get(
+          Uri.parse('$_apiUrl/get_data_karyawan'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token',
+          },
+        );
+
+        final responseData = jsonDecode(response.body);
+      } catch (e) {}
+    } else {
+      print('tidak ada token home');
+    }
+  }
 
   Future<void> getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -28,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    print(prefs.remove('token'));
+    prefs.remove('token');
     Get.offAllNamed('/');
   }
 
