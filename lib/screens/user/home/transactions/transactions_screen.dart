@@ -19,6 +19,7 @@ class TransactionsScreen extends StatefulWidget {
 
 class _TransactionsScreenState extends State<TransactionsScreen> {
   List<Map<String, dynamic>> dataKaryawan = [];
+  List<Map<String, dynamic>> dataPlafon = [];
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _trainingController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
@@ -39,19 +40,32 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     String? token = prefs.getString('token');
+    String? nrpString = prefs.getString('nrp');
+    int? nrp = int.tryParse(nrpString ?? '');
+
+    if (nrp is int) {
+      print('nrp is an integer');
+    } else {
+      print('nrp is not an integer or is null');
+    }
 
     if (token != null) {
       try {
         final response = await http.get(
             Uri.parse(
-                "$_apiUrl/get_data_detail_plafon?page=1&perPage=5&search=''"),
+                "$_apiUrl/get_data_detail_plafon?page=1&perPage=5&nrp=$nrp&search="),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
             });
         final responseData = jsonDecode(response.body);
+        final dataPlafonApi = responseData['dataku'];
+        setState(() {
+          dataPlafon = List<Map<String, dynamic>>.from(dataPlafonApi);
+          print(dataPlafon.length);
+        });
       } catch (e) {
-        // print(e);
+        print(e);
       }
     }
   }
@@ -70,13 +84,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         );
 
         final responseData = jsonDecode(response.body);
-        print(responseData);
-
         final dataKaryawanApi = responseData['data']['data'];
 
         setState(() {
           dataKaryawan = List<Map<String, dynamic>>.from(dataKaryawanApi);
-          print(dataKaryawan.length);
         });
       } catch (e) {}
     } else {
@@ -230,14 +241,14 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       ),
                       ListView.builder(
                         shrinkWrap: true,
-                        itemCount: dataKaryawan.length,
+                        itemCount: dataPlafon.length,
                         itemBuilder: (BuildContext context, int index) {
-                          if (dataKaryawan.isEmpty) {
+                          if (dataPlafon.isEmpty) {
                             return const Center(
                               child: Text('Data Karyawan Kosong'),
                             );
                           }
-                          final karyawan = dataKaryawan[index];
+                          final plafon = dataPlafon[index];
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -264,18 +275,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       RowWidget(
-                                        textLeft: 'Nama Karyawan',
-                                        textRight:
-                                            '${karyawan['nama_karyawan']}',
-                                        fontWeightLeft: FontWeight.w300,
-                                        fontWeightRight: FontWeight.w300,
-                                      ),
-                                      SizedBox(
-                                        height: sizedBoxHeightShort,
-                                      ),
-                                      RowWidget(
                                         textLeft: 'NRP',
-                                        textRight: '${karyawan['nrp']}',
+                                        textRight: '${plafon['pernr']}',
                                         fontWeightLeft: FontWeight.w300,
                                         fontWeightRight: FontWeight.w300,
                                       ),
@@ -283,8 +284,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                         height: sizedBoxHeightShort,
                                       ),
                                       RowWidget(
-                                        textLeft: 'Email',
-                                        textRight: '${karyawan['email']}',
+                                        textLeft: 'betyp',
+                                        textRight: '${plafon['betyp']}',
                                         fontWeightLeft: FontWeight.w300,
                                         fontWeightRight: FontWeight.w300,
                                       ),
@@ -292,8 +293,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                         height: sizedBoxHeightShort,
                                       ),
                                       RowWidget(
-                                        textLeft: 'Tanggal Masuk',
-                                        textRight: '${karyawan['tgl_masuk']}',
+                                        textLeft: 'endda',
+                                        textRight: '${plafon['endda']}',
                                         fontWeightLeft: FontWeight.w300,
                                         fontWeightRight: FontWeight.w300,
                                       ),
@@ -301,8 +302,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                         height: sizedBoxHeightShort,
                                       ),
                                       RowWidget(
-                                        textLeft: 'Entitas',
-                                        textRight: '${karyawan['entitas']}',
+                                        textLeft: 'cname',
+                                        textRight: '${plafon['cname']}',
                                         fontWeightLeft: FontWeight.w300,
                                         fontWeightRight: FontWeight.w300,
                                       ),
@@ -310,8 +311,17 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                         height: sizedBoxHeightShort,
                                       ),
                                       RowWidget(
-                                        textLeft: 'Lokasi',
-                                        textRight: '${karyawan['lokasi']}',
+                                        textLeft: 'butxt',
+                                        textRight: '${plafon['butxt']}',
+                                        fontWeightLeft: FontWeight.w300,
+                                        fontWeightRight: FontWeight.w300,
+                                      ),
+                                      SizedBox(
+                                        height: sizedBoxHeightShort,
+                                      ),
+                                      RowWidget(
+                                        textLeft: 'ltext',
+                                        textRight: '${plafon['ltext']}',
                                         fontWeightLeft: FontWeight.w300,
                                         fontWeightRight: FontWeight.w300,
                                       ),

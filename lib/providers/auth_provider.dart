@@ -28,6 +28,7 @@ class AuthProvider with ChangeNotifier {
 
       final prefs = await SharedPreferences.getInstance();
       prefs.setString('token', responseData['token']);
+      prefs.setString('nrp', nrp);
 
       notifyListeners();
     } catch (e) {
