@@ -52,11 +52,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> getToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     print(prefs.getString('token'));
+    print(prefs.getString('nrp'));
   }
 
   Future<void> logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove('token');
+    prefs.remove('nrp');
     Get.offAllNamed('/');
   }
 
