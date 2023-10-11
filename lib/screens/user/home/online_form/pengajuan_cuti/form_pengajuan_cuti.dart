@@ -1,10 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:mobile_ess/helpers/url_helper.dart';
+
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FormPengajuanCuti extends StatefulWidget {
   const FormPengajuanCuti({super.key});
@@ -17,11 +23,141 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
   double _maxHeightNama = 40.0;
+  final String _apiUrl = API_URL;
 
   bool? _isDiBayar = false;
   bool? _isTidakDiBayar = false;
   bool? _isIzinLainnya = false;
   bool? _isRoster = false;
+
+  String? selectedValueEntitas1;
+  List<String> selectedEntitas1 = [];
+  String? selectedValueEntitas2;
+  List<String> selectedEntitas2 = [];
+  String? selectedValueAtasan1;
+  List<Map<String, dynamic>> selectedAtasan1 = [];
+  String? selectedValueAtasanDariAtasan1;
+  List<Map<String, dynamic>> selectedAtasanDariAtasan1 = [];
+  String? selectedValuePengganti;
+  List<Map<String, dynamic>> selectedPengganti = [];
+
+  @override
+  void initState() {
+    super.initState();
+    getDataEntitas();
+    getDataAtasan();
+    getDataAtasanDariAtasan();
+    getDataPengganti();
+  }
+
+  Future<void> getDataEntitas() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? token = prefs.getString('token');
+    String? nrpString = prefs.getString('nrp');
+    int? nrp = int.tryParse(nrpString ?? '');
+
+    if (token != null) {
+      try {
+        final response = await http.get(
+            Uri.parse("$_apiUrl/get_data_entitas_cuti?nrp=$nrp"),
+            headers: <String, String>{
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Authorization': 'Bearer $token'
+            });
+        final responseData = jsonDecode(response.body);
+        final dataEntitasApi = responseData['data_entitas'] as List<dynamic>;
+
+        final List<String> dataEntities = dataEntitasApi
+            .map<String>((entityData) => entityData['entitas'] as String)
+            .toList();
+
+        setState(() {
+          selectedEntitas1 = dataEntities;
+          selectedEntitas2 = dataEntities;
+        });
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
+  Future<void> getDataAtasan() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    String? nrpString = prefs.getString('nrp');
+    int? nrp = int.tryParse(nrpString ?? '');
+
+    if (token != null) {
+      try {
+        final response = await http.get(
+            Uri.parse(
+                "$_apiUrl/get_data_atasan_cuti?nrp=$nrp&entitas=$selectedValueEntitas1"),
+            headers: <String, String>{
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Authorization': 'Bearer $token'
+            });
+        final responseData = jsonDecode(response.body);
+        final dataAtasanApi = responseData['list_karyawan'];
+
+        setState(() {
+          selectedAtasan1 = List<Map<String, dynamic>>.from(dataAtasanApi);
+        });
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
+  Future<void> getDataAtasanDariAtasan() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    String? nrpString = prefs.getString('nrp');
+    int? nrp = int.tryParse(nrpString ?? '');
+
+    if (token != null) {
+      final response = await http.get(
+          Uri.parse("$_apiUrl/get_data_atasan_atasan_cuti?nrp=$nrp"),
+          headers: <String, String>{
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Authorization': 'Bearer $token'
+          });
+      final responseData = jsonDecode(response.body);
+      final dataAtasanDariAtasanApi = responseData['list_karyawan'];
+
+      setState(() {
+        selectedAtasanDariAtasan1 =
+            List<Map<String, dynamic>>.from(dataAtasanDariAtasanApi);
+      });
+    }
+  }
+
+  Future<void> getDataPengganti() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    String? nrpString = prefs.getString('nrp');
+    int? nrp = int.tryParse(nrpString ?? '');
+
+    if (token != null) {
+      try {
+        final response = await http.get(
+            Uri.parse(
+                "$_apiUrl/get_data_pengganti_cuti?nrp=$nrp&entitas=$selectedValueEntitas2"),
+            headers: <String, String>{
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Authorization': 'Bearer $token'
+            });
+        final responseData = jsonDecode(response.body);
+        final dataPenggantiApi = responseData['list_karyawan'];
+
+        setState(() {
+          selectedPengganti = List<Map<String, dynamic>>.from(dataPenggantiApi);
+        });
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,71 +201,126 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                 SizedBox(
                   height: sizedBoxHeightTall,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: size.width * 0.48,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
-                            child: TitleWidget(
-                              title: 'Atasan',
-                              fontWeight: FontWeight.w300,
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+                  child: Text(
+                    'Entitas ',
+                    style: TextStyle(
+                        color: const Color(primaryBlack),
+                        fontSize: textMedium,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500),
+                  ),
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+                  child: DropdownButtonFormField<String>(
+                    value: selectedValueEntitas1,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedValueEntitas1 = newValue ?? '';
+                        selectedValueAtasan1 = null;
+                        getDataAtasan();
+                      });
+                    },
+                    items: selectedEntitas1
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Padding(
+                          padding: const EdgeInsets.all(1.0),
+                          child: Text(
+                            value,
+                            style: TextStyle(
                               fontSize: textMedium,
+                              fontFamily: 'Poppins',
                             ),
                           ),
-                          SizedBox(
-                            height: sizedBoxHeightShort,
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
-                            child: TextFormFieldWidget(
-                              controller: _namaController,
-                              maxHeightConstraints: _maxHeightNama,
-                              hintText: 'Pilih Entitas',
-                            ),
-                          ),
-                        ],
+                        ),
+                      );
+                    }).toList(),
+                    decoration: InputDecoration(
+                      labelStyle: TextStyle(fontSize: textMedium),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: selectedValueEntitas1 != null
+                              ? Colors.black54
+                              : Colors.grey,
+                          width: 1.0,
+                        ),
                       ),
                     ),
-                    SizedBox(
-                      width: size.width * 0.48,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
-                            child: TitleWidget(
-                              title: ' ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                          ),
-                          SizedBox(
-                            height: sizedBoxHeightShort,
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
-                            child: TextFormFieldWidget(
-                              controller: _namaController,
-                              maxHeightConstraints: _maxHeightNama,
-                              hintText: 'Pilih Atasan',
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
+                  ),
                 ),
                 SizedBox(
-                  height: sizedBoxHeightTall,
+                  height: sizedBoxHeightExtraTall,
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+                  child: Text(
+                    'Atasan ',
+                    style: TextStyle(
+                        color: const Color(primaryBlack),
+                        fontSize: textMedium,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500),
+                  ),
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+                  child: DropdownButtonFormField<String>(
+                    value: selectedValueAtasan1,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedValueAtasan1 = newValue ?? '';
+                      });
+                    },
+                    items: selectedAtasan1.map((dynamic value) {
+                      return DropdownMenuItem<String>(
+                        value: value["nama"] as String,
+                        child: Padding(
+                          padding: const EdgeInsets.all(1.0),
+                          child: Text(
+                            value["nama"] as String,
+                            style: TextStyle(
+                              fontSize: textMedium,
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    decoration: InputDecoration(
+                      labelStyle: TextStyle(fontSize: textMedium),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: selectedValueAtasan1 != null
+                              ? Colors.black54
+                              : Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: sizedBoxHeightExtraTall,
                 ),
                 Padding(
                   padding:
@@ -140,83 +331,188 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                     fontSize: textMedium,
                   ),
                 ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+                  child: DropdownButtonFormField<String>(
+                    value: selectedValueAtasanDariAtasan1,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedValueAtasanDariAtasan1 = newValue ?? '';
+                      });
+                    },
+                    items: selectedAtasanDariAtasan1.map((dynamic value) {
+                      return DropdownMenuItem<String>(
+                        value: value["pernr"] as String,
+                        child: Padding(
+                          padding: const EdgeInsets.all(1.0),
+                          child: Text(
+                            value["pernr"] as String,
+                            style: TextStyle(
+                              fontSize: textMedium,
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    decoration: InputDecoration(
+                      labelStyle: TextStyle(fontSize: textMedium),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: selectedValueAtasanDariAtasan1 != null
+                              ? Colors.black54
+                              : Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: sizedBoxHeightTall,
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+                  child: Text(
+                    'Karyawan Pengganti ',
+                    style: TextStyle(
+                        color: const Color(primaryBlack),
+                        fontSize: textMedium,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500),
+                  ),
+                ),
                 SizedBox(
                   height: sizedBoxHeightShort,
                 ),
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                  child: TextFormFieldWidget(
-                    controller: _namaController,
-                    maxHeightConstraints: _maxHeightNama,
-                    hintText: 'Pilih Atasan dari Atasan',
+                  child: Text(
+                    'Entitas ',
+                    style: TextStyle(
+                        color: const Color(primaryBlack),
+                        fontSize: textMedium,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500),
+                  ),
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+                  child: DropdownButtonFormField<String>(
+                    value: selectedValueEntitas2,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedValueEntitas2 = newValue ?? '';
+                        selectedValuePengganti = null;
+                        getDataPengganti();
+                      });
+                    },
+                    items: selectedEntitas2
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Padding(
+                          padding: const EdgeInsets.all(1.0),
+                          child: Text(
+                            value,
+                            style: TextStyle(
+                              fontSize: textMedium,
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    decoration: InputDecoration(
+                      labelStyle: TextStyle(fontSize: textMedium),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: selectedValueEntitas2 != null
+                              ? Colors.black54
+                              : Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 SizedBox(
-                  height: sizedBoxHeightTall,
+                  height: sizedBoxHeightExtraTall,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: size.width * 0.48,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
-                            child: TitleWidget(
-                              title: 'Karyawan Pengganti',
-                              fontWeight: FontWeight.w300,
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+                  child: Text(
+                    'Pengganti ',
+                    style: TextStyle(
+                        color: const Color(primaryBlack),
+                        fontSize: textMedium,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500),
+                  ),
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+                  child: DropdownButtonFormField<String>(
+                    value: selectedValuePengganti,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedValuePengganti = newValue ?? '';
+                      });
+                    },
+                    items: selectedPengganti.map((dynamic value) {
+                      return DropdownMenuItem<String>(
+                        value: value["nama"] as String,
+                        child: Padding(
+                          padding: const EdgeInsets.all(1.0),
+                          child: Text(
+                            value["nama"] as String,
+                            style: TextStyle(
                               fontSize: textMedium,
+                              fontFamily: 'Poppins',
                             ),
                           ),
-                          SizedBox(
-                            height: sizedBoxHeightShort,
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
-                            child: TextFormFieldWidget(
-                              controller: _namaController,
-                              maxHeightConstraints: _maxHeightNama,
-                              hintText: 'Pilih Entitas',
-                            ),
-                          ),
-                        ],
+                        ),
+                      );
+                    }).toList(),
+                    decoration: InputDecoration(
+                      labelStyle: TextStyle(fontSize: textMedium),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: selectedValuePengganti != null
+                              ? Colors.black54
+                              : Colors.grey,
+                          width: 1.0,
+                        ),
                       ),
                     ),
-                    SizedBox(
-                      width: size.width * 0.48,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
-                            child: TitleWidget(
-                              title: ' ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                          ),
-                          SizedBox(
-                            height: sizedBoxHeightShort,
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
-                            child: TextFormFieldWidget(
-                              controller: _namaController,
-                              maxHeightConstraints: _maxHeightNama,
-                              hintText: 'Pilih Pengganti',
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
+                  ),
+                ),
+                SizedBox(
+                  height: sizedBoxHeightExtraTall,
                 ),
                 SizedBox(
                   height: sizedBoxHeightTall,
