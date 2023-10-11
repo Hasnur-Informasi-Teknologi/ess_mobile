@@ -26,9 +26,7 @@ class MainScreen extends StatelessWidget {
           ],
         );
       }),
-      bottomNavigationBar: Obx(
-        () {
-          return BottomNavigationBar(
+      bottomNavigationBar: BottomNavigationBar(
             selectedItemColor: Colors.amber,
             unselectedItemColor: Colors.grey,
             currentIndex: controller.selectedIndex.value,
@@ -59,9 +57,7 @@ class MainScreen extends StatelessWidget {
                 label: 'Profile',
               ),
             ],
-          );
-        },
-      ),
+          )
     );
   }
 }

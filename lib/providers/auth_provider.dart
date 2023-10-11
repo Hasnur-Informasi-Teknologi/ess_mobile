@@ -20,7 +20,6 @@ class AuthProvider with ChangeNotifier {
           }));
 
       final responseData = jsonDecode(response.body);
-      print(responseData);
 
       if (responseData['status'] != true) {
         throw HttpException(responseData['status']);
@@ -29,6 +28,16 @@ class AuthProvider with ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       prefs.setString('token', responseData['token']);
       prefs.setString('nrp', nrp);
+
+      final user = await http.get(
+        Uri.parse('$_apiUrl/get_profile_employee?nrp=$nrp'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      final userData = user.body;
+      prefs.setString('userData', userData);
 
       notifyListeners();
     } catch (e) {
