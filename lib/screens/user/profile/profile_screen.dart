@@ -35,7 +35,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             future: getData(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                // Display a circular loading indicator while fetching data.
                 return SingleChildScrollView(
                   child: SafeArea(
                     child: Padding(
@@ -67,7 +66,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   )
                 );
               } else if (snapshot.hasError) {
-                // Handle any errors that occur during the fetch.
                 return Center(
                   child: Text('Error: ${snapshot.error}'),
                 );
