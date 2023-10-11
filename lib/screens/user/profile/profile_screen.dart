@@ -16,6 +16,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final String _apiUrl = API_URL;
 
   Future<Map<String, dynamic>> getData() async {
+    print("Check data");
     final prefs = await SharedPreferences.getInstance();
     var userData = prefs.getString('userData');
     final responseData = jsonDecode(userData.toString());
