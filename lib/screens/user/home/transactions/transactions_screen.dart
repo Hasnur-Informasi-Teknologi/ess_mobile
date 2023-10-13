@@ -43,12 +43,6 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     String? nrpString = prefs.getString('nrp');
     int? nrp = int.tryParse(nrpString ?? '');
 
-    if (nrp is int) {
-      print('nrp is an integer');
-    } else {
-      print('nrp is not an integer or is null');
-    }
-
     if (token != null) {
       try {
         final response = await http.get(
@@ -102,6 +96,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double padding10 = size.width * 0.023;
+    double sizedBoxHeightExtraShort = size.height * 0.0043;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightExtraTall = size.height * 0.047;
@@ -255,8 +250,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                               Container(
                                 margin: EdgeInsets.symmetric(
                                     vertical: sizedBoxHeightShort),
-                                height: size.height * 0.21,
-                                width: size.width * 0.9,
+                                height: size.height * 0.37,
+                                width: size.width,
                                 decoration: BoxDecoration(
                                   color: Colors.grey[100],
                                   borderRadius: BorderRadius.circular(5.0),
@@ -281,7 +276,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                         fontWeightRight: FontWeight.w300,
                                       ),
                                       SizedBox(
-                                        height: sizedBoxHeightShort,
+                                        height: sizedBoxHeightExtraShort,
                                       ),
                                       RowWidget(
                                         textLeft: 'betyp',
@@ -290,7 +285,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                         fontWeightRight: FontWeight.w300,
                                       ),
                                       SizedBox(
-                                        height: sizedBoxHeightShort,
+                                        height: sizedBoxHeightExtraShort,
                                       ),
                                       RowWidget(
                                         textLeft: 'endda',
@@ -299,7 +294,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                         fontWeightRight: FontWeight.w300,
                                       ),
                                       SizedBox(
-                                        height: sizedBoxHeightShort,
+                                        height: sizedBoxHeightExtraShort,
                                       ),
                                       RowWidget(
                                         textLeft: 'cname',
@@ -308,7 +303,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                         fontWeightRight: FontWeight.w300,
                                       ),
                                       SizedBox(
-                                        height: sizedBoxHeightShort,
+                                        height: sizedBoxHeightExtraShort,
                                       ),
                                       RowWidget(
                                         textLeft: 'butxt',
@@ -317,11 +312,83 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                         fontWeightRight: FontWeight.w300,
                                       ),
                                       SizedBox(
-                                        height: sizedBoxHeightShort,
+                                        height: sizedBoxHeightExtraShort,
                                       ),
                                       RowWidget(
                                         textLeft: 'ltext',
                                         textRight: '${plafon['ltext']}',
+                                        fontWeightLeft: FontWeight.w300,
+                                        fontWeightRight: FontWeight.w300,
+                                      ),
+                                      SizedBox(
+                                        height: sizedBoxHeightExtraShort,
+                                      ),
+                                      RowWidget(
+                                        textLeft: 'begda',
+                                        textRight: '${plafon['begda']}',
+                                        fontWeightLeft: FontWeight.w300,
+                                        fontWeightRight: FontWeight.w300,
+                                      ),
+                                      SizedBox(
+                                        height: sizedBoxHeightExtraShort,
+                                      ),
+                                      RowWidget(
+                                        textLeft: 'pltbt',
+                                        textRight: '${plafon['pltbt']}',
+                                        fontWeightLeft: FontWeight.w300,
+                                        fontWeightRight: FontWeight.w300,
+                                      ),
+                                      SizedBox(
+                                        height: sizedBoxHeightExtraShort,
+                                      ),
+                                      RowWidget(
+                                        textLeft: 'usgbt',
+                                        textRight: '${plafon['usgbt']}',
+                                        fontWeightLeft: FontWeight.w300,
+                                        fontWeightRight: FontWeight.w300,
+                                      ),
+                                      SizedBox(
+                                        height: sizedBoxHeightExtraShort,
+                                      ),
+                                      RowWidget(
+                                        textLeft: 'rmnbt',
+                                        textRight: '${plafon['rmnbt']}',
+                                        fontWeightLeft: FontWeight.w300,
+                                        fontWeightRight: FontWeight.w300,
+                                      ),
+                                      SizedBox(
+                                        height: sizedBoxHeightExtraShort,
+                                      ),
+                                      RowWidget(
+                                        textLeft: 'propo',
+                                        textRight: '${plafon['propo']}',
+                                        fontWeightLeft: FontWeight.w300,
+                                        fontWeightRight: FontWeight.w300,
+                                      ),
+                                      SizedBox(
+                                        height: sizedBoxHeightExtraShort,
+                                      ),
+                                      RowWidget(
+                                        textLeft: 'waers',
+                                        textRight: '${plafon['waers']}',
+                                        fontWeightLeft: FontWeight.w300,
+                                        fontWeightRight: FontWeight.w300,
+                                      ),
+                                      SizedBox(
+                                        height: sizedBoxHeightExtraShort,
+                                      ),
+                                      RowWidget(
+                                        textLeft: 'year',
+                                        textRight: '${plafon['year']}',
+                                        fontWeightLeft: FontWeight.w300,
+                                        fontWeightRight: FontWeight.w300,
+                                      ),
+                                      SizedBox(
+                                        height: sizedBoxHeightExtraShort,
+                                      ),
+                                      RowWidget(
+                                        textLeft: 'unit',
+                                        textRight: '${plafon['unit']}',
                                         fontWeightLeft: FontWeight.w300,
                                         fontWeightRight: FontWeight.w300,
                                       ),
