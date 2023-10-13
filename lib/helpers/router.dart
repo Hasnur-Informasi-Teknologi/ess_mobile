@@ -31,6 +31,7 @@ import 'package:mobile_ess/screens/user/home/request_attendance/request_attendan
 import 'package:mobile_ess/screens/user/home/request_attendance/ubah_data_kehadiran_screen.dart';
 import 'package:mobile_ess/screens/user/home/transactions/transactions_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen.dart';
+import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
 
 import 'package:mobile_ess/screens/user/submition/detail_form_pengajuan_lembur.dart';
 
@@ -41,6 +42,7 @@ Map<String, Widget Function(BuildContext)> routers() {
     '/': (context) => const SignInScreen(),
     '/splash': (context) => const SplashScreen(),
     '/user/main': (context) => const MainScreen(),
+    '/user/main_new': (context) => const MainScreenWithAnimation(),
     '/user/main/home/online_form': (context) => const OnlineFormScreen(),
     '/user/main/home/online_form/aplikasi_training': (context) =>
         const FormAplikasiTrainingScreen(),

@@ -48,8 +48,8 @@ class _SplashScreenState extends State<SplashScreen> {
       // final userId = prefs.getString('userId');
       try {
         print('ada token');
-        Future.delayed(
-            const Duration(seconds: 2), () => {Get.offAllNamed('/user/main')});
+        Future.delayed(const Duration(seconds: 2),
+            () => {Get.offAllNamed('/user/main_new')});
 
         // await Provider.of<AuthProvider>(context, listen: false)
         //     .checkDeviceId(

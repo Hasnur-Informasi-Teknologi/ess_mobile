@@ -5,6 +5,8 @@ const cardBackground = 808080;
 const textGreen = 0xFF2B7A78;
 const secondaryBackground = 0xFFF3F2EF;
 
+const backgroundNew = 0xFFF2F3F8;
+const nearlyDarkBlue = 0xFF2633C5;
 const buttonGreen = 0xFF27AE60;
 const buttonRed = 0xFFBF3A2B;
 const buttonBlue = 0xFF3C73A8;

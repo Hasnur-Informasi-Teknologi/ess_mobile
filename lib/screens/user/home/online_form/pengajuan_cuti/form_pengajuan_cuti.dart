@@ -298,7 +298,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
           shouldIconPulse: false);
 
       if (responseData['message'] == 'Pengajuan Cuti Sukses') {
-        Get.offAllNamed('/user/main');
+        Get.offAllNamed('/user/main_new');
       }
 
       print(responseData);
