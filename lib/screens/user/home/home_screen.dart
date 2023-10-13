@@ -32,7 +32,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> getDataKaryawan() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-
     if (token != null) {
       try {
         final response = await http.get(
