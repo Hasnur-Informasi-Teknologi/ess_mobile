@@ -51,7 +51,7 @@ class _SignInScreenState extends State<SignInScreen> {
     try {
       await Provider.of<AuthProvider>(context, listen: false)
           .signIn(userNrp!, userPass!)
-          .then((_) => Get.offAllNamed('/user/main'));
+          .then((_) => Get.offAllNamed('/user/main_new'));
 
       // ;
     } on HttpException catch (e) {

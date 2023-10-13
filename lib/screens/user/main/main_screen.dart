@@ -15,49 +15,48 @@ class MainScreen extends StatelessWidget {
     final controller = Get.put(BottomNavBarController());
 
     return Scaffold(
-      body: Obx(() {
-        return IndexedStack(
-          index: controller.selectedIndex.value,
-          children: const [
-            HomeScreen(),
-            SubmitionScreen(),
-            HistoryApprovalScreen(),
-            ProfileScreen(),
-          ],
-        );
-      }),
-      bottomNavigationBar: BottomNavigationBar(
-            selectedItemColor: Colors.amber,
-            unselectedItemColor: Colors.grey,
-            currentIndex: controller.selectedIndex.value,
-            onTap: (index) => controller.changePage(index),
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.home,
-                ),
-                label: 'Home',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.file_open_rounded,
-                ),
-                label: 'Submition',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.history,
-                ),
-                label: 'History',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(
-                  Icons.person,
-                ),
-                label: 'Profile',
-              ),
+        body: Obx(() {
+          return IndexedStack(
+            index: controller.selectedIndex.value,
+            children: const [
+              HomeScreen(),
+              SubmitionScreen(),
+              HistoryApprovalScreen(),
+              ProfileScreen(),
             ],
-          )
-    );
+          );
+        }),
+        bottomNavigationBar: BottomNavigationBar(
+          selectedItemColor: Colors.amber,
+          unselectedItemColor: Colors.grey,
+          currentIndex: controller.selectedIndex.value,
+          onTap: (index) => controller.changePage(index),
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.home_outlined,
+              ),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.file_open_outlined,
+              ),
+              label: 'Submition',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.work_history_rounded,
+              ),
+              label: 'History',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.person,
+              ),
+              label: 'Profile',
+            ),
+          ],
+        ));
   }
 }
