@@ -457,6 +457,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double paddingHorizontalWide = size.width * 0.0585;
     double padding5 = size.width * 0.0115;
+    double padding7 = size.width * 0.018;
 
     return _isLoading
         ? const Scaffold(body: Center(child: CircularProgressIndicator()))
@@ -1147,8 +1148,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         ),
                       ),
                       Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
+                        padding: EdgeInsets.symmetric(horizontal: padding7),
                         child: CupertinoButton(
                           child: Container(
                             width: size.width,

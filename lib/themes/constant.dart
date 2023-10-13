@@ -26,6 +26,7 @@ const boxDate = 0xFFC69821;
 
 // double padding5 = size.width * 0.0115; // 5 px
 // double padding8 = size.width * 0.0188; // 8 px
+// double padding7 = size.width * 0.018; // 7 px
 // double padding10 = size.width * 0.023; // 10 px
 // double padding20 = size.width * 0.047; // 20 px
 // double padding40 = size.width * 0.095; // 40 px
