@@ -51,10 +51,9 @@ class _SignInScreenState extends State<SignInScreen> {
     try {
       await Provider.of<AuthProvider>(context, listen: false)
           .signIn(userNrp!, userPass!)
-          .then((_) => Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (ctx) => const HomeScreen())));
+          .then((_) => Get.offAllNamed('/user/main'));
 
-      // Get.offAllNamed('/user/main');
+      // ;
     } on HttpException catch (e) {
       String errorMessage = '';
 
