@@ -213,7 +213,7 @@ class _TabIconsState extends State<TabIcons> with TickerProviderStateMixin {
   void initState() {
     widget.tabIconData?.animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 400),
+      duration: const Duration(milliseconds: 1000),
     )..addStatusListener((AnimationStatus status) {
         if (status == AnimationStatus.completed) {
           if (!mounted) return;
@@ -269,8 +269,8 @@ class _TabIconsState extends State<TabIcons> with TickerProviderStateMixin {
                     //     : widget.tabIconData!.imagePath),
                     ),
                 Positioned(
-                  top: 4,
-                  left: 6,
+                  top: 0,
+                  left: 25,
                   right: 0,
                   child: ScaleTransition(
                     alignment: Alignment.center,
@@ -291,8 +291,8 @@ class _TabIconsState extends State<TabIcons> with TickerProviderStateMixin {
                 ),
                 Positioned(
                   top: 0,
-                  left: 6,
-                  bottom: 8,
+                  right: 20,
+                  bottom: 2,
                   child: ScaleTransition(
                     alignment: Alignment.center,
                     scale: Tween<double>(begin: 0.0, end: 1.0).animate(
@@ -301,8 +301,8 @@ class _TabIconsState extends State<TabIcons> with TickerProviderStateMixin {
                             curve: Interval(0.5, 0.8,
                                 curve: Curves.fastOutSlowIn))),
                     child: Container(
-                      width: 4,
-                      height: 4,
+                      width: 14,
+                      height: 14,
                       decoration: const BoxDecoration(
                         color: Color(primaryYellow),
                         shape: BoxShape.circle,
@@ -311,8 +311,8 @@ class _TabIconsState extends State<TabIcons> with TickerProviderStateMixin {
                   ),
                 ),
                 Positioned(
-                  top: 6,
-                  right: 8,
+                  top: 16,
+                  right: 2,
                   bottom: 0,
                   child: ScaleTransition(
                     alignment: Alignment.center,
@@ -322,8 +322,8 @@ class _TabIconsState extends State<TabIcons> with TickerProviderStateMixin {
                             curve: Interval(0.5, 0.6,
                                 curve: Curves.fastOutSlowIn))),
                     child: Container(
-                      width: 6,
-                      height: 6,
+                      width: 16,
+                      height: 16,
                       decoration: const BoxDecoration(
                         color: Color(primaryYellow),
                         shape: BoxShape.circle,
