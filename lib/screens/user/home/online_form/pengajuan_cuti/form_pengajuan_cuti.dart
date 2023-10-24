@@ -33,7 +33,6 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
   DateTime tanggalKembaliKerja = DateTime.now();
   bool _isLoading = false;
 
-  double _maxHeightNama = 40.0;
   final String _apiUrl = API_URL;
   String? cutiYangDiambil,
       sisaCuti,
@@ -86,8 +85,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
 
     if (token != null) {
       try {
-        final response = await http.get(
-            Uri.parse("$_apiUrl/get_master_cuti?nrp=$nrp"),
+        final response = await http.get(Uri.parse("$_apiUrl/get_master_cuti"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
@@ -122,12 +120,13 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     if (token != null) {
       try {
         final response = await http.get(
-            Uri.parse("$_apiUrl/get_data_entitas_cuti?nrp=$nrp"),
+            Uri.parse("$_apiUrl/get_data_entitas_cuti"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
             });
         final responseData = jsonDecode(response.body);
+        print(responseData);
         final dataEntitasApi = responseData['data_entitas'] as List<dynamic>;
 
         final List<String> dataEntities = dataEntitasApi
@@ -154,7 +153,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
       try {
         final response = await http.get(
             Uri.parse(
-                "$_apiUrl/get_data_atasan_cuti?nrp=$nrp&entitas=$selectedValueEntitas1"),
+                "$_apiUrl/get_data_atasan_cuti?entitas=$selectedValueEntitas1"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
@@ -179,7 +178,8 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
 
     if (token != null) {
       final response = await http.get(
-          Uri.parse("$_apiUrl/get_data_atasan_atasan_cuti?nrp=$nrp"),
+          Uri.parse(
+              "$_apiUrl/get_data_atasan_atasan_cuti?entitas=$selectedValueEntitas1"),
           headers: <String, String>{
             'Content-Type': 'application/json;charset=UTF-8',
             'Authorization': 'Bearer $token'
@@ -203,8 +203,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     if (token != null) {
       try {
         final response = await http.get(
+            // Uri.parse(
+            //     "$_apiUrl/get_data_pengganti_cuti?nrp=$nrp&entitas=$selectedValueEntitas2"),
             Uri.parse(
-                "$_apiUrl/get_data_pengganti_cuti?nrp=$nrp&entitas=$selectedValueEntitas2"),
+                "$_apiUrl/get_data_pengganti_cuti?&entitas=$selectedValueEntitas2"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
@@ -223,7 +225,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
 
   Future<void> _submit() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
+    String? token = prefs.getString('token');
     String? nrpString = prefs.getString('nrp');
     int? nrp = int.tryParse(nrpString ?? '');
 
@@ -265,9 +267,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     }
 
     try {
-      final response = await http.post(Uri.parse('$_apiUrl/add_cuti?nrp=$nrp'),
+      final response = await http.post(Uri.parse('$_apiUrl/add_cuti'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token'
           },
           body: jsonEncode({
             'nrp_user': nrpString,
@@ -301,8 +304,9 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
         Get.offAllNamed('/user/main_new');
       }
 
-      print(responseData);
+      // print(responseData);
     } catch (e) {
+      print(e);
       throw e;
     }
 
@@ -508,6 +512,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                               selectedValueEntitas1 = newValue ?? '';
                               selectedValueAtasan1 = null;
                               getDataAtasan();
+                              getDataAtasanDariAtasan();
                             });
                           },
                           items: selectedEntitas1
