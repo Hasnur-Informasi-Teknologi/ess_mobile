@@ -59,12 +59,12 @@ class _FormDetailPengajuanRawatJalanState
         DateFormat('yyyy-MM-dd').format(tanggalPengajuan);
 
     Map<String, dynamic> newData = {
-      "jenis_penggantian": jenisPengganti ?? '',
+      "id_md_jp_rawat_jalan": jenisPengganti ?? '',
       "detail_penggantian": detailPengganti ?? '',
-      "nm_pasien": namaPasient ?? '',
-      "hub_karyawan": hubunganDenganKaryawan ?? '',
       "no_kuitansi": noKwitansi ?? '',
       "tgl_kuitansi": tanggalPengajuanFormatted,
+      "nm_pasien": namaPasient ?? '',
+      "hub_karyawan": hubunganDenganKaryawan ?? '',
       "jumlah": jumlah ?? '',
       "keterangan": keterangan ?? '',
     };
@@ -73,21 +73,8 @@ class _FormDetailPengajuanRawatJalanState
         dataDetailPengajuanRawatJalanController = Get.find();
     dataDetailPengajuanRawatJalanController.tambahData(newData);
 
-    // dataController.tambahData(
-    //   jenisPengganti ?? '',
-    //   detailPengganti ?? '',
-    //   namaPasient ?? '',
-    //   hubunganDenganKaryawan ?? '',
-    //   noKwitansi ?? '',
-    //   jumlah ?? '',
-    //   tanggalPengajuanFormatted,
-    //   keterangan ?? '',
-    // );
-
     Get.offAllNamed(
         '/user/main/home/online_form/pengajuan_fasilitas_kesehatan/pengajuan_rawat_jalan');
-
-    // Get.back();
   }
 
   String? _validatorJenisPengganti(dynamic value) {
