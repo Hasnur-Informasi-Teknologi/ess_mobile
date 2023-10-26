@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_ess/helpers/url_helper.dart';
+import 'package:mobile_ess/screens/user/home/home_screen.dart';
+import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ProfileController extends GetxController{
+class ProfileEditController extends GetxController{
   RxBool infoPribadi = false.obs;
   RxBool infoKeluarga = false.obs;
   RxBool infoFisik = false.obs;
@@ -14,25 +16,86 @@ class ProfileController extends GetxController{
   RxBool infoKontrak = false.obs;
   RxBool infoPendidikan = false.obs;
   var data={}.obs;
+  var listController={}.obs;
 }
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class ProfileEditScreen extends StatefulWidget {
+  const ProfileEditScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<ProfileEditScreen> createState() => _ProfileEditScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  final String _apiUrl = API_URL;
-  ProfileController x = Get.put(ProfileController());
+class _ProfileEditScreenState extends State<ProfileEditScreen> {
+  ProfileEditController x = Get.put(ProfileEditController());
+  final _formKey = GlobalKey<FormState>();
+
+  String dropdownValue = 'Belum Menikah';
 
   Future<Map<String, dynamic>> getData() async {
     final prefs = await SharedPreferences.getInstance();
     var userData = prefs.getString('userData');
     final responseData = jsonDecode(userData.toString());
     x.data.value=responseData['data'];
+    if(x.data['status_pernikahan']=='Single'){
+      x.data['status_pernikahan']='Belum Menikah';
+    }else if(x.data['status_pernikahan']=='Married'){
+      x.data['status_pernikahan']='Menikah';
+    }
+    for (var key in x.data.keys.toList()){
+      x.listController[key]=TextEditingController(text: x.data[key].toString());
+    };
     return responseData;
+  }
+
+Future<void> simpanDataKaryawan() async {
+  final String _apiUrl = API_URL;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var userData = prefs.getString('userData');
+    final user = jsonDecode(userData.toString())['data'];
+    String? token = prefs.getString('token');
+    var data={};
+    for (var key in x.data.keys.toList()){
+       if ((['nomor_ktp','tgl_lahir','kota_tinggal','provinsi_tinggal','kode_pos','kota_surat','kode_pos_surat','no_telp_rmh','no_hp','tanggal_nikah','nama_pasangan','tgl_lhr_pasangan','tinggi_badan','berat_badan','ukuran_baju','ukuran_celana','ukuran_sepatu','alamat_tinggal','alamat_surat','golongan_darah','status_pernikahan','sts_pajak','email','sbu','lokasi','penempatan','akhir_probation','per_area','bank_key','bank_account','npwp','jamsostek','bpjskes','hire_date','awal_kontrak_kerja1','akhir_kontrak_kerja1','awal_kontrak_kerja2','akhir_kontrak_kerja2','jurusan','asal_sekolah','tahun_lulus','hub','nm','jk','tmpt','tgl'].contains(key))) {
+         data[key]=x.data[key]??'';
+        
+       }
+       if ((['nomor_ktp','tgl_lahir','kota_tinggal','provinsi_tinggal','kode_pos','kota_surat','kode_pos_surat','no_telp_rmh','no_hp','tanggal_nikah','nama_pasangan','tgl_lhr_pasangan','tinggi_badan','berat_badan','ukuran_baju','ukuran_celana','ukuran_sepatu','alamat_tinggal','alamat_surat','golongan_darah','status_pernikahan','sts_pajak','email','sbu','lokasi','penempatan','akhir_probation','per_area','bank_key','bank_account','npwp','jamsostek','bpjskes','hire_date','jurusan','asal_sekolah','tahun_lulus'].contains(key))) {
+          if(x.data[key]==''){
+            Get.defaultDialog(title: 'Error', content: Text("Field : "+key+" is Required"));
+            return;
+          }
+       }
+
+    };
+    var datanya= jsonEncode(data);
+    try {
+      final response = await http.post(Uri.parse('$_apiUrl/edit_data_karyawan/'+user['pernr']),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization':"Bearer "+token.toString()
+      },
+      body: datanya);
+      final responseData = jsonDecode(response.body);
+      print(responseData);
+
+      final user2 = await http.get(
+        Uri.parse('$_apiUrl/get_profile_employee?nrp='+user['pernr']),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization':"Bearer "+token.toString()
+        },
+      );
+
+      final userData = user2.body;
+      print(userData);
+      prefs.setString('userData', userData);
+      // NAVIGATION ROUTE
+      Get.offAllNamed('/user/main');
+    } catch (e) {
+      print(e);
+      throw e;
+    }
   }
 
   @override
@@ -49,30 +112,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: SafeArea(
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: Column(
+                  child: Form(
+                    key: _formKey,
+                    child:Column(
                     children: [
                       SizedBox(
                         height: 30,
                       ),
-                      GestureDetector(
-                        onDoubleTap: (){
-                          Get.toNamed('/admin/main');
-                        },
-                        child: Container(
-                          child: Center(
-                            child: CircleAvatar(
-                              backgroundColor: Colors.white,
-                              maxRadius: 43,
-                              child: CircleAvatar(
-                                backgroundColor: Colors.white,
-                                maxRadius: 40,
-                                backgroundImage: AssetImage(
-                                    'assets/images/user-profile-default.png'),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      Center(child: Text("Edit Profile", style: TextStyle(
+                              // color: Colors.yellow,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            )),),
                       SizedBox(
                         height: 30,
                       ),
@@ -112,164 +163,77 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               );
                             },
                             body: ListTile(
-                              title: Obx(() => Column(
+                              title: Column(
                                 children: [
                                   CustomRow(
-                                      title: "NRP",
-                                      choosedSetting: x.data['pernr']??''),
-                                  CustomRow(
-                                      title: "Nama",
-                                      choosedSetting: x.data['nama']??''),
-                                  CustomRow(
                                       title: "No KTP",
-                                      choosedSetting: x.data['nomor_ktp']??''),
+                                      choosedSetting: 'nomor_ktp'),
                                   CustomRow(
                                       title: "Tanggal Lahir",
-                                      choosedSetting: x.data['tgl_lahir']??''),
-                                  CustomRow(
-                                      title: "Usia",
-                                      choosedSetting: x.data['usia']??''),
-                                  CustomRow(
-                                      title: "Jenis Kelamin",
-                                      choosedSetting: x.data['jenis_kelamin']??''),
+                                      keyboardType: TextInputType.datetime,
+                                      choosedSetting: 'tgl_lahir'),
                                   CustomRow(
                                       title: "Alamat",
-                                      choosedSetting: x.data['alamat_tinggal']??''),
+                                      choosedSetting: 'alamat_tinggal'),
                                   CustomRow(
                                       title: "Kota",
-                                      choosedSetting: x.data['kota_tinggal']??''),
+                                      choosedSetting: 'kota_tinggal'),
                                   CustomRow(
                                       title: "Provinsi",
-                                      choosedSetting: x.data['provinsi_tinggal']??''),
+                                      choosedSetting: 'provinsi_tinggal'),
                                   CustomRow(
                                       title: "Kode Pos",
-                                      choosedSetting: x.data['kode_pos']??''),
+                                      keyboardType: TextInputType.number,
+                                      choosedSetting: 'kode_pos'),
                                   CustomRow(
                                       title: "Alamat Surat",
-                                      choosedSetting: x.data['alamat_surat']??''),
+                                      choosedSetting: 'alamat_surat'),
                                   CustomRow(
                                       title: "Kota Surat",
-                                      choosedSetting: x.data['kota_surat']??''),
+                                      choosedSetting: 'kota_surat'),
                                   CustomRow(
                                       title: "Kode Pos Surat",
-                                      choosedSetting: x.data['kode_pos_surat']??''),
+                                      keyboardType: TextInputType.number,
+                                      choosedSetting: 'kode_pos_surat'),
                                   CustomRow(
                                       title: "No Telepon Rumah",
-                                      choosedSetting: x.data['no_telp_rmh']??''),
+                                      keyboardType: TextInputType.number,
+                                      choosedSetting: 'no_telp_rmh'),
                                   CustomRow(
                                       title: "No HP",
-                                      choosedSetting: x.data['no_hp']??''),
+                                      keyboardType: TextInputType.number,
+                                      choosedSetting: 'no_hp'),
                                   CustomRow(
                                       title: "Golongan Darah",
-                                      choosedSetting: x.data['golongan_darah']??''),
+                                      choosedSetting: 'golongan_darah'),
                                   CustomRow(
                                       title: "Status Pajak",
-                                      choosedSetting: x.data['sts_pajak']??''),
-                                  CustomRow(
+                                      choosedSetting: 'sts_pajak'),
+                                  CustomSelectionMenikah(
                                       title: "Status Pernikahan",
                                       choosedSetting:
-                                          x.data['status_pernikahan']??''),
+                                          'status_pernikahan',
+                                      listMap:['Menikah','Belum Menikah']
+                                      ),
                                   CustomRow(
                                       title: "Tanggal Pernikahan",
-                                      choosedSetting: x.data['tanggal_nikah']??''),
+                                      keyboardType: TextInputType.datetime,
+                                      choosedSetting: 'tanggal_nikah'),
                                   CustomRow(
                                       title: "Nama Pasangan",
-                                      choosedSetting: x.data['nama_pasangan']??''),
+                                      choosedSetting: 'nama_pasangan'),
                                   CustomRow(
                                       title: "Tanggal Lahir Pasangan",
-                                      choosedSetting: x.data['tgl_lhr_pasangan']??''),
+                                      keyboardType: TextInputType.datetime,
+                                      choosedSetting: 'tgl_lhr_pasangan'),
                                 ],
-                              )), 
+                              ), 
                             ),
                             isExpanded: x.infoPribadi.value,
                           ),
                         ],
                       ),
 
-                      SizedBox(height: 10), // Add some spacing
-                      // =====================================================================================
-                      ExpansionPanelList(
-                        expandedHeaderPadding: EdgeInsets.zero,
-                        elevation: 1,
-                        animationDuration: Duration(milliseconds: 500),
-                        expansionCallback: (int index, bool isExpanded) {
-                          setState(() {
-                            x.infoKeluarga.value = !x.infoKeluarga.value;
-                          });
-                        },
-                        children: [
-                          ExpansionPanel(
-                            headerBuilder:
-                                (BuildContext context, bool isExpanded) {
-                              return ListTile(
-                                title: Text(
-                                  'Informasi Keluarga',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14),
-                                ),
-                              );
-                            },
-                            body: ListTile(
-                              title: Obx(() => Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        "Ayah Kandung",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 13,
-                                            color: Colors.black),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  CustomRow(
-                                      title: "Nama",
-                                      choosedSetting: x.data['ayah_nama']??''),
-                                  CustomRow(
-                                      title: "Tanggal Lahir",
-                                      choosedSetting: x.data['ayah_tgl_lahir']??''),
-                                  CustomRow(
-                                      title: "Tempat Lahir",
-                                      choosedSetting:
-                                          x.data['ayah_tempat_lahir']??''),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        "Ibu Kandung",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 13,
-                                            color: Colors.black),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  CustomRow(
-                                      title: "Nama",
-                                      choosedSetting: x.data['ibu_nama']??''),
-                                  CustomRow(
-                                      title: "Tanggal Lahir",
-                                      choosedSetting: x.data['ibu_tgl_lahir']??''),
-                                  CustomRow(
-                                      title: "Tempat Lahir",
-                                      choosedSetting: x.data['ibu_tempat_lahir']??''),
-                                ],
-                              )),
-                            ),
-                            isExpanded: x.infoKeluarga.value,
-                          ),
-                        ],
-                      ),
                       SizedBox(height: 10), // Add some spacing
                       // =====================================================================================
                       ExpansionPanelList(
@@ -295,25 +259,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               );
                             },
                             body: ListTile(
-                              title: Obx(() => Column(
+                              title: Column(
                                 children: [
                                   CustomRow(
                                       title: "Tinggi Badan",
-                                      choosedSetting: x.data['tinggi_badan']??''),
+                                      choosedSetting: 'tinggi_badan'),
                                   CustomRow(
                                       title: "Berat Badan",
-                                      choosedSetting: x.data['berat_badan']??''),
+                                      choosedSetting: 'berat_badan'),
                                   CustomRow(
                                       title: "Ukuran Baju",
-                                      choosedSetting: x.data['ukuran_baju']??''),
+                                      choosedSetting: 'ukuran_baju'),
                                   CustomRow(
                                       title: "Ukuran Celana",
-                                      choosedSetting: x.data['ukuran_celana']??''),
+                                      choosedSetting: 'ukuran_celana'),
                                   CustomRow(
                                       title: "Ukuran Sepatu",
-                                      choosedSetting: x.data['ukuran_sepatu']??''),
+                                      choosedSetting: 'ukuran_sepatu'),
                                 ],
-                              )),
+                              ),
                             ),
                             isExpanded: x.infoFisik.value,
                           ),
@@ -357,65 +321,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               );
                             },
                             body: ListTile(
-                              title: Obx(() => Column(
+                              title: Column(
                                 children: [
                                   CustomRow(
                                       title: "Email Kantor",
-                                      choosedSetting: x.data['email']??''),
-                                  CustomRow(
-                                      title: "Email Pribadi",
-                                      choosedSetting: x.data['email_pribadi']??''),
-                                  CustomRow(
-                                      title: "Perusahaan",
-                                      choosedSetting: x.data['pt']??''),
+                                      choosedSetting: 'email'),
+                                 
                                   CustomRow(
                                       title: "SBU/Direktorat",
-                                      choosedSetting: x.data['sbu']??''),
-                                  CustomRow(
-                                      title: "Posisi",
-                                      choosedSetting: x.data['position']??''),
+                                      choosedSetting: 'sbu'),
                                   CustomRow(
                                       title: "Lokasi",
-                                      choosedSetting: x.data['lokasi']??''),
+                                      choosedSetting: 'lokasi'),
                                   CustomRow(
                                       title: "Penempatan",
-                                      choosedSetting: x.data['penempatan']??''),
-                                  CustomRow(
-                                      title: "Status Karyawan",
-                                      choosedSetting: x.data['status_karyawan']??''),
+                                      choosedSetting: 'penempatan'),
                                   CustomRow(
                                       title: "Akhir Masa Probation",
-                                      choosedSetting: x.data['akhir_probation']??''),
+                                      keyboardType: TextInputType.datetime,
+                                      choosedSetting: 'akhir_probation'),
                                   CustomRow(
                                       title: "Personal Area",
-                                      choosedSetting: x.data['per_area']??''),
-                                  CustomRow(
-                                      title: "Pangkat",
-                                      choosedSetting: x.data['pangkat']??''),
+                                      choosedSetting: 'per_area'),
                                   CustomRow(
                                       title: "Bank Key",
-                                      choosedSetting: x.data['bank_key']??''),
+                                      choosedSetting: 'bank_key'),
                                   CustomRow(
                                       title: "No Rekening",
-                                      choosedSetting: x.data['bank_account']??''),
+                                      choosedSetting: 'bank_account'),
                                   CustomRow(
                                       title: "NPWP",
-                                      choosedSetting: x.data['npwp']??''),
+                                      choosedSetting: 'npwp'),
                                   CustomRow(
                                       title: "BPJS Ketenagakerjaan",
-                                      choosedSetting: x.data['jamsostek']??''),
+                                      choosedSetting: 'jamsostek'),
                                   CustomRow(
                                       title: "BPJS Kesehatan",
-                                      choosedSetting: x.data['bpjskes']??''),
+                                      choosedSetting: 'bpjskes'),
                                   CustomRow(
                                       title: "Tanggal Masuk",
+                                      keyboardType: TextInputType.datetime,
                                       choosedSetting:
-                                          x.data['awal_kontrak_kerja1']??''),
-                                  CustomRow(
-                                      title: "Masa Kerja",
-                                      choosedSetting: x.data['masa_kerja']??''),
+                                          'awal_kontrak_kerja1'),
                                 ],
-                              )),
+                              ),
                             ),
                             isExpanded: x.infoKepegawaian.value,
                           ),
@@ -446,16 +395,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               );
                             },
                             body: ListTile(
-                              title: Obx(() => Column(
+                              title: Column(
                                 children: [
                                   CustomRow(
-                                      title: "Kontrak Ke", choosedSetting: "I"),
-                                  CustomRow(
                                       title: "Akhir Masa Kerja",
+                                      keyboardType: TextInputType.datetime,
                                       choosedSetting:
-                                          x.data['akhir_kontrak_kerja1']??''),
+                                          'akhir_kontrak_kerja1'),
                                 ],
-                              )),
+                              ),
                             ),
                             isExpanded: x.infoKontrak.value,
                           ),
@@ -499,22 +447,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               );
                             },
                             body: ListTile(
-                              title: Obx(() => Column(
+                              title: Column(
                                 children: [
                                   CustomRow(
-                                      title: "Pendidikan Terakhir",
-                                      choosedSetting: x.data['pendidikan']??''),
-                                  CustomRow(
                                       title: "Jurusan",
-                                      choosedSetting: x.data['jurusan']??''),
+                                      choosedSetting: 'jurusan'),
                                   CustomRow(
                                       title: "Asal Pendidikan",
-                                      choosedSetting: x.data['asal_sekolah']??''),
+                                      choosedSetting: 'asal_sekolah'),
                                   CustomRow(
                                       title: "Tahun Lulus",
-                                      choosedSetting: x.data['tahun_lulus']??''),
+                                      keyboardType: TextInputType.datetime,
+                                      choosedSetting: 'tahun_lulus'),
                                 ],
-                              )),
+                              ),
                             ),
                             isExpanded: x.infoPendidikan.value,
                           ),
@@ -537,49 +483,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                             onPressed: () {
-                              Get.toNamed('/user/profile/edit');
+                              simpanDataKaryawan();
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                              Icon(Icons.edit),
-                              Text('Edit Profile')
+                              Icon(Icons.save_as_rounded),
+                              SizedBox(width: 10,),
+                              Text('Simpan')
                             ]),
                           ),
                         ),
-                        SizedBox(width: 30,),
-                        Flexible(child: 
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              onPrimary: Colors.black87,
-                              elevation: 5,
-                              primary: Color.fromARGB(255, 230, 24, 72),
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(8)),
-                              ),
-                            ),
-                            onPressed: () async {
-                              SharedPreferences prefs = await SharedPreferences.getInstance();
-                              prefs.remove('token');
-                              prefs.remove('nrp');
-                              Get.offAllNamed('/');
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                              Icon(Icons.logout),
-                              Text('Logout')
-                            ]),
-                          ),
-                        ),
-                       
                       ],),
                       SizedBox(height: 300,),
                       // =====================================================================================
                     ],
                   ),
-                ),
+                )),
               ),
             )
     );
@@ -589,12 +509,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 class CustomRow extends StatelessWidget {
   final String title;
   final String choosedSetting;
+  final bool isTextFieldEnabled;
+  final keyboardType;
 
-  const CustomRow({Key? key, required this.title, required this.choosedSetting})
+  const CustomRow({Key? key, required this.title, required this.choosedSetting, this.isTextFieldEnabled=false, this.keyboardType=TextInputType.text})
       : super(key: key);
-
   @override
   Widget build(BuildContext context) {
+  ProfileEditController x = Get.put(ProfileEditController());
     return Padding(
       padding: const EdgeInsets.only(right: 10, bottom: 5),
       child: Row(
@@ -611,9 +533,43 @@ class CustomRow extends StatelessWidget {
               ),
             ),
           ),
-          Expanded(
+          Obx(() => Expanded(child:   TextField(
+            keyboardType:keyboardType,
+            style: const TextStyle(
+                fontSize: 12,
+                color: Colors.black,
+                decoration: TextDecoration.none,
+                fontWeight: FontWeight.w400,
+              ),
+            controller: x.listController[choosedSetting],
+            onChanged: (val)=>x.data[choosedSetting]=val,
+          ),)),  
+        ],
+      ),
+    );
+  }
+}
+
+class CustomSelectionMenikah extends StatelessWidget {
+  final String title;
+  final String choosedSetting;
+  final bool isTextFieldEnabled;
+  final keyboardType;
+  final listMap;
+
+  const CustomSelectionMenikah({Key? key, required this.title, required this.choosedSetting, this.isTextFieldEnabled=false, this.keyboardType=TextInputType.text, this.listMap=""})
+      : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+  ProfileEditController x = Get.put(ProfileEditController());
+    return Padding(
+      padding: const EdgeInsets.only(right: 10, bottom: 5),
+      child: Row(
+        children: [
+          Container(
+            width: 150,
             child: Text(
-              choosedSetting, // Name
+              title + " : ", // Name
               style: const TextStyle(
                 fontSize: 12,
                 color: Colors.black,
@@ -622,6 +578,27 @@ class CustomRow extends StatelessWidget {
               ),
             ),
           ),
+          Obx(() => Expanded(child:   DropdownButton<String>(
+                  value: x.data[choosedSetting],
+                  iconSize: 24,
+                  elevation: 16,
+                  style: const TextStyle(
+                      color: Colors.deepPurple),
+                  underline: Container(
+                    height: 2,
+                    color: Colors.deepPurpleAccent,
+                  ),
+                  onChanged: (String? newValue) {
+                    x.data[choosedSetting] = newValue.toString();
+                  },
+                  items: listMap.map<DropdownMenuItem<String>>(
+                      (String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+          ),)),  
         ],
       ),
     );

@@ -1,7 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:mobile_ess/screens/admin/componentDashboard/ProbationKaryawan.dart';
+import 'package:mobile_ess/screens/admin/componentDashboard/TaskMenuDashboard.dart';
 import 'package:mobile_ess/screens/admin/componentDashboard/demografiAttendance.dart';
 import 'package:mobile_ess/screens/admin/componentDashboard/employeeMonitoring.dart';
 import 'package:mobile_ess/screens/admin/componentDashboard/ijinCutiKaryawan.dart';
@@ -11,6 +13,12 @@ import 'package:mobile_ess/screens/admin/componentDashboard/kontrakKaryawan.dart
 import 'package:mobile_ess/widgets/header_profile_widget.dart';
 import 'package:mobile_ess/screens/user/home/icons_container_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+
+class AdminController extends GetxController {
+  var karyawan = {}.obs;
+}
 
 class AdminHeaderScreen extends StatefulWidget {
   const AdminHeaderScreen({super.key});
@@ -21,14 +29,24 @@ class AdminHeaderScreen extends StatefulWidget {
 
 class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
   var vdata = {};
+  AdminController x = Get.put(AdminController());
+
+  @override
+  void initState() {
+    super.initState();
+    getDataKaryawan();
+  }
+
+  Future<void> getDataKaryawan() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    x.karyawan.value = jsonDecode(prefs.getString('userData').toString())['data'];
+  }
+
   Map<String, String> selectionValues = {
     '1': 'Demografi & Attendance',
     '2': 'Employee Monitoring',
-    '3': 'Ijin Karyawan',
-    '4': 'Ijin Cuti',
-    '5': 'Tanpa Keterangan',
     '6': 'Kontrak Karyawan',
-    '7': 'Probation Karyawan',
     '8': 'Task',
   };
   String? selectionValue = '1'; // Default value
@@ -52,18 +70,10 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
         return DemografiAttendanceScreen();
       case '2':
         return DashboardEmployeeMonitoringScreen();
-      case '3':
-        return KehadiranKaryawanTable();
-      case '4':
-        return IjinCutiKaryawan();
-      case '5':
-        return KehadiranTanpaKeterangan();
       case '6':
         return KontrakKaryawan();
-      case '7':
-        return ProbationKaryawan();
       case '8':
-      // return TaskMenuDashboard();
+      return TaskMenuDashboardScreen();
       default:
         return SizedBox.shrink();
     }
@@ -87,14 +97,16 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Obx(() => 
               Text(
-                'PT Hasnur Informasi Teknologi',
+                x.karyawan['pt']??'PT Hasnur Informasi Teknologi',
                 // userLogin.get('user')['entitas'],
                 style: TextStyle(
                     fontSize: textMedium,
                     fontWeight: FontWeight.w500,
                     fontFamily: 'Quicksand'),
               ),
+              ), 
               IconButton(
                 icon: const Icon(Icons.notifications),
                 onPressed: () {
@@ -109,21 +121,22 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
       body: ListView(
         children: [
           Container(
-            height: size.height * 0.33,
+            height: size.height * 0.28,
             width: size.width,
             decoration: const BoxDecoration(color: Colors.white),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
+                Obx(()=> 
                 HeaderProfileWidget(
-                  userName: 'M. Abdullah Sani',
-                  posision: 'Programmer',
+                   userName: x.karyawan['nama']??'M. Abdullah Sani',
+                  posision: x.karyawan['pernr']??'7822000',
                   imageUrl: '',
                   // userName: userLogin.get('user')['full_name'],
                   // posision: userLogin.get('user')['jabatan'],
                   // imageUrl: userLogin.get('user')['gambar'],
                   webUrl: '',
-                ),
+                )),
                 Container(
                   height: size.height * 0.13,
                   width: size.width * 0.9,

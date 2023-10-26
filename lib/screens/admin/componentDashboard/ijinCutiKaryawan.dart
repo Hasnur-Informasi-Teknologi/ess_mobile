@@ -9,25 +9,6 @@ class IjinCutiKaryawan extends StatefulWidget {
 }
 
 class IjinCutiKaryawanState extends State<IjinCutiKaryawan> {
-  // ========================================================
-  Map<String, String> entitasValues = {
-    '1': 'Entitas',
-  };
-  String? entitasValue = '1'; // Default value
-  // ========================================================
-  Map<String, String> lokasiValues = {
-    '1': 'Lokasi Kerja',
-  };
-  String? lokasiValue = '1'; // Default value
-  // ========================================================
-  Map<String, String> periodeValues = {
-    '1': 'Periode',
-  };
-  String? periodeValue = '1'; // Default value
-  String lokasiKerja = 'Lokasi Kerja';
-  String periode = 'Periode';
-  String pangkat = '';
-
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -38,144 +19,7 @@ class IjinCutiKaryawanState extends State<IjinCutiKaryawan> {
 
     return Column(
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(
-              horizontal: paddingHorizontalWide, vertical: padding10),
-          child: Column(
-            children: [
-              Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                child: const TitleWidget(title: 'Demografi & Attendance'),
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: paddingHorizontalWide, vertical: padding10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Container(
-                      height: 40,
-                      padding: EdgeInsets.all(4),
-                      margin: EdgeInsets.only(left: 10),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Color.fromARGB(
-                              102, 158, 158, 158), // Set border color
-                          width: 1, // Set border width
-                        ),
-                        borderRadius: BorderRadius.circular(
-                            6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 5, right: 5),
-                        child: DropdownButton<String>(
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors
-                                .black, // Set the font size for the dropdown items
-                          ),
-                          value: entitasValue,
-                          iconSize: 24,
-                          elevation: 16,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              entitasValue = newValue;
-                            });
-                          },
-                          items: entitasValues.keys
-                              .map<DropdownMenuItem<String>>((String id) {
-                            return DropdownMenuItem<String>(
-                              value: id,
-                              child: Text(entitasValues[id]!),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      height: 40,
-                      padding: EdgeInsets.all(4),
-                      margin: EdgeInsets.only(left: 10),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Color.fromARGB(
-                              102, 158, 158, 158), // Set border color
-                          width: 1, // Set border width
-                        ),
-                        borderRadius: BorderRadius.circular(
-                            6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 5, right: 5),
-                        child: DropdownButton<String>(
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors
-                                .black, // Set the font size for the dropdown items
-                          ),
-                          value: lokasiValue,
-                          iconSize: 24,
-                          elevation: 16,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              lokasiValue = newValue;
-                            });
-                          },
-                          items: lokasiValues.keys
-                              .map<DropdownMenuItem<String>>((String id) {
-                            return DropdownMenuItem<String>(
-                              value: id,
-                              child: Text(lokasiValues[id]!),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      height: 40,
-                      padding: EdgeInsets.all(4),
-                      margin: EdgeInsets.only(left: 10),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Color.fromARGB(
-                              102, 158, 158, 158), // Set border color
-                          width: 1, // Set border width
-                        ),
-                        borderRadius: BorderRadius.circular(
-                            6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 5, right: 5),
-                        child: DropdownButton<String>(
-                          value: periodeValue,
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors
-                                .black, // Set the font size for the dropdown items
-                          ),
-                          iconSize: 24,
-                          elevation: 16,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              periodeValue = newValue;
-                            });
-                          },
-                          items: periodeValues.keys
-                              .map<DropdownMenuItem<String>>((String id) {
-                            return DropdownMenuItem<String>(
-                              value: id,
-                              child: Text(periodeValues[id]!),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              // =======================
-              Text(
+        Text(
                 'Daftar Cuti Karyawan',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
@@ -395,9 +239,6 @@ class IjinCutiKaryawanState extends State<IjinCutiKaryawan> {
                   );
                 }),
               )
-            ],
-          ),
-        ),
       ],
     );
   }
