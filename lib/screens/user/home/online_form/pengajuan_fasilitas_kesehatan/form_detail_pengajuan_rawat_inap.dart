@@ -1,6 +1,11 @@
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 
@@ -15,12 +20,145 @@ class FormDetailPengajuanRawatInap extends StatefulWidget {
 class _FormDetailPengajuanRawatInapState
     extends State<FormDetailPengajuanRawatInap> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final _namaController = TextEditingController();
-  final double _maxHeightNama = 40.0;
+  final _jenisPenggantiController = TextEditingController();
+  final _detailPenggantiController = TextEditingController();
+  final _noKwitansiController = TextEditingController();
+  final _jumlahController = TextEditingController();
+  final _keteranganController = TextEditingController();
+  double maxHeightJenisPengganti = 40.0;
+  double maxHeightDetailPengganti = 40.0;
+  double maxHeightNokwitansi = 40.0;
+  double maxHeightJumlah = 40.0;
+  double maxHeightKeterangan = 40.0;
+  DateTime tanggalKwitansi = DateTime.now();
+  bool _isFileNull = false;
+
+  List<PlatformFile>? files;
+  Future<void> pickFiles() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result != null) {
+      setState(() {
+        files = result.files;
+        _isFileNull = false;
+      });
+    }
+  }
+
+  Future<void> _tambah() async {
+    _formKey.currentState!.save();
+    String tanggalKwitansiFormatted =
+        DateFormat('yyyy-MM-dd').format(tanggalKwitansi);
+
+    if (_formKey.currentState!.validate() == false) {
+      return;
+    }
+
+    String? filePath;
+
+    if (files != null) {
+      filePath = files!.single.path;
+      setState(() {
+        _isFileNull = false;
+      });
+    } else {
+      setState(() {
+        _isFileNull = true;
+      });
+      return;
+    }
+
+    Map<String, dynamic> newData = {
+      "id_md_jp_rawat_inap": _jenisPenggantiController.text,
+      "no_kuitansi": _noKwitansiController.text,
+      "detail_penggantian": _detailPenggantiController.text,
+      "tgl_kuitansi": tanggalKwitansiFormatted,
+      "jumlah": _jumlahController.text,
+      "keterangan": _keteranganController.text,
+      "lampiran_pembayaran": filePath,
+    };
+
+    DataDetailPengajuanRawatInapController
+        dataDetailPengajuanRawatInapController = Get.find();
+
+    dataDetailPengajuanRawatInapController.tambahData(newData);
+
+    Get.offAllNamed(
+        '/user/main/home/online_form/pengajuan_fasilitas_kesehatan/pengajuan_rawat_inap');
+  }
+
+  String? _validatorJenisPengganti(dynamic value) {
+    if (value == null || value.isEmpty) {
+      setState(() {
+        maxHeightJenisPengganti = 60.0;
+      });
+      return 'Field Jenis Pengganti Kosong';
+    }
+
+    setState(() {
+      maxHeightJenisPengganti = 40.0;
+    });
+    return null;
+  }
+
+  String? _validatorDetailPengganti(dynamic value) {
+    if (value == null || value.isEmpty) {
+      setState(() {
+        maxHeightDetailPengganti = 60.0;
+      });
+      return 'Field Detail Pengganti Kosong';
+    }
+
+    setState(() {
+      maxHeightDetailPengganti = 40.0;
+    });
+    return null;
+  }
+
+  String? _validatorNoKwitansi(dynamic value) {
+    if (value == null || value.isEmpty) {
+      setState(() {
+        maxHeightNokwitansi = 60.0;
+      });
+      return 'Field No Kwitansi Kosong';
+    }
+
+    setState(() {
+      maxHeightNokwitansi = 40.0;
+    });
+    return null;
+  }
+
+  String? _validatorJumlah(dynamic value) {
+    if (value == null || value.isEmpty) {
+      setState(() {
+        maxHeightJumlah = 60.0;
+      });
+      return 'Field Jumlah Kosong';
+    }
+
+    setState(() {
+      maxHeightJumlah = 40.0;
+    });
+    return null;
+  }
+
+  String? _validatorKeterangan(dynamic value) {
+    if (value == null || value.isEmpty) {
+      setState(() {
+        maxHeightKeterangan = 60.0;
+      });
+      return 'Field Jumlah Kosong';
+    }
+
+    setState(() {
+      maxHeightKeterangan = 40.0;
+    });
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
-    DateTime dateTime = DateTime(3000, 2, 1, 10, 20);
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightTall = size.height * 0.0163;
@@ -71,8 +209,9 @@ class _FormDetailPengajuanRawatInapState
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: TextFormFieldWidget(
-                    controller: _namaController,
-                    maxHeightConstraints: _maxHeightNama,
+                    validator: _validatorJenisPengganti,
+                    controller: _jenisPenggantiController,
+                    maxHeightConstraints: maxHeightJenisPengganti,
                     hintText: 'Jenis Penggantian',
                   ),
                 ),
@@ -95,8 +234,9 @@ class _FormDetailPengajuanRawatInapState
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: TextFormFieldWidget(
-                    controller: _namaController,
-                    maxHeightConstraints: _maxHeightNama,
+                    validator: _validatorDetailPengganti,
+                    controller: _detailPenggantiController,
+                    maxHeightConstraints: maxHeightDetailPengganti,
                     hintText: 'Detail Penggantian',
                   ),
                 ),
@@ -119,8 +259,9 @@ class _FormDetailPengajuanRawatInapState
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: TextFormFieldWidget(
-                    controller: _namaController,
-                    maxHeightConstraints: _maxHeightNama,
+                    validator: _validatorNoKwitansi,
+                    controller: _noKwitansiController,
+                    maxHeightConstraints: maxHeightNokwitansi,
                     hintText: 'No Kwitansi',
                   ),
                 ),
@@ -153,7 +294,7 @@ class _FormDetailPengajuanRawatInapState
                           color: Colors.grey,
                         ),
                         Text(
-                          '${dateTime.day}-${dateTime.month}-${dateTime.year}',
+                          '${tanggalKwitansi.day}-${tanggalKwitansi.month}-${tanggalKwitansi.year}',
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: textMedium,
@@ -171,10 +312,9 @@ class _FormDetailPengajuanRawatInapState
                         height: 250,
                         child: CupertinoDatePicker(
                           backgroundColor: Colors.white,
-                          initialDateTime: dateTime,
+                          initialDateTime: tanggalKwitansi,
                           onDateTimeChanged: (DateTime newTime) {
-                            setState(() => dateTime = newTime);
-                            print(dateTime);
+                            setState(() => tanggalKwitansi = newTime);
                           },
                           use24hFormat: true,
                           mode: CupertinoDatePickerMode.date,
@@ -202,8 +342,9 @@ class _FormDetailPengajuanRawatInapState
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: TextFormFieldWidget(
-                    controller: _namaController,
-                    maxHeightConstraints: _maxHeightNama,
+                    validator: _validatorJumlah,
+                    controller: _jumlahController,
+                    maxHeightConstraints: maxHeightJumlah,
                     hintText: 'Rp 700.000',
                   ),
                 ),
@@ -226,8 +367,9 @@ class _FormDetailPengajuanRawatInapState
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: TextFormFieldWidget(
-                    controller: _namaController,
-                    maxHeightConstraints: _maxHeightNama,
+                    validator: _validatorKeterangan,
+                    controller: _keteranganController,
+                    maxHeightConstraints: maxHeightKeterangan,
                     hintText: 'Keterangan',
                   ),
                 ),
@@ -249,10 +391,65 @@ class _FormDetailPengajuanRawatInapState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormFieldWidget(
-                    controller: _namaController,
-                    maxHeightConstraints: _maxHeightNama,
-                    hintText: 'lampiran Bukti Pembayaran',
+                  child: Column(
+                    children: [
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: pickFiles,
+                          child: Text('Pilih File'),
+                        ),
+                      ),
+                      if (files != null)
+                        Column(
+                          children: files!.map((file) {
+                            return ListTile(
+                              title: Text(file.name),
+                              // subtitle: Text('${file.size} bytes'),
+                            );
+                          }).toList(),
+                        ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: sizedBoxHeightShort,
+                ),
+                _isFileNull
+                    ? Center(
+                        child: Text(
+                        'File Kosong',
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.w700,
+                            fontSize: textMedium),
+                      ))
+                    : const Text(''),
+                SizedBox(
+                  height: sizedBoxHeightShort,
+                ),
+                SizedBox(
+                  width: size.width,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: ElevatedButton(
+                      onPressed: _tambah,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(primaryYellow),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        'Submit',
+                        style: TextStyle(
+                            color: const Color(primaryBlack),
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.9,
+                            fontWeight: FontWeight.w700),
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -261,5 +458,17 @@ class _FormDetailPengajuanRawatInapState
         ],
       ),
     );
+  }
+}
+
+class DataDetailPengajuanRawatInapController extends GetxController {
+  var data = <Map<String, dynamic>>[].obs;
+
+  void tambahData(Map<String, dynamic> newData) {
+    data.add(newData);
+  }
+
+  List<Map<String, dynamic>> getDataList() {
+    return data;
   }
 }
