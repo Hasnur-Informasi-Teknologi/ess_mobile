@@ -33,11 +33,13 @@ class AuthProvider with ChangeNotifier {
         Uri.parse('$_apiUrl/get_profile_employee?nrp=$nrp'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization':"Bearer "+responseData['token']
         },
       );
 
       final userData = user.body;
       prefs.setString('userData', userData);
+      print(userData);
 
       notifyListeners();
     } catch (e) {
