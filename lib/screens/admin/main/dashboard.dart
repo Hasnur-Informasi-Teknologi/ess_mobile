@@ -8,6 +8,8 @@ import 'package:mobile_ess/screens/user/main/bottom_navbar_controller.dart';
 import 'package:mobile_ess/screens/user/profile/profile_screen.dart';
 import 'package:mobile_ess/screens/user/submition/submition_screen.dart';
 
+
+
 class AdminMainScreen extends StatefulWidget {
   const AdminMainScreen({super.key});
 
@@ -26,7 +28,7 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
           index: controller.selectedIndex.value,
           children: const [
             AdminHeaderScreen(),
-            // SubmitionScreen(),
+            SubmitionScreen(),
             HistoryApprovalScreen(),
             ProfileScreen(),
           ],
@@ -56,13 +58,13 @@ class _AdminMainScreenState extends State<AdminMainScreen> {
                 icon: Icon(
                   Icons.history,
                 ),
-                label: 'dsa',
+                label: 'History',
               ),
               BottomNavigationBarItem(
                 icon: Icon(
                   Icons.person,
                 ),
-                label: 'asd',
+                label: 'Profile',
               ),
             ],
           );

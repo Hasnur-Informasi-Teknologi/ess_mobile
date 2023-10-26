@@ -9,24 +9,6 @@ class KehadiranKaryawanTable extends StatefulWidget {
 }
 
 class KehadiranKaryawanTableState extends State<KehadiranKaryawanTable> {
-  // ========================================================
-  Map<String, String> entitasValues = {
-    '1': 'Entitas',
-  };
-  String? entitasValue = '1'; // Default value
-  // ========================================================
-  Map<String, String> lokasiValues = {
-    '1': 'Lokasi Kerja',
-  };
-  String? lokasiValue = '1'; // Default value
-  // ========================================================
-  Map<String, String> periodeValues = {
-    '1': 'Periode',
-  };
-  String? periodeValue = '1'; // Default value
-  String lokasiKerja = 'Lokasi Kerja';
-  String periode = 'Periode';
-  String pangkat = '';
 
   @override
   Widget build(BuildContext context) {
@@ -38,269 +20,130 @@ class KehadiranKaryawanTableState extends State<KehadiranKaryawanTable> {
 
     return Column(
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(
-              horizontal: paddingHorizontalWide, vertical: padding10),
-          child: Column(
-            children: [
-              Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                child: const TitleWidget(title: 'Demografi & Attendance'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Karyawan',
+              style: TextStyle(
+                color: Colors.grey[700],
+                fontSize: textSmall,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w300,
               ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: paddingHorizontalWide, vertical: padding10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+            ),
+            Text(
+              'Status',
+              style: TextStyle(
+                color: Colors.grey[700],
+                fontSize: textSmall,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+            Text(
+              'Keluar',
+              style: TextStyle(
+                color: Colors.grey[700],
+                fontSize: textSmall,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+            Text(
+              'Kembali',
+              style: TextStyle(
+                color: Colors.grey[700],
+                fontSize: textSmall,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+            Text(
+              'Keperluan',
+              style: TextStyle(
+                color: Colors.grey[700],
+                fontSize: textSmall,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w300,
+              ),
+            ),
+          ],
+        ),
+        Column(
+          children: List.generate(40, (index) {
+            return Column(
+              children: [
+                SizedBox(
+                  height: sizedBoxHeightTall,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      height: 40,
-                      padding: EdgeInsets.all(4),
-                      margin: EdgeInsets.only(left: 10),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Color.fromARGB(
-                              102, 158, 158, 158), // Set border color
-                          width: 1, // Set border width
-                        ),
-                        borderRadius: BorderRadius.circular(
-                            6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 5, right: 5),
-                        child: DropdownButton<String>(
+                    Column(
+                      children: [
+                        Text(
+                          'Budi Setiawan',
                           style: TextStyle(
-                            fontSize: 10,
-                            color: Colors
-                                .black, // Set the font size for the dropdown items
+                            color: Colors.grey[700],
+                            fontSize: textSmall,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w600,
                           ),
-                          value: entitasValue,
-                          iconSize: 24,
-                          elevation: 16,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              entitasValue = newValue;
-                            });
-                          },
-                          items: entitasValues.keys
-                              .map<DropdownMenuItem<String>>((String id) {
-                            return DropdownMenuItem<String>(
-                              value: id,
-                              child: Text(entitasValues[id]!),
-                            );
-                          }).toList(),
                         ),
+                        Text(
+                          'NRP : 78220001',
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontSize: textSmall,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      'Kembali',
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontSize: textSmall,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w300,
                       ),
                     ),
-                    Container(
-                      height: 40,
-                      padding: EdgeInsets.all(4),
-                      margin: EdgeInsets.only(left: 10),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Color.fromARGB(
-                              102, 158, 158, 158), // Set border color
-                          width: 1, // Set border width
-                        ),
-                        borderRadius: BorderRadius.circular(
-                            6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 5, right: 5),
-                        child: DropdownButton<String>(
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors
-                                .black, // Set the font size for the dropdown items
-                          ),
-                          value: lokasiValue,
-                          iconSize: 24,
-                          elevation: 16,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              lokasiValue = newValue;
-                            });
-                          },
-                          items: lokasiValues.keys
-                              .map<DropdownMenuItem<String>>((String id) {
-                            return DropdownMenuItem<String>(
-                              value: id,
-                              child: Text(lokasiValues[id]!),
-                            );
-                          }).toList(),
-                        ),
+                    Text(
+                      '09.00',
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontSize: textSmall,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w300,
                       ),
                     ),
-                    Container(
-                      height: 40,
-                      padding: EdgeInsets.all(4),
-                      margin: EdgeInsets.only(left: 10),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Color.fromARGB(
-                              102, 158, 158, 158), // Set border color
-                          width: 1, // Set border width
-                        ),
-                        borderRadius: BorderRadius.circular(
-                            6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
+                    Text(
+                      '13.35',
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontSize: textSmall,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w300,
                       ),
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 5, right: 5),
-                        child: DropdownButton<String>(
-                          value: periodeValue,
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors
-                                .black, // Set the font size for the dropdown items
-                          ),
-                          iconSize: 24,
-                          elevation: 16,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              periodeValue = newValue;
-                            });
-                          },
-                          items: periodeValues.keys
-                              .map<DropdownMenuItem<String>>((String id) {
-                            return DropdownMenuItem<String>(
-                              value: id,
-                              child: Text(periodeValues[id]!),
-                            );
-                          }).toList(),
-                        ),
+                    ),
+                    Text(
+                      'Keperluan Pribadi',
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontSize: textSmall,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w300,
                       ),
                     ),
                   ],
                 ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Karyawan',
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                      fontSize: textSmall,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
-                  Text(
-                    'Status',
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                      fontSize: textSmall,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
-                  Text(
-                    'Keluar',
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                      fontSize: textSmall,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
-                  Text(
-                    'Kembali',
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                      fontSize: textSmall,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
-                  Text(
-                    'Keperluan',
-                    style: TextStyle(
-                      color: Colors.grey[700],
-                      fontSize: textSmall,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w300,
-                    ),
-                  ),
-                ],
-              ),
-              Column(
-                children: List.generate(40, (index) {
-                  return Column(
-                    children: [
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            children: [
-                              Text(
-                                'Budi Setiawan',
-                                style: TextStyle(
-                                  color: Colors.grey[700],
-                                  fontSize: textSmall,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              Text(
-                                'NRP : 78220001',
-                                style: TextStyle(
-                                  color: Colors.grey[700],
-                                  fontSize: textSmall,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Text(
-                                'Kembali',
-                                style: TextStyle(
-                                  color: Colors.grey[700],
-                                  fontSize: textSmall,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                           Text(
-                                '09.00',
-                                style: TextStyle(
-                                  color: Colors.grey[700],
-                                  fontSize: textSmall,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                               Text(
-                                '13.35',
-                                style: TextStyle(
-                                  color: Colors.grey[700],
-                                  fontSize: textSmall,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                               Text(
-                                'Keperluan Pribadi',
-                                style: TextStyle(
-                                  color: Colors.grey[700],
-                                  fontSize: textSmall,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                        ],
-                      ),
-                    ],
-                  );
-                }),
-              )
-            ],
-          ),
-        ),
+              ],
+            );
+          }),
+        )
       ],
     );
   }

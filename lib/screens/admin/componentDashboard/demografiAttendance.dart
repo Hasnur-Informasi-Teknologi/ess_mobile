@@ -54,127 +54,154 @@ class _DemografiAttendanceScreenState extends State<DemografiAttendanceScreen> {
         Padding(
           padding: EdgeInsets.symmetric(
               horizontal: paddingHorizontalWide, vertical: padding10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Container(
-                height: 40,
-                padding: EdgeInsets.all(4),
-                margin: EdgeInsets.only(left: 10),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color:
-                        Color.fromARGB(102, 158, 158, 158), // Set border color
-                    width: 1, // Set border width
-                  ),
-                  borderRadius: BorderRadius.circular(
-                      6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
-                ),
-                child: Padding(
-                  padding: EdgeInsets.only(left: 5, right: 5),
-                  child: DropdownButton<String>(
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Colors
-                          .black, // Set the font size for the dropdown items
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  height: 40,
+                  padding: EdgeInsets.all(4),
+                  margin: EdgeInsets.only(left: 10),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color:
+                          Color.fromARGB(102, 158, 158, 158), // Set border color
+                      width: 1, // Set border width
                     ),
-                    value: entitasValue,
-                    iconSize: 24,
-                    elevation: 16,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        entitasValue = newValue;
-                      });
-                    },
-                    items: entitasValues.keys
-                        .map<DropdownMenuItem<String>>((String id) {
-                      return DropdownMenuItem<String>(
-                        value: id,
-                        child: Text(entitasValues[id]!),
-                      );
-                    }).toList(),
+                    borderRadius: BorderRadius.circular(
+                        6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
                   ),
-                ),
-              ),
-              Container(
-                height: 40,
-                padding: EdgeInsets.all(4),
-                margin: EdgeInsets.only(left: 10),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color:
-                        Color.fromARGB(102, 158, 158, 158), // Set border color
-                    width: 1, // Set border width
-                  ),
-                  borderRadius: BorderRadius.circular(
-                      6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
-                ),
-                child: Padding(
-                  padding: EdgeInsets.only(left: 5, right: 5),
-                  child: DropdownButton<String>(
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Colors
-                          .black, // Set the font size for the dropdown items
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 5, right: 5),
+                    child: DropdownButton<String>(
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors
+                            .black, // Set the font size for the dropdown items
+                      ),
+                      value: entitasValue,
+                      iconSize: 24,
+                      elevation: 16,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          entitasValue = newValue;
+                        });
+                      },
+                      items: entitasValues.keys
+                          .map<DropdownMenuItem<String>>((String id) {
+                        return DropdownMenuItem<String>(
+                          value: id,
+                          child: Text(entitasValues[id]!),
+                        );
+                      }).toList(),
                     ),
-                    value: lokasiValue,
-                    iconSize: 24,
-                    elevation: 16,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        lokasiValue = newValue;
-                      });
-                    },
-                    items: lokasiValues.keys
-                        .map<DropdownMenuItem<String>>((String id) {
-                      return DropdownMenuItem<String>(
-                        value: id,
-                        child: Text(lokasiValues[id]!),
-                      );
-                    }).toList(),
                   ),
                 ),
-              ),
-              Container(
-                height: 40,
-                padding: EdgeInsets.all(4),
-                margin: EdgeInsets.only(left: 10),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color:
-                        Color.fromARGB(102, 158, 158, 158), // Set border color
-                    width: 1, // Set border width
-                  ),
-                  borderRadius: BorderRadius.circular(
-                      6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
-                ),
-                child: Padding(
-                  padding: EdgeInsets.only(left: 5, right: 5),
-                  child: DropdownButton<String>(
-                    value: periodeValue,
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: Colors
-                          .black, // Set the font size for the dropdown items
+                Container(
+                  height: 40,
+                  padding: EdgeInsets.all(4),
+                  margin: EdgeInsets.only(left: 10),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color:
+                          Color.fromARGB(102, 158, 158, 158), // Set border color
+                      width: 1, // Set border width
                     ),
-                    iconSize: 24,
-                    elevation: 16,
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        periodeValue = newValue;
-                      });
-                    },
-                    items: periodeValues.keys
-                        .map<DropdownMenuItem<String>>((String id) {
-                      return DropdownMenuItem<String>(
-                        value: id,
-                        child: Text(periodeValues[id]!),
-                      );
-                    }).toList(),
+                    borderRadius: BorderRadius.circular(
+                        6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 5, right: 5),
+                    child: DropdownButton<String>(
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors
+                            .black, // Set the font size for the dropdown items
+                      ),
+                      value: lokasiValue,
+                      iconSize: 24,
+                      elevation: 16,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          lokasiValue = newValue;
+                        });
+                      },
+                      items: lokasiValues.keys
+                          .map<DropdownMenuItem<String>>((String id) {
+                        return DropdownMenuItem<String>(
+                          value: id,
+                          child: Text(lokasiValues[id]!),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
+                Container(
+                  height: 40,
+                  padding: EdgeInsets.all(4),
+                  margin: EdgeInsets.only(left: 10),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color:
+                          Color.fromARGB(102, 158, 158, 158), // Set border color
+                      width: 1, // Set border width
+                    ),
+                    borderRadius: BorderRadius.circular(
+                        6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 5, right: 5),
+                    child: DropdownButton<String>(
+                      value: periodeValue,
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors
+                            .black, // Set the font size for the dropdown items
+                      ),
+                      iconSize: 24,
+                      elevation: 16,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          periodeValue = newValue;
+                        });
+                      },
+                      items: periodeValues.keys
+                          .map<DropdownMenuItem<String>>((String id) {
+                        return DropdownMenuItem<String>(
+                          value: id,
+                          child: Text(periodeValues[id]!),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+                Container(
+              height: 40,
+              width: 100,
+              padding: EdgeInsets.all(4),
+              margin: EdgeInsets.only(left: 10),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color:
+                      Color.fromARGB(102, 158, 158, 158), // Set border color
+                  width: 1, // Set border width
+                ),
+                borderRadius: BorderRadius.circular(
+                    6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
               ),
-            ],
+              child: TextFormField(
+                style: TextStyle(
+                  fontSize: 12
+                ),
+                decoration: const InputDecoration(
+                  hintText: 'Pangkat', // placeholder
+                ),
+                // onChanged: (val)=>vdata['Username']=val, // pilih salah satu
+              ),
+            ),
+              ],
+            ),
           ),
         ),
         Padding(
