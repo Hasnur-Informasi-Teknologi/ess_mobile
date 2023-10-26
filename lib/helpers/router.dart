@@ -43,10 +43,10 @@ Map<String, Widget Function(BuildContext)> routers() {
   return {
     '/': (context) => const SignInScreen(),
     '/splash': (context) => const SplashScreen(),
-    '/user/main': (context) => const MainScreen(),
+    '/user/main': (context) => const MainScreenWithAnimation(),
     '/user/profile': (context) => const ProfileScreen(),
     '/user/profile/edit': (context) => const ProfileEditScreen(),
-    '/user/main_new': (context) => const MainScreenWithAnimation(),
+    // '/user/main_new': (context) => const MainScreenWithAnimation(),
     '/user/main/home/online_form': (context) => const OnlineFormScreen(),
     '/user/main/home/online_form/aplikasi_training': (context) =>
         const FormAplikasiTrainingScreen(),

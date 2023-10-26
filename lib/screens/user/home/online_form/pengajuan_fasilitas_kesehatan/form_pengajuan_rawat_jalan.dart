@@ -179,7 +179,7 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
       setState(() {
         dataDetail = [];
       });
-      Get.offAllNamed('/user/main_new');
+      Get.offAllNamed('/user/main');
     }
   }
 
