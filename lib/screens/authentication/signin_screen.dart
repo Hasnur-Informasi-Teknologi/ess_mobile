@@ -209,7 +209,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                     GestureDetector(
                                       onTap: () {
                                         // on doubletap, drag
-                                        Get.toNamed('/admin/main');
+                                        Get.toNamed('/test');
                                       },
                                       child: Text(
                                         'SELAMAT DATANG',

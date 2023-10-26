@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
+import 'package:mobile_ess/screens/user/home/icons_profile_container_widget.dart';
 import 'package:mobile_ess/screens/user/home/pengumuman/pengumuman_screen.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_ess/widgets/header_profile_widget.dart';
@@ -12,6 +13,10 @@ import 'package:mobile_ess/widgets/row_with_button_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+class Controller extends GetxController {
+  var karyawan = {}.obs;
+}
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -20,8 +25,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String? _userName, _pt, _imageUrl, _webUrl;
   final String _apiUrl = API_URL;
+  Controller x = Get.put(Controller());
 
   @override
   void initState() {
@@ -32,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> getDataKaryawan() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
+    x.karyawan.value = jsonDecode(prefs.getString('userData').toString())['data'];
     if (token != null) {
       try {
         final response = await http.get(
@@ -83,13 +89,13 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'PT Hasnur Informasi Teknologi',
+              Obx(()=> Text(
+                x.karyawan['pt']??'PT Hasnur Informasi Teknologi',
                 style: TextStyle(
                     fontSize: textMedium,
                     fontWeight: FontWeight.w500,
                     fontFamily: 'Quicksand'),
-              ),
+               )),
               IconButton(
                 icon: const Icon(Icons.notifications),
                 onPressed: () {
@@ -112,20 +118,37 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Container(
             // height: size.height * 0.43,
-            height: size.height * 0.3,
+            height: size.height * 0.43,
 
             width: size.width,
             decoration: const BoxDecoration(color: Colors.white),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                const HeaderProfileWidget(
-                  userName: 'M. Abdullah Sani',
-                  posision: 'Programmer',
+                Obx(()=> 
+                 HeaderProfileWidget(
+                  userName: x.karyawan['nama']??'M. Abdullah Sani',
+                  posision: x.karyawan['pernr']??'7822000',
                   imageUrl: '',
                   webUrl: '',
-                ),
+               )),
                 Container(
+                  // height: size.height * 0.23,
+                  height: size.height * 0.12,
+                  width: size.width * 0.9,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(10.0),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Colors.black.withOpacity(0.23),
+                          offset: const Offset(1.1, 1.1),
+                          blurRadius: 10.0),
+                    ],
+                  ),
+                  child: const IconsProfileContainerWidget(),
+                ),
+                 Container(
                   // height: size.height * 0.23,
                   height: size.height * 0.11,
                   width: size.width * 0.9,
@@ -185,7 +208,8 @@ class _HomeScreenState extends State<HomeScreen> {
             children: List.generate(4, (index) {
               return const PengumumanCardWidget();
             }),
-          )
+          ),
+          SizedBox(height: 100,)
         ],
       ),
     );
