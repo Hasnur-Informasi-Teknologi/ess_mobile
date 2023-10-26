@@ -301,7 +301,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
           shouldIconPulse: false);
 
       if (responseData['message'] == 'Pengajuan Cuti Sukses') {
-        Get.offAllNamed('/user/main_new');
+        Get.offAllNamed('/user/main');
       }
 
       // print(responseData);
@@ -474,8 +474,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () {
-                  Get.back();
-                  // Navigator.pop(context);
+                  Get.toNamed('/user/main/home/online_form/pengajuan_cuti');
                 },
               ),
               title: const Text(

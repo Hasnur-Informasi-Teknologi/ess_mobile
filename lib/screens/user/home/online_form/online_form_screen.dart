@@ -22,8 +22,7 @@ class OnlineFormScreen extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Get.back();
-            // Navigator.pop(context);
+            Get.offAllNamed('/user/main');
           },
         ),
         title: const Text(

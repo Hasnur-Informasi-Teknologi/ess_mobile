@@ -22,8 +22,7 @@ class PengajuanCuti extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Get.back();
-            // Navigator.pop(context);
+            Get.offAllNamed('/user/main/home/online_form');
           },
         ),
         title: const Text(
