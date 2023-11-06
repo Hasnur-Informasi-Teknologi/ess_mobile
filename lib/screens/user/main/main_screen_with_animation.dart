@@ -31,7 +31,7 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
     });
     tabIconsList[0].isSelected = true;
     animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 600));
+        vsync: this, duration: const Duration(milliseconds: 500));
     tabBody = const HomeScreen();
     super.initState();
   }

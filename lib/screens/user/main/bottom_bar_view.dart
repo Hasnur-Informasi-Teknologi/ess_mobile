@@ -213,7 +213,7 @@ class _TabIconsState extends State<TabIcons> with TickerProviderStateMixin {
   void initState() {
     widget.tabIconData?.animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1000),
+      duration: const Duration(milliseconds: 500),
     )..addStatusListener((AnimationStatus status) {
         if (status == AnimationStatus.completed) {
           if (!mounted) return;
