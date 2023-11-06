@@ -8,7 +8,7 @@ import 'package:mobile_ess/widgets/request_attendance_table_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 
 class KontrakKaryawanController extends GetxController{
-  var pilih="kontrak".obs;
+  var pilih="1".obs;
 }
 
 class KontrakKaryawan extends StatefulWidget {
@@ -316,10 +316,10 @@ class KontrakKaryawanState extends State<KontrakKaryawan> {
                 height: 20,
               ),
               Obx(() {
-                if(x.pilih=='kontrak'){
+                if(x.pilih=='1'){
                   return KontrakEmployeeScreen();
                 }
-                else if(x.pilih=='probation'){
+                else if(x.pilih=='2'){
                   return ProbationKaryawanScreen();
                 }
                 else{

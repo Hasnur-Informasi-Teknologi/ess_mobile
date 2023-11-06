@@ -24,11 +24,10 @@ class AuthProvider with ChangeNotifier {
       if (responseData['status'] != true) {
         throw HttpException(responseData['status']);
       }
-
+      
       final prefs = await SharedPreferences.getInstance();
       prefs.setString('token', responseData['token']);
       prefs.setString('nrp', nrp);
-
       final user = await http.get(
         Uri.parse('$_apiUrl/get_profile_employee?nrp=$nrp'),
         headers: <String, String>{

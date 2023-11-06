@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-class Controller2 extends GetxController {
+class IconUserController extends GetxController {
   var karyawan = {}.obs;
 }
 
@@ -18,7 +18,7 @@ class IconsProfileContainerWidget extends StatefulWidget {
 }
 
 class _IconsProfileContainerWidgetState extends State<IconsProfileContainerWidget> {
-  Controller2 x = Get.put(Controller2());
+  IconUserController x = Get.put(IconUserController());
   @override
   void initState() {
     super.initState();
@@ -149,7 +149,7 @@ class _IconsProfileContainerWidgetState extends State<IconsProfileContainerWidge
   void handleIconTap(int index) {
     switch (index) {
       case 0:
-        Get.toNamed('/user/main/home/online_form');
+        // Get.toNamed('/user/main/home/online_form');
         // Navigator.push(
         //   context,
         //   MaterialPageRoute(
@@ -158,10 +158,10 @@ class _IconsProfileContainerWidgetState extends State<IconsProfileContainerWidge
         // );
         break;
       case 1:
-        Get.toNamed('/user/main/home/documents');
+        // Get.toNamed('/user/main/home/documents');
         break;
       case 2:
-        Get.toNamed('/user/main/home/transactions');
+        // Get.toNamed('/user/main/home/transactions');
         break;
       case 3:
         return print('Documents');
