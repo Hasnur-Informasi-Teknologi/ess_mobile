@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthProvider with ChangeNotifier {
   final String _apiUrl = API_URL;
 
-  Future<void> signIn(String nrp, String password) async {
+  Future signIn(String nrp, String password) async {
     try {
       final response = await http.post(Uri.parse('$_apiUrl/login'),
           headers: <String, String>{
@@ -29,7 +29,14 @@ class AuthProvider with ChangeNotifier {
       prefs.setString('token', responseData['token']);
       prefs.setString('nrp', nrp);
       final user = await http.get(
-        Uri.parse('$_apiUrl/get_profile_employee?nrp=$nrp'),
+        Uri.parse('$_apiUrl/md-profile/get_employee?nrp=$nrp'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization':"Bearer "+responseData['token']
+        },
+      );
+      final user_auth = await http.get(
+        Uri.parse('$_apiUrl/md-profile/get_user?nrp=$nrp'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization':"Bearer "+responseData['token']
@@ -38,9 +45,9 @@ class AuthProvider with ChangeNotifier {
 
       final userData = user.body;
       prefs.setString('userData', userData);
-      print(userData);
-
+      prefs.setInt('role_id', jsonDecode(user_auth.body)['data']['role_id']);
       notifyListeners();
+      return jsonDecode(user_auth.body)['data']['role_id'];
     } catch (e) {
       throw e;
     }

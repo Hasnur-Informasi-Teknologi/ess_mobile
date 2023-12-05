@@ -108,7 +108,7 @@ class _JadwalKerjaCardWidgetState extends State<JadwalKerjaCardWidget> {
               scrollDirection: Axis.horizontal,
               child: Obx(() => Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                 children : map<Widget>(x.date, (index, url) { // listItem adalah variable List/array 
+                 children : map<Widget>(x.date, (index, url) { 
                         return  Padding(
                     padding: EdgeInsets.symmetric(horizontal: padding8),
                     child: GestureDetector(
