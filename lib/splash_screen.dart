@@ -29,6 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _initCheck() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    var role_id=prefs.getInt('role_id');
 
     var deviceData = <String, dynamic>{};
     if (Platform.isAndroid) {
@@ -47,9 +48,11 @@ class _SplashScreenState extends State<SplashScreen> {
     if (prefs.getString('token') != null) {
       // final userId = prefs.getString('userId');
       try {
-        print('ada token');
-        Future.delayed(
-            const Duration(seconds: 2), () => {Get.offAllNamed('/user/main')});
+        if(role_id==1){
+          Future.delayed(const Duration(seconds: 2), () => {Get.offAllNamed('/admin/main')});
+        }else if(role_id==4){
+          Future.delayed(const Duration(seconds: 2), () => {Get.offAllNamed('/user/main')});
+        }
 
         // await Provider.of<AuthProvider>(context, listen: false)
         //     .checkDeviceId(

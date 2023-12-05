@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_ess/screens/admin/main/dashboard.dart';
+import 'package:mobile_ess/screens/admin/main/karyawan/list_karyawan.dart';
 import 'package:mobile_ess/screens/authentication/signin_screen.dart';
 import 'package:mobile_ess/screens/test.dart';
 import 'package:mobile_ess/screens/user/home/documents/documents_screen.dart';
@@ -105,6 +106,7 @@ Map<String, Widget Function(BuildContext)> routers() {
     '/user/main/home/documents': (context) => const DocomentsScreen(),
     // =================== ADMIN ====================
     '/admin/main': (context) => const AdminMainScreen(),
+    '/admin/karyawan': (context) => const ListKaryawan(),
     '/test': (context) => TestScreen(),
   };
 }

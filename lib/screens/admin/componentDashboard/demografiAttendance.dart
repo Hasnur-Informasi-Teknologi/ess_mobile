@@ -74,27 +74,29 @@ class _DemografiAttendanceScreenState extends State<DemografiAttendanceScreen> {
                   ),
                   child: Padding(
                     padding: EdgeInsets.only(left: 5, right: 5),
-                    child: DropdownButton<String>(
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors
-                            .black, // Set the font size for the dropdown items
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors
+                              .black, // Set the font size for the dropdown items
+                        ),
+                        value: entitasValue,
+                        iconSize: 24,
+                        elevation: 16,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            entitasValue = newValue;
+                          });
+                        },
+                        items: entitasValues.keys
+                            .map<DropdownMenuItem<String>>((String id) {
+                          return DropdownMenuItem<String>(
+                            value: id,
+                            child: Text(entitasValues[id]!),
+                          );
+                        }).toList(),
                       ),
-                      value: entitasValue,
-                      iconSize: 24,
-                      elevation: 16,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          entitasValue = newValue;
-                        });
-                      },
-                      items: entitasValues.keys
-                          .map<DropdownMenuItem<String>>((String id) {
-                        return DropdownMenuItem<String>(
-                          value: id,
-                          child: Text(entitasValues[id]!),
-                        );
-                      }).toList(),
                     ),
                   ),
                 ),
@@ -113,27 +115,29 @@ class _DemografiAttendanceScreenState extends State<DemografiAttendanceScreen> {
                   ),
                   child: Padding(
                     padding: EdgeInsets.only(left: 5, right: 5),
-                    child: DropdownButton<String>(
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors
-                            .black, // Set the font size for the dropdown items
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors
+                              .black, // Set the font size for the dropdown items
+                        ),
+                        value: lokasiValue,
+                        iconSize: 24,
+                        elevation: 16,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            lokasiValue = newValue;
+                          });
+                        },
+                        items: lokasiValues.keys
+                            .map<DropdownMenuItem<String>>((String id) {
+                          return DropdownMenuItem<String>(
+                            value: id,
+                            child: Text(lokasiValues[id]!),
+                          );
+                        }).toList(),
                       ),
-                      value: lokasiValue,
-                      iconSize: 24,
-                      elevation: 16,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          lokasiValue = newValue;
-                        });
-                      },
-                      items: lokasiValues.keys
-                          .map<DropdownMenuItem<String>>((String id) {
-                        return DropdownMenuItem<String>(
-                          value: id,
-                          child: Text(lokasiValues[id]!),
-                        );
-                      }).toList(),
                     ),
                   ),
                 ),
@@ -152,27 +156,29 @@ class _DemografiAttendanceScreenState extends State<DemografiAttendanceScreen> {
                   ),
                   child: Padding(
                     padding: EdgeInsets.only(left: 5, right: 5),
-                    child: DropdownButton<String>(
-                      value: periodeValue,
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors
-                            .black, // Set the font size for the dropdown items
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: periodeValue,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors
+                              .black, // Set the font size for the dropdown items
+                        ),
+                        iconSize: 24,
+                        elevation: 16,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            periodeValue = newValue;
+                          });
+                        },
+                        items: periodeValues.keys
+                            .map<DropdownMenuItem<String>>((String id) {
+                          return DropdownMenuItem<String>(
+                            value: id,
+                            child: Text(periodeValues[id]!),
+                          );
+                        }).toList(),
                       ),
-                      iconSize: 24,
-                      elevation: 16,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          periodeValue = newValue;
-                        });
-                      },
-                      items: periodeValues.keys
-                          .map<DropdownMenuItem<String>>((String id) {
-                        return DropdownMenuItem<String>(
-                          value: id,
-                          child: Text(periodeValues[id]!),
-                        );
-                      }).toList(),
                     ),
                   ),
                 ),
@@ -195,6 +201,7 @@ class _DemografiAttendanceScreenState extends State<DemografiAttendanceScreen> {
                   fontSize: 12
                 ),
                 decoration: const InputDecoration(
+                  enabledBorder: InputBorder.none,
                   hintText: 'Pangkat', // placeholder
                 ),
                 // onChanged: (val)=>vdata['Username']=val, // pilih salah satu

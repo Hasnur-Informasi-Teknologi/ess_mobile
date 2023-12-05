@@ -20,41 +20,77 @@ class IconsContainerWidget extends StatelessWidget {
         crossAxisCount: 3,
         childAspectRatio: 1.2,
       ),
-      itemCount: 3, // Jumlah total item
+      itemCount: 4, // Jumlah total item
       itemBuilder: (BuildContext context, int index) {
-        return InkWell(
-          onTap: () {
-            handleIconTap(index);
-          },
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // SizedBox(height: sizedBoxHeightExtraTall),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(100.0),
-                child: Container(
-                  color: const Color(primaryYellow),
-                  padding: EdgeInsets.all(paddingHorizontalExtraNarrow),
-                  child: Icon(
-                    getIcon(index), // Mendapatkan ikon berdasarkan indeks
-                    color: Colors.grey[700],
-                    size: icon,
+        if(index==3){
+          return InkWell(
+            onTap: () {
+              handleIconTap(index);
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // SizedBox(height: sizedBoxHeightExtraTall),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(100.0),
+                  child: Container(
+                    color: const Color(primaryYellow),
+                    padding: EdgeInsets.all(paddingHorizontalExtraNarrow),
+                    child: Icon(
+                      getIcon(index), // Mendapatkan ikon berdasarkan indeks
+                      color: Colors.grey[700],
+                      size: icon,
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(height: sizedBoxHeightExtraShort),
-              Text(
-                getText(index),
-                textAlign:
-                    TextAlign.center, // Mendapatkan teks berdasarkan indeks
-                style: TextStyle(
-                  color: Colors.grey[700],
-                  fontSize: textSmall,
+                SizedBox(height: sizedBoxHeightExtraShort),
+                Text(
+                  getText(index),
+                  textAlign:
+                      TextAlign.center, // Mendapatkan teks berdasarkan indeks
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontSize: textSmall,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        );
+              ],
+            ),
+          );
+        }else{
+          return InkWell(
+            onTap: () {
+              handleIconTap(index);
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // SizedBox(height: sizedBoxHeightExtraTall),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(100.0),
+                  child: Container(
+                    color: const Color(primaryYellow),
+                    padding: EdgeInsets.all(paddingHorizontalExtraNarrow),
+                    child: Icon(
+                      getIcon(index), // Mendapatkan ikon berdasarkan indeks
+                      color: Colors.grey[700],
+                      size: icon,
+                    ),
+                  ),
+                ),
+                SizedBox(height: sizedBoxHeightExtraShort),
+                Text(
+                  getText(index),
+                  textAlign:
+                      TextAlign.center, // Mendapatkan teks berdasarkan indeks
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontSize: textSmall,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
       },
     );
   }
@@ -117,7 +153,8 @@ class IconsContainerWidget extends StatelessWidget {
         Get.toNamed('/user/main/home/transactions');
         break;
       case 3:
-        return print('Documents');
+        Get.toNamed('/admin/karyawan');
+        break;
       case 4:
         return print('Documents');
       case 5:

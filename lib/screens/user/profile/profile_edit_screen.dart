@@ -1,11 +1,13 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/screens/user/home/home_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'dart:convert';
-
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileEditController extends GetxController {
@@ -15,6 +17,7 @@ class ProfileEditController extends GetxController {
   RxBool infoKepegawaian = false.obs;
   RxBool infoKontrak = false.obs;
   RxBool infoPendidikan = false.obs;
+  
   var data = {}.obs;
   var listController = {}.obs;
 }
@@ -253,10 +256,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                             children: [
                               CustomRow(
                                   title: "No KTP", choosedSetting: 'nomor_ktp'),
-                              CustomRow(
-                                  title: "Tanggal Lahir",
-                                  keyboardType: TextInputType.datetime,
-                                  choosedSetting: 'tgl_lahir'),
+                              CustomRowDateInput(title: "Tanggal Lahir", choosedSetting: "tgl_lahir"),
                               CustomRow(
                                   title: "Alamat",
                                   choosedSetting: 'alamat_tinggal'),
@@ -298,17 +298,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                   title: "Status Pernikahan",
                                   choosedSetting: 'status_pernikahan',
                                   listMap: ['Menikah', 'Belum Menikah']),
-                              CustomRow(
-                                  title: "Tanggal Pernikahan",
-                                  keyboardType: TextInputType.datetime,
-                                  choosedSetting: 'tanggal_nikah'),
+                              CustomRowDateInput(title: "Tanggal Pernikahan", choosedSetting: "tanggal_nikah"),
                               CustomRow(
                                   title: "Nama Pasangan",
                                   choosedSetting: 'nama_pasangan'),
-                              CustomRow(
-                                  title: "Tanggal Lahir Pasangan",
-                                  keyboardType: TextInputType.datetime,
-                                  choosedSetting: 'tgl_lhr_pasangan'),
+                              CustomRowDateInput(title: "Tanggal  Lahir Pasangan", choosedSetting: "tgl_lhr_pasangan"),
                             ],
                           ),
                         ),
@@ -413,10 +407,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                               CustomRow(
                                   title: "Penempatan",
                                   choosedSetting: 'penempatan'),
-                              CustomRow(
-                                  title: "Akhir Masa Probation",
-                                  keyboardType: TextInputType.datetime,
-                                  choosedSetting: 'akhir_probation'),
+                              CustomRowDateInput(title: "Akhir Masa Probation", choosedSetting: "akhir_probation"),
                               CustomRow(
                                   title: "Personal Area",
                                   choosedSetting: 'per_area'),
@@ -433,10 +424,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                               CustomRow(
                                   title: "BPJS Kesehatan",
                                   choosedSetting: 'bpjskes'),
-                              CustomRow(
-                                  title: "Tanggal Masuk",
-                                  keyboardType: TextInputType.datetime,
-                                  choosedSetting: 'awal_kontrak_kerja1'),
+                              CustomRowDateInput(title: "Tanggal Masuk", choosedSetting: "awal_kontrak_kerja1"),
                             ],
                           ),
                         ),
@@ -469,10 +457,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         body: ListTile(
                           title: Column(
                             children: [
-                              CustomRow(
-                                  title: "Akhir Masa Kerja",
-                                  keyboardType: TextInputType.datetime,
-                                  choosedSetting: 'akhir_kontrak_kerja1'),
+                              CustomRowDateInput(title: "Akhir Masa Kerja", choosedSetting: "akhir_kontrak_kerja1"),
                             ],
                           ),
                         ),
@@ -523,10 +508,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                               CustomRow(
                                   title: "Asal Pendidikan",
                                   choosedSetting: 'asal_sekolah'),
-                              CustomRow(
-                                  title: "Tahun Lulus",
-                                  keyboardType: TextInputType.datetime,
-                                  choosedSetting: 'tahun_lulus'),
+                              CustomRowDateInput(title: "Tahun Lulus", choosedSetting: "tahun_lulus"),
                             ],
                           ),
                         ),
@@ -624,6 +606,106 @@ class CustomRow extends StatelessWidget {
                   ),
                   controller: x.listController[choosedSetting],
                   onChanged: (val) => x.data[choosedSetting] = val,
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+}
+
+
+class CustomRowDateInput extends StatelessWidget {
+  final String title;
+  final String choosedSetting;
+  final bool isTextFieldEnabled;
+  final keyboardType;
+
+  const CustomRowDateInput(
+      {Key? key,
+      required this.title,
+      required this.choosedSetting,
+      this.isTextFieldEnabled = false,
+      this.keyboardType = TextInputType.text})
+      : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    ProfileEditController x = Get.put(ProfileEditController());
+    DateRangePickerController _controller = DateRangePickerController();
+    return Padding(
+      padding: const EdgeInsets.only(right: 10, bottom: 5),
+      child: Row(
+        children: [
+          Container(
+            width: 150,
+            child: Text(
+              title + " : ", // Name
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.black,
+                decoration: TextDecoration.none,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ),
+           Obx(() => 
+          Expanded(
+                child:  CupertinoButton(
+                  child: Container(
+                    // width: 100,
+                    padding:EdgeInsets.all(5),
+                    // padding: EdgeInsets.symmetric(
+                    //     horizontal: paddingHorizontalNarrow,
+                    //     vertical: padding5),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(color: Colors.grey)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Icon(
+                          Icons.calendar_month_outlined,
+                          color: Colors.grey,
+                        ),
+                        Text(
+                          x.data[choosedSetting] ?? 'Select Date',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  onPressed: () {
+                   showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          content: Container(
+                            height: 350, // Adjust as needed
+                            width: 300, // Adjust as needed
+                            child: SfDateRangePicker(
+                              controller: _controller,
+                              onSelectionChanged: (DateRangePickerSelectionChangedArgs args) {
+                                if(args.value is DateTime) {
+                                  x.data[choosedSetting] = DateFormat('yyyy-MM-dd').format(args.value);
+                                }
+                              },
+                              selectionMode: DateRangePickerSelectionMode.single,
+                            ),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
                 ),
               )),
         ],

@@ -100,7 +100,6 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
               Obx(() => 
               Text(
                 x.karyawan['pt']??'PT Hasnur Informasi Teknologi',
-                // userLogin.get('user')['entitas'],
                 style: TextStyle(
                     fontSize: textMedium,
                     fontWeight: FontWeight.w500,
@@ -111,7 +110,6 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
                 icon: const Icon(Icons.notifications),
                 onPressed: () {
                   Get.toNamed('/admin/announcement');
-                  // Aksi ketika ikon lonceng di tekan
                 },
               ),
             ],
@@ -129,7 +127,7 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
               children: [
                 Obx(()=> 
                 HeaderProfileWidget(
-                   userName: x.karyawan['nama']??'M. Abdullah Sani',
+                   userName: x.karyawan['nama']??'Admin',
                   posision: x.karyawan['pernr']??'7822000',
                   imageUrl: '',
                   // userName: userLogin.get('user')['full_name'],
@@ -175,27 +173,29 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
                   ),
                   child: Padding(
                     padding: EdgeInsets.only(left: 5, right: 5),
-                    child: DropdownButton<String>(
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors
-                            .black, // Set the font size for the dropdown items
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors
+                              .black, // Set the font size for the dropdown items
+                        ),
+                        value: selectionValue,
+                        iconSize: 24,
+                        elevation: 16,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectionValue = newValue;
+                          });
+                        },
+                        items: selectionValues.keys
+                            .map<DropdownMenuItem<String>>((String id) {
+                          return DropdownMenuItem<String>(
+                            value: id,
+                            child: Text(selectionValues[id]!),
+                          );
+                        }).toList(),
                       ),
-                      value: selectionValue,
-                      iconSize: 24,
-                      elevation: 16,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectionValue = newValue;
-                        });
-                      },
-                      items: selectionValues.keys
-                          .map<DropdownMenuItem<String>>((String id) {
-                        return DropdownMenuItem<String>(
-                          value: id,
-                          child: Text(selectionValues[id]!),
-                        );
-                      }).toList(),
                     ),
                   ),
                 )
@@ -205,33 +205,6 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
           _buildComponent(),
         ],
       ),
-    );
-  }
-}
-
-class ComponentType1 extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('This is Component Type 1'),
-    );
-  }
-}
-
-class ComponentType2 extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('This is Component Type 2'),
-    );
-  }
-}
-
-class ComponentType3 extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('This is Component Type 3'),
     );
   }
 }
