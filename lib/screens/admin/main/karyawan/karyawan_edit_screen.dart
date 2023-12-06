@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,43 +9,58 @@ import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'dart:convert';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:image_picker/image_picker.dart';
 
-class ProfileEditController extends GetxController {
+class KaryawanEditController extends GetxController {
   RxBool infoPribadi = false.obs;
   RxBool infoKeluarga = false.obs;
   RxBool infoFisik = false.obs;
   RxBool infoKepegawaian = false.obs;
   RxBool infoKontrak = false.obs;
   RxBool infoPendidikan = false.obs;
-  var message =''.obs;
+  
   var data = {}.obs;
   var listController = {}.obs;
 }
 
-class ProfileEditScreen extends StatefulWidget {
-  const ProfileEditScreen({super.key});
+class KaryawanEditScreen extends StatefulWidget {
+  final String? nrp,nama;
+
+  const KaryawanEditScreen({ 
+    super.key,
+    this.nrp,
+    this.nama,
+    });
 
   @override
-  State<ProfileEditScreen> createState() => _ProfileEditScreenState();
+  State<KaryawanEditScreen> createState() => _KaryawanEditScreenState();
 }
 
-class _ProfileEditScreenState extends State<ProfileEditScreen> {
-  ProfileEditController x = Get.put(ProfileEditController());
+class _KaryawanEditScreenState extends State<KaryawanEditScreen> {
+  KaryawanEditController x = Get.put(KaryawanEditController());
   final _formKey = GlobalKey<FormState>();
+  final String _apiUrl = API_URL;
+  var userData;
 
   String dropdownValue = 'Belum Menikah';
 
   Future<Map<String, dynamic>> getData() async {
     final prefs = await SharedPreferences.getInstance();
-    var userData = prefs.getString('userData');
-    final responseData = jsonDecode(userData.toString());
+    String? token = prefs.getString('token');
+    final user = await http.get(
+        Uri.parse('$_apiUrl/get_detail_data_karyawan/${widget.nrp}'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization':"Bearer "+token.toString()
+        },
+      );
+    final responseData = jsonDecode(user.body.toString());
     x.data.value = responseData['data'];
+    userData=responseData['data'];
     if (x.data['status_pernikahan'] == 'Single') {
       x.data['status_pernikahan'] = 'Belum Menikah';
     } else if (x.data['status_pernikahan'] == 'Married') {
       x.data['status_pernikahan'] = 'Menikah';
-    }else{
+    }else {
       x.data['status_pernikahan'] = 'Belum Menikah';
     }
     for (var key in x.data.keys.toList()) {
@@ -60,8 +74,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   Future<void> simpanDataKaryawan() async {
     final String _apiUrl = API_URL;
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var userData = prefs.getString('userData');
-    final user = jsonDecode(userData.toString())['data'];
+    // var userData = prefs.getString('userData');
+    final user = userData;
     String? token = prefs.getString('token');
     var data = {};
     for (var key in x.data.keys.toList()) {
@@ -163,9 +177,10 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     }
     ;
     var datanya = jsonEncode(data);
+    print(user['pernr']);
     try {
       final response = await http.post(
-          Uri.parse('$_apiUrl/edit_data_karyawan/' + user['pernr']),
+          Uri.parse('$_apiUrl/edit_data_karyawan/' + user['pernr'].toString()),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': "Bearer " + token.toString()
@@ -175,7 +190,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       print(responseData);
 
       final user2 = await http.get(
-        Uri.parse('$_apiUrl/get_profile_employee?nrp=' + user['pernr']),
+        Uri.parse('$_apiUrl/get_profile_employee?nrp=' + user['pernr'].toString()),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': "Bearer " + token.toString()
@@ -184,7 +199,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
       final userData = user2.body;
       prefs.setString('userData', userData);
-      Get.offAllNamed('/user/main');
+      Get.back();
     } catch (e) {
       print(e);
       throw e;
@@ -197,56 +212,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     super.initState();
     getData();
   }
-  Future _pickImage(ImageSource source) async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: source);
-    if (pickedFile != null) {
-      return File(pickedFile.path);
-    }
-    return null;
-  }
-
-  Future<bool> uploadImage(imageFile) async {
-    final String _apiUrl = API_URL;
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var userData = prefs.getString('userData');
-    final user = jsonDecode(userData.toString())['data'];
-    String? token = prefs.getString('token');
-    try {
-      final request = http.MultipartRequest("POST", Uri.parse('$_apiUrl/master/profile/add_photo?nrp='+user['pernr']));
-      final headers = {"Content-type": "multipart/form-data",
-       'Authorization': "Bearer " + token.toString()
-      };
-
-      request.headers.addAll(headers);
-      request.files.add(await http.MultipartFile.fromPath(
-        'image', // 'picture' here is the key for the API request
-        imageFile.path,
-      ));
-      
-      final response = await request.send();
-      print("CHECK UPLOAD PHOTO");
-      print(response);
-      print(response.statusCode);
-      if (response.statusCode == 200) {
-        print('Image uploaded!');
-        x.message.value="Image Uploaded!";
-        return true;
-      } else {
-        print('Upload failed!');
-        x.message.value="Upload Failed!";
-        return false;
-      }
-    } catch (e) {
-      print(e);
-      return false;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title:Text(widget.nama.toString()),
         backgroundColor: Colors.white,
       ),
         body: SingleChildScrollView(
@@ -260,51 +231,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   SizedBox(
                     height: 30,
                   ),
-                  Center(
-                    child: Text("Edit Profile",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        )),
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                        Obx(() => 
-                      Text(x.message.toString()),
-                      ),  
-                      SizedBox(width: 20,),
-                      ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      onPrimary: Colors.black87,
-                      elevation: 5,
-                      primary: Colors.blue[300],
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                      ),
-                    ),
-                    onPressed: () async {
-                      x.message.value='';
-                      final imageFile = await _pickImage(ImageSource.gallery);
-                      if (imageFile != null) {
-                        uploadImage(imageFile);
-                      }
-                    },
-                    child: Row(children: [
-                      Text('Upload Photo ...')
-                    ]),
-                  ),],),
                   Row(
                     children: [
                       Text(
                         'Data Pribadi',
                         style: TextStyle(
-                          color: Colors.yellow,
-                          fontSize: 20,
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -335,7 +267,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                           title: Column(
                             children: [
                               CustomRow(
-                                  title: "No KTP", choosedSetting: 'nomor_ktp', enable: true,),
+                                  title: "No KTP", choosedSetting: 'nomor_ktp'),
                               CustomRowDateInput(title: "Tanggal Lahir", choosedSetting: "tgl_lahir"),
                               CustomRow(
                                   title: "Alamat",
@@ -439,13 +371,13 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     ],
                   ),
                   SizedBox(height: 20), // Add some spacing
+                  Divider(),
                   Row(
                     children: [
                       Text(
                         'Data Kepegawaian',
                         style: TextStyle(
-                          color: Colors.yellow,
-                          fontSize: 20,
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -546,13 +478,13 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     ],
                   ),
                   SizedBox(height: 20), // Add some spacing
+                  Divider(),
                   Row(
                     children: [
                       Text(
                         'Data Kepegawaian',
                         style: TextStyle(
-                          color: Colors.yellow,
-                          fontSize: 20,
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -672,20 +604,18 @@ class CustomRow extends StatelessWidget {
   final String title;
   final String choosedSetting;
   final bool isTextFieldEnabled;
-  final bool enable;
   final keyboardType;
 
   const CustomRow(
       {Key? key,
       required this.title,
       required this.choosedSetting,
-      this.enable=true,
       this.isTextFieldEnabled = false,
       this.keyboardType = TextInputType.text})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
-    ProfileEditController x = Get.put(ProfileEditController());
+    KaryawanEditController x = Get.put(KaryawanEditController());
     return Padding(
       padding: const EdgeInsets.only(right: 10, bottom: 5),
       child: Row(
@@ -704,7 +634,6 @@ class CustomRow extends StatelessWidget {
           ),
           Obx(() => Expanded(
                 child: TextField(
-                  enabled: enable,
                   keyboardType: keyboardType,
                   style: const TextStyle(
                     fontSize: 11,
@@ -738,7 +667,7 @@ class CustomRowDateInput extends StatelessWidget {
       : super(key: key);
   @override
   Widget build(BuildContext context) {
-    ProfileEditController x = Get.put(ProfileEditController());
+    KaryawanEditController x = Get.put(KaryawanEditController());
     DateRangePickerController _controller = DateRangePickerController();
     return Padding(
       padding: const EdgeInsets.only(right: 10, bottom: 5),
@@ -778,7 +707,7 @@ class CustomRowDateInput extends StatelessWidget {
                         Text(
                           x.data[choosedSetting] ?? 'Select Date',
                           style: TextStyle(
-                            fontSize: 14,
+                            fontSize: 12,
                             color: Colors.grey,
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w300,
@@ -840,7 +769,7 @@ class CustomSelectionMenikah extends StatelessWidget {
       : super(key: key);
   @override
   Widget build(BuildContext context) {
-    ProfileEditController x = Get.put(ProfileEditController());
+    KaryawanEditController x = Get.put(KaryawanEditController());
     return Padding(
       padding: const EdgeInsets.only(right: 10, bottom: 5),
       child: Row(

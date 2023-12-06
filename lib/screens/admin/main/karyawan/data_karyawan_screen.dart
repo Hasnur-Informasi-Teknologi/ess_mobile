@@ -6,7 +6,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ProfileController extends GetxController{
+class KaryawanDataController extends GetxController{
   RxBool infoPribadi = false.obs;
   RxBool infoKeluarga = false.obs;
   RxBool infoFisik = false.obs;
@@ -16,22 +16,35 @@ class ProfileController extends GetxController{
   var data={}.obs;
 }
 
-class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+class KaryawanDataScreen extends StatefulWidget {
+   final String? nrp,nama;
+
+  const KaryawanDataScreen({ 
+    super.key,
+    this.nrp,
+    this.nama,
+    });
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<KaryawanDataScreen> createState() => _KaryawanDataScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _KaryawanDataScreenState extends State<KaryawanDataScreen> {
   final String _apiUrl = API_URL;
-  ProfileController x = Get.put(ProfileController());
+  KaryawanDataController x = Get.put(KaryawanDataController());
 
   Future<Map<String, dynamic>> getData() async {
     final prefs = await SharedPreferences.getInstance();
-    var userData = prefs.getString('userData');
-    final responseData = jsonDecode(userData.toString());
-    x.data.value=responseData['data'];
+    String? token = prefs.getString('token');
+    final user = await http.get(
+        Uri.parse('$_apiUrl/get_detail_data_karyawan/${widget.nrp.toString()}'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization':"Bearer "+token.toString()
+        },
+      );
+    final responseData = jsonDecode(user.body.toString());
+    x.data.value = responseData['data'];
     return responseData;
   }
 
@@ -45,9 +58,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-      ),
+      appBar: AppBar( title:Text(widget.nama.toString()),
+      backgroundColor: Colors.white,),
       body: SingleChildScrollView(
               child: SafeArea(
                 child: Padding(
@@ -64,16 +76,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: Center(
                             child: CircleAvatar(
                               backgroundColor: Colors.white,
-                              maxRadius: 53,
+                              maxRadius: 43,
                               child: CircleAvatar(
-                                  backgroundColor: Colors.white,
-                                  maxRadius: 50,
-                                  backgroundImage: x.data['pernr'] == null
-                                      ? const AssetImage('assets/images/user-profile-default.png')
-                                          as ImageProvider
-                                      : NetworkImage(
-                                          '$_apiUrl/get_photo2?nrp='+x.data['pernr'],
-                                        )),
+                                backgroundColor: Colors.white,
+                                maxRadius: 40,
+                                backgroundImage: AssetImage(
+                                    'assets/images/user-profile-default.png'),
+                              ),
                             ),
                           ),
                         ),
@@ -86,7 +95,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           Text(
                             'Data Pribadi',
                             style: TextStyle(
-                              color: const Color.fromARGB(233, 255, 235, 59),
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -121,7 +129,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 children: [
                                   CustomRow(
                                       title: "NRP",
-                                      choosedSetting: x.data['pernr']??''),
+                                      choosedSetting: x.data['pernr'].toString()??''),
                                   CustomRow(
                                       title: "Nama",
                                       choosedSetting: x.data['nama']??''),
@@ -325,13 +333,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
                       SizedBox(height: 20), // Add some spacing
-                      Divider(),
                       Row(
                         children: [
                           Text(
                             'Data Kepegawaian',
                             style: TextStyle(
-                              color: const Color.fromARGB(233, 255, 235, 59),
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -468,13 +474,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
                       SizedBox(height: 20), // Add some spacing
-                      Divider(),
                       Row(
                         children: [
                           Text(
                             'Data Kepegawaian',
                             style: TextStyle(
-                              color: const Color.fromARGB(233, 255, 235, 59),
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
@@ -528,60 +532,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ],
                       ),
 
-                      SizedBox(height: 50,),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                        Flexible(child: 
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              onPrimary: Colors.black87,
-                              elevation: 5,
-                              primary: Color.fromARGB(255, 17, 209, 27),
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(8)),
-                              ),
-                            ),
-                            onPressed: () {
-                              Get.toNamed('/user/profile/edit');
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                              Icon(Icons.edit),
-                              Text('Edit Profile')
-                            ]),
-                          ),
-                        ),
-                        SizedBox(width: 30,),
-                        Flexible(child: 
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              onPrimary: Colors.black87,
-                              elevation: 5,
-                              primary: Color.fromARGB(255, 230, 24, 72),
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(8)),
-                              ),
-                            ),
-                            onPressed: () async {
-                              SharedPreferences prefs = await SharedPreferences.getInstance();
-                              prefs.remove('token');
-                              prefs.remove('nrp');
-                              Get.offAllNamed('/');
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                              Icon(Icons.logout),
-                              Text('Logout')
-                            ]),
-                          ),
-                        ),
-                       
-                      ],),
                       SizedBox(height: 300,),
                       // =====================================================================================
                     ],

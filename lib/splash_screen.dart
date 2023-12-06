@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:mobile_ess/themes/constant.dart';
+import 'package:mobile_ess/track_transparency.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -30,6 +31,10 @@ class _SplashScreenState extends State<SplashScreen> {
   Future<void> _initCheck() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var role_id=prefs.getInt('role_id');
+    var permission = prefs.getBool('permission');
+    if(permission==null){
+      return Get.to(TrackTransparency());
+    }
 
     var deviceData = <String, dynamic>{};
     if (Platform.isAndroid) {

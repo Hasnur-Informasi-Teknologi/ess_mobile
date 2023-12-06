@@ -29,14 +29,14 @@ class AuthProvider with ChangeNotifier {
       prefs.setString('token', responseData['token']);
       prefs.setString('nrp', nrp);
       final user = await http.get(
-        Uri.parse('$_apiUrl/md-profile/get_employee?nrp=$nrp'),
+        Uri.parse('$_apiUrl/master/profile/get_employee?nrp=$nrp'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization':"Bearer "+responseData['token']
         },
       );
       final user_auth = await http.get(
-        Uri.parse('$_apiUrl/md-profile/get_user?nrp=$nrp'),
+        Uri.parse('$_apiUrl/master/profile/get_user?nrp=$nrp'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization':"Bearer "+responseData['token']
