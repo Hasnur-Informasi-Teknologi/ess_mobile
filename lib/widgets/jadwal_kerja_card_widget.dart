@@ -11,7 +11,7 @@ import 'dart:async';
 
 class JadwalKerjaController extends GetxController{
   var date=[].obs;
-  var bulan="".obs;
+  var bulan="1".obs;
   var jam_masuk="".obs;
   var jam_keluar="".obs;
   var status="".obs;
@@ -43,6 +43,7 @@ class _JadwalKerjaCardWidgetState extends State<JadwalKerjaCardWidget> {
         );
         final responseData = jsonDecode(response.body);
         x.date.value=responseData['data'];
+        x.bulan.value = x.date[0]['attendance_month'].toString();
         x.jam_masuk.value=x.date[0]['clock_in_time'];
         x.jam_keluar.value=x.date[0]['clock_out_time'];
         x.status.value=x.date[0]['clock_in_status'];
@@ -52,6 +53,33 @@ class _JadwalKerjaCardWidgetState extends State<JadwalKerjaCardWidget> {
       }
     } else {
       print('tidak ada token home');
+    }
+  }
+  get_month(value){
+    if(value=='1'){
+      return 'Januari';
+    }else if(value=='2'){
+      return 'Februari';
+    }else if(value=='3'){
+      return 'Maret';
+    }else if(value=='4'){
+      return 'April';
+    }else if(value=='5'){
+      return 'Mei';
+    }else if(value=='6'){
+      return 'Juni';
+    }else if(value=='7'){
+      return 'Juli';
+    }else if(value=='8'){
+      return 'Agustus';
+    }else if(value=='9'){
+      return 'September';
+    }else if(value=='10'){
+      return 'Oktober';
+    }else if(value=='11'){
+      return 'November';
+    }else if(value=='12'){
+      return 'Desember';
     }
   }
 
@@ -100,7 +128,9 @@ class _JadwalKerjaCardWidgetState extends State<JadwalKerjaCardWidget> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const RowWidget(textLeft: 'Jadwal Kerja', textRight: 'April 2023'),
+            Obx(() => 
+             RowWidget(textLeft: 'Jadwal Kerja', textRight: get_month(x.bulan)),
+            ), 
             SizedBox(
               height: sizedBoxHeightTall,
             ),
