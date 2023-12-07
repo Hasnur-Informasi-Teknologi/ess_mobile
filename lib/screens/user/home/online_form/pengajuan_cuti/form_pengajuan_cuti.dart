@@ -85,16 +85,17 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
 
     if (token != null) {
       try {
-        final response = await http.get(Uri.parse("$_apiUrl/get_master_cuti"),
+        final response = await http.get(Uri.parse("$_apiUrl/master/cuti/get"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
             });
         final responseData = jsonDecode(response.body);
-        final masterDataCutiApi = responseData['data_cuti'] as List<dynamic>;
+        final masterDataCutiApi = responseData['md_Cuti'] as List<dynamic>;
+        print('response ${responseData}');
 
         final List<int> masterSisaCuti = masterDataCutiApi
-            .map<int>((entityData) => entityData['sisacuti'] as int)
+            .map<int>((entityData) => entityData['sisa_cuti'] as int)
             .toList();
         final List<int> masterJatahCutiTahunan = masterDataCutiApi
             .map<int>((entityData) => entityData['jatahcuti'] as int)
@@ -114,20 +115,18 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     String? token = prefs.getString('token');
-    String? nrpString = prefs.getString('nrp');
-    int? nrp = int.tryParse(nrpString ?? '');
 
     if (token != null) {
       try {
         final response = await http.get(
-            Uri.parse("$_apiUrl/get_data_entitas_cuti"),
+            Uri.parse("$_apiUrl/master/cuti/entitas"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
             });
         final responseData = jsonDecode(response.body);
-        print(responseData);
         final dataEntitasApi = responseData['data_entitas'] as List<dynamic>;
+        print('getDataEntitas ${responseData}');
 
         final List<String> dataEntities = dataEntitasApi
             .map<String>((entityData) => entityData['entitas'] as String)
@@ -146,14 +145,12 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
   Future<void> getDataAtasan() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    String? nrpString = prefs.getString('nrp');
-    int? nrp = int.tryParse(nrpString ?? '');
 
     if (token != null) {
       try {
         final response = await http.get(
             Uri.parse(
-                "$_apiUrl/get_data_atasan_cuti?entitas=$selectedValueEntitas1"),
+                "$_apiUrl/master/cuti/atasan?entitas=$selectedValueEntitas1"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
@@ -173,13 +170,11 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
   Future<void> getDataAtasanDariAtasan() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    String? nrpString = prefs.getString('nrp');
-    int? nrp = int.tryParse(nrpString ?? '');
 
     if (token != null) {
       final response = await http.get(
           Uri.parse(
-              "$_apiUrl/get_data_atasan_atasan_cuti?entitas=$selectedValueEntitas1"),
+              "$_apiUrl/master/cuti/atasan-atasan?entitas=$selectedValueEntitas1"),
           headers: <String, String>{
             'Content-Type': 'application/json;charset=UTF-8',
             'Authorization': 'Bearer $token'
@@ -197,16 +192,12 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
   Future<void> getDataPengganti() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    String? nrpString = prefs.getString('nrp');
-    int? nrp = int.tryParse(nrpString ?? '');
 
     if (token != null) {
       try {
         final response = await http.get(
-            // Uri.parse(
-            //     "$_apiUrl/get_data_pengganti_cuti?nrp=$nrp&entitas=$selectedValueEntitas2"),
             Uri.parse(
-                "$_apiUrl/get_data_pengganti_cuti?&entitas=$selectedValueEntitas2"),
+                "$_apiUrl/master/cuti/pengganti?&entitas=$selectedValueEntitas2"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
@@ -227,7 +218,6 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     String? nrpString = prefs.getString('nrp');
-    int? nrp = int.tryParse(nrpString ?? '');
 
     String? nrpAtasan = selectedValueAtasan1;
     String? nrpAtasanDariAtasan = selectedValueAtasanDariAtasan1;
@@ -267,7 +257,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     }
 
     try {
-      final response = await http.post(Uri.parse('$_apiUrl/add_cuti'),
+      final response = await http.post(Uri.parse('$_apiUrl/pengajuan/cuti/add'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token'
