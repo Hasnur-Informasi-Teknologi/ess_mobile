@@ -1,28 +1,56 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_ess/themes/constant.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class IconsContainerWidget extends StatelessWidget {
+
+class IconsContainerController extends GetxController {
+  var role_id = 4.obs;
+}
+class IconsContainerWidget extends StatefulWidget {
   // final BuildContext context;
 
   const IconsContainerWidget({Key? key}) : super(key: key);
 
   @override
+  State<IconsContainerWidget> createState() => _IconsContainerWidgetState();
+}
+
+class _IconsContainerWidgetState extends State<IconsContainerWidget> {
+  IconsContainerController x = Get.put(IconsContainerController());
+  
+  @override
+  void initState() {
+    // TODO: implement initState
+    getData();
+    super.initState();
+  }
+
+ Future<void> getData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var role_id=prefs.getInt('role_id');
+    x.role_id.value=role_id!.toInt();
+  }
+
+  @override
   Widget build(BuildContext context) {
+   
     Size size = MediaQuery.of(context).size;
     double textSmall = size.width * 0.027;
     double icon = size.width * 0.06;
     double sizedBoxHeightExtraShort = size.width * 0.02;
     double paddingHorizontalExtraNarrow = size.width * 0.02;
 
-    return GridView.builder(
+    return Obx(() =>   GridView.builder(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
         childAspectRatio: 1.2,
       ),
-      itemCount: 4, // Jumlah total item
+      itemCount: x.role_id==4?3:4, // Jumlah total item
       itemBuilder: (BuildContext context, int index) {
-        if(index==3){
+        if(x.role_id==4){
           return InkWell(
             onTap: () {
               handleIconTap(index);
@@ -92,7 +120,7 @@ class IconsContainerWidget extends StatelessWidget {
           );
         }
       },
-    );
+    ));
   }
 
   IconData getIcon(int index) {

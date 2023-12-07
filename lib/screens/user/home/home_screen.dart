@@ -129,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
                  HeaderProfileWidget(
                   userName: x.karyawan['nama']??'M. Abdullah Sani',
                   posision: x.karyawan['pernr']??'7822000',
-                  imageUrl: '',
+                  imageUrl: x.karyawan['pernr']??'',
                   webUrl: '',
                )),
                 Container(
