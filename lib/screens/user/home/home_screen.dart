@@ -15,6 +15,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Controller extends GetxController {
   var karyawan = {}.obs;
+  var role_id=4.obs;
+ 
 }
 
 class HomeScreen extends StatefulWidget {
@@ -30,12 +32,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    super.initState();
     getDataKaryawan();
+    super.initState();
   }
+
+  String? selectionDashboard = '2'; 
 
   Future<void> getDataKaryawan() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    x.role_id.value=prefs.getInt('role_id')!.toInt();
     String? token = prefs.getString('token');
     x.karyawan.value = jsonDecode(prefs.getString('userData').toString())['data'];
     if (token != null) {
@@ -167,6 +172,70 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
+         Obx(() =>   x.role_id==1? Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+              child: const TitleWidget(title: 'Dashboard'),
+            ),
+            // ================
+            Padding(
+            padding: EdgeInsets.symmetric(
+                horizontal: paddingHorizontalWide, vertical: padding10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+               Container(
+                  height: 40,
+                  padding: EdgeInsets.all(4),
+                  margin: EdgeInsets.only(left: 10),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Color.fromARGB(
+                          102, 158, 158, 158), // Set border color
+                      width: 1, // Set border width
+                    ),
+                    borderRadius: BorderRadius.circular(
+                        6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
+                  ),
+                  child:  Padding(
+                    padding: EdgeInsets.only(left: 5, right: 5),
+                    child:  DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors
+                              .black, // Set the font size for the dropdown items
+                        ),
+                        value: selectionDashboard,
+                        iconSize: 24,
+                        elevation: 16,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            if(newValue=='1'){
+                              Get.toNamed('/admin/main');
+                            }else{
+                              Get.toNamed('/user/main');
+                            }
+                            selectionDashboard = newValue;
+                          });
+                        },
+                        items: {'1': 'Admin','2':'User'}.keys
+                            .map<DropdownMenuItem<String>>((String id) {
+                          return DropdownMenuItem<String>(
+                            value: id,
+                            child: Text({'1': 'Admin','2':'User'}[id]!),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+          ],):Text(''),),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
             child: const TitleWidget(title: 'Kehadiran'),
