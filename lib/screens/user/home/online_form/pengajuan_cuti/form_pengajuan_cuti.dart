@@ -82,6 +82,8 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     String? token = prefs.getString('token');
     String? nrpString = prefs.getString('nrp');
     int? nrp = int.tryParse(nrpString ?? '');
+    int sisaCuti = 0;
+    int jatahCuti = 0;
 
     if (token != null) {
       try {
@@ -92,18 +94,16 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
             });
         final responseData = jsonDecode(response.body);
         final masterDataCutiApi = responseData['md_Cuti'] as List<dynamic>;
-        print('response ${responseData}');
 
-        final List<int> masterSisaCuti = masterDataCutiApi
-            .map<int>((entityData) => entityData['sisa_cuti'] as int)
-            .toList();
-        final List<int> masterJatahCutiTahunan = masterDataCutiApi
-            .map<int>((entityData) => entityData['jatahcuti'] as int)
-            .toList();
+        if (masterDataCutiApi.isNotEmpty) {
+          final firstData = masterDataCutiApi.first;
+          sisaCuti = firstData['sisa_cuti'] as int;
+          jatahCuti = firstData['jatahcuti'] as int;
+        }
 
         setState(() {
-          sisaCutiMaster = masterSisaCuti[0];
-          jatahCutiTahunan = masterJatahCutiTahunan[0];
+          sisaCutiMaster = sisaCuti;
+          jatahCutiTahunan = jatahCuti;
         });
       } catch (e) {
         print(e);
@@ -118,18 +118,16 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
 
     if (token != null) {
       try {
-        final response = await http.get(
-            Uri.parse("$_apiUrl/master/cuti/entitas"),
+        final response = await http.get(Uri.parse("$_apiUrl/master/entitas"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
             });
         final responseData = jsonDecode(response.body);
-        final dataEntitasApi = responseData['data_entitas'] as List<dynamic>;
-        print('getDataEntitas ${responseData}');
+        final dataEntitasApi = responseData['data'] as List<dynamic>;
 
         final List<String> dataEntities = dataEntitasApi
-            .map<String>((entityData) => entityData['entitas'] as String)
+            .map<String>((entityData) => entityData['nama'] as String)
             .toList();
 
         setState(() {
