@@ -61,6 +61,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
       // ;
     } on HttpException catch (e) {
+     
       String errorMessage = '';
 
       if (e.toString().contains('USER_NOT_FOUND')) {
@@ -78,6 +79,8 @@ class _SignInScreenState extends State<SignInScreen> {
       //         MaterialPageRoute(builder: (ctx) => const HomeScreen())));
     } catch (e) {
       print(e);
+
+      _showErrorDialog("Username atau Password Salah!");
       print('Gagal Fetching Data');
       // Get.offAllNamed('/user/main');
 
