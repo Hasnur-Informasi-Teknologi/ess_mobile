@@ -47,7 +47,17 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs camera access to scan QR codes</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We need access to your photo library for image uploads.</string>
+	<string>This app needs photos access to get QR code from photo library</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+    <string>This app needs access to your location when in use for mapping and location services.</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>This app needs access to your location at all times for enhanced location services.</string>
+    <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+    <string>This app needs access to your location at all times and when in use for enhanced location services.</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.hasnurgroup.ess</string>
 </dict>
 </plist>
