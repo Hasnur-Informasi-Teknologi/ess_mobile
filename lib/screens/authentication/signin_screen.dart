@@ -52,16 +52,15 @@ class _SignInScreenState extends State<SignInScreen> {
       await Provider.of<AuthProvider>(context, listen: false)
           .signIn(userNrp!, userPass!)
           .then((auth) {
-            if(auth==1){
-              Get.offAllNamed('/admin/main');
-            }else if(auth==4){
-              Get.offAllNamed('/user/main');
-            }
-          });
+        if (auth == 1) {
+          Get.offAllNamed('/admin/main');
+        } else if (auth == 4) {
+          Get.offAllNamed('/user/main');
+        }
+      });
 
       // ;
     } on HttpException catch (e) {
-     
       String errorMessage = '';
 
       if (e.toString().contains('USER_NOT_FOUND')) {

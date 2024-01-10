@@ -45,6 +45,7 @@ class AuthProvider with ChangeNotifier {
 
       final userData = user.body;
       prefs.setString('userData', userData);
+      prefs.setBool('permission', true);
       prefs.setInt('role_id', jsonDecode(user_auth.body)['data']['role_id']);
       notifyListeners();
       return jsonDecode(user_auth.body)['data']['role_id'];

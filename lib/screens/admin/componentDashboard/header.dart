@@ -15,7 +15,6 @@ import 'package:mobile_ess/screens/user/home/icons_container_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 class AdminController extends GetxController {
   var karyawan = {}.obs;
   var role_id = 1.obs;
@@ -44,24 +43,23 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
 
   Future<void> getDataKaryawan() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    x.role_id.value=prefs.getInt('role_id')!.toInt();
-    if(x.role_id==1){
+    x.role_id.value = prefs.getInt('role_id')!.toInt();
+    if (x.role_id == 1) {
       x.selectionDashboards = {
-          '1': 'Admin',
-          '2': 'User',
+        '1': 'Admin',
+        '2': 'User',
       };
-    }else{
+    } else {
       x.selectionDashboards = {
-          '2': 'User',
+        '2': 'User',
       };
     }
     String? token = prefs.getString('token');
-    x.karyawan.value = jsonDecode(prefs.getString('userData').toString())['data'];
+    x.karyawan.value =
+        jsonDecode(prefs.getString('userData').toString())['data'];
   }
 
-   
   String? selectionDashboard = '1'; // Default value
-
 
   Map<String, String> selectionValues = {
     '1': 'Demografi & Attendance',
@@ -93,7 +91,7 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
       case '6':
         return KontrakKaryawan();
       case '8':
-      return TaskMenuDashboardScreen();
+        return TaskMenuDashboardScreen();
       default:
         return SizedBox.shrink();
     }
@@ -117,15 +115,15 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Obx(() => 
-              Text(
-                x.karyawan['pt']??'PT Hasnur Informasi Teknologi',
-                style: TextStyle(
-                    fontSize: textMedium,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: 'Quicksand'),
+              Obx(
+                () => Text(
+                  x.karyawan['pt'] ?? 'PT Hasnur Informasi Teknologi',
+                  style: TextStyle(
+                      fontSize: textMedium,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Quicksand'),
+                ),
               ),
-              ), 
               IconButton(
                 icon: const Icon(Icons.notifications),
                 onPressed: () {
@@ -145,16 +143,15 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Obx(()=> 
-                HeaderProfileWidget(
-                   userName: x.karyawan['nama']??'Admin',
-                  posision: x.karyawan['pernr']??'7822000',
-                  imageUrl: '',
-                  // userName: userLogin.get('user')['full_name'],
-                  // posision: userLogin.get('user')['jabatan'],
-                  // imageUrl: userLogin.get('user')['gambar'],
-                  webUrl: '',
-                )),
+                Obx(() => HeaderProfileWidget(
+                      userName: x.karyawan['nama'] ?? 'Admin',
+                      posision: x.karyawan['pernr'] ?? '7822000',
+                      imageUrl: '',
+                      // userName: userLogin.get('user')['full_name'],
+                      // posision: userLogin.get('user')['jabatan'],
+                      // imageUrl: userLogin.get('user')['gambar'],
+                      webUrl: '',
+                    )),
                 Container(
                   height: size.height * 0.13,
                   width: size.width * 0.9,
@@ -170,66 +167,69 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-              child: const TitleWidget(title: 'Dashboard'),
-            ),
-            // ================
-            Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: paddingHorizontalWide, vertical: padding10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Container(
-                  height: 40,
-                  padding: EdgeInsets.all(4),
-                  margin: EdgeInsets.only(left: 10),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Color.fromARGB(
-                          102, 158, 158, 158), // Set border color
-                      width: 1, // Set border width
-                    ),
-                    borderRadius: BorderRadius.circular(
-                        6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 5, right: 5),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors
-                              .black, // Set the font size for the dropdown items
+              Padding(
+                padding:
+                    EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+                child: const TitleWidget(title: 'Dashboard'),
+              ),
+              // ================
+              Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: paddingHorizontalWide, vertical: padding10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Container(
+                      height: 40,
+                      padding: EdgeInsets.all(4),
+                      margin: EdgeInsets.only(left: 10),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Color.fromARGB(
+                              102, 158, 158, 158), // Set border color
+                          width: 1, // Set border width
                         ),
-                        value: selectionDashboard,
-                        iconSize: 24,
-                        elevation: 16,
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            if(newValue=='1'){
-                              Get.toNamed('/admin/main');
-                            }else{
-                              Get.toNamed('/user/main');
-                            }
-                            selectionDashboard = newValue;
-                          });
-                        },
-                        items: x.selectionDashboards.keys.map<DropdownMenuItem<String>>((String id) {
-                          return DropdownMenuItem<String>(
-                            value: id,
-                            child: Text(x.selectionDashboards[id]!),
-                          );
-                        }).toList(),
+                        borderRadius: BorderRadius.circular(
+                            6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
                       ),
-                    ),
-                  ),
-                )
-              ],
-            ),
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 5, right: 5),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors
+                                  .black, // Set the font size for the dropdown items
+                            ),
+                            value: selectionDashboard,
+                            iconSize: 24,
+                            elevation: 16,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                if (newValue == '1') {
+                                  Get.toNamed('/admin/main');
+                                } else {
+                                  Get.toNamed('/user/main');
+                                }
+                                selectionDashboard = newValue;
+                              });
+                            },
+                            items: x.selectionDashboards.keys
+                                .map<DropdownMenuItem<String>>((String id) {
+                              return DropdownMenuItem<String>(
+                                value: id,
+                                child: Text(x.selectionDashboards[id]!),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
           ),
-          ],),
           Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: paddingHorizontalWide, vertical: padding10),
