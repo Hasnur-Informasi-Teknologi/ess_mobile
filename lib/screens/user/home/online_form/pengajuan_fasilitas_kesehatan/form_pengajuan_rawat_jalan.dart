@@ -9,12 +9,14 @@ import 'package:mobile_ess/screens/user/home/online_form/pengajuan_fasilitas_kes
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
 import 'package:mobile_ess/widgets/row_with_button_widget.dart';
+import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_center_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 // import 'dart:html' as html;
 
 class FormPengajuanRawatJalan extends StatefulWidget {
@@ -40,12 +42,62 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
   double maxHeightPerusahaan = 40.0;
   double maxHeightLokasiKerja = 40.0;
   double maxHeightPangkat = 40.0;
-  DateTime tanggalPengajuan = DateTime.now();
+  double maxHeightEntitas = 60.0;
+  double maxHeightAtasan = 60.0;
+  String? selectedValueEntitas,
+      selectedValueEntitasHrgs,
+      selectedValueEntitasKeuangan,
+      selectedValueAtasan,
+      selectedValueHrgs,
+      selectedValueKeuangan;
+
+  List<Map<String, dynamic>> selectedEntitas = [];
+  List<Map<String, dynamic>> selectedEntitasHrgs = [];
+  List<Map<String, dynamic>> selectedEntitasKeuangan = [];
+  List<Map<String, dynamic>> selectedAtasan = [];
+  List<Map<String, dynamic>> selectedHrgs = [];
+  List<Map<String, dynamic>> selectedKeuangan = [];
+
+  final DateRangePickerController _tanggalPengajuanController =
+      DateRangePickerController();
+  DateTime? tanggalPengajuan;
+  final DateRangePickerController _periodeRawatController =
+      DateRangePickerController();
+  DateTime? periodeRawat;
+
+  List<Map<String, dynamic>> allData = [];
+  List<Map<String, dynamic>> dataDetail = [];
+
+  String? jumlahTotal;
 
   bool _isLoading = false;
   bool _isFileNull = false;
-
   List<PlatformFile>? _files;
+
+  @override
+  void initState() {
+    super.initState();
+    getData();
+    getDetailPenganjuanRawatJalan();
+    getDataEntitas();
+    getDataAtasan();
+    getDataHrgs();
+    getDataKeuangan();
+  }
+
+  Future<void> getData() async {
+    final prefs = await SharedPreferences.getInstance();
+    var userData = prefs.getString('userData');
+    final responseData = jsonDecode(userData.toString())['data'];
+    setState(() {
+      _nrpController.text = responseData['pernr'];
+      _namaController.text = responseData['nama'];
+      _perusahaanController.text = responseData['abr_org_id'];
+      _lokasiKerjaController.text = responseData['lokasi'];
+      _pangkatController.text = responseData['pangkat'];
+    });
+  }
+
   Future<void> pickFiles() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
 
@@ -57,14 +109,9 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
     }
   }
 
-  List<Map<String, dynamic>> dataDetail = [];
-  List<Map<String, dynamic>> allData = [];
+  // dataCutiLainnya.removeAt(rowIndex);
 
-  String? jumlahTotal;
-
-  @override
-  void initState() {
-    super.initState();
+  void getDetailPenganjuanRawatJalan() {
     Get.put(DataDetailPengajuanRawatJalanController());
     DataDetailPengajuanRawatJalanController
         dataDetailPengajuanRawatJalanController = Get.find();
@@ -72,15 +119,120 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
     setState(() {
       dataDetail = allData;
     });
-
-    // Hitung jumlah total
     int total = 0;
     for (var data in dataDetail) {
       final jumlah = int.tryParse(data['jumlah']) ?? 0;
       total += jumlah;
     }
-    // Set jumlahTotal dengan total
     jumlahTotal = total.toString();
+  }
+
+  Future<void> getDataEntitas() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? token = prefs.getString('token');
+
+    if (token != null) {
+      try {
+        final response = await http.get(Uri.parse("$_apiUrl/master/entitas"),
+            headers: <String, String>{
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Authorization': 'Bearer $token'
+            });
+        final responseData = jsonDecode(response.body);
+        final dataEntitasApi = responseData['data'];
+
+        setState(() {
+          selectedEntitas = List<Map<String, dynamic>>.from(dataEntitasApi);
+          selectedEntitasHrgs = List<Map<String, dynamic>>.from(dataEntitasApi);
+          selectedEntitasKeuangan =
+              List<Map<String, dynamic>>.from(dataEntitasApi);
+        });
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
+  Future<void> getDataAtasan() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    if (token != null) {
+      try {
+        final response = await http.get(
+            Uri.parse(
+                "$_apiUrl/master/cuti/atasan?entitas=$selectedValueEntitas"),
+            headers: <String, String>{
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Authorization': 'Bearer $token'
+            });
+        final responseData = jsonDecode(response.body);
+        final dataAtasanApi = responseData['list_karyawan'];
+
+        setState(() {
+          selectedAtasan = List<Map<String, dynamic>>.from(dataAtasanApi);
+        });
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
+  Future<void> getDataHrgs() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    if (token != null) {
+      try {
+        final response = await http.get(
+            Uri.parse(
+                "$_apiUrl/karyawan/dept-head?atasan=06&entitas=$selectedValueEntitasHrgs"),
+            headers: <String, String>{
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Authorization': 'Bearer $token'
+            });
+        final responseData = jsonDecode(response.body);
+        final dataHrgsApi = responseData['data'];
+
+        setState(() {
+          selectedHrgs = List<Map<String, dynamic>>.from(dataHrgsApi);
+        });
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
+  Future<void> getDataKeuangan() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    if (token != null) {
+      try {
+        final response = await http.get(
+            Uri.parse(
+                "$_apiUrl/karyawan/dept-head?atasan=11&entitas=$selectedValueEntitasKeuangan"),
+            headers: <String, String>{
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Authorization': 'Bearer $token'
+            });
+        final responseData = jsonDecode(response.body);
+        final dataKeuanganApi = responseData['data'];
+
+        setState(() {
+          selectedKeuangan = List<Map<String, dynamic>>.from(dataKeuanganApi);
+        });
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
+  void _hapusData(int index) {
+    setState(() {
+      dataDetail.removeAt(index);
+    });
   }
 
   Future<void> _submit() async {
@@ -99,9 +251,6 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
     }
     _formKey.currentState!.save();
 
-    String tanggalPengajuanFormatted =
-        DateFormat('yyyy-MM-dd').format(tanggalPengajuan);
-
     String? filePath;
 
     if (_files != null) {
@@ -117,9 +266,7 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
       return;
     }
 
-    // String? filePath = _files!.single.path;
     File file = File(filePath!);
-
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('$_apiUrl/rawat/jalan/create'),
@@ -127,22 +274,31 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
 
     request.headers['Content-Type'] = 'multipart/form-data';
     request.headers['Authorization'] = 'Bearer $token';
-
     // Add file lampiran
     request.files.add(http.MultipartFile.fromBytes(
         'lampiran', file.readAsBytesSync(),
         filename: file.path.split('/').last));
-
     // Add the JSON data as a field
     request.fields['nama'] = _namaController.text;
     request.fields['pernr'] = _nrpController.text;
     request.fields['pt'] = _perusahaanController.text;
     request.fields['lokasi'] = _lokasiKerjaController.text;
     request.fields['pangkat'] = _pangkatController.text;
-    request.fields['hire_date'] = tanggalPengajuanFormatted;
-    request.fields['prd_rawat'] = tanggalPengajuanFormatted;
-    request.fields['tgl_pengajuan'] = tanggalPengajuanFormatted;
-    request.fields['approved_by1'] = _nrpController.text;
+    request.fields['hire_date'] = tanggalPengajuan != null
+        ? tanggalPengajuan.toString()
+        : DateTime.now().toString();
+    request.fields['tgl_pengajuan'] = tanggalPengajuan != null
+        ? tanggalPengajuan.toString()
+        : DateTime.now().toString();
+    request.fields['entitas_atasan'] = selectedValueEntitas.toString();
+    request.fields['prd_rawat'] = tanggalPengajuan != null
+        ? tanggalPengajuan.toString()
+        : DateTime.now().toString();
+    request.fields['approved_by1'] = selectedValueAtasan.toString();
+    request.fields['entitas_hrgs'] = selectedValueEntitasHrgs.toString();
+    request.fields['entitas_keuangan'] = selectedValueEntitasHrgs.toString();
+    request.fields['approved_by2'] = selectedValueHrgs.toString();
+    request.fields['approved_by3'] = selectedValueKeuangan.toString();
     for (int i = 0; i < allData.length; i++) {
       // final data = allData[i];
       request.fields['detail[$i][id_md_jp_rawat_jalan]'] =
@@ -313,7 +469,7 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: TitleWidget(
-                          title: 'Kode',
+                          title: 'Nomor',
                           fontWeight: FontWeight.w300,
                           fontSize: textMedium,
                         ),
@@ -325,10 +481,10 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: TextFormFieldWidget(
-                          validator: _validatorKode,
                           controller: _kodeController,
                           maxHeightConstraints: maxHeightKode,
-                          hintText: 'Kode',
+                          hintText: 'Auto Generate',
+                          enable: false,
                         ),
                       ),
                       SizedBox(
@@ -360,7 +516,9 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                                 color: Colors.grey,
                               ),
                               Text(
-                                '${tanggalPengajuan.day}-${tanggalPengajuan.month}-${tanggalPengajuan.year}',
+                                DateFormat('dd-MM-yyyy').format(
+                                    _tanggalPengajuanController.selectedDate ??
+                                        DateTime.now()),
                                 style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: textMedium,
@@ -372,20 +530,34 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                           ),
                         ),
                         onPressed: () {
-                          showCupertinoModalPopup(
+                          showDialog(
                             context: context,
-                            builder: (BuildContext context) => SizedBox(
-                              height: 250,
-                              child: CupertinoDatePicker(
-                                backgroundColor: Colors.white,
-                                initialDateTime: tanggalPengajuan,
-                                onDateTimeChanged: (DateTime newTime) {
-                                  setState(() => tanggalPengajuan = newTime);
-                                },
-                                use24hFormat: true,
-                                mode: CupertinoDatePickerMode.date,
-                              ),
-                            ),
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                content: Container(
+                                  height: 350,
+                                  width: 350,
+                                  child: SfDateRangePicker(
+                                    controller: _tanggalPengajuanController,
+                                    onSelectionChanged:
+                                        (DateRangePickerSelectionChangedArgs
+                                            args) {
+                                      setState(() {
+                                        tanggalPengajuan = args.value;
+                                      });
+                                    },
+                                    selectionMode:
+                                        DateRangePickerSelectionMode.single,
+                                  ),
+                                ),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
                           );
                         },
                       ),
@@ -396,7 +568,7 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: TitleWidget(
-                          title: 'NRP *',
+                          title: 'NRP',
                           fontWeight: FontWeight.w300,
                           fontSize: textMedium,
                         ),
@@ -407,11 +579,9 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
-                        child: TextFormFieldWidget(
-                          validator: _validatorNrp,
+                        child: TextFormFielDisableWidget(
                           controller: _nrpController,
                           maxHeightConstraints: maxHeightNrp,
-                          hintText: '78220012',
                         ),
                       ),
                       SizedBox(
@@ -432,11 +602,9 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
-                        child: TextFormFieldWidget(
-                          validator: _validatorNama,
+                        child: TextFormFielDisableWidget(
                           controller: _namaController,
                           maxHeightConstraints: maxHeightNama,
-                          hintText: 'Nama Karyawan',
                         ),
                       ),
                       SizedBox(
@@ -457,11 +625,9 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
-                        child: TextFormFieldWidget(
-                          validator: _validatorPerusahaan,
+                        child: TextFormFielDisableWidget(
                           controller: _perusahaanController,
                           maxHeightConstraints: maxHeightPerusahaan,
-                          hintText: 'Perusahaan',
                         ),
                       ),
                       SizedBox(
@@ -482,11 +648,9 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
-                        child: TextFormFieldWidget(
-                          validator: _validatorLokasiKerja,
+                        child: TextFormFielDisableWidget(
                           controller: _lokasiKerjaController,
                           maxHeightConstraints: maxHeightLokasiKerja,
-                          hintText: 'Lokasi Kerja',
                         ),
                       ),
                       SizedBox(
@@ -507,12 +671,225 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
-                        child: TextFormFieldWidget(
-                          validator: _validatorPangkat,
+                        child: TextFormFielDisableWidget(
                           controller: _pangkatController,
                           maxHeightConstraints: maxHeightPangkat,
-                          hintText: 'Pangkat',
                         ),
+                      ),
+                      SizedBox(
+                        height: sizedBoxHeightTall,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalNarrow),
+                        child: TitleWidget(
+                          title: 'Periode Rawat',
+                          fontWeight: FontWeight.w300,
+                          fontSize: textMedium,
+                        ),
+                      ),
+                      CupertinoButton(
+                        child: Container(
+                          width: size.width,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow,
+                              vertical: padding5),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: Colors.grey)),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Icon(
+                                Icons.calendar_month_outlined,
+                                color: Colors.grey,
+                              ),
+                              Text(
+                                DateFormat('dd-MM-yyyy').format(
+                                    _periodeRawatController.selectedDate ??
+                                        DateTime.now()),
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w300,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                content: Container(
+                                  height: 350,
+                                  width: 350,
+                                  child: SfDateRangePicker(
+                                    controller: _periodeRawatController,
+                                    onSelectionChanged:
+                                        (DateRangePickerSelectionChangedArgs
+                                            args) {
+                                      setState(() {
+                                        periodeRawat = args.value;
+                                      });
+                                    },
+                                    selectionMode:
+                                        DateRangePickerSelectionMode.single,
+                                  ),
+                                ),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text('OK'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      ),
+                      SizedBox(
+                        height: sizedBoxHeightTall,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalWide),
+                        child: TitleWidget(
+                          title: 'Pilih Entitas : ',
+                          fontWeight: FontWeight.w300,
+                          fontSize: textMedium,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalWide),
+                        child: DropdownButtonFormField<String>(
+                          // validator: _validatorEntitas,
+                          value: selectedValueEntitas,
+                          icon: selectedEntitas.isEmpty
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue),
+                                  ),
+                                )
+                              : const Icon(Icons.arrow_drop_down),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedValueEntitas = newValue ?? '';
+                              selectedValueAtasan = null;
+                              getDataAtasan();
+                            });
+                          },
+                          items:
+                              selectedEntitas.map((Map<String, dynamic> value) {
+                            return DropdownMenuItem<String>(
+                              value: value["kode"].toString(),
+                              child: Padding(
+                                padding: const EdgeInsets.all(1.0),
+                                child: TitleWidget(
+                                  title: value["nama"] as String,
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          decoration: InputDecoration(
+                            constraints:
+                                BoxConstraints(maxHeight: maxHeightEntitas),
+                            labelStyle: TextStyle(fontSize: textMedium),
+                            focusedBorder: const UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 1.0,
+                              ),
+                            ),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: selectedValueEntitas != null
+                                    ? Colors.black54
+                                    : Colors.grey,
+                                width: 1.0,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: sizedBoxHeightExtraTall,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalWide),
+                        child: TitleWidget(
+                          title: 'Pilih Atasan :',
+                          fontWeight: FontWeight.w300,
+                          fontSize: textMedium,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalWide),
+                        child: DropdownButtonFormField<String>(
+                          // validator: _validatorAtasan,
+                          value: selectedValueAtasan,
+                          icon: selectedAtasan.isEmpty
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue),
+                                  ),
+                                )
+                              : const Icon(Icons.arrow_drop_down),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedValueAtasan = newValue ?? '';
+                            });
+                          },
+                          items:
+                              selectedAtasan.map((Map<String, dynamic> value) {
+                            return DropdownMenuItem<String>(
+                              value: value["nrp"].toString(),
+                              child: Padding(
+                                padding: const EdgeInsets.all(1.0),
+                                child: TitleWidget(
+                                  title: '${value["nama"]} - ${value["nrp"]}',
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          decoration: InputDecoration(
+                            labelStyle: TextStyle(fontSize: textMedium),
+                            constraints:
+                                BoxConstraints(maxHeight: maxHeightAtasan),
+                            focusedBorder: const UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 1.0,
+                              ),
+                            ),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: selectedValueAtasan != null
+                                    ? Colors.black54
+                                    : Colors.grey,
+                                width: 1.0,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: sizedBoxHeightExtraTall,
                       ),
                       SizedBox(
                         height: sizedBoxHeightExtraTall,
@@ -592,8 +969,38 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                                               fontSizeRight: textMedium,
                                             ),
                                             SizedBox(
-                                                height:
-                                                    sizedBoxHeightExtraTall),
+                                              height: sizedBoxHeightExtraTall,
+                                            ),
+                                            InkWell(
+                                              onTap: () {
+                                                _hapusData(index);
+                                              },
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: padding5,
+                                                    horizontal:
+                                                        paddingHorizontalWide),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.red,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          2.0),
+                                                ),
+                                                child: Text(
+                                                  'Hapus',
+                                                  style: TextStyle(
+                                                    color: const Color(
+                                                        primaryBlack),
+                                                    fontSize: textSmall,
+                                                    fontFamily: 'Poppins',
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              height: sizedBoxHeightExtraTall,
+                                            ),
                                             const LineWidget(),
                                           ],
                                         ),
@@ -676,6 +1083,301 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                           : const Text(''),
                       SizedBox(
                         height: sizedBoxHeightTall,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalWide),
+                        child: TitleWidget(
+                          title: 'Diajukan Kepada',
+                          fontWeight: FontWeight.w700,
+                          fontSize: textMedium,
+                        ),
+                      ),
+                      SizedBox(
+                        height: sizedBoxHeightShort,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalWide),
+                        child: const LineWidget(),
+                      ),
+                      SizedBox(
+                        height: sizedBoxHeightTall,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalWide),
+                        child: TitleWidget(
+                          title: 'Pilih Entitas HRGS : ',
+                          fontWeight: FontWeight.w300,
+                          fontSize: textMedium,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalWide),
+                        child: DropdownButtonFormField<String>(
+                          // validator: _validatorEntitas,
+                          value: selectedValueEntitasHrgs,
+                          icon: selectedEntitasHrgs.isEmpty
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue),
+                                  ),
+                                )
+                              : const Icon(Icons.arrow_drop_down),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedValueEntitasHrgs = newValue ?? '';
+                              // selectedValueHrgs = null;
+                              getDataHrgs();
+                            });
+                          },
+                          items: selectedEntitasHrgs
+                              .map((Map<String, dynamic> value) {
+                            return DropdownMenuItem<String>(
+                              value: value["kode"].toString(),
+                              child: Padding(
+                                padding: const EdgeInsets.all(1.0),
+                                child: TitleWidget(
+                                  title: value["nama"] as String,
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          decoration: InputDecoration(
+                            constraints:
+                                BoxConstraints(maxHeight: maxHeightEntitas),
+                            labelStyle: TextStyle(fontSize: textMedium),
+                            focusedBorder: const UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 1.0,
+                              ),
+                            ),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: selectedValueEntitas != null
+                                    ? Colors.black54
+                                    : Colors.grey,
+                                width: 1.0,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: sizedBoxHeightExtraTall,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalWide),
+                        child: TitleWidget(
+                          title: 'HRGS :',
+                          fontWeight: FontWeight.w300,
+                          fontSize: textMedium,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalWide),
+                        child: DropdownButtonFormField<String>(
+                          // validator: _validatorAtasan,
+                          value: selectedValueHrgs,
+                          icon: selectedHrgs.isEmpty
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue),
+                                  ),
+                                )
+                              : const Icon(Icons.arrow_drop_down),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedValueHrgs = newValue ?? '';
+                            });
+                          },
+                          items: selectedHrgs.map((Map<String, dynamic> value) {
+                            return DropdownMenuItem<String>(
+                              value: value["pernr"].toString(),
+                              child: Padding(
+                                padding: const EdgeInsets.all(1.0),
+                                child: TitleWidget(
+                                  title: '${value["pernr"]} - ${value["nama"]}',
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          decoration: InputDecoration(
+                            labelStyle: TextStyle(fontSize: textMedium),
+                            constraints:
+                                BoxConstraints(maxHeight: maxHeightAtasan),
+                            focusedBorder: const UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 1.0,
+                              ),
+                            ),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: selectedValueAtasan != null
+                                    ? Colors.black54
+                                    : Colors.grey,
+                                width: 1.0,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: sizedBoxHeightExtraTall,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalWide),
+                        child: TitleWidget(
+                          title: 'Pilih Entitas Direktur Keuangan : ',
+                          fontWeight: FontWeight.w300,
+                          fontSize: textMedium,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalWide),
+                        child: DropdownButtonFormField<String>(
+                          // validator: _validatorEntitas,
+                          value: selectedValueEntitasKeuangan,
+                          icon: selectedEntitasKeuangan.isEmpty
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue),
+                                  ),
+                                )
+                              : const Icon(Icons.arrow_drop_down),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedValueEntitasKeuangan = newValue ?? '';
+                              // selectedValueKeuangan = null;
+                              getDataKeuangan();
+                            });
+                          },
+                          items: selectedEntitasKeuangan
+                              .map((Map<String, dynamic> value) {
+                            return DropdownMenuItem<String>(
+                              value: value["kode"].toString(),
+                              child: Padding(
+                                padding: const EdgeInsets.all(1.0),
+                                child: TitleWidget(
+                                  title: value["nama"] as String,
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          decoration: InputDecoration(
+                            constraints:
+                                BoxConstraints(maxHeight: maxHeightEntitas),
+                            labelStyle: TextStyle(fontSize: textMedium),
+                            focusedBorder: const UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 1.0,
+                              ),
+                            ),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: selectedValueEntitas != null
+                                    ? Colors.black54
+                                    : Colors.grey,
+                                width: 1.0,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: sizedBoxHeightExtraTall,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalWide),
+                        child: TitleWidget(
+                          title: 'Pilih Direktur Keuangan :',
+                          fontWeight: FontWeight.w300,
+                          fontSize: textMedium,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalWide),
+                        child: DropdownButtonFormField<String>(
+                          // validator: _validatorAtasan,
+                          value: selectedValueKeuangan,
+                          icon: selectedKeuangan.isEmpty
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue),
+                                  ),
+                                )
+                              : const Icon(Icons.arrow_drop_down),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedValueKeuangan = newValue ?? '';
+                            });
+                          },
+                          items: selectedKeuangan
+                              .map((Map<String, dynamic> value) {
+                            return DropdownMenuItem<String>(
+                              value: value["pernr"].toString(),
+                              child: Padding(
+                                padding: const EdgeInsets.all(1.0),
+                                child: TitleWidget(
+                                  title: '${value["pernr"]} - ${value["nama"]}',
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          decoration: InputDecoration(
+                            labelStyle: TextStyle(fontSize: textMedium),
+                            constraints:
+                                BoxConstraints(maxHeight: maxHeightAtasan),
+                            focusedBorder: const UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 1.0,
+                              ),
+                            ),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: selectedValueAtasan != null
+                                    ? Colors.black54
+                                    : Colors.grey,
+                                width: 1.0,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: sizedBoxHeightExtraTall,
                       ),
                       SizedBox(
                         width: size.width,

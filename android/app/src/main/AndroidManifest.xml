@@ -6,7 +6,7 @@
    <application
         android:label="ESS Mobile Hasnur Group"
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon">
+        android:icon="@mipmap-hdpi/launcher_icon">
         <activity
             android:name=".MainActivity"
             android:exported="true"

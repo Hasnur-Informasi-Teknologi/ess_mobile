@@ -1,26 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:mobile_ess/themes/constant.dart';
 
-class TextFormFieldWidget extends StatefulWidget {
+class TextFormFielDisableWidget extends StatefulWidget {
   final TextEditingController controller;
-  final Function? validator;
-  final String hintText;
   final double maxHeightConstraints;
-  final bool? enable;
-  const TextFormFieldWidget(
-      {super.key,
-      required this.controller,
-      this.validator,
-      this.enable,
-      required this.hintText,
-      this.maxHeightConstraints = 60.0});
+  const TextFormFielDisableWidget(
+      {super.key, required this.controller, this.maxHeightConstraints = 60.0});
 
   @override
-  State<TextFormFieldWidget> createState() => _TextFormFieldWidgetState();
+  State<TextFormFielDisableWidget> createState() =>
+      _TextFormFielDisableWidgetState();
 }
 
-class _TextFormFieldWidgetState extends State<TextFormFieldWidget> {
+class _TextFormFielDisableWidgetState extends State<TextFormFielDisableWidget> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -28,13 +20,12 @@ class _TextFormFieldWidgetState extends State<TextFormFieldWidget> {
 
     return TextFormField(
       controller: widget.controller,
-      validator: (value) {
-        if (widget.validator != null) {
-          return widget.validator!(value);
-        }
-        return null;
-      },
-      enabled: widget.enable ?? true,
+      style: TextStyle(
+        fontSize: textMedium,
+        color: Colors.black,
+        decoration: TextDecoration.none,
+        fontWeight: FontWeight.w400,
+      ),
       decoration: InputDecoration(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(5),
@@ -50,15 +41,15 @@ class _TextFormFieldWidgetState extends State<TextFormFieldWidget> {
             borderRadius: BorderRadius.circular(5),
             borderSide: const BorderSide(color: Colors.grey, width: 0)),
         constraints: BoxConstraints(maxHeight: widget.maxHeightConstraints),
-        filled: widget.enable ?? true,
-        fillColor: Colors.white,
-        hintText: widget.hintText,
+        filled: true,
+        fillColor: Colors.grey[200],
         hintStyle: TextStyle(
           fontSize: textMedium,
           fontFamily: 'Poppins',
-          color: const Color(textPlaceholder),
+          color: Colors.black,
         ),
       ),
+      enabled: false,
     );
   }
 }

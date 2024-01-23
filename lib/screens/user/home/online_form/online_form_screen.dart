@@ -9,6 +9,7 @@ class OnlineFormScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textSmall = size.width * 0.027;
+    double textLarge = size.width * 0.04;
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding8 = size.width * 0.0188;
     double padding10 = size.width * 0.023;
@@ -25,8 +26,14 @@ class OnlineFormScreen extends StatelessWidget {
             Get.offAllNamed('/user/main');
           },
         ),
-        title: const Text(
+        title: Text(
           'Online Form',
+          style: TextStyle(
+              color: const Color(primaryBlack),
+              fontSize: textLarge,
+              fontFamily: 'Poppins',
+              letterSpacing: 0.6,
+              fontWeight: FontWeight.w700),
         ),
       ),
       body: Center(
@@ -117,7 +124,6 @@ class OnlineFormScreen extends StatelessWidget {
   }
 
   String getText(int index) {
-    // Mengembalikan teks berdasarkan indeks
     switch (index) {
       case 0:
         return 'Pengajuan Training';
