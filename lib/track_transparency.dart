@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -24,22 +26,22 @@ class _TrackTransparencyState extends State<TrackTransparency> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
+                const Column(
                   children: [
                     Column(
                       children: [
-                        const Text(
+                        Text(
                           'Allow Mobile ESS to use your app activity?',
                           style: TextStyle(
                               fontWeight: FontWeight.w700,
                               fontSize: 30,
                               color: Color(primaryBlack)),
                         ),
-                        const SizedBox(
+                        SizedBox(
                           height: 30,
                         ),
                         Row(
-                          children: const [
+                          children: [
                             Padding(
                                 padding: EdgeInsets.symmetric(vertical: 20)),
                             Icon(
@@ -59,11 +61,11 @@ class _TrackTransparencyState extends State<TrackTransparency> {
                             )
                           ],
                         ),
-                        const SizedBox(
+                        SizedBox(
                           height: 15,
                         ),
                         Row(
-                          children: const [
+                          children: [
                             Padding(
                                 padding: EdgeInsets.symmetric(vertical: 20)),
                             Icon(
@@ -83,30 +85,30 @@ class _TrackTransparencyState extends State<TrackTransparency> {
                             ),
                           ],
                         ),
-                        const SizedBox(
+                        SizedBox(
                           height: 50,
                         ),
-                        const Text(
+                        Text(
                           'For the functional use of our application, we need to retrieve photo and GPS data to perform employee absences in this application.',
                           style: TextStyle(
                               color: Color(primaryBlack),
                               fontSize: 18,
                               fontWeight: FontWeight.bold),
                         ),
-                        const SizedBox(
+                        SizedBox(
                           height: 15,
                         ),
-                        const Text(
+                        Text(
                           'Learn more about the permission requirements used by this application here.',
                           style: TextStyle(
                               color: Color(primaryBlack),
                               fontSize: 18,
                               fontWeight: FontWeight.bold),
                         ),
-                        const SizedBox(
+                        SizedBox(
                           height: 15,
                         ),
-                        const Text(
+                        Text(
                           'ess-dev.hasnurgroup.com:8081/privacy_policy',
                           style: TextStyle(
                               color: Colors.blue,
@@ -115,7 +117,7 @@ class _TrackTransparencyState extends State<TrackTransparency> {
                         ),
                       ],
                     ),
-                    const SizedBox(
+                    SizedBox(
                       height: 50,
                     ),
                   ],
@@ -168,7 +170,8 @@ class _TrackTransparencyState extends State<TrackTransparency> {
 
                           if (statusLocation.isGranted &&
                               statusCamera.isGranted) {
-                            SharedPreferences prefs = await SharedPreferences.getInstance();
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
                             prefs.setBool('permission', true);
                             Navigator.pushReplacement(
                                 context,

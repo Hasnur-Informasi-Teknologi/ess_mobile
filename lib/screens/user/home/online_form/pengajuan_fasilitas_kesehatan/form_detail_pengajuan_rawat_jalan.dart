@@ -1,10 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class FormDetailPengajuanRawatJalan extends StatefulWidget {
   const FormDetailPengajuanRawatJalan({super.key});
@@ -16,6 +22,7 @@ class FormDetailPengajuanRawatJalan extends StatefulWidget {
 
 class _FormDetailPengajuanRawatJalanState
     extends State<FormDetailPengajuanRawatJalan> {
+  final String _apiUrl = API_URL;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _jenisPenggantiController = TextEditingController();
   final _detailPenggantiController = TextEditingController();
@@ -28,6 +35,7 @@ class _FormDetailPengajuanRawatJalanState
   double maxDetailPengganti = 40.0;
   double maxNamaPasien = 40.0;
   double maxHubunganDenganKaryawan = 40.0;
+  double maxHeightJenisPengganti = 60.0;
   double maxNoKwitansi = 40.0;
   double maxJumlah = 40.0;
   double maxKeterangan = 40.0;
@@ -40,7 +48,63 @@ class _FormDetailPengajuanRawatJalanState
       jumlah,
       keterangan;
 
+  String? selectedValueJenisPengganti,
+      selectedValueDetailPengganti,
+      selectedValueHubunganDenganKarwayan;
+
+  List<Map<String, dynamic>> selectedJenisPengganti = [];
+  List<Map<String, dynamic>> selectedDetailPengganti = [
+    {'opsi': 'Frame'},
+    {'opsi': 'Lensa'},
+    {'opsi': 'Frame + Lensa'},
+  ];
+
+  List<Map<String, dynamic>> selectedHubunganDenganKarwayan = [
+    {'opsi': 'Diri Sendiri'},
+    {'opsi': 'Anak 1'},
+    {'opsi': 'Anak 2'},
+    {'opsi': 'Anak 3'},
+    {'opsi': 'Pasangan'},
+  ];
+
+  final DateRangePickerController _tanggalKwitansiController =
+      DateRangePickerController();
+  DateTime? tanggalKwitansi;
+
   DateTime tanggalPengajuan = DateTime.now();
+
+  Future<void> getJenisPengganti() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? token = prefs.getString('token');
+
+    if (token != null) {
+      try {
+        final response = await http.get(
+            Uri.parse("$_apiUrl/master/jenis/penggantian/jalan"),
+            headers: <String, String>{
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Authorization': 'Bearer $token'
+            });
+        final responseData = jsonDecode(response.body);
+        print(responseData);
+        final dataEntitasApi = responseData['data'];
+
+        setState(() {
+          selectedJenisPengganti =
+              List<Map<String, dynamic>>.from(dataEntitasApi);
+        });
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getJenisPengganti();
+  }
 
   Future<void> _tambah() async {
     if (_formKey.currentState!.validate() == false) {
@@ -48,23 +112,25 @@ class _FormDetailPengajuanRawatJalanState
     }
     _formKey.currentState!.save();
 
-    jenisPengganti = _jenisPenggantiController.text;
-    detailPengganti = _detailPenggantiController.text;
+    jenisPengganti = selectedValueJenisPengganti;
+    detailPengganti = selectedValueJenisPengganti == '9'
+        ? selectedValueDetailPengganti
+        : _detailPenggantiController.text;
     namaPasient = _namaPasientController.text;
     hubunganDenganKaryawan = _hubunganDenganKaryawanController.text;
     noKwitansi = _noKwitansiController.text;
     jumlah = _jumlahController.text;
     keterangan = _keteranganController.text;
-    String tanggalPengajuanFormatted =
-        DateFormat('yyyy-MM-dd').format(tanggalPengajuan);
 
     Map<String, dynamic> newData = {
       "id_md_jp_rawat_jalan": jenisPengganti ?? '',
       "detail_penggantian": detailPengganti ?? '',
       "no_kuitansi": noKwitansi ?? '',
-      "tgl_kuitansi": tanggalPengajuanFormatted,
+      "tgl_kuitansi": tanggalKwitansi != null
+          ? tanggalKwitansi.toString()
+          : DateTime.now().toString(),
       "nm_pasien": namaPasient ?? '',
-      "hub_karyawan": hubunganDenganKaryawan ?? '',
+      "hub_karyawan": selectedValueHubunganDenganKarwayan ?? '',
       "jumlah": jumlah ?? '',
       "keterangan": keterangan ?? '',
     };
@@ -178,11 +244,15 @@ class _FormDetailPengajuanRawatJalanState
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    double textSmall = size.width * 0.027;
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
     double paddingHorizontalNarrow = size.width * 0.035;
+    double paddingHorizontalWide = size.width * 0.0585;
     double padding5 = size.width * 0.0115;
+    double padding10 = size.width * 0.023;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -215,32 +285,158 @@ class _FormDetailPengajuanRawatJalanState
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: TitleWidget(
-                    title: 'Jenis Penggantian',
+                    title: 'Pilih Jenis Pengganti : ',
                     fontWeight: FontWeight.w300,
                     fontSize: textMedium,
                   ),
                 ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormFieldWidget(
-                    validator: _validatorJenisPengganti,
-                    controller: _jenisPenggantiController,
-                    maxHeightConstraints: maxJenisPengganti,
-                    hintText: 'Jenis Penggantian',
+                  child: DropdownButtonFormField<String>(
+                    // validator: _validatorEntitas,
+                    value: selectedValueJenisPengganti,
+                    icon: selectedJenisPengganti.isEmpty
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.blue),
+                            ),
+                          )
+                        : const Icon(Icons.arrow_drop_down),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedValueJenisPengganti = newValue ?? '';
+                      });
+                    },
+                    items: selectedJenisPengganti
+                        .map((Map<String, dynamic> value) {
+                      return DropdownMenuItem<String>(
+                        value: value["id_md_jp_rawat_jalan"].toString(),
+                        child: Padding(
+                          padding: const EdgeInsets.all(1.0),
+                          child: TitleWidget(
+                            title: value["jp_rawat_jalan"] as String,
+                            fontWeight: FontWeight.w300,
+                            fontSize: textMedium,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    decoration: InputDecoration(
+                      constraints:
+                          BoxConstraints(maxHeight: maxHeightJenisPengganti),
+                      labelStyle: TextStyle(fontSize: textMedium),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: selectedValueJenisPengganti != null
+                              ? Colors.black54
+                              : Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 SizedBox(
-                  height: sizedBoxHeightTall,
+                  height: sizedBoxHeightExtraTall,
                 ),
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: TitleWidget(
-                    title: 'Detail Penggantian',
+                    title: selectedValueJenisPengganti == '9'
+                        ? 'Pilih Detail Penggantian : '
+                        : 'Detail Penggantian',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+                SizedBox(
+                  height: sizedBoxHeightShort,
+                ),
+                selectedValueJenisPengganti == '9'
+                    ? Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalNarrow),
+                        child: DropdownButtonFormField<String>(
+                          value: selectedValueDetailPengganti,
+                          icon: selectedJenisPengganti.isEmpty
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue),
+                                  ),
+                                )
+                              : const Icon(Icons.arrow_drop_down),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedValueDetailPengganti = newValue ?? '';
+                            });
+                          },
+                          items: selectedDetailPengganti
+                              .map((Map<String, dynamic> value) {
+                            return DropdownMenuItem<String>(
+                              value: value["opsi"].toString(),
+                              child: Padding(
+                                padding: const EdgeInsets.all(1.0),
+                                child: TitleWidget(
+                                  title: value["opsi"] as String,
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          decoration: InputDecoration(
+                            constraints: BoxConstraints(
+                                maxHeight: maxHeightJenisPengganti),
+                            labelStyle: TextStyle(fontSize: textMedium),
+                            focusedBorder: const UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 1.0,
+                              ),
+                            ),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: selectedValueJenisPengganti != null
+                                    ? Colors.black54
+                                    : Colors.grey,
+                                width: 1.0,
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    : Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalNarrow),
+                        child: TextFormFieldWidget(
+                          validator: _validatorDetailPengganti,
+                          controller: _detailPenggantiController,
+                          maxHeightConstraints: maxDetailPengganti,
+                          hintText: 'Detail Penggantian',
+                        ),
+                      ),
+                SizedBox(
+                  height: sizedBoxHeightExtraTall,
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+                  child: TitleWidget(
+                    title: 'Pilih Hubungan Dengan Karyawan : ',
                     fontWeight: FontWeight.w300,
                     fontSize: textMedium,
                   ),
@@ -251,11 +447,56 @@ class _FormDetailPengajuanRawatJalanState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormFieldWidget(
-                    validator: _validatorDetailPengganti,
-                    controller: _detailPenggantiController,
-                    maxHeightConstraints: maxDetailPengganti,
-                    hintText: 'Detail Penggantian',
+                  child: DropdownButtonFormField<String>(
+                    value: selectedValueHubunganDenganKarwayan,
+                    icon: selectedHubunganDenganKarwayan.isEmpty
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.blue),
+                            ),
+                          )
+                        : const Icon(Icons.arrow_drop_down),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedValueHubunganDenganKarwayan = newValue ?? '';
+                      });
+                    },
+                    items: selectedHubunganDenganKarwayan
+                        .map((Map<String, dynamic> value) {
+                      return DropdownMenuItem<String>(
+                        value: value["opsi"].toString(),
+                        child: Padding(
+                          padding: const EdgeInsets.all(1.0),
+                          child: TitleWidget(
+                            title: value["opsi"] as String,
+                            fontWeight: FontWeight.w300,
+                            fontSize: textMedium,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    decoration: InputDecoration(
+                      constraints:
+                          BoxConstraints(maxHeight: maxHeightJenisPengganti),
+                      labelStyle: TextStyle(fontSize: textMedium),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: selectedValueJenisPengganti != null
+                              ? Colors.black54
+                              : Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 SizedBox(
@@ -281,31 +522,6 @@ class _FormDetailPengajuanRawatJalanState
                     controller: _namaPasientController,
                     maxHeightConstraints: maxNamaPasien,
                     hintText: 'Nama Pasien',
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightTall,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Hubungan Dengan Karyawan',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormFieldWidget(
-                    validator: _validatorHubunganDenganKaryawan,
-                    controller: _hubunganDenganKaryawanController,
-                    maxHeightConstraints: maxHubunganDenganKaryawan,
-                    hintText: 'Anak Ke-1',
                   ),
                 ),
                 SizedBox(
@@ -362,7 +578,9 @@ class _FormDetailPengajuanRawatJalanState
                           color: Colors.grey,
                         ),
                         Text(
-                          '${tanggalPengajuan.day}-${tanggalPengajuan.month}-${tanggalPengajuan.year}',
+                          DateFormat('dd-MM-yyyy').format(
+                              _tanggalKwitansiController.selectedDate ??
+                                  DateTime.now()),
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: textMedium,
@@ -374,20 +592,33 @@ class _FormDetailPengajuanRawatJalanState
                     ),
                   ),
                   onPressed: () {
-                    showCupertinoModalPopup(
+                    showDialog(
                       context: context,
-                      builder: (BuildContext context) => SizedBox(
-                        height: 250,
-                        child: CupertinoDatePicker(
-                          backgroundColor: Colors.white,
-                          initialDateTime: tanggalPengajuan,
-                          onDateTimeChanged: (DateTime newTime) {
-                            setState(() => tanggalPengajuan = newTime);
-                          },
-                          use24hFormat: true,
-                          mode: CupertinoDatePickerMode.date,
-                        ),
-                      ),
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          content: Container(
+                            height: 350,
+                            width: 350,
+                            child: SfDateRangePicker(
+                              controller: _tanggalKwitansiController,
+                              onSelectionChanged:
+                                  (DateRangePickerSelectionChangedArgs args) {
+                                setState(() {
+                                  tanggalKwitansi = args.value;
+                                });
+                              },
+                              selectionMode:
+                                  DateRangePickerSelectionMode.single,
+                            ),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
                     );
                   },
                 ),

@@ -15,8 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Controller extends GetxController {
   var karyawan = {}.obs;
-  var role_id=4.obs;
- 
+  var role_id = 4.obs;
 }
 
 class HomeScreen extends StatefulWidget {
@@ -36,13 +35,14 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
   }
 
-  String? selectionDashboard = '2'; 
+  String? selectionDashboard = '2';
 
   Future<void> getDataKaryawan() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    x.role_id.value=prefs.getInt('role_id')!.toInt();
+    x.role_id.value = prefs.getInt('role_id')!.toInt();
     String? token = prefs.getString('token');
-    x.karyawan.value = jsonDecode(prefs.getString('userData').toString())['data'];
+    x.karyawan.value =
+        jsonDecode(prefs.getString('userData').toString())['data'];
     if (token != null) {
       try {
         final response = await http.get(
@@ -83,6 +83,10 @@ class _HomeScreenState extends State<HomeScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double paddingHorizontalWide = size.width * 0.0585;
     double padding10 = size.width * 0.023;
+    double sizedBoxHeightTall = size.height * 0.0163;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double padding5 = size.width * 0.0115;
+    double padding7 = size.width * 0.018;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -94,25 +98,17 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Obx(()=> Text(
-                x.karyawan['pt']??'PT Hasnur Informasi Teknologi',
-                style: TextStyle(
-                    fontSize: textMedium,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: 'Quicksand'),
-               )),
+              Obx(() => Text(
+                    x.karyawan['pt'] ?? 'PT Hasnur Informasi Teknologi',
+                    style: TextStyle(
+                        fontSize: textMedium,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Quicksand'),
+                  )),
               IconButton(
                 icon: const Icon(Icons.notifications),
                 onPressed: () {
                   getToken();
-                  // Aksi ketika ikon lonceng di tekan
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.logout),
-                onPressed: () {
-                  logout();
-                  // Aksi ketika ikon lonceng di tekan
                 },
               ),
             ],
@@ -130,30 +126,32 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Obx(()=> 
-                 HeaderProfileWidget(
-                  userName: x.karyawan['nama']??'M. Abdullah Sani',
-                  posision: x.karyawan['pernr']??'7822000',
-                  imageUrl: x.karyawan['pernr']??'',
-                  webUrl: '',
-               )),
+                Obx(() => HeaderProfileWidget(
+                      userName: x.karyawan['nama'] ?? 'M. Abdullah Sani',
+                      posision: x.karyawan['pernr'] ?? '7822000',
+                      imageUrl: x.karyawan['pernr'] ?? '',
+                      webUrl: '',
+                    )),
                 Container(
                   // height: size.height * 0.23,
-                  height: size.height * 0.12,
+                  height: size.height * 0.14,
                   width: size.width * 0.9,
                   decoration: BoxDecoration(
                     color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(10.0),
+                    borderRadius: BorderRadius.circular(5.0),
                     boxShadow: [
                       BoxShadow(
-                          color: Colors.black.withOpacity(0.23),
+                          color: Colors.grey.withOpacity(0.3),
                           offset: const Offset(1.1, 1.1),
                           blurRadius: 10.0),
                     ],
                   ),
                   child: const IconsProfileContainerWidget(),
                 ),
-                 Container(
+                SizedBox(
+                  height: padding10,
+                ),
+                Container(
                   // height: size.height * 0.23,
                   height: size.height * 0.11,
                   width: size.width * 0.9,
@@ -172,70 +170,79 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
           ),
-         Obx(() =>   x.role_id==1? Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-              child: const TitleWidget(title: 'Dashboard'),
-            ),
-            // ================
-            Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: paddingHorizontalWide, vertical: padding10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-               Container(
-                  height: 40,
-                  padding: EdgeInsets.all(4),
-                  margin: EdgeInsets.only(left: 10),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Color.fromARGB(
-                          102, 158, 158, 158), // Set border color
-                      width: 1, // Set border width
-                    ),
-                    borderRadius: BorderRadius.circular(
-                        6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
-                  ),
-                  child:  Padding(
-                    padding: EdgeInsets.only(left: 5, right: 5),
-                    child:  DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors
-                              .black, // Set the font size for the dropdown items
-                        ),
-                        value: selectionDashboard,
-                        iconSize: 24,
-                        elevation: 16,
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            if(newValue=='1'){
-                              Get.toNamed('/admin/main');
-                            }else{
-                              Get.toNamed('/user/main');
-                            }
-                            selectionDashboard = newValue;
-                          });
-                        },
-                        items: {'1': 'Admin','2':'User'}.keys
-                            .map<DropdownMenuItem<String>>((String id) {
-                          return DropdownMenuItem<String>(
-                            value: id,
-                            child: Text({'1': 'Admin','2':'User'}[id]!),
-                          );
-                        }).toList(),
+          Obx(
+            () => x.role_id == 1
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalWide),
+                        child: const TitleWidget(title: 'Dashboard'),
                       ),
-                    ),
-                  ),
-                )
-              ],
-            ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalWide,
+                            vertical: padding10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Container(
+                              height: 40,
+                              width: 100,
+                              padding: EdgeInsets.all(4),
+                              margin: EdgeInsets.only(left: 10),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Color.fromARGB(102, 158, 158, 158),
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 5, right: 5),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.black,
+                                    ),
+                                    value: selectionDashboard,
+                                    iconSize: 24,
+                                    elevation: 16,
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        if (newValue == '1') {
+                                          Get.toNamed('/admin/main');
+                                        } else {
+                                          Get.toNamed('/user/main');
+                                        }
+                                        selectionDashboard = newValue;
+                                      });
+                                    },
+                                    items: {'1': 'Admin', '2': 'User'}
+                                        .keys
+                                        .map<DropdownMenuItem<String>>(
+                                      (String id) {
+                                        return DropdownMenuItem<String>(
+                                          value: id,
+                                          child: Text(
+                                              {'1': 'Admin', '2': 'User'}[id]!),
+                                        );
+                                      },
+                                    ).toList(),
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                : Text(''),
           ),
-          ],):Text(''),),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
             child: const TitleWidget(title: 'Kehadiran'),
@@ -254,31 +261,33 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const JadwalKerjaCardWidget(),
+          // SizedBox(
+          //   height: sizedBoxHeightExtraTall,
+          // ),
+          // Padding(
+          //   padding: EdgeInsets.symmetric(
+          //       horizontal: paddingHorizontalWide, vertical: padding10),
+          //   child: RowWithButtonWidget(
+          //     textLeft: 'Pengumuman',
+          //     textRight: 'Lihat Semua',
+          //     fontSizeLeft: textLarge,
+          //     fontSizeRight: textSmall,
+          //     onTab: () {
+          //       Navigator.push(
+          //           context,
+          //           MaterialPageRoute(
+          //               builder: (ctx) => const PengumumanScreen()));
+          //     },
+          //   ),
+          // ),
+          // Column(
+          //   children: List.generate(4, (index) {
+          //     return const PengumumanCardWidget();
+          //   }),
+          // ),
           SizedBox(
-            height: sizedBoxHeightExtraTall,
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: paddingHorizontalWide, vertical: padding10),
-            child: RowWithButtonWidget(
-              textLeft: 'Pengumuman',
-              textRight: 'Lihat Semua',
-              fontSizeLeft: textLarge,
-              fontSizeRight: textSmall,
-              onTab: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (ctx) => const PengumumanScreen()));
-              },
-            ),
-          ),
-          Column(
-            children: List.generate(4, (index) {
-              return const PengumumanCardWidget();
-            }),
-          ),
-          SizedBox(height: 100,)
+            height: 100,
+          )
         ],
       ),
     );

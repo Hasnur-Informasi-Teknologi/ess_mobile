@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/screens/user/home/home_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen.dart';
+import 'package:mobile_ess/widgets/title_widget.dart';
 import 'dart:convert';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,7 +20,7 @@ class ProfileEditController extends GetxController {
   RxBool infoKepegawaian = false.obs;
   RxBool infoKontrak = false.obs;
   RxBool infoPendidikan = false.obs;
-  var message =''.obs;
+  var message = ''.obs;
   var data = {}.obs;
   var listController = {}.obs;
 }
@@ -46,7 +47,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       x.data['status_pernikahan'] = 'Belum Menikah';
     } else if (x.data['status_pernikahan'] == 'Married') {
       x.data['status_pernikahan'] = 'Menikah';
-    }else{
+    } else {
       x.data['status_pernikahan'] = 'Belum Menikah';
     }
     for (var key in x.data.keys.toList()) {
@@ -197,6 +198,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     super.initState();
     getData();
   }
+
   Future _pickImage(ImageSource source) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: source);
@@ -213,9 +215,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     final user = jsonDecode(userData.toString())['data'];
     String? token = prefs.getString('token');
     try {
-      final request = http.MultipartRequest("POST", Uri.parse('$_apiUrl/master/profile/add_photo?nrp='+user['pernr']));
-      final headers = {"Content-type": "multipart/form-data",
-       'Authorization': "Bearer " + token.toString()
+      final request = http.MultipartRequest("POST",
+          Uri.parse('$_apiUrl/master/profile/add_photo?nrp=' + user['pernr']));
+      final headers = {
+        "Content-type": "multipart/form-data",
+        'Authorization': "Bearer " + token.toString()
       };
 
       request.headers.addAll(headers);
@@ -223,18 +227,18 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         'image', // 'picture' here is the key for the API request
         imageFile.path,
       ));
-      
+
       final response = await request.send();
       print("CHECK UPLOAD PHOTO");
       print(response);
       print(response.statusCode);
       if (response.statusCode == 200) {
         print('Image uploaded!');
-        x.message.value="Image Uploaded!";
+        x.message.value = "Image Uploaded!";
         return true;
       } else {
         print('Upload failed!');
-        x.message.value="Upload Failed!";
+        x.message.value = "Upload Failed!";
         return false;
       }
     } catch (e) {
@@ -245,377 +249,395 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textSmall = size.width * 0.027;
+    double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightTall = size.height * 0.0163;
+    double paddingHorizontalWide = size.width * 0.0585;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-      ),
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+        ),
         body: SingleChildScrollView(
-      child: SafeArea(
-        child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 30,
-                  ),
-                  Center(
-                    child: Text("Edit Profile",
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        )),
-                  ),
-                  SizedBox(
-                    height: 30,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+          child: SafeArea(
+            child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                        Obx(() => 
-                      Text(x.message.toString()),
-                      ),  
-                      SizedBox(width: 20,),
-                      ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      onPrimary: Colors.black87,
-                      elevation: 5,
-                      primary: Colors.blue[300],
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      SizedBox(
+                        height: 30,
                       ),
-                    ),
-                    onPressed: () async {
-                      x.message.value='';
-                      final imageFile = await _pickImage(ImageSource.gallery);
-                      if (imageFile != null) {
-                        uploadImage(imageFile);
-                      }
-                    },
-                    child: Row(children: [
-                      Text('Upload Photo ...')
-                    ]),
-                  ),],),
-                  Row(
-                    children: [
-                      Text(
-                        'Data Pribadi',
-                        style: TextStyle(
-                          color: Colors.yellow,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Center(
+                        child: Text("Edit Profile",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            )),
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 20),
-                  ExpansionPanelList(
-                    expandedHeaderPadding: EdgeInsets.zero,
-                    elevation: 1,
-                    animationDuration: Duration(milliseconds: 500),
-                    expansionCallback: (int index, bool isExpanded) {
-                      setState(() {
-                        x.infoPribadi.value = !x.infoPribadi.value;
-                      });
-                    },
-                    children: [
-                      ExpansionPanel(
-                        headerBuilder: (BuildContext context, bool isExpanded) {
-                          return ListTile(
-                            title: Text(
-                              'Informasi Pribadi',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600, fontSize: 12),
-                            ),
-                          );
-                        },
-                        body: ListTile(
-                          title: Column(
-                            children: [
-                              CustomRow(
-                                  title: "No KTP", choosedSetting: 'nomor_ktp', enable: true,),
-                              CustomRowDateInput(title: "Tanggal Lahir", choosedSetting: "tgl_lahir"),
-                              CustomRow(
-                                  title: "Alamat",
-                                  choosedSetting: 'alamat_tinggal'),
-                              CustomRow(
-                                  title: "Kota",
-                                  choosedSetting: 'kota_tinggal'),
-                              CustomRow(
-                                  title: "Provinsi",
-                                  choosedSetting: 'provinsi_tinggal'),
-                              CustomRow(
-                                  title: "Kode Pos",
-                                  keyboardType: TextInputType.number,
-                                  choosedSetting: 'kode_pos'),
-                              CustomRow(
-                                  title: "Alamat Surat",
-                                  choosedSetting: 'alamat_surat'),
-                              CustomRow(
-                                  title: "Kota Surat",
-                                  choosedSetting: 'kota_surat'),
-                              CustomRow(
-                                  title: "Kode Pos Surat",
-                                  keyboardType: TextInputType.number,
-                                  choosedSetting: 'kode_pos_surat'),
-                              CustomRow(
-                                  title: "No Telepon Rumah",
-                                  keyboardType: TextInputType.number,
-                                  choosedSetting: 'no_telp_rmh'),
-                              CustomRow(
-                                  title: "No HP",
-                                  keyboardType: TextInputType.number,
-                                  choosedSetting: 'no_hp'),
-                              CustomRow(
-                                  title: "Golongan Darah",
-                                  choosedSetting: 'golongan_darah'),
-                              CustomRow(
-                                  title: "Status Pajak",
-                                  choosedSetting: 'sts_pajak'),
-                              CustomSelectionMenikah(
-                                  title: "Status Pernikahan",
-                                  choosedSetting: 'status_pernikahan',
-                                  listMap: ['Menikah', 'Belum Menikah']),
-                              CustomRowDateInput(title: "Tanggal Pernikahan", choosedSetting: "tanggal_nikah"),
-                              CustomRow(
-                                  title: "Nama Pasangan",
-                                  choosedSetting: 'nama_pasangan'),
-                              CustomRowDateInput(title: "Tanggal  Lahir Pasangan", choosedSetting: "tgl_lhr_pasangan"),
-                            ],
+                      SizedBox(
+                        height: 30,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Obx(
+                            () => Text(x.message.toString()),
                           ),
-                        ),
-                        isExpanded: x.infoPribadi.value,
+                          SizedBox(
+                            width: 20,
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              onPrimary: Colors.black87,
+                              elevation: 5,
+                              primary: Colors.blue[300],
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                              ),
+                            ),
+                            onPressed: () async {
+                              x.message.value = '';
+                              final imageFile =
+                                  await _pickImage(ImageSource.gallery);
+                              if (imageFile != null) {
+                                uploadImage(imageFile);
+                              }
+                            },
+                            child: Row(children: [Text('Upload Photo ...')]),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                      const TitleWidget(title: 'Data Pribadi'),
+                      SizedBox(height: sizedBoxHeightShort),
+                      ExpansionPanelList(
+                        expandedHeaderPadding: EdgeInsets.zero,
+                        elevation: 1,
+                        animationDuration: Duration(milliseconds: 500),
+                        expansionCallback: (int index, bool isExpanded) {
+                          setState(() {
+                            x.infoPribadi.value = !x.infoPribadi.value;
+                          });
+                        },
+                        children: [
+                          ExpansionPanel(
+                            headerBuilder:
+                                (BuildContext context, bool isExpanded) {
+                              return ListTile(
+                                leading: const Icon(Icons.person_2),
+                                title: Text(
+                                  'Informasi Pribadi',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: textMedium),
+                                ),
+                              );
+                            },
+                            body: ListTile(
+                              title: Column(
+                                children: [
+                                  CustomRow(
+                                    title: "No KTP",
+                                    choosedSetting: 'nomor_ktp',
+                                    enable: true,
+                                  ),
+                                  CustomRowDateInput(
+                                      title: "Tanggal Lahir",
+                                      choosedSetting: "tgl_lahir"),
+                                  CustomRow(
+                                      title: "Alamat",
+                                      choosedSetting: 'alamat_tinggal'),
+                                  CustomRow(
+                                      title: "Kota",
+                                      choosedSetting: 'kota_tinggal'),
+                                  CustomRow(
+                                      title: "Provinsi",
+                                      choosedSetting: 'provinsi_tinggal'),
+                                  CustomRow(
+                                      title: "Kode Pos",
+                                      keyboardType: TextInputType.number,
+                                      choosedSetting: 'kode_pos'),
+                                  CustomRow(
+                                      title: "Alamat Surat",
+                                      choosedSetting: 'alamat_surat'),
+                                  CustomRow(
+                                      title: "Kota Surat",
+                                      choosedSetting: 'kota_surat'),
+                                  CustomRow(
+                                      title: "Kode Pos Surat",
+                                      keyboardType: TextInputType.number,
+                                      choosedSetting: 'kode_pos_surat'),
+                                  CustomRow(
+                                      title: "No Telepon Rumah",
+                                      keyboardType: TextInputType.number,
+                                      choosedSetting: 'no_telp_rmh'),
+                                  CustomRow(
+                                      title: "No HP",
+                                      keyboardType: TextInputType.number,
+                                      choosedSetting: 'no_hp'),
+                                  CustomRow(
+                                      title: "Golongan Darah",
+                                      choosedSetting: 'golongan_darah'),
+                                  CustomRow(
+                                      title: "Status Pajak",
+                                      choosedSetting: 'sts_pajak'),
+                                  CustomSelectionMenikah(
+                                      title: "Status Pernikahan",
+                                      choosedSetting: 'status_pernikahan',
+                                      listMap: ['Menikah', 'Belum Menikah']),
+                                  CustomRowDateInput(
+                                      title: "Tanggal Pernikahan",
+                                      choosedSetting: "tanggal_nikah"),
+                                  CustomRow(
+                                      title: "Nama Pasangan",
+                                      choosedSetting: 'nama_pasangan'),
+                                  CustomRowDateInput(
+                                      title: "Tanggal  Lahir Pasangan",
+                                      choosedSetting: "tgl_lhr_pasangan"),
+                                ],
+                              ),
+                            ),
+                            isExpanded: x.infoPribadi.value,
+                          ),
+                        ],
+                      ),
 
-                  SizedBox(height: 10), // Add some spacing
-                  // =====================================================================================
-                  ExpansionPanelList(
-                    expandedHeaderPadding: EdgeInsets.zero,
-                    elevation: 1,
-                    animationDuration: Duration(milliseconds: 500),
-                    expansionCallback: (int index, bool isExpanded) {
-                      setState(() {
-                        x.infoFisik.value = !x.infoFisik.value;
-                      });
-                    },
-                    children: [
-                      ExpansionPanel(
-                        headerBuilder: (BuildContext context, bool isExpanded) {
-                          return ListTile(
-                            title: Text(
-                              'Informasi Fisik',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600, fontSize: 12),
-                            ),
-                          );
+                      SizedBox(height: sizedBoxHeightTall),
+                      // =====================================================================================
+                      ExpansionPanelList(
+                        expandedHeaderPadding: EdgeInsets.zero,
+                        elevation: 1,
+                        animationDuration: Duration(milliseconds: 500),
+                        expansionCallback: (int index, bool isExpanded) {
+                          setState(() {
+                            x.infoFisik.value = !x.infoFisik.value;
+                          });
                         },
-                        body: ListTile(
-                          title: Column(
-                            children: [
-                              CustomRow(
-                                  title: "Tinggi Badan",
-                                  choosedSetting: 'tinggi_badan'),
-                              CustomRow(
-                                  title: "Berat Badan",
-                                  choosedSetting: 'berat_badan'),
-                              CustomRow(
-                                  title: "Ukuran Baju",
-                                  choosedSetting: 'ukuran_baju'),
-                              CustomRow(
-                                  title: "Ukuran Celana",
-                                  choosedSetting: 'ukuran_celana'),
-                              CustomRow(
-                                  title: "Ukuran Sepatu",
-                                  choosedSetting: 'ukuran_sepatu'),
-                            ],
-                          ),
-                        ),
-                        isExpanded: x.infoFisik.value,
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20), // Add some spacing
-                  Row(
-                    children: [
-                      Text(
-                        'Data Kepegawaian',
-                        style: TextStyle(
-                          color: Colors.yellow,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10), // Add some spacing
-                  // =====================================================================================
-                  ExpansionPanelList(
-                    expandedHeaderPadding: EdgeInsets.zero,
-                    elevation: 1,
-                    animationDuration: Duration(milliseconds: 500),
-                    expansionCallback: (int index, bool isExpanded) {
-                      setState(() {
-                        x.infoKepegawaian.value = !x.infoKepegawaian.value;
-                      });
-                    },
-                    children: [
-                      ExpansionPanel(
-                        headerBuilder: (BuildContext context, bool isExpanded) {
-                          return ListTile(
-                            title: Text(
-                              'Informasi Kepegawaian',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600, fontSize: 12),
+                        children: [
+                          ExpansionPanel(
+                            headerBuilder:
+                                (BuildContext context, bool isExpanded) {
+                              return ListTile(
+                                leading: const Icon(Icons.info),
+                                title: Text(
+                                  'Informasi Fisik',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: textMedium),
+                                ),
+                              );
+                            },
+                            body: ListTile(
+                              title: Column(
+                                children: [
+                                  CustomRow(
+                                      title: "Tinggi Badan",
+                                      choosedSetting: 'tinggi_badan'),
+                                  CustomRow(
+                                      title: "Berat Badan",
+                                      choosedSetting: 'berat_badan'),
+                                  CustomRow(
+                                      title: "Ukuran Baju",
+                                      choosedSetting: 'ukuran_baju'),
+                                  CustomRow(
+                                      title: "Ukuran Celana",
+                                      choosedSetting: 'ukuran_celana'),
+                                  CustomRow(
+                                      title: "Ukuran Sepatu",
+                                      choosedSetting: 'ukuran_sepatu'),
+                                ],
+                              ),
                             ),
-                          );
-                        },
-                        body: ListTile(
-                          title: Column(
-                            children: [
-                              CustomRow(
-                                  title: "Email Kantor",
-                                  choosedSetting: 'email'),
-                              CustomRow(
-                                  title: "SBU/Direktorat",
-                                  choosedSetting: 'sbu'),
-                              CustomRow(
-                                  title: "Lokasi", choosedSetting: 'lokasi'),
-                              CustomRow(
-                                  title: "Penempatan",
-                                  choosedSetting: 'penempatan'),
-                              CustomRowDateInput(title: "Akhir Masa Probation", choosedSetting: "akhir_probation"),
-                              CustomRow(
-                                  title: "Personal Area",
-                                  choosedSetting: 'per_area'),
-                              CustomRow(
-                                  title: "Bank Key",
-                                  choosedSetting: 'bank_key'),
-                              CustomRow(
-                                  title: "No Rekening",
-                                  choosedSetting: 'bank_account'),
-                              CustomRow(title: "NPWP", choosedSetting: 'npwp'),
-                              CustomRow(
-                                  title: "BPJS Ketenagakerjaan",
-                                  choosedSetting: 'jamsostek'),
-                              CustomRow(
-                                  title: "BPJS Kesehatan",
-                                  choosedSetting: 'bpjskes'),
-                              CustomRowDateInput(title: "Tanggal Masuk", choosedSetting: "awal_kontrak_kerja1"),
-                            ],
+                            isExpanded: x.infoFisik.value,
                           ),
-                        ),
-                        isExpanded: x.infoKepegawaian.value,
+                        ],
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 10), // Add some spacing
-                  // =====================================================================================
-                  ExpansionPanelList(
-                    expandedHeaderPadding: EdgeInsets.zero,
-                    elevation: 1,
-                    animationDuration: Duration(milliseconds: 500),
-                    expansionCallback: (int index, bool isExpanded) {
-                      setState(() {
-                        x.infoKontrak.value = !x.infoKontrak.value;
-                      });
-                    },
-                    children: [
-                      ExpansionPanel(
-                        headerBuilder: (BuildContext context, bool isExpanded) {
-                          return ListTile(
-                            title: Text(
-                              'Informasi Kontrak',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600, fontSize: 12),
+                      SizedBox(height: sizedBoxHeightTall),
+                      const Divider(),
+                      const TitleWidget(title: 'Data Kepegawaian'),
+                      SizedBox(height: sizedBoxHeightShort),
+                      // =====================================================================================
+                      ExpansionPanelList(
+                        expandedHeaderPadding: EdgeInsets.zero,
+                        elevation: 1,
+                        animationDuration: Duration(milliseconds: 500),
+                        expansionCallback: (int index, bool isExpanded) {
+                          setState(() {
+                            x.infoKepegawaian.value = !x.infoKepegawaian.value;
+                          });
+                        },
+                        children: [
+                          ExpansionPanel(
+                            headerBuilder:
+                                (BuildContext context, bool isExpanded) {
+                              return ListTile(
+                                leading: const Icon(Icons.work),
+                                title: Text(
+                                  'Informasi Kepegawaian',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: textMedium),
+                                ),
+                              );
+                            },
+                            body: ListTile(
+                              title: Column(
+                                children: [
+                                  CustomRow(
+                                      title: "Email Kantor",
+                                      choosedSetting: 'email'),
+                                  CustomRow(
+                                      title: "SBU/Direktorat",
+                                      choosedSetting: 'sbu'),
+                                  CustomRow(
+                                      title: "Lokasi",
+                                      choosedSetting: 'lokasi'),
+                                  CustomRow(
+                                      title: "Penempatan",
+                                      choosedSetting: 'penempatan'),
+                                  CustomRowDateInput(
+                                      title: "Akhir Masa Probation",
+                                      choosedSetting: "akhir_probation"),
+                                  CustomRow(
+                                      title: "Personal Area",
+                                      choosedSetting: 'per_area'),
+                                  CustomRow(
+                                      title: "Bank Key",
+                                      choosedSetting: 'bank_key'),
+                                  CustomRow(
+                                      title: "No Rekening",
+                                      choosedSetting: 'bank_account'),
+                                  CustomRow(
+                                      title: "NPWP", choosedSetting: 'npwp'),
+                                  CustomRow(
+                                      title: "BPJS Ketenagakerjaan",
+                                      choosedSetting: 'jamsostek'),
+                                  CustomRow(
+                                      title: "BPJS Kesehatan",
+                                      choosedSetting: 'bpjskes'),
+                                  CustomRowDateInput(
+                                      title: "Tanggal Masuk",
+                                      choosedSetting: "awal_kontrak_kerja1"),
+                                ],
+                              ),
                             ),
-                          );
-                        },
-                        body: ListTile(
-                          title: Column(
-                            children: [
-                              CustomRowDateInput(title: "Akhir Masa Kerja", choosedSetting: "akhir_kontrak_kerja1"),
-                            ],
+                            isExpanded: x.infoKepegawaian.value,
                           ),
-                        ),
-                        isExpanded: x.infoKontrak.value,
+                        ],
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 20), // Add some spacing
-                  Row(
-                    children: [
-                      Text(
-                        'Data Kepegawaian',
-                        style: TextStyle(
-                          color: Colors.yellow,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 10), // Add some spacing
-                  // =====================================================================================
-                  ExpansionPanelList(
-                    expandedHeaderPadding: EdgeInsets.zero,
-                    elevation: 1,
-                    animationDuration: Duration(milliseconds: 500),
-                    expansionCallback: (int index, bool isExpanded) {
-                      setState(() {
-                        x.infoPendidikan.value = !x.infoPendidikan.value;
-                      });
-                    },
-                    children: [
-                      ExpansionPanel(
-                        headerBuilder: (BuildContext context, bool isExpanded) {
-                          return ListTile(
-                            title: Text(
-                              'Informasi Pendidikan',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w600, fontSize: 12),
+                      SizedBox(height: sizedBoxHeightShort),
+                      // =====================================================================================
+                      ExpansionPanelList(
+                        expandedHeaderPadding: EdgeInsets.zero,
+                        elevation: 1,
+                        animationDuration: Duration(milliseconds: 500),
+                        expansionCallback: (int index, bool isExpanded) {
+                          setState(() {
+                            x.infoKontrak.value = !x.infoKontrak.value;
+                          });
+                        },
+                        children: [
+                          ExpansionPanel(
+                            headerBuilder:
+                                (BuildContext context, bool isExpanded) {
+                              return ListTile(
+                                leading: const Icon(Icons.description),
+                                title: Text(
+                                  'Informasi Kontrak',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: textMedium),
+                                ),
+                              );
+                            },
+                            body: ListTile(
+                              title: Column(
+                                children: [
+                                  CustomRowDateInput(
+                                      title: "Akhir Masa Kerja",
+                                      choosedSetting: "akhir_kontrak_kerja1"),
+                                ],
+                              ),
                             ),
-                          );
-                        },
-                        body: ListTile(
-                          title: Column(
-                            children: [
-                              CustomRow(
-                                  title: "Jurusan", choosedSetting: 'jurusan'),
-                              CustomRow(
-                                  title: "Asal Pendidikan",
-                                  choosedSetting: 'asal_sekolah'),
-                              CustomRowDateInput(title: "Tahun Lulus", choosedSetting: "tahun_lulus"),
-                            ],
+                            isExpanded: x.infoKontrak.value,
                           ),
-                        ),
-                        isExpanded: x.infoPendidikan.value,
+                        ],
                       ),
-                    ],
-                  ),
+                      SizedBox(height: sizedBoxHeightTall),
+                      const Divider(),
+                      const TitleWidget(title: 'Data Kepegawaian'),
+                      SizedBox(height: sizedBoxHeightShort),
+                      // =====================================================================================
+                      ExpansionPanelList(
+                        expandedHeaderPadding: EdgeInsets.zero,
+                        elevation: 1,
+                        animationDuration: Duration(milliseconds: 500),
+                        expansionCallback: (int index, bool isExpanded) {
+                          setState(() {
+                            x.infoPendidikan.value = !x.infoPendidikan.value;
+                          });
+                        },
+                        children: [
+                          ExpansionPanel(
+                            headerBuilder:
+                                (BuildContext context, bool isExpanded) {
+                              return ListTile(
+                                leading: const Icon(Icons.school),
+                                title: Text(
+                                  'Informasi Pendidikan',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: textMedium),
+                                ),
+                              );
+                            },
+                            body: ListTile(
+                              title: Column(
+                                children: [
+                                  CustomRow(
+                                      title: "Jurusan",
+                                      choosedSetting: 'jurusan'),
+                                  CustomRow(
+                                      title: "Asal Pendidikan",
+                                      choosedSetting: 'asal_sekolah'),
+                                  CustomRowDateInput(
+                                      title: "Tahun Lulus",
+                                      choosedSetting: "tahun_lulus"),
+                                ],
+                              ),
+                            ),
+                            isExpanded: x.infoPendidikan.value,
+                          ),
+                        ],
+                      ),
 
-                  SizedBox(
-                    height: 50,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(''),
-                      ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            onPrimary: Colors.black87,
-                            elevation: 5,
-                            padding: EdgeInsets.symmetric(horizontal: 16),
-                            shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(8)),
+                      SizedBox(
+                        height: 50,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(''),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              onPrimary: Colors.black87,
+                              elevation: 5,
+                              padding: EdgeInsets.symmetric(horizontal: 16),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(8)),
+                              ),
                             ),
-                          ),
-                          onPressed: () {
-                            Get.dialog(
+                            onPressed: () {
+                              Get.dialog(
                                 AlertDialog(
                                   title: Text('Confirmation'),
                                   content: Text('Apakah Simpan data ini ?'),
@@ -623,48 +645,49 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                                     TextButton(
                                       child: Text('Cancel'),
                                       onPressed: () {
-                                        Get.back(result: false); 
+                                        Get.back(result: false);
                                       },
                                     ),
                                     TextButton(
                                       child: Text('Accept'),
                                       onPressed: () {
-                                        Get.back(result: true); 
+                                        Get.back(result: true);
                                       },
                                     ),
                                   ],
                                 ),
-                                barrierDismissible: false, 
+                                barrierDismissible: false,
                               ).then((result) {
                                 if (result != null && result == true) {
-                                   simpanDataKaryawan();
+                                  simpanDataKaryawan();
                                   print("User accepted");
                                 } else {
-                                  print("User did not accept or dismissed the dialog");
+                                  print(
+                                      "User did not accept or dismissed the dialog");
                                 }
                               });
-                          },
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.save_as_rounded),
-                                SizedBox(
-                                  width: 10,
-                                ),
-                                Text('Ubah Data')
-                              ]),
-                        ),
+                            },
+                            child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.save_as_rounded),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text('Ubah Data')
+                                ]),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 300,
+                      ),
+                      // =====================================================================================
                     ],
                   ),
-                  SizedBox(
-                    height: 300,
-                  ),
-                  // =====================================================================================
-                ],
-              ),
-            )),
-      ),
-    ));
+                )),
+          ),
+        ));
   }
 }
 
@@ -679,49 +702,82 @@ class CustomRow extends StatelessWidget {
       {Key? key,
       required this.title,
       required this.choosedSetting,
-      this.enable=true,
+      this.enable = true,
       this.isTextFieldEnabled = false,
       this.keyboardType = TextInputType.text})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
     ProfileEditController x = Get.put(ProfileEditController());
+    Size size = MediaQuery.of(context).size;
+    double textSmall = size.width * 0.027;
+    double textMedium = size.width * 0.0329;
     return Padding(
       padding: const EdgeInsets.only(right: 10, bottom: 5),
       child: Row(
         children: [
           Container(
-            width: 150,
+            width: 110,
             child: Text(
-              title + " : ", // Name
-              style: const TextStyle(
-                fontSize: 11,
+              title, // Name
+              style: TextStyle(
+                fontSize: textSmall,
                 color: Colors.black,
                 decoration: TextDecoration.none,
                 fontWeight: FontWeight.w400,
               ),
             ),
           ),
-          Obx(() => Expanded(
-                child: TextField(
-                  enabled: enable,
-                  keyboardType: keyboardType,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Colors.black,
-                    decoration: TextDecoration.none,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  controller: x.listController[choosedSetting],
-                  onChanged: (val) => x.data[choosedSetting] = val,
+          Obx(
+            () => Expanded(
+              child: TextField(
+                enabled: enable,
+                keyboardType: keyboardType,
+                style: TextStyle(
+                  fontSize: textSmall,
+                  color: Colors.black,
+                  decoration: TextDecoration.none,
+                  fontWeight: FontWeight.w400,
                 ),
-              )),
+                controller: x.listController[choosedSetting],
+                onChanged: (val) => x.data[choosedSetting] = val,
+              ),
+              // TextFormField(
+              //   enabled: enable,
+              //   keyboardType: keyboardType,
+              //   style: TextStyle(
+              //     fontSize: textMedium,
+              //     fontFamily: 'Poppins',
+              //     color: Colors.black,
+              //   ),
+              //   controller: x.listController[choosedSetting],
+              //   onChanged: (val) => x.data[choosedSetting] = val,
+              //   decoration: InputDecoration(
+              //     border: OutlineInputBorder(
+              //       borderRadius: BorderRadius.circular(5),
+              //       borderSide: const BorderSide(
+              //         color: Colors.transparent,
+              //         width: 0,
+              //       ),
+              //     ),
+              //     constraints: BoxConstraints(maxHeight: 40),
+              //     focusedBorder: OutlineInputBorder(
+              //       borderRadius: BorderRadius.circular(5),
+              //       borderSide: const BorderSide(color: Colors.black, width: 1),
+              //     ),
+              //     enabledBorder: OutlineInputBorder(
+              //       borderRadius: BorderRadius.circular(5),
+              //       borderSide: const BorderSide(color: Colors.grey, width: 0),
+              //     ),
+              //   ),
+              // ),
+            ),
+          ),
         ],
       ),
     );
   }
 }
-
 
 class CustomRowDateInput extends StatelessWidget {
   final String title;
@@ -740,28 +796,30 @@ class CustomRowDateInput extends StatelessWidget {
   Widget build(BuildContext context) {
     ProfileEditController x = Get.put(ProfileEditController());
     DateRangePickerController _controller = DateRangePickerController();
+    Size size = MediaQuery.of(context).size;
+    double textSmall = size.width * 0.027;
+    double textMedium = size.width * 0.0329;
     return Padding(
       padding: const EdgeInsets.only(right: 10, bottom: 5),
       child: Row(
         children: [
           Container(
-            width: 150,
+            width: 100,
             child: Text(
-              title + " : ", // Name
-              style: const TextStyle(
-                fontSize: 11,
+              title, // Name
+              style: TextStyle(
+                fontSize: textSmall,
                 color: Colors.black,
                 decoration: TextDecoration.none,
                 fontWeight: FontWeight.w400,
               ),
             ),
           ),
-           Obx(() => 
-          Expanded(
-                child:  CupertinoButton(
+          Obx(() => Expanded(
+                child: CupertinoButton(
                   child: Container(
                     // width: 100,
-                    padding:EdgeInsets.all(5),
+                    padding: EdgeInsets.all(5),
                     // padding: EdgeInsets.symmetric(
                     //     horizontal: paddingHorizontalNarrow,
                     //     vertical: padding5),
@@ -788,7 +846,7 @@ class CustomRowDateInput extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                   showDialog(
+                    showDialog(
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
@@ -797,12 +855,16 @@ class CustomRowDateInput extends StatelessWidget {
                             width: 300, // Adjust as needed
                             child: SfDateRangePicker(
                               controller: _controller,
-                              onSelectionChanged: (DateRangePickerSelectionChangedArgs args) {
-                                if(args.value is DateTime) {
-                                  x.data[choosedSetting] = DateFormat('yyyy-MM-dd').format(args.value);
+                              onSelectionChanged:
+                                  (DateRangePickerSelectionChangedArgs args) {
+                                if (args.value is DateTime) {
+                                  x.data[choosedSetting] =
+                                      DateFormat('yyyy-MM-dd')
+                                          .format(args.value);
                                 }
                               },
-                              selectionMode: DateRangePickerSelectionMode.single,
+                              selectionMode:
+                                  DateRangePickerSelectionMode.single,
                             ),
                           ),
                           actions: <Widget>[
@@ -841,16 +903,19 @@ class CustomSelectionMenikah extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ProfileEditController x = Get.put(ProfileEditController());
+    Size size = MediaQuery.of(context).size;
+    double textSmall = size.width * 0.027;
+    double textMedium = size.width * 0.0329;
     return Padding(
       padding: const EdgeInsets.only(right: 10, bottom: 5),
       child: Row(
         children: [
           Container(
-            width: 150,
+            width: 110,
             child: Text(
-              title + " : ", // Name
-              style: const TextStyle(
-                fontSize: 11,
+              title, // Name
+              style: TextStyle(
+                fontSize: textSmall,
                 color: Colors.black,
                 decoration: TextDecoration.none,
                 fontWeight: FontWeight.w400,
