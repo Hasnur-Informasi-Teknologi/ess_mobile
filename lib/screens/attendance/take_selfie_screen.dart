@@ -163,7 +163,7 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
                 "address": alamat
               };
               var request =
-                  http.MultipartRequest('POST', Uri.parse('http://hg-attendance.hasnurgroup.com/api/clock_in'))
+                  http.MultipartRequest('POST', Uri.parse('http://ess.hasnurgroup.com/api/attendance/clock_in'))
                     ..headers.addAll(headers)
                     ..fields['nrp'] = nrp
                     ..fields['lat'] = lat
@@ -189,7 +189,7 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
                 "address": alamat
               };
               var request =
-                  http.MultipartRequest('POST', Uri.parse('http://hg-attendance.hasnurgroup.com/api/clock_out'))
+                  http.MultipartRequest('POST', Uri.parse('http://ess.hasnurgroup.com/api/attendance/clock_out'))
                     ..headers.addAll(headers)
                     ..fields['nrp'] = nrp
                     ..fields['lat'] = lat
