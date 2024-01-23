@@ -54,6 +54,9 @@ class _IconsProfileContainerWidgetState
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
+                height: size.height * 0.01,
+              ),
+              SizedBox(
                 height: size.height * 0.05,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(100.0),
@@ -77,7 +80,7 @@ class _IconsProfileContainerWidgetState
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         color: Colors.grey[700],
-                        fontSize: 12,
+                        fontSize: textSmall,
                         fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: sizedBoxHeightExtraShort),

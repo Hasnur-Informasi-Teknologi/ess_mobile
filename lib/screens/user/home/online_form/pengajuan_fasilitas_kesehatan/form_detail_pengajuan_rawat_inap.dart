@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:file_picker/file_picker.dart';
@@ -5,9 +6,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class FormDetailPengajuanRawatInap extends StatefulWidget {
   const FormDetailPengajuanRawatInap({super.key});
@@ -19,19 +23,25 @@ class FormDetailPengajuanRawatInap extends StatefulWidget {
 
 class _FormDetailPengajuanRawatInapState
     extends State<FormDetailPengajuanRawatInap> {
+  final String _apiUrl = API_URL;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final _jenisPenggantiController = TextEditingController();
   final _detailPenggantiController = TextEditingController();
   final _noKwitansiController = TextEditingController();
   final _jumlahController = TextEditingController();
   final _keteranganController = TextEditingController();
-  double maxHeightJenisPengganti = 40.0;
   double maxHeightDetailPengganti = 40.0;
   double maxHeightNokwitansi = 40.0;
   double maxHeightJumlah = 40.0;
   double maxHeightKeterangan = 40.0;
-  DateTime tanggalKwitansi = DateTime.now();
+  double maxHeightJenisPengganti = 60.0;
   bool _isFileNull = false;
+  final DateRangePickerController _tanggalKwitansiController =
+      DateRangePickerController();
+  DateTime? tanggalKwitansi;
+
+  String? selectedValueJenisPengganti;
+
+  List<Map<String, dynamic>> selectedJenisPengganti = [];
 
   List<PlatformFile>? files;
   Future<void> pickFiles() async {
@@ -45,10 +55,39 @@ class _FormDetailPengajuanRawatInapState
     }
   }
 
+  @override
+  void initState() {
+    super.initState();
+    getDataJenisPengganti();
+  }
+
+  Future<void> getDataJenisPengganti() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    if (token != null) {
+      try {
+        final response = await http.get(
+            Uri.parse("$_apiUrl/master/jenis/penggantian/inap"),
+            headers: <String, String>{
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Authorization': 'Bearer $token'
+            });
+        final responseData = jsonDecode(response.body);
+        final dataJenisPenggantiApi = responseData['data'];
+
+        setState(() {
+          selectedJenisPengganti =
+              List<Map<String, dynamic>>.from(dataJenisPenggantiApi);
+        });
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
   Future<void> _tambah() async {
     _formKey.currentState!.save();
-    String tanggalKwitansiFormatted =
-        DateFormat('yyyy-MM-dd').format(tanggalKwitansi);
 
     if (_formKey.currentState!.validate() == false) {
       return;
@@ -69,10 +108,12 @@ class _FormDetailPengajuanRawatInapState
     }
 
     Map<String, dynamic> newData = {
-      "id_md_jp_rawat_inap": _jenisPenggantiController.text,
+      "id": selectedValueJenisPengganti,
       "no_kuitansi": _noKwitansiController.text,
       "detail_penggantian": _detailPenggantiController.text,
-      "tgl_kuitansi": tanggalKwitansiFormatted,
+      "tgl_kuitansi": tanggalKwitansi != null
+          ? "${tanggalKwitansi?.year}-${tanggalKwitansi?.month.toString().padLeft(2, '0')}-${tanggalKwitansi?.day.toString().padLeft(2, '0')}"
+          : "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}-${DateTime.now().day.toString().padLeft(2, '0')}",
       "jumlah": _jumlahController.text,
       "keterangan": _keteranganController.text,
       "lampiran_pembayaran": filePath,
@@ -90,13 +131,13 @@ class _FormDetailPengajuanRawatInapState
   String? _validatorJenisPengganti(dynamic value) {
     if (value == null || value.isEmpty) {
       setState(() {
-        maxHeightJenisPengganti = 60.0;
+        maxHeightJenisPengganti = 80.0;
       });
       return 'Field Jenis Pengganti Kosong';
     }
 
     setState(() {
-      maxHeightJenisPengganti = 40.0;
+      maxHeightJenisPengganti = 60.0;
     });
     return null;
   }
@@ -161,6 +202,7 @@ class _FormDetailPengajuanRawatInapState
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightShort = size.height * 0.0086;
     double paddingHorizontalNarrow = size.width * 0.035;
@@ -208,15 +250,61 @@ class _FormDetailPengajuanRawatInapState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormFieldWidget(
+                  child: DropdownButtonFormField<String>(
                     validator: _validatorJenisPengganti,
-                    controller: _jenisPenggantiController,
-                    maxHeightConstraints: maxHeightJenisPengganti,
-                    hintText: 'Jenis Penggantian',
+                    value: selectedValueJenisPengganti,
+                    icon: selectedJenisPengganti.isEmpty
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.blue),
+                            ),
+                          )
+                        : const Icon(Icons.arrow_drop_down),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedValueJenisPengganti = newValue ?? '';
+                      });
+                    },
+                    items: selectedJenisPengganti
+                        .map((Map<String, dynamic> value) {
+                      return DropdownMenuItem<String>(
+                        value: value["id"].toString(),
+                        child: Padding(
+                          padding: const EdgeInsets.all(1.0),
+                          child: TitleWidget(
+                            title: value["nama"] as String,
+                            fontWeight: FontWeight.w300,
+                            fontSize: textMedium,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    decoration: InputDecoration(
+                      constraints:
+                          BoxConstraints(maxHeight: maxHeightJenisPengganti),
+                      labelStyle: TextStyle(fontSize: textMedium),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: selectedValueJenisPengganti != null
+                              ? Colors.black54
+                              : Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
                 SizedBox(
-                  height: sizedBoxHeightTall,
+                  height: sizedBoxHeightExtraTall,
                 ),
                 Padding(
                   padding:
@@ -294,7 +382,9 @@ class _FormDetailPengajuanRawatInapState
                           color: Colors.grey,
                         ),
                         Text(
-                          '${tanggalKwitansi.day}-${tanggalKwitansi.month}-${tanggalKwitansi.year}',
+                          DateFormat('yyyy-MM-dd').format(
+                              _tanggalKwitansiController.selectedDate ??
+                                  DateTime.now()),
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: textMedium,
@@ -306,20 +396,33 @@ class _FormDetailPengajuanRawatInapState
                     ),
                   ),
                   onPressed: () {
-                    showCupertinoModalPopup(
+                    showDialog(
                       context: context,
-                      builder: (BuildContext context) => SizedBox(
-                        height: 250,
-                        child: CupertinoDatePicker(
-                          backgroundColor: Colors.white,
-                          initialDateTime: tanggalKwitansi,
-                          onDateTimeChanged: (DateTime newTime) {
-                            setState(() => tanggalKwitansi = newTime);
-                          },
-                          use24hFormat: true,
-                          mode: CupertinoDatePickerMode.date,
-                        ),
-                      ),
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          content: Container(
+                            height: 350,
+                            width: 350,
+                            child: SfDateRangePicker(
+                              controller: _tanggalKwitansiController,
+                              onSelectionChanged:
+                                  (DateRangePickerSelectionChangedArgs args) {
+                                setState(() {
+                                  tanggalKwitansi = args.value;
+                                });
+                              },
+                              selectionMode:
+                                  DateRangePickerSelectionMode.single,
+                            ),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
                     );
                   },
                 ),

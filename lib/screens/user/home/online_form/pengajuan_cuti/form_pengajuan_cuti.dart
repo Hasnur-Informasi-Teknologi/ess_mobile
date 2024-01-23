@@ -13,6 +13,7 @@ import 'package:mobile_ess/widgets/text_form_field_number_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class FormPengajuanCuti extends StatefulWidget {
   const FormPengajuanCuti({super.key});
@@ -29,12 +30,17 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
   final _cutiDibayarController = TextEditingController();
   final _izinLainnyaController = TextEditingController();
   final _cutiTidakDibayarController = TextEditingController();
-  final _izinlainnyaController = TextEditingController();
   final _alamatCutiController = TextEditingController();
   final _noTeleponController = TextEditingController();
-  DateTime tanggalMulai = DateTime.now();
-  DateTime tanggalBerakhir = DateTime.now();
-  DateTime tanggalKembaliKerja = DateTime.now();
+  final DateRangePickerController _tanggalMulaiController =
+      DateRangePickerController();
+  DateTime? tanggalMulai;
+  final DateRangePickerController _tanggalBerakhirController =
+      DateRangePickerController();
+  DateTime? tanggalBerakhir;
+  final DateRangePickerController _tanggalKembaliKerjaController =
+      DateRangePickerController();
+  DateTime? tanggalKembaliKerja;
   bool _isLoading = false;
 
   final String _apiUrl = API_URL;
@@ -69,8 +75,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
       selectedValueAtasan,
       selectedValueAtasanDariAtasan,
       selectedValuePengganti,
-      selectedValueCutiLainnya,
-      jumlahCutiLainnya;
+      selectedValueCutiLainnya;
 
   List<Map<String, dynamic>> selectedEntitas = [];
   List<Map<String, dynamic>> selectedEntitasPengganti = [];
@@ -300,7 +305,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
       int lama = cuti['lama'];
 
       setState(() {
-        jumlahCutiLainnya = lama.toString();
+        _izinLainnyaController.text = lama.toString();
       });
     } else {
       print('Data tidak ditemukan');
@@ -316,6 +321,8 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
         (element) => element['id'].toString() == selectedValueCutiLainnya,
         orElse: () => {});
 
+    var canMore = [17, 18, 19];
+
     if (cuti.isNotEmpty) {
       int id = cuti['id'];
       String jenis = cuti['jenis'];
@@ -323,26 +330,8 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
           ? int.tryParse(_izinLainnyaController.text)
           : cuti['lama'];
 
-      bool idExists = dataCutiLainnya.any((element) => element['id'] == id);
-
-      if (!idExists) {
-        Map<String, dynamic> newData = {
-          'id': id,
-          'jenis': jenis,
-          'lama': lama,
-        };
-
-        setState(() {
-          dataCutiLainnya.add(newData);
-          totalLama = dataCutiLainnya.fold<int>(
-              0,
-              (previousValue, element) =>
-                  previousValue + (element['lama'] ?? 0) as int);
-
-          totalCutiYangDiambil = cutiDibayarTambahCutiTidakDibayar + totalLama;
-        });
-      } else {
-        Get.snackbar('Infomation', 'Data Tersebut Tidak Boleh Lagi!',
+      if (lama > cuti['lama'] && !canMore.contains(cuti['id'])) {
+        Get.snackbar('Infomation', 'Jumlah yang diambil terlalu banyak ',
             snackPosition: SnackPosition.TOP,
             backgroundColor: Colors.amber,
             icon: const Icon(
@@ -350,6 +339,36 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
               color: Colors.white,
             ),
             shouldIconPulse: false);
+      } else {
+        bool idExists = dataCutiLainnya.any((element) => element['id'] == id);
+
+        if (!idExists) {
+          Map<String, dynamic> newData = {
+            'id': id,
+            'jenis': jenis,
+            'lama': lama,
+          };
+
+          setState(() {
+            dataCutiLainnya.add(newData);
+            totalLama = dataCutiLainnya.fold<int>(
+                0,
+                (previousValue, element) =>
+                    previousValue + (element['lama'] ?? 0) as int);
+
+            totalCutiYangDiambil =
+                cutiDibayarTambahCutiTidakDibayar + totalLama;
+          });
+        } else {
+          Get.snackbar('Infomation', 'Data Tersebut Tidak Boleh Lagi!',
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.amber,
+              icon: const Icon(
+                Icons.info,
+                color: Colors.white,
+              ),
+              shouldIconPulse: false);
+        }
       }
     } else {
       print('Data tidak ditemukan');
@@ -360,90 +379,83 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
-    // int totalLama = dataCutiLainnya.fold<int>(
-    //     0,
-    //     (previousValue, element) =>
-    //         previousValue + (element['lama'] ?? 0) as int);
+    setState(() {
+      _isLoading = true;
+    });
 
-    // print('Total Lama: $totalLama');
+    if (_formKey.currentState!.validate() == false) {
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
 
-    // setState(() {
-    //   _isLoading = true;
-    // });
+    _formKey.currentState!.save();
 
-    // if (_formKey.currentState!.validate() == false) {
-    //   setState(() {
-    //     _isLoading = false;
-    //   });
-    //   return;
-    // }
-
-    // _formKey.currentState!.save();
-
-    // cutiYangDiambil = _cutiYangDiambilController.text;
-    // sisaCuti = _sisaCutiController.text;
-    // keperluanCuti = _keperluanCutiController.text;
-    // alamatCuti = _alamatCutiController.text;
-    // noTelepon = _noTeleponController.text;
+    cutiYangDiambil = _cutiYangDiambilController.text;
+    sisaCuti = _sisaCutiController.text;
+    keperluanCuti = _keperluanCutiController.text;
+    alamatCuti = _alamatCutiController.text;
+    noTelepon = _noTeleponController.text;
     // String tanggalMulaiFormatted =
     //     DateFormat('yyyy-MM-dd').format(tanggalMulai);
     // String tanggalBerakhirFormatted =
     //     DateFormat('yyyy-MM-dd').format(tanggalBerakhir);
     // String tanggalKembaliKerjaFormatted =
     //     DateFormat('yyyy-MM-dd').format(tanggalKembaliKerja);
-    // String kep_lainnya =
-    //     dataCutiLainnya.map((item) => item['jenis'].toString()).join(', ');
+    String kep_lainnya =
+        dataCutiLainnya.map((item) => item['jenis'].toString()).join(', ');
 
-    // try {
-    //   final response = await http.post(Uri.parse('$_apiUrl/pengajuan-cuti/add'),
-    //       headers: <String, String>{
-    //         'Content-Type': 'application/json; charset=UTF-8',
-    //         'Authorization': 'Bearer $token'
-    //       },
-    //       body: jsonEncode({
-    //         'tgl_mulai': tanggalMulaiFormatted.toString(),
-    //         'tgl_berakhir': tanggalBerakhirFormatted.toString(),
-    //         'tgl_kembali_kerja': tanggalKembaliKerjaFormatted.toString(),
-    //         'dibayar': _isDiBayar,
-    //         'tdk_dibayar': _isTidakDiBayar,
-    //         'lainnya': _isIzinLainnya,
-    //         'kep_lainnya': kep_lainnya,
-    //         'jml_cuti_tahunan': int.tryParse(_cutiDibayarController.text),
-    //         'jml_cuti_tdkdibayar':
-    //             int.tryParse(_cutiTidakDibayarController.text) ?? 0,
-    //         'jml_cuti_lainnya': 0,
-    //         'sisa_ext': 0,
-    //         'entitas_atasan': selectedValueEntitas.toString(),
-    //         'nrp_atasan': selectedValueAtasan.toString(),
-    //         'entitas_pengganti': selectedValueEntitasPengganti.toString(),
-    //         'nrp_pengganti': selectedValuePengganti.toString(),
-    //         'jml_cuti': totalCutiYangDiambil,
-    //         'keperluan': keperluanCuti.toString(),
-    //         'alamat_cuti': alamatCuti.toString(),
-    //         'no_telp': noTelepon.toString()
-    //       }));
+    try {
+      final response = await http.post(Uri.parse('$_apiUrl/pengajuan-cuti/add'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token'
+          },
+          body: jsonEncode({
+            'tgl_mulai': tanggalMulai.toString(),
+            'tgl_berakhir': tanggalBerakhir.toString(),
+            'tgl_kembali_kerja': tanggalKembaliKerja.toString(),
+            'dibayar': _isDiBayar,
+            'tdk_dibayar': _isTidakDiBayar,
+            'lainnya': _isIzinLainnya,
+            'kep_lainnya': kep_lainnya,
+            'jml_cuti_tahunan': int.tryParse(_cutiDibayarController.text) ?? 0,
+            'jml_cuti_tdkdibayar':
+                int.tryParse(_cutiTidakDibayarController.text) ?? 0,
+            'jml_cuti_lainnya': totalLama,
+            'sisa_ext': 0,
+            'entitas_atasan': selectedValueEntitas.toString(),
+            'nrp_atasan': selectedValueAtasan.toString(),
+            'entitas_pengganti': selectedValueEntitasPengganti.toString(),
+            'nrp_pengganti': selectedValuePengganti.toString(),
+            'jml_cuti': totalCutiYangDiambil,
+            'keperluan': keperluanCuti.toString(),
+            'alamat_cuti': alamatCuti.toString(),
+            'no_telp': noTelepon.toString()
+          }));
 
-    //   final responseData = jsonDecode(response.body);
-    //   Get.snackbar('Infomation', responseData['message'],
-    //       snackPosition: SnackPosition.TOP,
-    //       backgroundColor: Colors.amber,
-    //       icon: const Icon(
-    //         Icons.info,
-    //         color: Colors.white,
-    //       ),
-    //       shouldIconPulse: false);
+      final responseData = jsonDecode(response.body);
+      Get.snackbar('Infomation', responseData['message'],
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.amber,
+          icon: const Icon(
+            Icons.info,
+            color: Colors.white,
+          ),
+          shouldIconPulse: false);
 
-    //   if (responseData['message'] == 'Pengajuan Cuti Berhasil') {
-    //     Get.offAllNamed('/user/main');
-    //   }
-    // } catch (e) {
-    //   print(e);
-    //   throw e;
-    // }
+      if (responseData['message'] == 'Pengajuan Cuti Berhasil') {
+        Get.offAllNamed('/user/main');
+      }
+    } catch (e) {
+      print(e);
+      throw e;
+    }
 
-    // setState(() {
-    //   _isLoading = false;
-    // });
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   String? _validatorEntitas(dynamic value) {
@@ -633,7 +645,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
                         child: TitleWidget(
-                          title: 'Entitas : ',
+                          title: 'Pilih Entitas : ',
                           fontWeight: FontWeight.w300,
                           fontSize: textMedium,
                         ),
@@ -644,6 +656,16 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         child: DropdownButtonFormField<String>(
                           validator: _validatorEntitas,
                           value: selectedValueEntitas,
+                          icon: selectedEntitas.isEmpty
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue),
+                                  ),
+                                )
+                              : const Icon(Icons.arrow_drop_down),
                           onChanged: (String? newValue) {
                             setState(() {
                               selectedValueEntitas = newValue ?? '';
@@ -694,7 +716,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
                         child: TitleWidget(
-                          title: 'Atasan :',
+                          title: 'Pilih Atasan :',
                           fontWeight: FontWeight.w300,
                           fontSize: textMedium,
                         ),
@@ -705,6 +727,16 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         child: DropdownButtonFormField<String>(
                           validator: _validatorAtasan,
                           value: selectedValueAtasan,
+                          icon: selectedAtasan.isEmpty
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue),
+                                  ),
+                                )
+                              : const Icon(Icons.arrow_drop_down),
                           onChanged: (String? newValue) {
                             setState(() {
                               selectedValueAtasan = newValue ?? '';
@@ -752,7 +784,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
                         child: TitleWidget(
-                          title: 'Atasan dari Atasan :',
+                          title: 'Pilih Atasan dari Atasan :',
                           fontWeight: FontWeight.w300,
                           fontSize: textMedium,
                         ),
@@ -763,6 +795,16 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         child: DropdownButtonFormField<String>(
                           // validator: _validatorAtasanDariAtasan,
                           value: selectedValueAtasanDariAtasan,
+                          icon: selectedAtasanDariAtasan.isEmpty
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue),
+                                  ),
+                                )
+                              : const Icon(Icons.arrow_drop_down),
                           onChanged: (String? newValue) {
                             setState(() {
                               selectedValueAtasanDariAtasan = newValue ?? '';
@@ -814,7 +856,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                             horizontal: paddingHorizontalWide),
                         child: TitleWidget(
                           title: 'Karyawan Pengganti ',
-                          fontWeight: FontWeight.w300,
+                          fontWeight: FontWeight.w700,
                           fontSize: textMedium,
                         ),
                       ),
@@ -833,7 +875,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
                         child: TitleWidget(
-                          title: 'Entitas : ',
+                          title: 'Pilih Entitas : ',
                           fontWeight: FontWeight.w300,
                           fontSize: textMedium,
                         ),
@@ -844,6 +886,16 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         child: DropdownButtonFormField<String>(
                           validator: _validatorEntitasKaryawanPengganti,
                           value: selectedValueEntitasPengganti,
+                          icon: selectedEntitasPengganti.isEmpty
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue),
+                                  ),
+                                )
+                              : const Icon(Icons.arrow_drop_down),
                           onChanged: (String? newValue) {
                             setState(() {
                               selectedValueEntitasPengganti = newValue ?? '';
@@ -893,7 +945,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
                         child: TitleWidget(
-                          title: 'Pengganti : ',
+                          title: 'Pilih Pengganti : ',
                           fontWeight: FontWeight.w300,
                           fontSize: textMedium,
                         ),
@@ -904,6 +956,16 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         child: DropdownButtonFormField<String>(
                           validator: _validatorKaryawanPengganti,
                           value: selectedValuePengganti,
+                          icon: selectedPengganti.isEmpty
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue),
+                                  ),
+                                )
+                              : const Icon(Icons.arrow_drop_down),
                           onChanged: (String? newValue) {
                             setState(() {
                               selectedValuePengganti = newValue ?? '';
@@ -953,7 +1015,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                             horizontal: paddingHorizontalWide),
                         child: TitleWidget(
                           title: 'Keterangan Cuti',
-                          fontWeight: FontWeight.w300,
+                          fontWeight: FontWeight.w700,
                           fontSize: textMedium,
                         ),
                       ),
@@ -1143,6 +1205,22 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                                           String>(
                                                     value:
                                                         selectedValueCutiLainnya,
+                                                    icon: selectedCutiLainnya
+                                                            .isEmpty
+                                                        ? const SizedBox(
+                                                            height: 20,
+                                                            width: 20,
+                                                            child:
+                                                                CircularProgressIndicator(
+                                                              valueColor:
+                                                                  AlwaysStoppedAnimation<
+                                                                          Color>(
+                                                                      Colors
+                                                                          .blue),
+                                                            ),
+                                                          )
+                                                        : const Icon(Icons
+                                                            .arrow_drop_down),
                                                     onChanged:
                                                         (String? newValue) {
                                                       setState(() {
@@ -1242,7 +1320,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                                     _izinLainnyaController,
                                                 maxHeightConstraints:
                                                     maxHeightIzinLainnya,
-                                                hintText: '$jumlahCutiLainnya',
+                                                hintText: '0',
                                               ),
                                             ),
                                           ),
@@ -1281,137 +1359,143 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                             horizontal:
                                                 paddingHorizontalNarrow),
                                         child: SizedBox(
-                                          child: Table(
-                                            border: TableBorder.all(),
-                                            children: [
-                                              TableRow(
-                                                children: [
-                                                  TableCell(
-                                                    child: Container(
-                                                      padding: EdgeInsets.all(
-                                                          padding7),
-                                                      child: const Center(
-                                                        child:
-                                                            Text('Jenis Cuti'),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  TableCell(
-                                                    child: Container(
-                                                      padding: EdgeInsets.all(
-                                                          padding7),
-                                                      child: const Center(
-                                                        child: Text('Jumlah'),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  TableCell(
-                                                    child: Container(
-                                                      padding: EdgeInsets.all(
-                                                          padding7),
-                                                      child: const Center(
-                                                          child: Text('Aksi')),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              // Data Rows
-                                              ...dataCutiLainnya
-                                                  .asMap()
-                                                  .entries
-                                                  .map((entry) {
-                                                final int rowIndex = entry.key;
-                                                final Map<String, dynamic>
-                                                    data = entry.value;
-                                                return TableRow(
+                                          child: dataCutiLainnya.isNotEmpty
+                                              ? Table(
+                                                  border: TableBorder.all(),
                                                   children: [
-                                                    TableCell(
-                                                      child: Container(
-                                                        padding: EdgeInsets.all(
-                                                            padding7),
-                                                        child: Center(
-                                                            child: Text(
-                                                                data['jenis'])),
-                                                      ),
-                                                    ),
-                                                    TableCell(
-                                                      child: Container(
-                                                        padding: EdgeInsets.all(
-                                                            padding7),
-                                                        child: Center(
-                                                          child: Text(
-                                                              data['lama']
-                                                                  .toString()),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    TableCell(
-                                                      child: Center(
-                                                        child: Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  top:
-                                                                      padding5),
-                                                          child: InkWell(
-                                                            onTap: () {
-                                                              setState(() {
-                                                                dataCutiLainnya
-                                                                    .removeAt(
-                                                                        rowIndex);
-                                                                totalLama = dataCutiLainnya.fold<
-                                                                        int>(
-                                                                    0,
-                                                                    (previousValue,
-                                                                            element) =>
-                                                                        previousValue +
-                                                                                (element['lama'] ?? 0)
-                                                                            as int);
-                                                                totalCutiYangDiambil =
-                                                                    cutiDibayarTambahCutiTidakDibayar +
-                                                                        totalLama;
-                                                              });
-                                                            },
-                                                            child: Container(
-                                                              padding: EdgeInsets
-                                                                  .symmetric(
-                                                                      vertical:
-                                                                          padding5,
-                                                                      horizontal:
-                                                                          paddingHorizontalWide),
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                color:
-                                                                    Colors.red,
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            2.0),
-                                                              ),
+                                                    TableRow(
+                                                      children: [
+                                                        TableCell(
+                                                          child: Container(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    padding7),
+                                                            child: const Center(
                                                               child: Text(
-                                                                'Hapus',
-                                                                style:
-                                                                    TextStyle(
-                                                                  color: const Color(
-                                                                      primaryBlack),
-                                                                  fontSize:
-                                                                      textSmall,
-                                                                  fontFamily:
-                                                                      'Poppins',
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w700,
+                                                                  'Jenis Cuti'),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        TableCell(
+                                                          child: Container(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    padding7),
+                                                            child: const Center(
+                                                              child: Text(
+                                                                  'Jumlah'),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        TableCell(
+                                                          child: Container(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    padding7),
+                                                            child: const Center(
+                                                                child: Text(
+                                                                    'Aksi')),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    // Data Rows
+                                                    ...dataCutiLainnya
+                                                        .asMap()
+                                                        .entries
+                                                        .map((entry) {
+                                                      final int rowIndex =
+                                                          entry.key;
+                                                      final Map<String, dynamic>
+                                                          data = entry.value;
+                                                      return TableRow(
+                                                        children: [
+                                                          TableCell(
+                                                            child: Container(
+                                                              padding:
+                                                                  EdgeInsets.all(
+                                                                      padding7),
+                                                              child: Center(
+                                                                  child: Text(data[
+                                                                      'jenis'])),
+                                                            ),
+                                                          ),
+                                                          TableCell(
+                                                            child: Container(
+                                                              padding:
+                                                                  EdgeInsets.all(
+                                                                      padding7),
+                                                              child: Center(
+                                                                child: Text(data[
+                                                                        'lama']
+                                                                    .toString()),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          TableCell(
+                                                            child: Center(
+                                                              child: Padding(
+                                                                padding: EdgeInsets
+                                                                    .only(
+                                                                        top:
+                                                                            padding5),
+                                                                child: InkWell(
+                                                                  onTap: () {
+                                                                    setState(
+                                                                        () {
+                                                                      dataCutiLainnya
+                                                                          .removeAt(
+                                                                              rowIndex);
+                                                                      totalLama = dataCutiLainnya.fold<
+                                                                              int>(
+                                                                          0,
+                                                                          (previousValue, element) =>
+                                                                              previousValue + (element['lama'] ?? 0) as int);
+                                                                      totalCutiYangDiambil =
+                                                                          cutiDibayarTambahCutiTidakDibayar +
+                                                                              totalLama;
+                                                                    });
+                                                                  },
+                                                                  child:
+                                                                      Container(
+                                                                    padding: EdgeInsets.symmetric(
+                                                                        vertical:
+                                                                            padding5,
+                                                                        horizontal:
+                                                                            paddingHorizontalWide),
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      color: Colors
+                                                                          .red,
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              2.0),
+                                                                    ),
+                                                                    child: Text(
+                                                                      'Hapus',
+                                                                      style:
+                                                                          TextStyle(
+                                                                        color: const Color(
+                                                                            primaryBlack),
+                                                                        fontSize:
+                                                                            textSmall,
+                                                                        fontFamily:
+                                                                            'Poppins',
+                                                                        fontWeight:
+                                                                            FontWeight.w700,
+                                                                      ),
+                                                                    ),
+                                                                  ),
                                                                 ),
                                                               ),
                                                             ),
                                                           ),
-                                                        ),
-                                                      ),
-                                                    ),
+                                                        ],
+                                                      );
+                                                    }).toList(),
                                                   ],
-                                                );
-                                              }).toList(),
-                                            ],
-                                          ),
+                                                )
+                                              : Text(''),
                                         ),
                                       ),
                                     ],
@@ -1450,12 +1534,15 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                       SizedBox(
                         height: sizedBoxHeightTall,
                       ),
+                      SizedBox(
+                        height: sizedBoxHeightTall,
+                      ),
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
                         child: TitleWidget(
                           title: 'Catatan Cuti',
-                          fontWeight: FontWeight.w300,
+                          fontWeight: FontWeight.w700,
                           fontSize: textMedium,
                         ),
                       ),
@@ -1515,7 +1602,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                       constraints: BoxConstraints(
                                           maxHeight: maxHeightCutiYangDiambil),
                                       filled: true,
-                                      fillColor: Colors.white,
+                                      fillColor: Colors.grey[200],
                                       hintText: '$totalCutiYangDiambil',
                                       hintStyle: TextStyle(
                                         fontSize: textMedium,
@@ -1571,7 +1658,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                       constraints:
                                           const BoxConstraints(maxHeight: 40),
                                       filled: true,
-                                      fillColor: Colors.white,
+                                      fillColor: Colors.grey[200],
                                       hintText: '$sisaCutiMaster',
                                       hintStyle: TextStyle(
                                         fontSize: textMedium,
@@ -1590,12 +1677,15 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                       SizedBox(
                         height: sizedBoxHeightTall,
                       ),
+                      SizedBox(
+                        height: sizedBoxHeightTall,
+                      ),
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
                         child: TitleWidget(
                           title: 'Tanggal Pengajuan Cuti',
-                          fontWeight: FontWeight.w300,
+                          fontWeight: FontWeight.w700,
                           fontSize: textMedium,
                         ),
                       ),
@@ -1645,7 +1735,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                           color: Colors.grey,
                                         ),
                                         Text(
-                                          '${tanggalMulai.day}-${tanggalMulai.month}-${tanggalMulai.year}',
+                                          DateFormat('dd-MM-yyyy').format(
+                                              _tanggalMulaiController
+                                                      .selectedDate ??
+                                                  DateTime.now()),
                                           style: TextStyle(
                                             color: Colors.grey,
                                             fontSize: textMedium,
@@ -1657,23 +1750,37 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                     ),
                                   ),
                                   onPressed: () {
-                                    showCupertinoModalPopup(
+                                    showDialog(
                                       context: context,
-                                      builder: (BuildContext context) =>
-                                          SizedBox(
-                                        height: 250,
-                                        child: CupertinoDatePicker(
-                                          backgroundColor: Colors.white,
-                                          initialDateTime: tanggalMulai,
-                                          onDateTimeChanged:
-                                              (DateTime newTime) {
-                                            setState(
-                                                () => tanggalMulai = newTime);
-                                          },
-                                          use24hFormat: false,
-                                          mode: CupertinoDatePickerMode.date,
-                                        ),
-                                      ),
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          content: Container(
+                                            height: 350,
+                                            width: 350,
+                                            child: SfDateRangePicker(
+                                              controller:
+                                                  _tanggalMulaiController,
+                                              onSelectionChanged:
+                                                  (DateRangePickerSelectionChangedArgs
+                                                      args) {
+                                                setState(() {
+                                                  tanggalMulai = args.value;
+                                                });
+                                              },
+                                              selectionMode:
+                                                  DateRangePickerSelectionMode
+                                                      .single,
+                                            ),
+                                          ),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context),
+                                              child: Text('OK'),
+                                            ),
+                                          ],
+                                        );
+                                      },
                                     );
                                   },
                                 ),
@@ -1712,7 +1819,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                           color: Colors.grey,
                                         ),
                                         Text(
-                                          '${tanggalBerakhir.day}-${tanggalBerakhir.month}-${tanggalBerakhir.year}',
+                                          DateFormat('dd-MM-yyyy').format(
+                                              _tanggalBerakhirController
+                                                      .selectedDate ??
+                                                  DateTime.now()),
                                           style: TextStyle(
                                             color: Colors.grey,
                                             fontSize: textMedium,
@@ -1724,23 +1834,37 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                     ),
                                   ),
                                   onPressed: () {
-                                    showCupertinoModalPopup(
+                                    showDialog(
                                       context: context,
-                                      builder: (BuildContext context) =>
-                                          SizedBox(
-                                        height: 250,
-                                        child: CupertinoDatePicker(
-                                          backgroundColor: Colors.white,
-                                          initialDateTime: tanggalBerakhir,
-                                          onDateTimeChanged:
-                                              (DateTime newTime) {
-                                            setState(() =>
-                                                tanggalBerakhir = newTime);
-                                          },
-                                          use24hFormat: false,
-                                          mode: CupertinoDatePickerMode.date,
-                                        ),
-                                      ),
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          content: Container(
+                                            height: 350,
+                                            width: 350,
+                                            child: SfDateRangePicker(
+                                              controller:
+                                                  _tanggalBerakhirController,
+                                              onSelectionChanged:
+                                                  (DateRangePickerSelectionChangedArgs
+                                                      args) {
+                                                setState(() {
+                                                  tanggalBerakhir = args.value;
+                                                });
+                                              },
+                                              selectionMode:
+                                                  DateRangePickerSelectionMode
+                                                      .single,
+                                            ),
+                                          ),
+                                          actions: <Widget>[
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context),
+                                              child: Text('OK'),
+                                            ),
+                                          ],
+                                        );
+                                      },
                                     );
                                   },
                                 ),
@@ -1780,7 +1904,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                   color: Colors.grey,
                                 ),
                                 Text(
-                                  '${tanggalKembaliKerja.day}-${tanggalKembaliKerja.month}-${tanggalKembaliKerja.year}',
+                                  DateFormat('dd-MM-yyyy').format(
+                                      _tanggalKembaliKerjaController
+                                              .selectedDate ??
+                                          DateTime.now()),
                                   style: TextStyle(
                                     color: Colors.grey,
                                     fontSize: textMedium,
@@ -1792,21 +1919,35 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                             ),
                           ),
                           onPressed: () {
-                            showCupertinoModalPopup(
+                            showDialog(
                               context: context,
-                              builder: (BuildContext context) => SizedBox(
-                                height: 250,
-                                child: CupertinoDatePicker(
-                                  backgroundColor: Colors.white,
-                                  initialDateTime: tanggalKembaliKerja,
-                                  onDateTimeChanged: (DateTime newTime) {
-                                    setState(
-                                        () => tanggalKembaliKerja = newTime);
-                                  },
-                                  use24hFormat: false,
-                                  mode: CupertinoDatePickerMode.date,
-                                ),
-                              ),
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  content: Container(
+                                    height: 350,
+                                    width: 350,
+                                    child: SfDateRangePicker(
+                                      controller:
+                                          _tanggalKembaliKerjaController,
+                                      onSelectionChanged:
+                                          (DateRangePickerSelectionChangedArgs
+                                              args) {
+                                        setState(() {
+                                          tanggalKembaliKerja = args.value;
+                                        });
+                                      },
+                                      selectionMode:
+                                          DateRangePickerSelectionMode.single,
+                                    ),
+                                  ),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
                             );
                           },
                         ),

@@ -48,6 +48,7 @@ class _AdminMainScreenState extends State<AdminMainScreen>
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
     tabBody = const AdminHeaderScreen();
+    // tabBody = const HomeScreen();
     _checkFaceData();
     getDataAbsenKaryawan();
     super.initState();
@@ -296,6 +297,7 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                 }
                 setState(() {
                   tabBody = const AdminHeaderScreen();
+                  // tabBody = const HomeScreen();
                 });
               });
             } else if (index == 1) {
