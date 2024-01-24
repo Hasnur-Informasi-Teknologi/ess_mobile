@@ -181,7 +181,7 @@ SPEC CHECKSUMS:
   DKImagePickerController: b512c28220a2b8ac7419f21c491fc8534b7601ac
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
   file_picker: 15fd9539e4eb735dc54bae8c0534a7a9511a03de
-  Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
+  Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_exif_rotation: de6b54e8bd54a687f28d6397d1a890391de41111
   geocoding_ios: a389ea40f6f548de6e63006a2e31bf66ff80769a
   GoogleDataTransport: 57c22343ab29bc686febbf7cbb13bad167c2d8fe
@@ -205,6 +205,6 @@ SPEC CHECKSUMS:
   shared_preferences_foundation: 5b919d13b803cadd15ed2dc053125c68730e5126
   SwiftyGif: 93a1cc87bf3a51916001cf8f3d63835fb64c819f
 
-PODFILE CHECKSUM: fc478a8f103a709e2f5fb0582b9e8ccb07539f78
+PODFILE CHECKSUM: baa566b4f9c2cf891a90ec6f9f18f4ab0b429b80
 
 COCOAPODS: 1.12.1
