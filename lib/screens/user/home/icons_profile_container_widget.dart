@@ -72,7 +72,7 @@ class _IconsProfileContainerWidgetState
                 ),
               ),
               SizedBox(
-                height: size.height * 0.07,
+                height: size.height * 0.075,
                 child: Column(children: [
                   SizedBox(height: sizedBoxHeightExtraShort),
                   Text(

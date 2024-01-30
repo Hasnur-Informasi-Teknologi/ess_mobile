@@ -598,16 +598,6 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                       SizedBox(
                         height: sizedBoxHeightShort,
                       ),
-                      // Padding(
-                      //   padding: EdgeInsets.symmetric(
-                      //       horizontal: paddingHorizontalNarrow),
-                      //   child: TextFormFieldWidget(
-                      //     validator: _validatorNrp,
-                      //     controller: _nrpController,
-                      //     maxHeightConstraints: maxHeightNrp,
-                      //     hintText: '78220012',
-                      //   ),
-                      // ),
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
