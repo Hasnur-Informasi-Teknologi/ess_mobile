@@ -9,10 +9,12 @@ import 'package:mobile_ess/screens/attendance/qrcode_scanner_screen.dart';
 import 'package:mobile_ess/screens/attendance/register_face_screen.dart';
 import 'package:mobile_ess/screens/attendance/trip_location_screen.dart';
 import 'package:mobile_ess/screens/attendance/wfh_location_screen.dart';
+import 'package:mobile_ess/screens/user/history_approval/daftar_persetujuan_screen.dart';
 import 'package:mobile_ess/screens/user/history_approval/history_approval_screen.dart';
 import 'package:mobile_ess/screens/user/home/home_screen.dart';
 import 'package:mobile_ess/screens/user/main/bottom_bar_view.dart';
 import 'package:mobile_ess/screens/user/profile/profile_screen.dart';
+import 'package:mobile_ess/screens/user/submition/daftar_permintaan_screen.dart';
 import 'package:mobile_ess/screens/user/submition/submition_screen.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -306,7 +308,7 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                   return;
                 }
                 setState(() {
-                  tabBody = const SubmitionScreen();
+                  tabBody = const DaftarPermintaanScreen();
                 });
               });
             } else if (index == 2) {
@@ -315,7 +317,7 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                   return;
                 }
                 setState(() {
-                  tabBody = const HistoryApprovalScreen();
+                  tabBody = const DaftarPersetujuanScreen();
                 });
               });
             } else if (index == 3) {

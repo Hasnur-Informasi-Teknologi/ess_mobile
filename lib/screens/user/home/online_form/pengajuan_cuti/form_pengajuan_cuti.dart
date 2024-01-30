@@ -397,13 +397,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     keperluanCuti = _keperluanCutiController.text;
     alamatCuti = _alamatCutiController.text;
     noTelepon = _noTeleponController.text;
-    // String tanggalMulaiFormatted =
-    //     DateFormat('yyyy-MM-dd').format(tanggalMulai);
-    // String tanggalBerakhirFormatted =
-    //     DateFormat('yyyy-MM-dd').format(tanggalBerakhir);
-    // String tanggalKembaliKerjaFormatted =
-    //     DateFormat('yyyy-MM-dd').format(tanggalKembaliKerja);
-    String kep_lainnya =
+    String kepLainnya =
         dataCutiLainnya.map((item) => item['jenis'].toString()).join(', ');
 
     try {
@@ -419,7 +413,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
             'dibayar': _isDiBayar,
             'tdk_dibayar': _isTidakDiBayar,
             'lainnya': _isIzinLainnya,
-            'kep_lainnya': kep_lainnya,
+            'kep_lainnya': kepLainnya,
             'jml_cuti_tahunan': int.tryParse(_cutiDibayarController.text) ?? 0,
             'jml_cuti_tdkdibayar':
                 int.tryParse(_cutiTidakDibayarController.text) ?? 0,
