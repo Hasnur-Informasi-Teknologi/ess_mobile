@@ -273,7 +273,7 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
         : DateTime.now().toString();
     request.fields['entitas_atasan'] = selectedValueEntitas.toString();
     request.fields['prd_rawat_mulai'] = tanggalMulai != null
-        ? tanggalPengajuan.toString()
+        ? tanggalMulai.toString()
         : DateTime.now().toString();
     request.fields['prd_rawat_akhir'] = tanggalBerakhir != null
         ? tanggalBerakhir.toString()
@@ -450,6 +450,7 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
     Size size = MediaQuery.of(context).size;
     double textSmall = size.width * 0.027;
     double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
@@ -473,8 +474,14 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                       '/user/main/home/online_form/pengajuan_fasilitas_kesehatan');
                 },
               ),
-              title: const Text(
+              title: Text(
                 'Pengajuan Rawat Inap',
+                style: TextStyle(
+                    color: const Color(primaryBlack),
+                    fontSize: textLarge,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w700),
               ),
             ),
             body: ListView(
@@ -1591,7 +1598,9 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
                           child: ElevatedButton(
-                            onPressed: _submit,
+                            onPressed: () {
+                              showSubmitModal(context);
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(primaryYellow),
                               shape: RoundedRectangleBorder(
@@ -1616,5 +1625,116 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
               ],
             ),
           );
+  }
+
+  void showSubmitModal(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
+    double sizedBoxHeightTall = size.height * 0.015;
+    double sizedBoxHeightExtraTall = size.height * 0.02;
+    double padding5 = size.width * 0.0115;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Center(child: Icon(Icons.info)),
+              SizedBox(
+                height: sizedBoxHeightTall,
+              ),
+              Center(
+                child: Text(
+                  'Konfirmasi Submit',
+                  style: TextStyle(
+                    color: const Color(primaryBlack),
+                    fontSize: textLarge,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: sizedBoxHeightExtraTall,
+              ),
+              Center(
+                child: Text(
+                  'Apakah Anda Yakin ?',
+                  style: TextStyle(
+                    color: const Color(primaryBlack),
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            Row(
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: size.width * 0.3,
+                    height: size.height * 0.04,
+                    padding: EdgeInsets.all(padding5),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Color(primaryBlack),
+                          fontSize: textMedium,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: padding5,
+                ),
+                InkWell(
+                  onTap: () {
+                    _submit();
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: size.width * 0.3,
+                    height: size.height * 0.04,
+                    padding: EdgeInsets.all(padding5),
+                    decoration: BoxDecoration(
+                      color: const Color(primaryYellow),
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Submit',
+                        style: TextStyle(
+                          color: Color(primaryBlack),
+                          fontSize: textMedium,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
   }
 }

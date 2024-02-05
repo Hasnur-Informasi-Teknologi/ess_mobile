@@ -50,9 +50,9 @@ class _FormPengajuanPerpanjanganCutiState
   final double _maxHeightNrp = 40.0;
   final double _maxHeightNama = 40.0;
   final double _maxHeightEntitas = 40.0;
-  final double _maxHeightAtasan = 60.0;
+  double _maxHeightAtasan = 60.0;
   final double _maxHeightSisaCuti = 40.0;
-  final double _maxHeightAlasan = 40.0;
+  double _maxHeightAlasan = 40.0;
 
   String? selectedValueAtasan, cocd, entitasUser;
   bool _isLoading = false;
@@ -217,6 +217,34 @@ class _FormPengajuanPerpanjanganCutiState
     setState(() {
       _isLoading = false;
     });
+  }
+
+  String? _validatorAtasan(dynamic value) {
+    if (value == null || value.isEmpty) {
+      setState(() {
+        _maxHeightAtasan = 80.0;
+      });
+      return 'Field Atasan Kosong';
+    }
+
+    setState(() {
+      _maxHeightAtasan = 60.0;
+    });
+    return null;
+  }
+
+  String? validatorAlasanCuti(dynamic value) {
+    if (value == null || value.isEmpty) {
+      setState(() {
+        _maxHeightAlasan = 60.0;
+      });
+      return 'Field Keperluan Cuti Kosong';
+    }
+
+    setState(() {
+      _maxHeightAlasan = 40.0;
+    });
+    return null;
   }
 
   @override
@@ -422,7 +450,7 @@ class _FormPengajuanPerpanjanganCutiState
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: DropdownButtonFormField<String>(
-                          // validator: _validatorEntitas,
+                          validator: _validatorAtasan,
                           value: selectedValueAtasan,
                           icon: selectedAtasan.isEmpty
                               ? const SizedBox(
@@ -769,6 +797,7 @@ class _FormPengajuanPerpanjanganCutiState
                             horizontal: paddingHorizontalNarrow),
                         child: TextFormFieldWidget(
                           controller: _alasanController,
+                          validator: validatorAlasanCuti,
                           maxHeightConstraints: _maxHeightAlasan,
                           hintText: 'Karena ada ....',
                         ),
@@ -782,7 +811,9 @@ class _FormPengajuanPerpanjanganCutiState
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
                           child: ElevatedButton(
-                            onPressed: _submit,
+                            onPressed: () {
+                              showSubmitModal(context);
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(primaryYellow),
                               shape: RoundedRectangleBorder(
@@ -807,5 +838,116 @@ class _FormPengajuanPerpanjanganCutiState
               ],
             ),
           );
+  }
+
+  void showSubmitModal(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
+    double sizedBoxHeightTall = size.height * 0.015;
+    double sizedBoxHeightExtraTall = size.height * 0.02;
+    double padding5 = size.width * 0.0115;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Center(child: Icon(Icons.info)),
+              SizedBox(
+                height: sizedBoxHeightTall,
+              ),
+              Center(
+                child: Text(
+                  'Konfirmasi Submit',
+                  style: TextStyle(
+                    color: const Color(primaryBlack),
+                    fontSize: textLarge,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: sizedBoxHeightExtraTall,
+              ),
+              Center(
+                child: Text(
+                  'Apakah Anda Yakin ?',
+                  style: TextStyle(
+                    color: const Color(primaryBlack),
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            Row(
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: size.width * 0.3,
+                    height: size.height * 0.04,
+                    padding: EdgeInsets.all(padding5),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Color(primaryBlack),
+                          fontSize: textMedium,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: padding5,
+                ),
+                InkWell(
+                  onTap: () {
+                    _submit();
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: size.width * 0.3,
+                    height: size.height * 0.04,
+                    padding: EdgeInsets.all(padding5),
+                    decoration: BoxDecoration(
+                      color: const Color(primaryYellow),
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Submit',
+                        style: TextStyle(
+                          color: Color(primaryBlack),
+                          fontSize: textMedium,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
   }
 }
