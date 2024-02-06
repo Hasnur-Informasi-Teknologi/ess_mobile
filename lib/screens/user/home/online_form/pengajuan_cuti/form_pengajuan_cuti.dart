@@ -65,6 +65,8 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
   double maxHeightCutiYangDiambil = 40.0;
   double maxHeightAlamatCuti = 40.0;
   double maxHeightNoTelepon = 40.0;
+  double maxHeightCutiTahunanDibayar = 40.0;
+  double maxHeightCutiTahunanTidakDibayar = 40.0;
 
   bool? _isDiBayar = false;
   bool? _isTidakDiBayar = false;
@@ -383,6 +385,39 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
       _isLoading = true;
     });
 
+    if (tanggalMulai == null ||
+        tanggalBerakhir == null ||
+        tanggalKembaliKerja == null) {
+      Get.snackbar('Infomation', 'Tanggal Wajib Diisi',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.amber,
+          icon: const Icon(
+            Icons.info,
+            color: Colors.white,
+          ),
+          shouldIconPulse: false);
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    if (tanggalMulai!.isAfter(tanggalBerakhir!) ||
+        tanggalMulai!.isAfter(tanggalKembaliKerja!)) {
+      Get.snackbar('Infomation', 'Tanggal tidak Valid',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.amber,
+          icon: const Icon(
+            Icons.info,
+            color: Colors.white,
+          ),
+          shouldIconPulse: false);
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
     if (_formKey.currentState!.validate() == false) {
       setState(() {
         _isLoading = false;
@@ -407,9 +442,15 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
             'Authorization': 'Bearer $token'
           },
           body: jsonEncode({
-            'tgl_mulai': tanggalMulai.toString(),
-            'tgl_berakhir': tanggalBerakhir.toString(),
-            'tgl_kembali_kerja': tanggalKembaliKerja.toString(),
+            'tgl_mulai': tanggalMulai != null
+                ? tanggalMulai.toString()
+                : DateTime.now().toString(),
+            'tgl_berakhir': tanggalBerakhir != null
+                ? tanggalBerakhir.toString()
+                : DateTime.now().toString(),
+            'tgl_kembali_kerja': tanggalKembaliKerja != null
+                ? tanggalKembaliKerja.toString()
+                : DateTime.now().toString(),
             'dibayar': _isDiBayar,
             'tdk_dibayar': _isTidakDiBayar,
             'lainnya': _isIzinLainnya,
@@ -438,8 +479,9 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
             color: Colors.white,
           ),
           shouldIconPulse: false);
+      print(responseData);
 
-      if (responseData['message'] == 'Pengajuan Cuti Berhasil') {
+      if (responseData['status'] == 'success') {
         Get.offAllNamed('/user/main');
       }
     } catch (e) {
@@ -1029,12 +1071,6 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                             horizontal: paddingHorizontalNarrow),
                         child: Column(
                           children: [
-                            // buildCheckboxKeterangan(
-                            //     'Cuti Tahunan Dibayar', _isDiBayar),
-                            // buildCheckboxKeterangan(
-                            //     'Cuti Tahunan Tidak Dibayar', _isTidakDiBayar),
-                            // buildCheckboxKeterangan(
-                            //     'Izin Lainnya', _isIzinLainnya),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
@@ -1073,7 +1109,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                         child: TextFormFieldNumberWidget(
                                           controller: _cutiDibayarController,
                                           maxHeightConstraints:
-                                              maxHeightKeperluanCuti,
+                                              maxHeightCutiTahunanDibayar,
                                           hintText: 'Cuti Tahunan Dibayar',
                                         ),
                                       ),
@@ -1142,7 +1178,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                           controller:
                                               _cutiTidakDibayarController,
                                           maxHeightConstraints:
-                                              maxHeightKeperluanCuti,
+                                              maxHeightCutiTahunanTidakDibayar,
                                           hintText:
                                               'Cuti Tahunan Tidak Dibayar',
                                         ),
@@ -1986,7 +2022,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
-                        child: TextFormFieldWidget(
+                        child: TextFormFieldNumberWidget(
                           validator: validatorNoTelepon,
                           controller: _noTeleponController,
                           maxHeightConstraints: maxHeightNoTelepon,
@@ -2002,7 +2038,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
                           child: ElevatedButton(
-                            onPressed: _submit,
+                            onPressed: () {
+                              // _submit();
+                              showSubmitModal(context);
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(primaryYellow),
                               shape: RoundedRectangleBorder(
@@ -2029,34 +2068,114 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
           );
   }
 
-  Widget buildCheckboxKeterangan(String label, bool? value) {
+  void showSubmitModal(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
+    double sizedBoxHeightTall = size.height * 0.015;
+    double sizedBoxHeightExtraTall = size.height * 0.02;
+    double padding5 = size.width * 0.0115;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Checkbox(
-          value: value ?? false,
-          onChanged: (newValue) {
-            setState(() {
-              _isDiBayar = label == 'Cuti Tahunan Dibayar' ? newValue : false;
-              _isTidakDiBayar =
-                  label == 'Cuti Tahunan Tidak Dibayar' ? newValue : false;
-              _isIzinLainnya = label == 'Izin Lainnya' ? newValue : false;
-            });
-          },
-        ),
-        Text(
-          label,
-          style: TextStyle(
-              color: const Color(primaryBlack),
-              fontSize: textMedium,
-              fontFamily: 'Poppins',
-              letterSpacing: 0.9,
-              fontWeight: FontWeight.w300),
-        ),
-      ],
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Center(child: Icon(Icons.info)),
+              SizedBox(
+                height: sizedBoxHeightTall,
+              ),
+              Center(
+                child: Text(
+                  'Konfirmasi Submit',
+                  style: TextStyle(
+                    color: const Color(primaryBlack),
+                    fontSize: textLarge,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: sizedBoxHeightExtraTall,
+              ),
+              Center(
+                child: Text(
+                  'Apakah Anda Yakin ?',
+                  style: TextStyle(
+                    color: const Color(primaryBlack),
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            Row(
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: size.width * 0.3,
+                    height: size.height * 0.04,
+                    padding: EdgeInsets.all(padding5),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Color(primaryBlack),
+                          fontSize: textMedium,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: padding5,
+                ),
+                InkWell(
+                  onTap: () {
+                    _submit();
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: size.width * 0.3,
+                    height: size.height * 0.04,
+                    padding: EdgeInsets.all(padding5),
+                    decoration: BoxDecoration(
+                      color: const Color(primaryYellow),
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Submit',
+                        style: TextStyle(
+                          color: Color(primaryBlack),
+                          fontSize: textMedium,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 }

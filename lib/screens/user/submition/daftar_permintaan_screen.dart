@@ -8,6 +8,7 @@ import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
 import 'package:mobile_ess/widgets/row_widget.dart';
+import 'package:mobile_ess/widgets/title_center_with_badge_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -52,7 +53,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
   String? perPage = '10';
   String? search = '';
   String? statusFilter = 'ALL';
-  String? statusFilterRawatInapJalan = 'WAIT';
+  String? statusFilterRawatInapJalan = 'ALL';
   String? type = 'permintaan';
   String? kodeEntitas = '';
   String? tahunPengajuan = '';
@@ -294,8 +295,21 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
             ),
             Form(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 key: _formKey,
                 children: [
+                  SizedBox(
+                    height: sizedBoxHeightTall,
+                  ),
+                  Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+                    child: TitleWidget(
+                      title: 'Pilih Daftar Permintaan : ',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
                   Padding(
                     padding:
                         EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
@@ -369,40 +383,40 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                   SizedBox(
                     height: sizedBoxHeightTall,
                   ),
-                  Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                    child: TextFormField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
-                            width: 0,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide: const BorderSide(
-                                color: Colors.black, width: 1)),
-                        enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(5),
-                            borderSide:
-                                const BorderSide(color: Colors.grey, width: 0)),
-                        constraints:
-                            BoxConstraints(maxHeight: _maxHeightSearch),
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: 'Search',
-                        hintStyle: TextStyle(
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          color: Color(textPlaceholder),
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Padding(
+                  //   padding:
+                  //       EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+                  //   child: TextFormField(
+                  //     controller: _searchController,
+                  //     decoration: InputDecoration(
+                  //       border: OutlineInputBorder(
+                  //         borderRadius: BorderRadius.circular(5),
+                  //         borderSide: const BorderSide(
+                  //           color: Colors.transparent,
+                  //           width: 0,
+                  //         ),
+                  //       ),
+                  //       focusedBorder: OutlineInputBorder(
+                  //           borderRadius: BorderRadius.circular(5),
+                  //           borderSide: const BorderSide(
+                  //               color: Colors.black, width: 1)),
+                  //       enabledBorder: OutlineInputBorder(
+                  //           borderRadius: BorderRadius.circular(5),
+                  //           borderSide:
+                  //               const BorderSide(color: Colors.grey, width: 0)),
+                  //       constraints:
+                  //           BoxConstraints(maxHeight: _maxHeightSearch),
+                  //       filled: true,
+                  //       fillColor: Colors.white,
+                  //       hintText: 'Search',
+                  //       hintStyle: TextStyle(
+                  //         fontSize: textMedium,
+                  //         fontFamily: 'Poppins',
+                  //         color: Color(textPlaceholder),
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -467,6 +481,9 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                             ),
                           ),
                         ),
+                        const SizedBox(
+                          height: 75,
+                        ),
                       ],
                     ),
                   )
@@ -501,16 +518,16 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                               current = index;
                               if (index == 0) {
                                 statusFilter = 'ALL';
-                                statusFilterRawatInapJalan = 'WAIT';
+                                statusFilterRawatInapJalan = 'ALL';
                               } else if (index == 1) {
                                 statusFilter = 'V';
                                 statusFilterRawatInapJalan = 'APPROVED';
                               } else if (index == 2) {
                                 statusFilter = 'P';
-                                statusFilterRawatInapJalan = 'WAIT';
+                                statusFilterRawatInapJalan = 'PROCESS';
                               } else {
                                 statusFilter = 'X';
-                                statusFilterRawatInapJalan = 'DITOLAK';
+                                statusFilterRawatInapJalan = 'REJECTED';
                               }
                             });
                             if (selectedValueDaftarPermintaan == '5') {
@@ -712,6 +729,9 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                             ],
                           ),
                         ),
+                        const SizedBox(
+                          height: 75,
+                        ),
                       ],
                     ),
                   )
@@ -793,15 +813,20 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                   fontWeightLeft: FontWeight.w300,
                   fontWeightRight: FontWeight.w300,
                 ),
-                RowWidget(
+                TitleCenterWithBadgeWidget(
                   textLeft: 'Status',
-                  textRight: data['status_approve'] == 'V'
+                  textRight: data['full_approve'] == 'V'
                       ? 'Disetujui'
-                      : data['status_approve'] == 'X'
+                      : data['full_approve'] == 'X'
                           ? 'Ditolak'
                           : 'Proses',
                   fontWeightLeft: FontWeight.w300,
                   fontWeightRight: FontWeight.w300,
+                  color: data['full_approve'] == 'V'
+                      ? Colors.green
+                      : data['full_approve'] == 'X'
+                          ? Colors.red[600]
+                          : Colors.grey,
                 ),
                 SizedBox(
                   height: sizedBoxHeightShort,
@@ -842,7 +867,16 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                       ),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Get.snackbar('Infomation', 'Coming Soon',
+                            snackPosition: SnackPosition.TOP,
+                            backgroundColor: Colors.amber,
+                            icon: const Icon(
+                              Icons.info,
+                              color: Colors.white,
+                            ),
+                            shouldIconPulse: false);
+                      },
                       child: Container(
                         width: size.width * 0.38,
                         height: size.height * 0.04,
@@ -940,15 +974,20 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                   fontWeightLeft: FontWeight.w300,
                   fontWeightRight: FontWeight.w300,
                 ),
-                RowWidget(
+                TitleCenterWithBadgeWidget(
                   textLeft: 'Status',
-                  textRight: data['status_approve'] == 'V'
+                  textRight: data['full_approve'] == 'V'
                       ? 'Disetujui'
-                      : data['status_approve'] == 'X'
+                      : data['full_approve'] == 'X'
                           ? 'Ditolak'
                           : 'Proses',
                   fontWeightLeft: FontWeight.w300,
                   fontWeightRight: FontWeight.w300,
+                  color: data['full_approve'] == 'V'
+                      ? Colors.green
+                      : data['full_approve'] == 'X'
+                          ? Colors.red[600]
+                          : Colors.grey,
                 ),
                 SizedBox(
                   height: sizedBoxHeightShort,
@@ -989,7 +1028,16 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                       ),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Get.snackbar('Infomation', 'Coming Soon',
+                            snackPosition: SnackPosition.TOP,
+                            backgroundColor: Colors.amber,
+                            icon: const Icon(
+                              Icons.info,
+                              color: Colors.white,
+                            ),
+                            shouldIconPulse: false);
+                      },
                       child: Container(
                         width: size.width * 0.38,
                         height: size.height * 0.04,
@@ -1083,9 +1131,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                 ),
                 RowWidget(
                   textLeft: 'Status',
-                  textRight: statusFilterRawatInapJalan == 'WAIT'
-                      ? 'Belum Disetujui'
-                      : 'Disetujui',
+                  textRight: '${data['status_approve']}',
                   fontWeightLeft: FontWeight.w300,
                   fontWeightRight: FontWeight.w300,
                 ),
@@ -1128,7 +1174,16 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                       ),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Get.snackbar('Infomation', 'Coming Soon',
+                            snackPosition: SnackPosition.TOP,
+                            backgroundColor: Colors.amber,
+                            icon: const Icon(
+                              Icons.info,
+                              color: Colors.white,
+                            ),
+                            shouldIconPulse: false);
+                      },
                       child: Container(
                         width: size.width * 0.38,
                         height: size.height * 0.04,
@@ -1222,9 +1277,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                 ),
                 RowWidget(
                   textLeft: 'Status',
-                  textRight: statusFilterRawatInapJalan == 'WAIT'
-                      ? 'Belum Disetujui'
-                      : 'Disetujui',
+                  textRight: '${data['status_approve']}',
                   fontWeightLeft: FontWeight.w300,
                   fontWeightRight: FontWeight.w300,
                 ),
@@ -1267,7 +1320,16 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                       ),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Get.snackbar('Infomation', 'Coming Soon',
+                            snackPosition: SnackPosition.TOP,
+                            backgroundColor: Colors.amber,
+                            icon: const Icon(
+                              Icons.info,
+                              color: Colors.white,
+                            ),
+                            shouldIconPulse: false);
+                      },
                       child: Container(
                         width: size.width * 0.38,
                         height: size.height * 0.04,
@@ -1428,7 +1490,16 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                       ),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Get.snackbar('Infomation', 'Coming Soon',
+                            snackPosition: SnackPosition.TOP,
+                            backgroundColor: Colors.amber,
+                            icon: const Icon(
+                              Icons.info,
+                              color: Colors.white,
+                            ),
+                            shouldIconPulse: false);
+                      },
                       child: Container(
                         width: size.width * 0.38,
                         height: size.height * 0.04,

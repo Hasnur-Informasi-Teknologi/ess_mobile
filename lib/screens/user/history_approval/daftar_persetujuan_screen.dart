@@ -59,7 +59,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   String? perPage = '10';
   String? search = '';
   String? statusFilter = 'ALL';
-  String? statusFilterRawatInapJalan = 'WAIT';
+  String? statusFilterRawatInapJalan = 'ALL';
   String? type = 'persetujuan';
   String? kodeEntitas = '';
   String? tahunPengajuan = '';
@@ -125,7 +125,6 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
             });
         final responseData = jsonDecode(response.body);
         final dataMasterCutiApi = responseData['pcuti'];
-        print(dataMasterCutiApi);
 
         setState(() {
           masterDataPersetujuan =
@@ -274,10 +273,26 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                 },
                 body: jsonEncode({'id': id.toString()}));
         final responseData = jsonDecode(response.body);
-        print(responseData);
         if (responseData['status'] == 'success') {
           Get.offAllNamed('/user/main');
+
+          Get.snackbar('Infomation', 'Sukses Diapprove',
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.amber,
+              icon: const Icon(
+                Icons.info,
+                color: Colors.white,
+              ),
+              shouldIconPulse: false);
         } else {
+          Get.snackbar('Infomation', 'Gagal Diapprove',
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.amber,
+              icon: const Icon(
+                Icons.info,
+                color: Colors.white,
+              ),
+              shouldIconPulse: false);
           setState(() {
             _isLoadingScreen = false;
           });
@@ -310,10 +325,25 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
           ),
         );
         final responseData = jsonDecode(response.body);
-        print(responseData);
         if (responseData['status'] == 'success') {
           Get.offAllNamed('/user/main');
+          Get.snackbar('Infomation', 'Sukses Direject',
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.amber,
+              icon: const Icon(
+                Icons.info,
+                color: Colors.white,
+              ),
+              shouldIconPulse: false);
         } else {
+          Get.snackbar('Infomation', 'Gagal Direject',
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.amber,
+              icon: const Icon(
+                Icons.info,
+                color: Colors.white,
+              ),
+              shouldIconPulse: false);
           setState(() {
             _isLoadingScreen = false;
           });
@@ -343,10 +373,28 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                 },
                 body: jsonEncode({'id': id.toString()}));
         final responseData = jsonDecode(response.body);
-        print(responseData);
         if (responseData['status'] == 'success') {
           Get.offAllNamed('/user/main');
+          Get.snackbar('Infomation', 'Sukses Diapprove',
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.amber,
+              icon: const Icon(
+                Icons.info,
+                color: Colors.white,
+              ),
+              shouldIconPulse: false);
+          setState(() {
+            _isLoadingScreen = false;
+          });
         } else {
+          Get.snackbar('Infomation', 'Gagal Diapprove',
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.amber,
+              icon: const Icon(
+                Icons.info,
+                color: Colors.white,
+              ),
+              shouldIconPulse: false);
           setState(() {
             _isLoadingScreen = false;
           });
@@ -379,10 +427,25 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
           ),
         );
         final responseData = jsonDecode(response.body);
-        print(responseData);
         if (responseData['status'] == 'success') {
           Get.offAllNamed('/user/main');
+          Get.snackbar('Infomation', 'Sukses Direject',
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.amber,
+              icon: const Icon(
+                Icons.info,
+                color: Colors.white,
+              ),
+              shouldIconPulse: false);
         } else {
+          Get.snackbar('Infomation', 'Gagal Direject',
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.amber,
+              icon: const Icon(
+                Icons.info,
+                color: Colors.white,
+              ),
+              shouldIconPulse: false);
           setState(() {
             _isLoadingScreen = false;
           });
@@ -444,8 +507,21 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                   ),
                   Form(
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       key: _formKey,
                       children: [
+                        SizedBox(
+                          height: sizedBoxHeightTall,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalWide),
+                          child: TitleWidget(
+                            title: 'Pilih Daftar Persetujuan : ',
+                            fontWeight: FontWeight.w300,
+                            fontSize: textMedium,
+                          ),
+                        ),
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalWide),
@@ -523,40 +599,40 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                         SizedBox(
                           height: sizedBoxHeightTall,
                         ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalWide),
-                          child: TextFormField(
-                            controller: _searchController,
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                                borderSide: const BorderSide(
-                                  color: Colors.transparent,
-                                  width: 0,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                  borderSide: const BorderSide(
-                                      color: Colors.black, width: 1)),
-                              enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                  borderSide: const BorderSide(
-                                      color: Colors.grey, width: 0)),
-                              constraints:
-                                  BoxConstraints(maxHeight: _maxHeightSearch),
-                              filled: true,
-                              fillColor: Colors.white,
-                              hintText: 'Search',
-                              hintStyle: TextStyle(
-                                fontSize: textMedium,
-                                fontFamily: 'Poppins',
-                                color: Color(textPlaceholder),
-                              ),
-                            ),
-                          ),
-                        ),
+                        // Padding(
+                        //   padding: EdgeInsets.symmetric(
+                        //       horizontal: paddingHorizontalWide),
+                        //   child: TextFormField(
+                        //     controller: _searchController,
+                        //     decoration: InputDecoration(
+                        //       border: OutlineInputBorder(
+                        //         borderRadius: BorderRadius.circular(5),
+                        //         borderSide: const BorderSide(
+                        //           color: Colors.transparent,
+                        //           width: 0,
+                        //         ),
+                        //       ),
+                        //       focusedBorder: OutlineInputBorder(
+                        //           borderRadius: BorderRadius.circular(5),
+                        //           borderSide: const BorderSide(
+                        //               color: Colors.black, width: 1)),
+                        //       enabledBorder: OutlineInputBorder(
+                        //           borderRadius: BorderRadius.circular(5),
+                        //           borderSide: const BorderSide(
+                        //               color: Colors.grey, width: 0)),
+                        //       constraints:
+                        //           BoxConstraints(maxHeight: _maxHeightSearch),
+                        //       filled: true,
+                        //       fillColor: Colors.white,
+                        //       hintText: 'Search',
+                        //       hintStyle: TextStyle(
+                        //         fontSize: textMedium,
+                        //         fontFamily: 'Poppins',
+                        //         color: Color(textPlaceholder),
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
@@ -622,6 +698,9 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                                   ),
                                 ),
                               ),
+                              const SizedBox(
+                                height: 75,
+                              ),
                             ],
                           ),
                         )
@@ -656,16 +735,16 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                                     current = index;
                                     if (index == 0) {
                                       statusFilter = 'ALL';
-                                      statusFilterRawatInapJalan = 'WAIT';
+                                      statusFilterRawatInapJalan = 'ALL';
                                     } else if (index == 1) {
                                       statusFilter = 'V';
                                       statusFilterRawatInapJalan = 'APPROVED';
                                     } else if (index == 2) {
                                       statusFilter = 'P';
-                                      statusFilterRawatInapJalan = 'WAIT';
+                                      statusFilterRawatInapJalan = 'PROCESS';
                                     } else {
                                       statusFilter = 'X';
-                                      statusFilterRawatInapJalan = 'DITOLAK';
+                                      statusFilterRawatInapJalan = 'REJECTED';
                                     }
                                   });
                                   if (selectedValueDaftarPersetujuan == '5') {
@@ -902,7 +981,10 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                               ),
                             ],
                           ),
-                        )
+                        ),
+                  const SizedBox(
+                    height: 75,
+                  ),
                 ],
               ),
             ),
@@ -1073,12 +1155,13 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                         ? Text('')
                         : InkWell(
                             onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return modalRejectCuti(data['id']);
-                                },
-                              );
+                              // showModalBottomSheet(
+                              //   context: context,
+                              //   builder: (BuildContext context) {
+                              //     return modalRejectCuti(data['id']);
+                              //   },
+                              // );
+                              showRejectPengajuanCutiModal(context, data['id']);
                             },
                             child: Container(
                               width: size.width * 0.25,
@@ -1112,7 +1195,9 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                         ? Text('')
                         : InkWell(
                             onTap: () {
-                              approveCuti(data['id']);
+                              // approveCuti(data['id']);
+                              showApprovePengajuanCutiModal(
+                                  context, data['id']);
                             },
                             child: Container(
                               width: size.width * 0.25,
@@ -1152,69 +1237,228 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     );
   }
 
-  Widget modalRejectCuti(int? id) {
+  void showApprovePengajuanCutiModal(BuildContext context, int? id) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
-    double padding5 = size.width * 0.0188;
-    double padding10 = size.width * 0.023;
-    double paddingHorizontalWide = size.width * 0.0585;
+    double textLarge = size.width * 0.04;
+    double sizedBoxHeightTall = size.height * 0.015;
+    double sizedBoxHeightExtraTall = size.height * 0.02;
+    double padding5 = size.width * 0.0115;
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text(
-            'Enter your rejection reason:',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: padding5),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-            child: TextFormFieldWidget(
-              controller: _alasanRejectController,
-              maxHeightConstraints: 40,
-              hintText: 'Alasan Reject',
-            ),
-          ),
-          SizedBox(height: padding10),
-          InkWell(
-            onTap: () {
-              rejectCuti(id);
-            },
-            child: Container(
-              width: size.width * 0.25,
-              height: size.height * 0.04,
-              padding: EdgeInsets.all(padding5),
-              decoration: BoxDecoration(
-                color: Colors.red[400],
-                borderRadius: BorderRadius.circular(5.0),
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Center(child: Icon(Icons.info)),
+              SizedBox(
+                height: sizedBoxHeightTall,
               ),
-              child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Icon(Icons.delete),
-                    Text(
-                      'Reject',
-                      style: TextStyle(
-                        color: Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
+              Center(
+                child: Text(
+                  'Konfirmasi Approve',
+                  style: TextStyle(
+                    color: const Color(primaryBlack),
+                    fontSize: textLarge,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
-            ),
+              SizedBox(
+                height: sizedBoxHeightExtraTall,
+              ),
+              Center(
+                child: Text(
+                  'Apakah Anda Yakin ?',
+                  style: TextStyle(
+                    color: const Color(primaryBlack),
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: padding10),
-        ],
-      ),
+          actions: [
+            Row(
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: size.width * 0.3,
+                    height: size.height * 0.04,
+                    padding: EdgeInsets.all(padding5),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Color(primaryBlack),
+                          fontSize: textMedium,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: padding5,
+                ),
+                InkWell(
+                  onTap: () {
+                    approveCuti(id);
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: size.width * 0.3,
+                    height: size.height * 0.04,
+                    padding: EdgeInsets.all(padding5),
+                    decoration: BoxDecoration(
+                      color: const Color(primaryYellow),
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Approve',
+                        style: TextStyle(
+                          color: Color(primaryBlack),
+                          fontSize: textMedium,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showRejectPengajuanCutiModal(BuildContext context, int? id) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
+    double sizedBoxHeightTall = size.height * 0.015;
+    double sizedBoxHeightExtraTall = size.height * 0.02;
+    double padding5 = size.width * 0.0115;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(child: Icon(Icons.info)),
+              SizedBox(
+                height: sizedBoxHeightTall,
+              ),
+              Center(
+                child: Text(
+                  'Modal Reject',
+                  style: TextStyle(
+                    color: Color(primaryBlack),
+                    fontSize: textLarge,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: sizedBoxHeightExtraTall,
+              ),
+              Text(
+                'Enter your rejection reason:',
+                style: TextStyle(
+                  color: Color(primaryBlack),
+                  fontSize: textMedium,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w300,
+                ),
+              ),
+            ],
+          ),
+          content: TextFormFieldWidget(
+            controller: _alasanRejectController,
+            maxHeightConstraints: 40,
+            hintText: 'Alasan Reject',
+          ),
+          actions: [
+            Row(
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: size.width * 0.3,
+                    height: size.height * 0.04,
+                    padding: EdgeInsets.all(padding5),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Color(primaryBlack),
+                          fontSize: textMedium,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: padding5,
+                ),
+                InkWell(
+                  onTap: () {
+                    rejectCuti(id);
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: size.width * 0.3,
+                    height: size.height * 0.04,
+                    padding: EdgeInsets.all(padding5),
+                    decoration: BoxDecoration(
+                      color: Colors.red[400],
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Reject',
+                        style: TextStyle(
+                          color: Color(primaryBlack),
+                          fontSize: textMedium,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -1364,13 +1608,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                         ? Text('')
                         : InkWell(
                             onTap: () {
-                              showModalBottomSheet(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return modalRejectPerpanjanganCuti(
-                                      data['id']);
-                                },
-                              );
+                              showRejectPerpanjanganCutiModal(
+                                  context, data['id']);
                             },
                             child: Container(
                               width: size.width * 0.25,
@@ -1404,7 +1643,9 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                         ? Text('')
                         : InkWell(
                             onTap: () {
-                              approvePerpanjanganCuti(data['id']);
+                              // approvePerpanjanganCuti(data['id']);
+                              showApprovePerpanjanganCutiModal(
+                                  context, data['id']);
                             },
                             child: Container(
                               width: size.width * 0.25,
@@ -1441,6 +1682,231 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
           ),
         )
       ],
+    );
+  }
+
+  void showApprovePerpanjanganCutiModal(BuildContext context, int? id) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
+    double sizedBoxHeightTall = size.height * 0.015;
+    double sizedBoxHeightExtraTall = size.height * 0.02;
+    double padding5 = size.width * 0.0115;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Center(child: Icon(Icons.info)),
+              SizedBox(
+                height: sizedBoxHeightTall,
+              ),
+              Center(
+                child: Text(
+                  'Konfirmasi Approve',
+                  style: TextStyle(
+                    color: const Color(primaryBlack),
+                    fontSize: textLarge,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: sizedBoxHeightExtraTall,
+              ),
+              Center(
+                child: Text(
+                  'Apakah Anda Yakin ?',
+                  style: TextStyle(
+                    color: const Color(primaryBlack),
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            Row(
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: size.width * 0.3,
+                    height: size.height * 0.04,
+                    padding: EdgeInsets.all(padding5),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Color(primaryBlack),
+                          fontSize: textMedium,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: padding5,
+                ),
+                InkWell(
+                  onTap: () {
+                    approvePerpanjanganCuti(id);
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: size.width * 0.3,
+                    height: size.height * 0.04,
+                    padding: EdgeInsets.all(padding5),
+                    decoration: BoxDecoration(
+                      color: const Color(primaryYellow),
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Approve',
+                        style: TextStyle(
+                          color: Color(primaryBlack),
+                          fontSize: textMedium,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void showRejectPerpanjanganCutiModal(BuildContext context, int? id) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
+    double sizedBoxHeightTall = size.height * 0.015;
+    double sizedBoxHeightExtraTall = size.height * 0.02;
+    double padding5 = size.width * 0.0115;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(child: Icon(Icons.info)),
+              SizedBox(
+                height: sizedBoxHeightTall,
+              ),
+              Center(
+                child: Text(
+                  'Modal Reject',
+                  style: TextStyle(
+                    color: Color(primaryBlack),
+                    fontSize: textLarge,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: sizedBoxHeightExtraTall,
+              ),
+              Text(
+                'Enter your rejection reason:',
+                style: TextStyle(
+                  color: Color(primaryBlack),
+                  fontSize: textMedium,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w300,
+                ),
+              ),
+            ],
+          ),
+          content: TextFormFieldWidget(
+            controller: _alasanRejectController,
+            maxHeightConstraints: 40,
+            hintText: 'Alasan Reject',
+          ),
+          actions: [
+            Row(
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: size.width * 0.3,
+                    height: size.height * 0.04,
+                    padding: EdgeInsets.all(padding5),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Color(primaryBlack),
+                          fontSize: textMedium,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: padding5,
+                ),
+                InkWell(
+                  onTap: () {
+                    rejectPerpanjanganCuti(id);
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: size.width * 0.3,
+                    height: size.height * 0.04,
+                    padding: EdgeInsets.all(padding5),
+                    decoration: BoxDecoration(
+                      color: Colors.red[400],
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Reject',
+                        style: TextStyle(
+                          color: Color(primaryBlack),
+                          fontSize: textMedium,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -1566,9 +2032,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                 ),
                 RowWidget(
                   textLeft: 'Status',
-                  textRight: statusFilterRawatInapJalan == 'WAIT'
-                      ? 'Belum Disetujui'
-                      : 'Disetujui',
+                  textRight: '${data['status_approve']}',
                   fontWeightLeft: FontWeight.w300,
                   fontWeightRight: FontWeight.w300,
                 ),
@@ -1611,7 +2075,16 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                       ),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Get.snackbar('Infomation', 'Coming Soon',
+                            snackPosition: SnackPosition.TOP,
+                            backgroundColor: Colors.amber,
+                            icon: const Icon(
+                              Icons.info,
+                              color: Colors.white,
+                            ),
+                            shouldIconPulse: false);
+                      },
                       child: Container(
                         width: size.width * 0.38,
                         height: size.height * 0.04,
@@ -1705,9 +2178,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                 ),
                 RowWidget(
                   textLeft: 'Status',
-                  textRight: statusFilterRawatInapJalan == 'WAIT'
-                      ? 'Belum Disetujui'
-                      : 'Disetujui',
+                  textRight: '${data['status_approve']}',
                   fontWeightLeft: FontWeight.w300,
                   fontWeightRight: FontWeight.w300,
                 ),
@@ -1750,7 +2221,16 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                       ),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Get.snackbar('Infomation', 'Coming Soon',
+                            snackPosition: SnackPosition.TOP,
+                            backgroundColor: Colors.amber,
+                            icon: const Icon(
+                              Icons.info,
+                              color: Colors.white,
+                            ),
+                            shouldIconPulse: false);
+                      },
                       child: Container(
                         width: size.width * 0.38,
                         height: size.height * 0.04,
@@ -1911,7 +2391,16 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                       ),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Get.snackbar('Infomation', 'Coming Soon',
+                            snackPosition: SnackPosition.TOP,
+                            backgroundColor: Colors.amber,
+                            icon: const Icon(
+                              Icons.info,
+                              color: Colors.white,
+                            ),
+                            shouldIconPulse: false);
+                      },
                       child: Container(
                         width: size.width * 0.38,
                         height: size.height * 0.04,
@@ -1940,7 +2429,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                       ),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),

@@ -87,7 +87,6 @@ class _FormDetailPengajuanRawatJalanState
               'Authorization': 'Bearer $token'
             });
         final responseData = jsonDecode(response.body);
-        print(responseData);
         final dataEntitasApi = responseData['data'];
 
         setState(() {
@@ -246,6 +245,7 @@ class _FormDetailPengajuanRawatJalanState
     Size size = MediaQuery.of(context).size;
     double textSmall = size.width * 0.027;
     double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
@@ -267,8 +267,14 @@ class _FormDetailPengajuanRawatJalanState
             // Navigator.pop(context);
           },
         ),
-        title: const Text(
+        title: Text(
           'Detail Pengajuan Rawat Jalan',
+          style: TextStyle(
+              color: const Color(primaryBlack),
+              fontSize: textLarge,
+              fontFamily: 'Poppins',
+              letterSpacing: 0.6,
+              fontWeight: FontWeight.w700),
         ),
       ),
       body: ListView(

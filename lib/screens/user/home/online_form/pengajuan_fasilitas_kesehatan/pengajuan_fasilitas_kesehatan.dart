@@ -9,6 +9,7 @@ class PengajuanFasilitasKesehatan extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textSmall = size.width * 0.027;
+    double textLarge = size.width * 0.04;
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding8 = size.width * 0.0188;
     double padding10 = size.width * 0.023;
@@ -25,8 +26,14 @@ class PengajuanFasilitasKesehatan extends StatelessWidget {
             Get.offAllNamed('/user/main/home/online_form');
           },
         ),
-        title: const Text(
+        title: Text(
           'Pengajuan Fasilitas Kesehatan',
+          style: TextStyle(
+              color: const Color(primaryBlack),
+              fontSize: textLarge,
+              fontFamily: 'Poppins',
+              letterSpacing: 0.6,
+              fontWeight: FontWeight.w700),
         ),
       ),
       body: Center(

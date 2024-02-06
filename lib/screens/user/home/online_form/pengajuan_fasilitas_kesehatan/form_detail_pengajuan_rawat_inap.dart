@@ -202,6 +202,7 @@ class _FormDetailPengajuanRawatInapState
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightShort = size.height * 0.0086;
@@ -221,8 +222,14 @@ class _FormDetailPengajuanRawatInapState
             // Navigator.pop(context);
           },
         ),
-        title: const Text(
+        title: Text(
           'Detail Pengajuan Rawat Inap',
+          style: TextStyle(
+              color: const Color(primaryBlack),
+              fontSize: textLarge,
+              fontFamily: 'Poppins',
+              letterSpacing: 0.6,
+              fontWeight: FontWeight.w700),
         ),
       ),
       body: ListView(
