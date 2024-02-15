@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_ess/themes/constant.dart';
 
-class OnlineFormScreen extends StatelessWidget {
-  const OnlineFormScreen({super.key});
+class Administrator extends StatelessWidget {
+  const Administrator({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -12,9 +12,7 @@ class OnlineFormScreen extends StatelessWidget {
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding8 = size.width * 0.0188;
     double padding10 = size.width * 0.023;
-
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         centerTitle: false,
         elevation: 0,
@@ -23,11 +21,10 @@ class OnlineFormScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Get.back();
-            // Navigator.pop(context);
           },
         ),
         title: const Text(
-          'Online Form',
+          'Administration',
         ),
       ),
       body: Center(
@@ -44,7 +41,7 @@ class OnlineFormScreen extends StatelessWidget {
               crossAxisCount: 3,
               childAspectRatio: 1.0,
             ),
-            itemCount: 11, // Jumlah total item
+            itemCount: 4, // Jumlah total item
             itemBuilder: (BuildContext context, int index) {
               return Padding(
                 padding: EdgeInsets.all(padding8),
@@ -93,27 +90,13 @@ class OnlineFormScreen extends StatelessWidget {
     // Mengembalikan ikon berdasarkan indeks
     switch (index) {
       case 0:
-        return Icons.assessment;
+        return Icons.manage_accounts;
       case 1:
-        return Icons.business_center;
+        return Icons.account_balance;
       case 2:
-        return Icons.check_circle;
+        return Icons.percent;
       case 3:
-        return Icons.account_balance_wallet;
-      case 4:
-        return Icons.assignment_ind;
-      case 5:
-        return Icons.home;
-      case 6:
-        return Icons.person;
-      case 7:
-        return Icons.settings;
-      case 8:
-        return Icons.assignment;
-      case 9:
-        return Icons.description;
-      case 10:
-        return Icons.admin_panel_settings;
+        return Icons.data_array;
       default:
         return Icons.error;
     }
@@ -123,27 +106,13 @@ class OnlineFormScreen extends StatelessWidget {
     // Mengembalikan teks berdasarkan indeks
     switch (index) {
       case 0:
-        return 'Pengajuan\nTraining';
+        return 'User Management';
       case 1:
-        return 'Pengajuan Aplikasi Recruitment';
+        return 'User Authorization';
       case 2:
-        return 'Pengajuan Perjalanan Dinas';
+        return 'Release Strategy';
       case 3:
-        return 'Pengajuan Fasilitas Kesehatan';
-      case 4:
-        return 'Pengajuan\nIzin';
-      case 5:
-        return 'Pengajuan Bantuan Komunikasi';
-      case 6:
-        return 'Pengajuan Hardware & Software';
-      case 7:
-        return 'Pengajuan Surat Keterangan';
-      case 8:
-        return 'Pengajuan\nCuti';
-      case 9:
-        return 'Penilaian Kinerja Karyawan';
-      case 10:
-        return 'Administrator';
+        return 'Master Data';
       default:
         return 'Error';
     }
@@ -152,36 +121,16 @@ class OnlineFormScreen extends StatelessWidget {
   void handleIconTap(int index) {
     switch (index) {
       case 0:
-        Get.toNamed('/user/main/home/online_form/aplikasi_training');
+        Get.toNamed('/admin/administrator/user_management/user_management');
         break;
       case 1:
-        Get.toNamed('/user/main/home/online_form/aplikasi_recruitment');
+        Get.toNamed('/admin/administrator/user_management/user_authorization');
         break;
       case 2:
-        Get.toNamed('/user/main/home/online_form/pengajuan_perjalanan_dinas');
+        Get.toNamed('/admin/administrator/user_management/release_strategy');
         break;
       case 3:
-        Get.toNamed(
-            '/user/main/home/online_form/pengajuan_fasilitas_kesehatan');
-        break;
-      case 4:
-        Get.toNamed('/user/main/home/online_form/pengajuan_izin');
-        break;
-      case 5:
-        return print('Documents');
-      case 6:
-        Get.toNamed('/user/main/home/online_form/pengajuan_hardware_software');
-        break;
-      case 7:
-        Get.toNamed('/user/main/home/online_form/pengajuan_surat_keterangan');
-        break;
-      case 8:
-        Get.toNamed('/user/main/home/online_form/pengajuan_cuti');
-        break;
-      case 9:
-        return print('Documents');
-      case 10:
-        Get.toNamed('/admin/administrator/administrator_screen');
+        Get.toNamed('/admin/administrator/user_management/master_data');
         break;
       default:
         return print('Error');

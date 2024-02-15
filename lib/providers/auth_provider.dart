@@ -3,11 +3,45 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/models/http_exception.dart';
+import 'package:mobile_ess/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider with ChangeNotifier {
   final String _apiUrl = API_URL;
 
+  // Future<UserModel> signIn(
+  //   String nrp,
+  //   String password,
+  // ) async {
+  //   var url = '$_apiUrl/login';
+  //   var headers = {'Content-Type': 'application/json'};
+  //   var body = jsonEncode({
+  //     'nrp': nrp,
+  //     'password': password,
+  //   });
+
+  //   var response = await http.post(
+  //     Uri.parse(url),
+  //     headers: headers,
+  //     body: body,
+  //   );
+
+  //   print(response.body);
+
+  //   var data = jsonDecode(response.body);
+  //   if (response.statusCode == 200) {
+  //     UserModel user = UserModel.fromJson(data);
+  //     final prefs = await SharedPreferences.getInstance();
+  //     prefs.setString('token', data['token']);
+
+  //     notifyListeners();
+  //     return user;
+  //   } else if (data['status'] != true) {
+  //     throw HttpException(data['status']);
+  //   } else {
+  //     throw Exception('Gagal Login');
+  //   }
+  // }
   Future<void> signIn(String nrp, String password) async {
     try {
       print('sebelum response');
@@ -65,7 +99,7 @@ class AuthProvider with ChangeNotifier {
       // SharedPreferences prefs = await SharedPreferences.getInstance();
       // final userId = prefs.getString('userId');
       final response = await http.post(
-          Uri.parse('http://202.165.33.98/api/check_device'),
+          Uri.parse('http://ess-dev.hasnurgroup.com:8081/api/check_device'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },

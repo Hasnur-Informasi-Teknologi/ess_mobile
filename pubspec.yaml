@@ -54,6 +54,8 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   flutter_launcher_icons: ^0.13.1
+  data_table_2: ^2.5.10
+  flutter_screenutil: ^5.9.0
 
 dev_dependencies:
   flutter_lints: ^2.0.0

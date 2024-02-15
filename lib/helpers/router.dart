@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_ess/screens/admin/administrator/user_management/user_management.dart';
 import 'package:mobile_ess/screens/admin/main/dashboard.dart';
 import 'package:mobile_ess/screens/authentication/signin_screen.dart';
 import 'package:mobile_ess/screens/test.dart';
 import 'package:mobile_ess/screens/user/home/documents/documents_screen.dart';
+import 'package:mobile_ess/screens/admin/administrator/administrator_screen.dart';
 import 'package:mobile_ess/screens/user/home/online_form/aplikasi_recruitment/form_aplikasi_recruitment_screen.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_cuti/form_pengajuan_cuti.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_cuti/form_pengajuan_perpanjangan_cuti.dart';
@@ -100,5 +102,9 @@ Map<String, Widget Function(BuildContext)> routers() {
     // =================== ADMIN ====================
     '/admin/main': (context) => const AdminMainScreen(),
     '/test': (context) => TestScreen(),
+    '/admin/administrator/administrator_screen': (contex) =>
+        const Administrator(),
+    '/admin/administrator/user_management/user_management': (contex) =>
+        const UserManagement(),
   };
 }
