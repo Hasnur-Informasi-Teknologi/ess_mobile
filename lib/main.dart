@@ -34,8 +34,8 @@ class _MyAppState extends State<MyApp> {
           primarySwatch: Colors.amber,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        // home: const SplashScreen(),
         initialRoute: '/splash',
+        // initialRoute: '/',
         routes: routers(),
       ),
     );

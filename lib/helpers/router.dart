@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_ess/screens/admin/administrator/user_management/user_management.dart';
 import 'package:mobile_ess/screens/admin/main/dashboard.dart';
+import 'package:mobile_ess/screens/admin/main/karyawan/list_karyawan.dart';
 import 'package:mobile_ess/screens/authentication/signin_screen.dart';
 import 'package:mobile_ess/screens/test.dart';
 import 'package:mobile_ess/screens/user/home/documents/documents_screen.dart';
@@ -33,6 +34,9 @@ import 'package:mobile_ess/screens/user/home/request_attendance/request_attendan
 import 'package:mobile_ess/screens/user/home/request_attendance/ubah_data_kehadiran_screen.dart';
 import 'package:mobile_ess/screens/user/home/transactions/transactions_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen.dart';
+import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
+import 'package:mobile_ess/screens/user/profile/profile_edit_screen.dart';
+import 'package:mobile_ess/screens/user/profile/profile_screen.dart';
 
 import 'package:mobile_ess/screens/user/submition/detail_form_pengajuan_lembur.dart';
 
@@ -42,7 +46,10 @@ Map<String, Widget Function(BuildContext)> routers() {
   return {
     '/': (context) => const SignInScreen(),
     '/splash': (context) => const SplashScreen(),
-    '/user/main': (context) => const MainScreen(),
+    '/user/main': (context) => const MainScreenWithAnimation(),
+    '/user/profile': (context) => const ProfileScreen(),
+    '/user/profile/edit': (context) => const ProfileEditScreen(),
+    // '/user/main_new': (context) => const MainScreenWithAnimation(),
     '/user/main/home/online_form': (context) => const OnlineFormScreen(),
     '/user/main/home/online_form/aplikasi_training': (context) =>
         const FormAplikasiTrainingScreen(),
@@ -101,6 +108,7 @@ Map<String, Widget Function(BuildContext)> routers() {
     '/user/main/home/documents': (context) => const DocomentsScreen(),
     // =================== ADMIN ====================
     '/admin/main': (context) => const AdminMainScreen(),
+    '/admin/karyawan': (context) => const ListKaryawan(),
     '/test': (context) => TestScreen(),
     '/admin/administrator/administrator_screen': (contex) =>
         const Administrator(),
