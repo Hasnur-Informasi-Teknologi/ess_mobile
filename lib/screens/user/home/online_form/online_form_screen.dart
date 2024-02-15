@@ -249,6 +249,9 @@ class OnlineFormScreen extends StatelessWidget {
             ),
             shouldIconPulse: false);
         break;
+      case 10:
+        Get.toNamed('/admin/administrator/administrator_screen');
+        break;
       default:
         return print('Error');
     }
