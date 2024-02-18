@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_ess/themes/constant.dart';
 
 class TitleWidget extends StatelessWidget {
-  final String? title;
+  final String title;
   final FontWeight? fontWeight;
   final double? fontSize;
 
@@ -15,7 +15,7 @@ class TitleWidget extends StatelessWidget {
     double textLarge = size.width * 0.04;
 
     return Text(
-      title!,
+      title,
       textAlign: TextAlign.start,
       style: TextStyle(
           color: const Color(primaryBlack),
