@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
@@ -6,11 +7,13 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
-import 'package:mobile_ess/themes/colors.dart';
-import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
+// import 'package:mobile_ess/themes/colors.dart';
+// import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+
+import 'package:mobile_ess/themes/constant.dart';
 
 class UserManagement extends StatefulWidget {
   const UserManagement({super.key});
@@ -20,6 +23,7 @@ class UserManagement extends StatefulWidget {
 }
 
 class _UserManagementState extends State<UserManagement> {
+  late TextEditingController _searchcontroller;
   late List<DataRow> _rows = [];
   List<Map<String, dynamic>> selectedRole = [];
   List<Map<String, dynamic>> selectedPangkat = [];
@@ -47,6 +51,15 @@ class _UserManagementState extends State<UserManagement> {
   TextEditingController _namaController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _cocdController = TextEditingController();
+
+  Timer? _searchDebounce;
+
+  void _onSearchChanged(String value) {
+    if (_searchDebounce?.isActive ?? false) _searchDebounce!.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 500), () {
+      fetchData(searchQuery: value);
+    });
+  }
 
   final DateRangePickerController _tanggalJoinController =
       DateRangePickerController();
@@ -725,13 +738,13 @@ class _UserManagementState extends State<UserManagement> {
     });
   }
 
-  Future<void> fetchData() async {
+  Future<void> fetchData({String searchQuery = ''}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
     final response = await http.get(
         Uri.parse(
-            "$apiUrl/user-management/get?page=$_pageIndex&perPage=$_rowsPerPage&search="),
+            "$apiUrl/user-management/get?page=$_pageIndex&perPage=$_rowsPerPage&search=$searchQuery"),
         headers: <String, String>{
           "Content-Type": "application/json;charset=UTF-8",
           'Authorization': 'Bearer $token',
@@ -742,51 +755,62 @@ class _UserManagementState extends State<UserManagement> {
       _rowCount = data.length;
       _rows = List.generate(
         data.length,
-        (index) => DataRow(
-          cells: [
-            DataCell(Text((index + 1).toString())),
-            DataCell(Text(data[index]['nrp'] ?? 'null')),
-            DataCell(Text(data[index]['nama'] ?? 'null')),
-            DataCell(Text(data[index]['email'] ?? 'null')),
-            DataCell(Text(data[index]['cocd'] ?? 'null')),
-            DataCell(Text(data[index]['tgl_masuk'] ?? 'null')),
-            DataCell(Text(data[index]['role'] ?? 'null')),
-            DataCell(Text(data[index]['entitas'] ?? 'null')),
-            DataCell(Text(data[index]['nama_pangkat'] ?? 'null')),
-            DataCell(
-              Row(
-                children: [
-                  Container(
-                    height: 30,
-                    width: 30,
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(5),
+        (index) {
+          final user = data[index];
+          // Filtering logic here. For example, if you want to filter by name:
+          if (searchQuery.isNotEmpty &&
+              !user['nama']
+                  .toString()
+                  .toLowerCase()
+                  .contains(searchQuery.toLowerCase())) {
+            return null; // Skip users that don't match the search query.
+          }
+          return DataRow(
+            cells: [
+              DataCell(Text((index + 1).toString())),
+              DataCell(Text(data[index]['nrp'] ?? 'null')),
+              DataCell(Text(data[index]['nama'] ?? 'null')),
+              DataCell(Text(data[index]['email'] ?? 'null')),
+              DataCell(Text(data[index]['cocd'] ?? 'null')),
+              DataCell(Text(data[index]['tgl_masuk'] ?? 'null')),
+              DataCell(Text(data[index]['role'] ?? 'null')),
+              DataCell(Text(data[index]['entitas'] ?? 'null')),
+              DataCell(Text(data[index]['nama_pangkat'] ?? 'null')),
+              DataCell(
+                Row(
+                  children: [
+                    Container(
+                      height: 30,
+                      width: 30,
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: GestureDetector(
+                          onTap: () {
+                            updateData(context);
+                          },
+                          child: const Icon(Icons.edit, color: Colors.white)),
                     ),
-                    child: GestureDetector(
-                        onTap: () {
-                          updateData(context);
-                        },
-                        child: const Icon(Icons.edit, color: Colors.white)),
-                  ),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  Container(
-                    height: 30,
-                    width: 30,
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(5),
+                    const SizedBox(
+                      width: 5,
                     ),
-                    child: const Icon(Icons.delete, color: Colors.white),
-                  ),
-                ],
+                    Container(
+                      height: 30,
+                      width: 30,
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: const Icon(Icons.delete, color: Colors.white),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-      );
+            ],
+          );
+        },
+      ).whereType<DataRow>().toList(); // Remove nulls from the list.
       setState(() {});
     } else {
       throw Exception('Failed to load data');
@@ -859,9 +883,19 @@ class _UserManagementState extends State<UserManagement> {
   @override
   void initState() {
     super.initState();
+    _searchcontroller = TextEditingController();
+    _searchcontroller.addListener(() {
+      _onSearchChanged(_searchcontroller.text);
+    });
     fetchData();
     getDataRole();
     getDataPangkat();
+  }
+
+  @override
+  void dispose() {
+    _searchcontroller.dispose();
+    super.dispose();
   }
 
   Widget build(BuildContext context) {
@@ -1880,25 +1914,18 @@ class _UserManagementState extends State<UserManagement> {
               width: 200,
               padding: const EdgeInsets.all(3),
               child: TextField(
-                controller: _searchcontroller,
-                decoration: const InputDecoration(
-                  labelText: "Search",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  controller: _searchcontroller,
+                  decoration: const InputDecoration(
+                    labelText: "Search",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      size: 17,
+                    ),
                   ),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    size: 17,
-                  ),
-                ),
-                onChanged: (value) {
-                  // setState(() {
-                  //   data = filterData!
-                  //       .where((element) => element.nama.contains(value))
-                  //       .toList();
-                  // });
-                },
-              ),
+                  onChanged: _onSearchChanged),
             ),
           ),
           const SizedBox(
@@ -2028,8 +2055,11 @@ class MyDataTableSource extends DataTableSource {
   });
 
   @override
-  DataRow getRow(int index) {
-    return rows[index];
+  DataRow? getRow(int index) {
+    if (index >= 0 && index < rows.length) {
+      return rows[index];
+    }
+    return null; // Return null for indexes outside the list range.
   }
 
   @override
