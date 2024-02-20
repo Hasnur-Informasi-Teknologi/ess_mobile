@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_ess/screens/admin/administrator/user_authorization/user_authorization_list.dart';
 import 'package:mobile_ess/screens/admin/administrator/user_management/user_management.dart';
 import 'package:mobile_ess/screens/admin/main/dashboard.dart';
 import 'package:mobile_ess/screens/authentication/signin_screen.dart';
@@ -37,6 +38,8 @@ import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/screens/user/submition/detail_form_pengajuan_lembur.dart';
 
 import 'package:mobile_ess/splash_screen.dart';
+
+import '../screens/admin/administrator/user management/user_management_list.dart';
 
 Map<String, Widget Function(BuildContext)> routers() {
   return {
@@ -106,5 +109,7 @@ Map<String, Widget Function(BuildContext)> routers() {
         const Administrator(),
     '/admin/administrator/user_management/user_management': (contex) =>
         const UserManagement(),
+    '/admin/administrator/user_authorization/user_authorization': (contex) =>
+        const UserAuthorization(),
   };
 }
