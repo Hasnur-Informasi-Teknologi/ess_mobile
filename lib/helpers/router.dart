@@ -1,4 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/cuti_bersama.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/cuti_roster.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/entitas.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/kamar_hotel.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_screen.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/pic_hrgs.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/rawat_inap.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/rawat_jalan.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/uang_makan.dart';
 import 'package:mobile_ess/screens/admin/administrator/user management/user_management.dart';
 import 'package:mobile_ess/screens/admin/administrator/user%20management/user_management_list.dart';
 import 'package:mobile_ess/screens/admin/main/dashboard.dart';
@@ -115,5 +124,22 @@ Map<String, Widget Function(BuildContext)> routers() {
         const Administrator(),
     '/admin/administrator/user_management/user_management': (contex) =>
         const UserManagement(),
+    '/admin/administrator/master_data/master_data_screen': (context) =>
+        const MasterDataScreen(),
+    '/admin/administrator/master_data/entitas': (context) => const Entitas(),
+    '/admin/administrator/master_data/cuti_bersama': (context) =>
+        const CutiBersama(),
+    '/admin/administrator/master_data/cuti_roster': (context) =>
+        const CutiRoster(),
+    '/admin/administrator/user_management/rawat_jalan': (context) =>
+        const RawatJalan(),
+    '/admin/administrator/user_management/rawat_inap': (context) =>
+        const RawatInap(),
+    '/admin/administrator/user_management/uang_makan': (context) =>
+        const UangMakan(),
+    '/admin/administrator/user_management/kamar_hotel': (context) =>
+        const KamarHotel(),
+    '/admin/administrator/user_management/pic_hrgs': (context) =>
+        const PicHrgs(),
   };
 }

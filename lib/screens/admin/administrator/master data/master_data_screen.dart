@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_ess/themes/constant.dart';
 
-class Administrator extends StatelessWidget {
-  const Administrator({super.key});
+class MasterDataScreen extends StatelessWidget {
+  const MasterDataScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class Administrator extends StatelessWidget {
           },
         ),
         title: const Text(
-          'Administration',
+          'Master Data',
         ),
       ),
       body: Center(
@@ -41,7 +41,7 @@ class Administrator extends StatelessWidget {
               crossAxisCount: 3,
               childAspectRatio: 1.0,
             ),
-            itemCount: 4, // Jumlah total item
+            itemCount: 8, // Jumlah total item
             itemBuilder: (BuildContext context, int index) {
               return Padding(
                 padding: EdgeInsets.all(padding8),
@@ -90,13 +90,21 @@ class Administrator extends StatelessWidget {
     // Mengembalikan ikon berdasarkan indeks
     switch (index) {
       case 0:
-        return Icons.manage_accounts;
+        return Icons.edit_document;
       case 1:
-        return Icons.account_balance;
+        return Icons.edit_document;
       case 2:
-        return Icons.percent;
+        return Icons.edit_document;
       case 3:
-        return Icons.data_array;
+        return Icons.edit_document;
+      case 4:
+        return Icons.edit_document;
+      case 5:
+        return Icons.edit_document;
+      case 6:
+        return Icons.edit_document;
+      case 7:
+        return Icons.admin_panel_settings;
       default:
         return Icons.error;
     }
@@ -106,13 +114,21 @@ class Administrator extends StatelessWidget {
     // Mengembalikan teks berdasarkan indeks
     switch (index) {
       case 0:
-        return 'User Management';
+        return 'Entitas';
       case 1:
-        return 'User Authorization';
+        return 'Cuti Bersama';
       case 2:
-        return 'Release Strategy';
+        return 'Cuti Roster';
       case 3:
-        return 'Master Data';
+        return 'Rawat jalan';
+      case 4:
+        return 'Rawat Inap';
+      case 5:
+        return 'Uang Makan';
+      case 6:
+        return 'Kamar Hotel';
+      case 7:
+        return 'PIC HRGS';
       default:
         return 'Error';
     }
@@ -121,16 +137,24 @@ class Administrator extends StatelessWidget {
   void handleIconTap(int index) {
     switch (index) {
       case 0:
-        Get.toNamed('/admin/administrator/user_management/user_management');
+        Get.toNamed('/admin/administrator/master_data/entitas');
         break;
       case 1:
-        Get.toNamed('/admin/administrator/user_management/user_authorization');
+        Get.toNamed('/admin/administrator/master_data/cuti_bersama');
         break;
       case 2:
-        Get.toNamed('/admin/administrator/user_management/release_strategy');
+        Get.toNamed('/admin/administrator/master_data/cuti_roster');
         break;
       case 3:
-        Get.toNamed('/admin/administrator/master_data/master_data_screen');
+        Get.toNamed('/admin/administrator/user_management/rawat_jalan');
+      case 4:
+        Get.toNamed('/admin/administrator/user_management/rawat_inap');
+      case 5:
+        Get.toNamed('/admin/administrator/user_management/uang_makan');
+      case 6:
+        Get.toNamed('/admin/administrator/user_management/kamar_hotel');
+      case 7:
+        Get.toNamed('/admin/administrator/user_management/pic_hrgs');
         break;
       default:
         return print('Error');

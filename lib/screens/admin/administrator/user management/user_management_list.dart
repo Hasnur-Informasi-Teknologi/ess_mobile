@@ -25,17 +25,8 @@ class _UserManagementState extends State<UserManagement> {
   List<Map<String, dynamic>> selectedPangkat = [];
   List<Map<String, dynamic>> selectedEntitas = [];
   List<Map<String, dynamic>> selectedAtasan = [];
-  // List<Map<String, dynamic>> selectedStatus = [
-  //   {'opsi': 'Aktif'},
-  //   {'opsi': 'Tidak Aktif'},
-  // ];
   List<Map<String, dynamic>> selectedAtasanDariAtasan = [];
-  String?
-      // selectedValueEntitas,
-      // selectedValueAtasan,
-      selectedValuePangkat,
-      selectedValueRole;
-  // selectedValueStatus;
+  String? selectedValuePangkat, selectedValueRole;
   bool _isLoading = false;
   late int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   late int _rowCount = 0;
@@ -680,7 +671,7 @@ class _UserManagementState extends State<UserManagement> {
     _formKey.currentState!.save();
 
     try {
-      final response = await http.post(
+      final response = await http.put(
         Uri.parse('$apiUrl/user-management/update'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -739,20 +730,53 @@ class _UserManagementState extends State<UserManagement> {
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
       final data = responseData["dataku"];
-      _rowCount = data.length;
+      final total = responseData["totalPage"];
+      _rowCount = total['total_records'] ?? 'null'.length;
       _rows = List.generate(
         data.length,
         (index) => DataRow(
           cells: [
             DataCell(Text((index + 1).toString())),
             DataCell(Text(data[index]['nrp'] ?? 'null')),
-            DataCell(Text(data[index]['nama'] ?? 'null')),
-            DataCell(Text(data[index]['email'] ?? 'null')),
+            DataCell(
+              Container(
+                width: 200,
+                child: Text(
+                  data[index]['nama'] ?? 'null',
+                  overflow: TextOverflow.clip,
+                ),
+              ),
+            ),
+            DataCell(
+              Container(
+                width: 150,
+                child: Text(
+                  data[index]['email'] ?? 'null',
+                  overflow: TextOverflow.clip,
+                ),
+              ),
+            ),
             DataCell(Text(data[index]['cocd'] ?? 'null')),
             DataCell(Text(data[index]['tgl_masuk'] ?? 'null')),
             DataCell(Text(data[index]['role'] ?? 'null')),
-            DataCell(Text(data[index]['entitas'] ?? 'null')),
-            DataCell(Text(data[index]['nama_pangkat'] ?? 'null')),
+            DataCell(
+              Container(
+                width: 150,
+                child: Text(
+                  data[index]['entitas'] ?? 'null',
+                  overflow: TextOverflow.clip,
+                ),
+              ),
+            ),
+            DataCell(
+              Container(
+                width: 100,
+                child: Text(
+                  data[index]['nama_pangkat'] ?? 'null',
+                  overflow: TextOverflow.clip,
+                ),
+              ),
+            ),
             DataCell(
               Row(
                 children: [
@@ -1347,7 +1371,7 @@ class _UserManagementState extends State<UserManagement> {
           });
     }
 
-    _handleButtonUpdate() {
+    _handleButtonUpdate(dynamic value) {
       return showModalBottomSheet(
           context: context,
           isScrollControlled: true,
@@ -1870,130 +1894,134 @@ class _UserManagementState extends State<UserManagement> {
     }
 
     Widget data() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-            child: Container(
-              height: 50,
-              width: 200,
-              padding: const EdgeInsets.all(3),
-              child: TextField(
-                controller: _searchcontroller,
-                decoration: const InputDecoration(
-                  labelText: "Search",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+      return SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Padding(
+              padding:
+                  EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+              child: Container(
+                height: 50,
+                width: 200,
+                padding: const EdgeInsets.all(3),
+                child: TextField(
+                  controller: _searchcontroller,
+                  decoration: const InputDecoration(
+                    labelText: "Search",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      size: 17,
+                    ),
                   ),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    size: 17,
-                  ),
+                  onChanged: (value) {
+                    // setState(() {
+                    //   data = filterData!
+                    //       .where((element) => element.nama.contains(value))
+                    //       .toList();
+                    // });
+                  },
                 ),
-                onChanged: (value) {
-                  // setState(() {
-                  //   data = filterData!
-                  //       .where((element) => element.nama.contains(value))
-                  //       .toList();
-                  // });
-                },
               ),
             ),
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          PaginatedDataTable(
-            rowsPerPage: _rowsPerPage,
-            onRowsPerPageChanged: (value) {
-              setState(() {
-                _rowsPerPage = value!;
-              });
-            },
-            onPageChanged: (pageIndex) {
-              setState(() {
-                _pageIndex = pageIndex + 1;
-                fetchData(); // Fetch data for the new page
-              });
-            },
-            columnSpacing: 15,
-            availableRowsPerPage: const [
-              5,
-              10,
-              50,
-              100,
-            ], // Choose rows per page
-            source: MyDataTableSource(
-              rows: _rows,
-              rowCount: _rowCount,
-              pageIndex: _pageIndex,
+            const SizedBox(
+              height: 10,
+            ),
+            PaginatedDataTable(
               rowsPerPage: _rowsPerPage,
+              onRowsPerPageChanged: (value) {
+                setState(() {
+                  _rowsPerPage = value!;
+                });
+              },
+              onPageChanged: (pageIndex) {
+                setState(() {
+                  _pageIndex = pageIndex + 1;
+                  fetchData(); // Fetch data for the new page
+                });
+              },
+              columnSpacing: 10,
+              availableRowsPerPage: const [
+                5,
+                10,
+                50,
+                100,
+              ], // Choose rows per page
+              source: MyDataTableSource(
+                rows: _rows,
+                rowCount: _rowCount,
+                pageIndex: _pageIndex,
+                rowsPerPage: _rowsPerPage,
+              ),
+              columns: const [
+                DataColumn(
+                  label: Text(
+                    "No",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "NRP",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "Nama",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "Email",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "cocd",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "Tgl masuk",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "Role",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "Entitas",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "Pangkat",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "Aksi",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+              ],
             ),
-            columns: const [
-              DataColumn(
-                label: Text(
-                  "No",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  "NRP",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  "Nama",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  "Email",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  "cocd",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  "Tgl masuk",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  "Role",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  "Entitas",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  "Pangkat",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  "Aksi",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       );
     }
 
@@ -2028,12 +2056,14 @@ class MyDataTableSource extends DataTableSource {
   });
 
   @override
-  DataRow getRow(int index) {
+  DataRow? getRow(int index) {
+    if (index >= rows.length) return null;
+    final data = rows[index];
     return rows[index];
   }
 
   @override
-  int get _rowCount => rowCount;
+  int get _rowCount => rows.length;
 
   @override
   bool get isRowCountApproximate => false;
