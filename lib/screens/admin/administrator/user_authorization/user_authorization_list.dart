@@ -37,6 +37,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
       selectedValuePangkat,
       selectedValueRole;
   // selectedValueStatus;
+  //
   bool _isLoading = false;
   late int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   late int _rowCount = 0;
