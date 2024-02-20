@@ -144,6 +144,8 @@ class _UserManagementState extends State<UserManagement> {
                 body: jsonEncode({'nrp': nrp}));
         if (response.statusCode == 200) {
           print('Item with NRP $nrp deleted successfully');
+
+          // Get.toNamed('/admin/administrator/user_management/user_management');
         } else {
           print("response error request: ${response.request}");
           throw Exception('Failed to delete item');
@@ -833,7 +835,7 @@ class _UserManagementState extends State<UserManagement> {
       print(responseData);
       if (responseData['status'] == 'success') {
         Navigator.pop(context);
-        // Get.toNamed('/admin/administrator/user_management/user_management');
+        fetchData();
       }
     } catch (e) {
       print(e);
@@ -850,12 +852,13 @@ class _UserManagementState extends State<UserManagement> {
     String? token = prefs.getString('token');
 
     final response = await http.get(
-        Uri.parse(
-            "$apiUrl/user-management/get?page=$_pageIndex&perPage=$_rowsPerPage&search=$searchQuery"),
-        headers: <String, String>{
-          "Content-Type": "application/json;charset=UTF-8",
-          'Authorization': 'Bearer $token',
-        });
+      Uri.parse(
+          "$apiUrl/user-management/get?page=$_pageIndex&perPage=$_rowsPerPage&search=$searchQuery"),
+      headers: <String, String>{
+        "Content-Type": "application/json;charset=UTF-8",
+        'Authorization': 'Bearer $token',
+      },
+    );
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
       final data = responseData["dataku"];
@@ -894,20 +897,29 @@ class _UserManagementState extends State<UserManagement> {
                         borderRadius: BorderRadius.circular(5),
                       ),
                       child: GestureDetector(
-                          onTap: () {
-                            String nrp = data[index]['nrp'];
-                            String nama = data[index]['nama'];
-                            String tglMasuk = data[index]['tgl_masuk'];
-                            String email = data[index]['email'];
-                            String cocd = data[index]['cocd'];
-                            String idRole = data[index]['role_id'].toString();
-                            String entitas = data[index]['entitas'];
-                            String namaPangkat = data[index]['nama_pangkat'];
-                            String pangkat = data[index]['pangkat'];
-                            updateData(context, nrp, nama, tglMasuk, email,
-                                cocd, idRole, pangkat);
-                          },
-                          child: const Icon(Icons.edit, color: Colors.white)),
+                        onTap: () {
+                          String nrp = data[index]['nrp'];
+                          String nama = data[index]['nama'];
+                          String tglMasuk = data[index]['tgl_masuk'];
+                          String email = data[index]['email'];
+                          String cocd = data[index]['cocd'];
+                          String idRole = data[index]['role_id'].toString();
+                          String entitas = data[index]['entitas'];
+                          String namaPangkat = data[index]['nama_pangkat'];
+                          String pangkat = data[index]['pangkat'];
+                          updateData(
+                            context,
+                            nrp,
+                            nama,
+                            tglMasuk,
+                            email,
+                            cocd,
+                            idRole,
+                            pangkat,
+                          );
+                        },
+                        child: const Icon(Icons.edit, color: Colors.white),
+                      ),
                     ),
                     const SizedBox(
                       width: 5,
@@ -936,10 +948,12 @@ class _UserManagementState extends State<UserManagement> {
                                     child: Text("Batal"),
                                   ),
                                   TextButton(
-                                    onPressed: () {
+                                    onPressed: () async {
                                       String nrp = data[index]['nrp'];
-                                      deleteData(nrp);
+                                      await deleteData(nrp);
                                       Navigator.of(context).pop();
+                                      // Panggil fetchData kembali setelah berhasil menghapus data
+                                      fetchData(searchQuery: searchQuery);
                                     },
                                     child: Text("Hapus"),
                                   ),
