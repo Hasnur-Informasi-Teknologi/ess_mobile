@@ -124,7 +124,8 @@ class Administrator extends StatelessWidget {
         Get.toNamed('/admin/administrator/user_management/user_management');
         break;
       case 1:
-        Get.toNamed('/admin/administrator/user_management/user_authorization');
+        Get.toNamed(
+            '/admin/administrator/user_authorization/user_authorization');
         break;
       case 2:
         Get.toNamed('/admin/administrator/user_management/release_strategy');
