@@ -6,7 +6,8 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
-import 'package:mobile_ess/themes/colors.dart';
+// import 'package:mobile_ess/themes/colors.dart';
+import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -113,6 +114,36 @@ class _UserManagementState extends State<UserManagement> {
     }
   }
 
+  Future<void> deleteData(String nrp) async {
+    // print('tombol delet bekerja dengan nrp :  $nrp');
+    // print('API  : $apiUrl/user-management/delete/nrp=$nrp');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? token = prefs.getString('token');
+    print('ini token :  $token');
+    if (token != null) {
+      try {
+        final response =
+            await http.post(Uri.parse("$apiUrl/user-management/delete"),
+                headers: <String, String>{
+                  'Content-Type': 'application/json;charset=UTF-8',
+                  'Authorization': 'Bearer $token'
+                },
+                body: jsonEncode({'nrp': nrp}));
+        if (response.statusCode == 200) {
+          print('Item with NRP $nrp deleted successfully');
+        } else {
+          print("response error request: ${response.request}");
+          throw Exception('Failed to delete item');
+        }
+        // print("$token");
+        // print("$dataPangkatApi");
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
   String? _validatorNrp(dynamic value) {
     if (value == null || value.isEmpty) {
       setState(() {
@@ -197,7 +228,8 @@ class _UserManagementState extends State<UserManagement> {
     return null;
   }
 
-  Future<void> updateData(context) {
+  Future<void> updateData(context, String nrp, String nama, String tglMasuk,
+      String email, String cocd, String idRole, String pangkat) async {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double paddingHorizontalNarrow = size.width * 0.035;
@@ -208,6 +240,20 @@ class _UserManagementState extends State<UserManagement> {
     double sizedBoxHeightTall = size.height * 0.0163;
     double paddingHorizontalWide = size.width * 0.0585;
     double _maxHeightAtasan = 60.0;
+    DateTime dateTimeAwal = DateFormat("yyyy-MM-dd").parse(tglMasuk);
+    String formattedDateString = DateFormat("dd-MM-yyyy").format(dateTimeAwal);
+    DateTime dateTime = DateFormat("dd-MM-yyyy").parse(formattedDateString);
+    print("id role : $idRole");
+
+    //menyimpan data yang diketikan pada textfield
+    String textFieldValueNrp = nrp;
+    String textFieldValueCocd = cocd;
+    String textFieldValueNama = nama;
+    String textFieldValueTglMasuk = dateTime.toString();
+    String textFieldValueEmail = email;
+    String textFieldValueIdRole = idRole.toString();
+    String textFieldValuePangkat = pangkat;
+
     return showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -240,8 +286,15 @@ class _UserManagementState extends State<UserManagement> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: TextFormField(
-                          controller: _nrpController,
+                          // controller: _nrpController,
                           validator: _validatorNrp,
+                          initialValue: nrp,
+                          onChanged: (value) {
+                            setState(() {
+                              textFieldValueNrp =
+                                  value; // Menyimpan nilai setiap kali berubah
+                            });
+                          },
                           decoration: InputDecoration(
                             hintText: "Masukan NRP",
                             hintStyle: TextStyle(
@@ -278,8 +331,15 @@ class _UserManagementState extends State<UserManagement> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: TextFormField(
-                          controller: _namaController,
+                          // controller: _namaController,
                           validator: _validatorNama,
+                          initialValue: nama,
+                          onChanged: (value) {
+                            setState(() {
+                              textFieldValueNama =
+                                  value; // Menyimpan nilai setiap kali berubah
+                            });
+                          },
                           decoration: InputDecoration(
                             hintText: "Masukan Nama",
                             hintStyle: TextStyle(
@@ -330,9 +390,8 @@ class _UserManagementState extends State<UserManagement> {
                                 color: Colors.grey,
                               ),
                               Text(
-                                DateFormat('dd-MM-yyyy').format(
-                                    _tanggalJoinController.selectedDate ??
-                                        DateTime.now()),
+                                DateFormat('dd-MM-yyyy')
+                                    .format(dateTime ?? DateTime.now()),
                                 style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: textMedium,
@@ -352,21 +411,34 @@ class _UserManagementState extends State<UserManagement> {
                                   height: 350,
                                   width: 350,
                                   child: SfDateRangePicker(
-                                    controller: _tanggalJoinController,
+                                    // controller: _tanggalJoinController,
+                                    initialSelectedDate: dateTime,
                                     onSelectionChanged:
                                         (DateRangePickerSelectionChangedArgs
                                             args) {
                                       setState(() {
-                                        tanggalJoin = args.value;
+                                        dateTime = args
+                                            .value; // Perbarui dateTime saat memilih tanggal baru
+                                        tanggalJoin = args
+                                            .value; // Perbarui tanggalJoin juga jika diperlukan
                                       });
                                     },
                                     selectionMode:
                                         DateRangePickerSelectionMode.single,
+                                    initialDisplayDate: dateTime,
                                   ),
                                 ),
                                 actions: <Widget>[
                                   TextButton(
-                                    onPressed: () => Navigator.pop(context),
+                                    onPressed: () {
+                                      setState(() {});
+                                      // Ambil tanggal yang sudah dipilih
+                                      textFieldValueTglMasuk =
+                                          dateTime.toString();
+                                      print('Tanggal yang dipilih: $dateTime');
+
+                                      Navigator.pop(context);
+                                    },
                                     child: const Text('OK'),
                                   ),
                                 ],
@@ -388,8 +460,15 @@ class _UserManagementState extends State<UserManagement> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: TextFormField(
-                          controller: _emailController,
+                          // controller: _emailController,
+                          initialValue: email,
                           validator: _validatorEmail,
+                          onChanged: (value) {
+                            setState(() {
+                              textFieldValueEmail =
+                                  value; // Menyimpan nilai setiap kali berubah
+                            });
+                          },
                           decoration: InputDecoration(
                             hintText: "Masukan email",
                             hintStyle: TextStyle(
@@ -426,8 +505,15 @@ class _UserManagementState extends State<UserManagement> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: TextFormField(
-                          controller: _cocdController,
+                          // controller: _cocdController,
+                          initialValue: cocd,
                           validator: _validatorCocd,
+                          onChanged: (value) {
+                            setState(() {
+                              textFieldValueCocd =
+                                  value; // Menyimpan nilai setiap kali berubah
+                            });
+                          },
                           decoration: InputDecoration(
                             hintText: "Masukan cocd",
                             hintStyle: TextStyle(
@@ -482,7 +568,7 @@ class _UserManagementState extends State<UserManagement> {
                               ),
                             ),
                             validator: _validatorRole,
-                            value: selectedValueRole,
+                            value: idRole.toString(),
                             icon: selectedRole.isEmpty
                                 ? const SizedBox(
                                     height: 20,
@@ -495,7 +581,7 @@ class _UserManagementState extends State<UserManagement> {
                                 : const Icon(Icons.arrow_drop_down),
                             onChanged: (String? newValue) {
                               setState(() {
-                                selectedValueRole = newValue ?? '';
+                                textFieldValueIdRole = newValue ?? '';
                                 print("$selectedValueRole");
                               });
                             },
@@ -569,7 +655,7 @@ class _UserManagementState extends State<UserManagement> {
                               ),
                             ),
                             validator: _validatorPangkat,
-                            value: selectedValuePangkat,
+                            value: pangkat,
                             icon: selectedPangkat.isEmpty
                                 ? const SizedBox(
                                     height: 20,
@@ -582,7 +668,7 @@ class _UserManagementState extends State<UserManagement> {
                                 : const Icon(Icons.arrow_drop_down),
                             onChanged: (String? newValue) {
                               setState(() {
-                                selectedValuePangkat = newValue ?? '';
+                                textFieldValuePangkat = newValue ?? '';
                                 print("$selectedValuePangkat");
                                 // selectedValueAtasan = null;
                               });
@@ -633,7 +719,14 @@ class _UserManagementState extends State<UserManagement> {
                               horizontal: paddingHorizontalNarrow),
                           child: ElevatedButton(
                             onPressed: () {
-                              _submitUpdate();
+                              _submitUpdate(
+                                  textFieldValueNrp,
+                                  textFieldValueNama,
+                                  textFieldValueTglMasuk,
+                                  textFieldValueEmail,
+                                  textFieldValueIdRole,
+                                  textFieldValuePangkat,
+                                  textFieldValueCocd);
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(primaryYellow),
@@ -662,7 +755,22 @@ class _UserManagementState extends State<UserManagement> {
         });
   }
 
-  Future<void> _submitUpdate() async {
+  Future<void> _submitUpdate(
+      String textFieldValueNrp,
+      String textFieldValueNama,
+      String textFieldValueTglMasuk,
+      String textFieldValueEmail,
+      String textFieldValueIdRole,
+      String textFieldValuePangkat,
+      String textFieldValueCocd) async {
+    // print("update btn");
+    // print("ini value nrp : $textFieldValueNrp");
+    // print("ini value nama : $textFieldValueNama");
+    // print("ini value tgl masuk : $textFieldValueTglMasuk");
+    // print("ini value email : $textFieldValueEmail");
+    // print("ini value id role : $textFieldValueIdRole");
+    // print("ini value pangkat : $textFieldValuePangkat");
+    // print("ini value Cocd : $textFieldValueCocd");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
@@ -687,14 +795,14 @@ class _UserManagementState extends State<UserManagement> {
           'Authorization': 'Bearer $token'
         },
         body: jsonEncode({
-          'nrp': _nrpController.text,
-          'cocd': _cocdController.text,
-          'nama': _namaController.text,
-          'email': _emailController.text,
-          'role': selectedValueRole.toString(),
-          'pangkat': selectedValuePangkat.toString(),
-          'tgl_masuk': tanggalJoin != null
-              ? tanggalJoin.toString()
+          'nrp': textFieldValueNrp,
+          'cocd': textFieldValueCocd,
+          'nama': textFieldValueNama,
+          'email': textFieldValueEmail,
+          'role_id': textFieldValueIdRole.toString(),
+          'pangkat': textFieldValuePangkat.toString(),
+          'tgl_masuk': textFieldValueTglMasuk != null
+              ? textFieldValueTglMasuk.toString()
               : DateTime.now().toString(),
           'terminate': 'X',
         }),
@@ -765,7 +873,17 @@ class _UserManagementState extends State<UserManagement> {
                     ),
                     child: GestureDetector(
                         onTap: () {
-                          updateData(context);
+                          String nrp = data[index]['nrp'];
+                          String nama = data[index]['nama'];
+                          String tglMasuk = data[index]['tgl_masuk'];
+                          String email = data[index]['email'];
+                          String cocd = data[index]['cocd'];
+                          String idRole = data[index]['role_id'].toString();
+                          String entitas = data[index]['entitas'];
+                          String namaPangkat = data[index]['nama_pangkat'];
+                          String pangkat = data[index]['pangkat'];
+                          updateData(context, nrp, nama, tglMasuk, email, cocd,
+                              idRole, pangkat);
                         },
                         child: const Icon(Icons.edit, color: Colors.white)),
                   ),
@@ -779,7 +897,37 @@ class _UserManagementState extends State<UserManagement> {
                       color: Colors.red,
                       borderRadius: BorderRadius.circular(5),
                     ),
-                    child: const Icon(Icons.delete, color: Colors.white),
+                    child: GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: Text("Konfirmasi"),
+                              content: Text(
+                                  "Apakah Anda yakin ingin menghapus data ini?"),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text("Batal"),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    String nrp = data[index]['nrp'];
+                                    deleteData(nrp);
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text("Hapus"),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: Icon(Icons.delete_outline, color: Colors.white),
+                    ),
                   ),
                 ],
               ),
@@ -1804,6 +1952,7 @@ class _UserManagementState extends State<UserManagement> {
           });
     }
 
+    _handleButtonDelete() {}
     Widget content() {
       return Container(
         padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
