@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_ess/screens/admin/administrator/user_authorization/user_authorization_list.dart';
-import 'package:mobile_ess/screens/admin/administrator/user_management/user_management.dart';
+import 'package:mobile_ess/screens/admin/administrator/user management/user_management_list.dart';
 import 'package:mobile_ess/screens/admin/main/dashboard.dart';
 import 'package:mobile_ess/screens/authentication/signin_screen.dart';
 import 'package:mobile_ess/screens/test.dart';
