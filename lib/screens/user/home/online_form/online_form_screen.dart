@@ -9,6 +9,7 @@ class OnlineFormScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textSmall = size.width * 0.027;
+    double textLarge = size.width * 0.04;
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding8 = size.width * 0.0188;
     double padding10 = size.width * 0.023;
@@ -22,12 +23,17 @@ class OnlineFormScreen extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Get.back();
-            // Navigator.pop(context);
+            Get.offAllNamed('/user/main');
           },
         ),
-        title: const Text(
+        title: Text(
           'Online Form',
+          style: TextStyle(
+              color: const Color(primaryBlack),
+              fontSize: textLarge,
+              fontFamily: 'Poppins',
+              letterSpacing: 0.6,
+              fontWeight: FontWeight.w700),
         ),
       ),
       body: Center(
@@ -120,7 +126,6 @@ class OnlineFormScreen extends StatelessWidget {
   }
 
   String getText(int index) {
-    // Mengembalikan teks berdasarkan indeks
     switch (index) {
       case 0:
         return 'Pengajuan\nTraining';
@@ -152,34 +157,98 @@ class OnlineFormScreen extends StatelessWidget {
   void handleIconTap(int index) {
     switch (index) {
       case 0:
-        Get.toNamed('/user/main/home/online_form/aplikasi_training');
+        // Get.toNamed('/user/main/home/online_form/aplikasi_training');
+        Get.snackbar('Infomation', 'Coming Soon',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
         break;
       case 1:
-        Get.toNamed('/user/main/home/online_form/aplikasi_recruitment');
+        // Get.toNamed('/user/main/home/online_form/aplikasi_recruitment');
+        Get.snackbar('Infomation', 'Coming Soon',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
         break;
       case 2:
-        Get.toNamed('/user/main/home/online_form/pengajuan_perjalanan_dinas');
+        // Get.toNamed('/user/main/home/online_form/pengajuan_perjalanan_dinas');
+        Get.snackbar('Infomation', 'Coming Soon',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
         break;
       case 3:
         Get.toNamed(
             '/user/main/home/online_form/pengajuan_fasilitas_kesehatan');
         break;
       case 4:
-        Get.toNamed('/user/main/home/online_form/pengajuan_izin');
+        // Get.toNamed('/user/main/home/online_form/pengajuan_izin');
+        Get.snackbar('Infomation', 'Coming Soon',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
         break;
       case 5:
-        return print('Documents');
+        Get.snackbar('Infomation', 'Coming Soon',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
+        break;
       case 6:
-        Get.toNamed('/user/main/home/online_form/pengajuan_hardware_software');
+        // Get.toNamed('/user/main/home/online_form/pengajuan_hardware_software');
+        Get.snackbar('Infomation', 'Coming Soon',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
         break;
       case 7:
-        Get.toNamed('/user/main/home/online_form/pengajuan_surat_keterangan');
+        // Get.toNamed('/user/main/home/online_form/pengajuan_surat_keterangan');
+        Get.snackbar('Infomation', 'Coming Soon',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
         break;
       case 8:
         Get.toNamed('/user/main/home/online_form/pengajuan_cuti');
         break;
       case 9:
-        return print('Documents');
+        Get.snackbar('Infomation', 'Coming Soon',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
+        break;
       case 10:
         Get.toNamed('/admin/administrator/administrator_screen');
         break;

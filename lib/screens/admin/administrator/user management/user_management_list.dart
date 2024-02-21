@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
@@ -7,13 +6,11 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
-// import 'package:mobile_ess/themes/colors.dart';
-// import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
+import 'package:mobile_ess/themes/colors.dart';
+import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
-
-import 'package:mobile_ess/themes/constant.dart';
 
 class UserManagement extends StatefulWidget {
   const UserManagement({super.key});
@@ -23,23 +20,13 @@ class UserManagement extends StatefulWidget {
 }
 
 class _UserManagementState extends State<UserManagement> {
-  late TextEditingController _searchcontroller;
   late List<DataRow> _rows = [];
   List<Map<String, dynamic>> selectedRole = [];
   List<Map<String, dynamic>> selectedPangkat = [];
   List<Map<String, dynamic>> selectedEntitas = [];
   List<Map<String, dynamic>> selectedAtasan = [];
-  // List<Map<String, dynamic>> selectedStatus = [
-  //   {'opsi': 'Aktif'},
-  //   {'opsi': 'Tidak Aktif'},
-  // ];
   List<Map<String, dynamic>> selectedAtasanDariAtasan = [];
-  String?
-      // selectedValueEntitas,
-      // selectedValueAtasan,
-      selectedValuePangkat,
-      selectedValueRole;
-  // selectedValueStatus;
+  String? selectedValuePangkat, selectedValueRole;
   bool _isLoading = false;
   late int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   late int _rowCount = 0;
@@ -51,15 +38,6 @@ class _UserManagementState extends State<UserManagement> {
   TextEditingController _namaController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _cocdController = TextEditingController();
-
-  Timer? _searchDebounce;
-
-  void _onSearchChanged(String value) {
-    if (_searchDebounce?.isActive ?? false) _searchDebounce!.cancel();
-    _searchDebounce = Timer(const Duration(milliseconds: 500), () {
-      fetchData(searchQuery: value);
-    });
-  }
 
   final DateRangePickerController _tanggalJoinController =
       DateRangePickerController();
@@ -120,38 +98,6 @@ class _UserManagementState extends State<UserManagement> {
             //     List<Map<String, dynamic>>.from(dataEntitasApi);
           },
         );
-      } catch (e) {
-        print(e);
-      }
-    }
-  }
-
-  Future<void> deleteData(String nrp) async {
-    // print('tombol delet bekerja dengan nrp :  $nrp');
-    // print('API  : $apiUrl/user-management/delete/nrp=$nrp');
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    String? token = prefs.getString('token');
-    print('ini token :  $token');
-    if (token != null) {
-      try {
-        final response =
-            await http.post(Uri.parse("$apiUrl/user-management/delete"),
-                headers: <String, String>{
-                  'Content-Type': 'application/json;charset=UTF-8',
-                  'Authorization': 'Bearer $token'
-                },
-                body: jsonEncode({'nrp': nrp}));
-        if (response.statusCode == 200) {
-          print('Item with NRP $nrp deleted successfully');
-
-          // Get.toNamed('/admin/administrator/user_management/user_management');
-        } else {
-          print("response error request: ${response.request}");
-          throw Exception('Failed to delete item');
-        }
-        // print("$token");
-        // print("$dataPangkatApi");
       } catch (e) {
         print(e);
       }
@@ -242,8 +188,7 @@ class _UserManagementState extends State<UserManagement> {
     return null;
   }
 
-  Future<void> updateData(context, String nrp, String nama, String tglMasuk,
-      String email, String cocd, String idRole, String pangkat) async {
+  Future<void> updateData(context) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double paddingHorizontalNarrow = size.width * 0.035;
@@ -254,20 +199,6 @@ class _UserManagementState extends State<UserManagement> {
     double sizedBoxHeightTall = size.height * 0.0163;
     double paddingHorizontalWide = size.width * 0.0585;
     double _maxHeightAtasan = 60.0;
-    DateTime dateTimeAwal = DateFormat("yyyy-MM-dd").parse(tglMasuk);
-    String formattedDateString = DateFormat("dd-MM-yyyy").format(dateTimeAwal);
-    DateTime dateTime = DateFormat("dd-MM-yyyy").parse(formattedDateString);
-    print("id role : $idRole");
-
-    //menyimpan data yang diketikan pada textfield
-    String textFieldValueNrp = nrp;
-    String textFieldValueCocd = cocd;
-    String textFieldValueNama = nama;
-    String textFieldValueTglMasuk = dateTime.toString();
-    String textFieldValueEmail = email;
-    String textFieldValueIdRole = idRole.toString();
-    String textFieldValuePangkat = pangkat;
-
     return showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -300,15 +231,8 @@ class _UserManagementState extends State<UserManagement> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: TextFormField(
-                          // controller: _nrpController,
+                          controller: _nrpController,
                           validator: _validatorNrp,
-                          initialValue: nrp,
-                          onChanged: (value) {
-                            setState(() {
-                              textFieldValueNrp =
-                                  value; // Menyimpan nilai setiap kali berubah
-                            });
-                          },
                           decoration: InputDecoration(
                             hintText: "Masukan NRP",
                             hintStyle: TextStyle(
@@ -345,15 +269,8 @@ class _UserManagementState extends State<UserManagement> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: TextFormField(
-                          // controller: _namaController,
+                          controller: _namaController,
                           validator: _validatorNama,
-                          initialValue: nama,
-                          onChanged: (value) {
-                            setState(() {
-                              textFieldValueNama =
-                                  value; // Menyimpan nilai setiap kali berubah
-                            });
-                          },
                           decoration: InputDecoration(
                             hintText: "Masukan Nama",
                             hintStyle: TextStyle(
@@ -404,8 +321,9 @@ class _UserManagementState extends State<UserManagement> {
                                 color: Colors.grey,
                               ),
                               Text(
-                                DateFormat('dd-MM-yyyy')
-                                    .format(dateTime ?? DateTime.now()),
+                                DateFormat('dd-MM-yyyy').format(
+                                    _tanggalJoinController.selectedDate ??
+                                        DateTime.now()),
                                 style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: textMedium,
@@ -425,34 +343,21 @@ class _UserManagementState extends State<UserManagement> {
                                   height: 350,
                                   width: 350,
                                   child: SfDateRangePicker(
-                                    // controller: _tanggalJoinController,
-                                    initialSelectedDate: dateTime,
+                                    controller: _tanggalJoinController,
                                     onSelectionChanged:
                                         (DateRangePickerSelectionChangedArgs
                                             args) {
                                       setState(() {
-                                        dateTime = args
-                                            .value; // Perbarui dateTime saat memilih tanggal baru
-                                        tanggalJoin = args
-                                            .value; // Perbarui tanggalJoin juga jika diperlukan
+                                        tanggalJoin = args.value;
                                       });
                                     },
                                     selectionMode:
                                         DateRangePickerSelectionMode.single,
-                                    initialDisplayDate: dateTime,
                                   ),
                                 ),
                                 actions: <Widget>[
                                   TextButton(
-                                    onPressed: () {
-                                      setState(() {});
-                                      // Ambil tanggal yang sudah dipilih
-                                      textFieldValueTglMasuk =
-                                          dateTime.toString();
-                                      print('Tanggal yang dipilih: $dateTime');
-
-                                      Navigator.pop(context);
-                                    },
+                                    onPressed: () => Navigator.pop(context),
                                     child: const Text('OK'),
                                   ),
                                 ],
@@ -474,15 +379,8 @@ class _UserManagementState extends State<UserManagement> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: TextFormField(
-                          // controller: _emailController,
-                          initialValue: email,
+                          controller: _emailController,
                           validator: _validatorEmail,
-                          onChanged: (value) {
-                            setState(() {
-                              textFieldValueEmail =
-                                  value; // Menyimpan nilai setiap kali berubah
-                            });
-                          },
                           decoration: InputDecoration(
                             hintText: "Masukan email",
                             hintStyle: TextStyle(
@@ -519,15 +417,8 @@ class _UserManagementState extends State<UserManagement> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: TextFormField(
-                          // controller: _cocdController,
-                          initialValue: cocd,
+                          controller: _cocdController,
                           validator: _validatorCocd,
-                          onChanged: (value) {
-                            setState(() {
-                              textFieldValueCocd =
-                                  value; // Menyimpan nilai setiap kali berubah
-                            });
-                          },
                           decoration: InputDecoration(
                             hintText: "Masukan cocd",
                             hintStyle: TextStyle(
@@ -582,7 +473,7 @@ class _UserManagementState extends State<UserManagement> {
                               ),
                             ),
                             validator: _validatorRole,
-                            value: idRole.toString(),
+                            value: selectedValueRole,
                             icon: selectedRole.isEmpty
                                 ? const SizedBox(
                                     height: 20,
@@ -595,7 +486,7 @@ class _UserManagementState extends State<UserManagement> {
                                 : const Icon(Icons.arrow_drop_down),
                             onChanged: (String? newValue) {
                               setState(() {
-                                textFieldValueIdRole = newValue ?? '';
+                                selectedValueRole = newValue ?? '';
                                 print("$selectedValueRole");
                               });
                             },
@@ -669,7 +560,7 @@ class _UserManagementState extends State<UserManagement> {
                               ),
                             ),
                             validator: _validatorPangkat,
-                            value: pangkat,
+                            value: selectedValuePangkat,
                             icon: selectedPangkat.isEmpty
                                 ? const SizedBox(
                                     height: 20,
@@ -682,7 +573,7 @@ class _UserManagementState extends State<UserManagement> {
                                 : const Icon(Icons.arrow_drop_down),
                             onChanged: (String? newValue) {
                               setState(() {
-                                textFieldValuePangkat = newValue ?? '';
+                                selectedValuePangkat = newValue ?? '';
                                 print("$selectedValuePangkat");
                                 // selectedValueAtasan = null;
                               });
@@ -733,14 +624,7 @@ class _UserManagementState extends State<UserManagement> {
                               horizontal: paddingHorizontalNarrow),
                           child: ElevatedButton(
                             onPressed: () {
-                              _submitUpdate(
-                                  textFieldValueNrp,
-                                  textFieldValueNama,
-                                  textFieldValueTglMasuk,
-                                  textFieldValueEmail,
-                                  textFieldValueIdRole,
-                                  textFieldValuePangkat,
-                                  textFieldValueCocd);
+                              _submitUpdate();
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(primaryYellow),
@@ -769,22 +653,7 @@ class _UserManagementState extends State<UserManagement> {
         });
   }
 
-  Future<void> _submitUpdate(
-      String textFieldValueNrp,
-      String textFieldValueNama,
-      String textFieldValueTglMasuk,
-      String textFieldValueEmail,
-      String textFieldValueIdRole,
-      String textFieldValuePangkat,
-      String textFieldValueCocd) async {
-    // print("update btn");
-    // print("ini value nrp : $textFieldValueNrp");
-    // print("ini value nama : $textFieldValueNama");
-    // print("ini value tgl masuk : $textFieldValueTglMasuk");
-    // print("ini value email : $textFieldValueEmail");
-    // print("ini value id role : $textFieldValueIdRole");
-    // print("ini value pangkat : $textFieldValuePangkat");
-    // print("ini value Cocd : $textFieldValueCocd");
+  Future<void> _submitUpdate() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
@@ -802,21 +671,21 @@ class _UserManagementState extends State<UserManagement> {
     _formKey.currentState!.save();
 
     try {
-      final response = await http.post(
+      final response = await http.put(
         Uri.parse('$apiUrl/user-management/update'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token'
         },
         body: jsonEncode({
-          'nrp': textFieldValueNrp,
-          'cocd': textFieldValueCocd,
-          'nama': textFieldValueNama,
-          'email': textFieldValueEmail,
-          'role_id': textFieldValueIdRole.toString(),
-          'pangkat': textFieldValuePangkat.toString(),
-          'tgl_masuk': textFieldValueTglMasuk != null
-              ? textFieldValueTglMasuk.toString()
+          'nrp': _nrpController.text,
+          'cocd': _cocdController.text,
+          'nama': _namaController.text,
+          'email': _emailController.text,
+          'role': selectedValueRole.toString(),
+          'pangkat': selectedValuePangkat.toString(),
+          'tgl_masuk': tanggalJoin != null
+              ? tanggalJoin.toString()
               : DateTime.now().toString(),
           'terminate': 'X',
         }),
@@ -835,7 +704,7 @@ class _UserManagementState extends State<UserManagement> {
       print(responseData);
       if (responseData['status'] == 'success') {
         Navigator.pop(context);
-        fetchData();
+        // Get.toNamed('/admin/administrator/user_management/user_management');
       }
     } catch (e) {
       print(e);
@@ -847,131 +716,101 @@ class _UserManagementState extends State<UserManagement> {
     });
   }
 
-  Future<void> fetchData({String searchQuery = ''}) async {
+  Future<void> fetchData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
     final response = await http.get(
-      Uri.parse(
-          "$apiUrl/user-management/get?page=$_pageIndex&perPage=$_rowsPerPage&search=$searchQuery"),
-      headers: <String, String>{
-        "Content-Type": "application/json;charset=UTF-8",
-        'Authorization': 'Bearer $token',
-      },
-    );
+        Uri.parse(
+            "$apiUrl/user-management/get?page=$_pageIndex&perPage=$_rowsPerPage&search="),
+        headers: <String, String>{
+          "Content-Type": "application/json;charset=UTF-8",
+          'Authorization': 'Bearer $token',
+        });
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
       final data = responseData["dataku"];
-      _rowCount = data.length;
+      final total = responseData["totalPage"];
+      _rowCount = total['total_records'] ?? 'null'.length;
       _rows = List.generate(
         data.length,
-        (index) {
-          final user = data[index];
-          // Filtering logic here. For example, if you want to filter by name:
-          if (searchQuery.isNotEmpty &&
-              !user['nama']
-                  .toString()
-                  .toLowerCase()
-                  .contains(searchQuery.toLowerCase())) {
-            return null; // Skip users that don't match the search query.
-          }
-          return DataRow(
-            cells: [
-              DataCell(Text((index + 1).toString())),
-              DataCell(Text(data[index]['nrp'] ?? 'null')),
-              DataCell(Text(data[index]['nama'] ?? 'null')),
-              DataCell(Text(data[index]['email'] ?? 'null')),
-              DataCell(Text(data[index]['cocd'] ?? 'null')),
-              DataCell(Text(data[index]['tgl_masuk'] ?? 'null')),
-              DataCell(Text(data[index]['role'] ?? 'null')),
-              DataCell(Text(data[index]['entitas'] ?? 'null')),
-              DataCell(Text(data[index]['nama_pangkat'] ?? 'null')),
-              DataCell(
-                Row(
-                  children: [
-                    Container(
-                      height: 30,
-                      width: 30,
-                      decoration: BoxDecoration(
-                        color: Colors.green,
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: GestureDetector(
-                        onTap: () {
-                          String nrp = data[index]['nrp'];
-                          String nama = data[index]['nama'];
-                          String tglMasuk = data[index]['tgl_masuk'];
-                          String email = data[index]['email'];
-                          String cocd = data[index]['cocd'];
-                          String idRole = data[index]['role_id'].toString();
-                          String entitas = data[index]['entitas'];
-                          String namaPangkat = data[index]['nama_pangkat'];
-                          String pangkat = data[index]['pangkat'];
-                          updateData(
-                            context,
-                            nrp,
-                            nama,
-                            tglMasuk,
-                            email,
-                            cocd,
-                            idRole,
-                            pangkat,
-                          );
-                        },
-                        child: const Icon(Icons.edit, color: Colors.white),
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    Container(
-                      height: 30,
-                      width: 30,
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: GestureDetector(
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: Text("Konfirmasi"),
-                                content: Text(
-                                    "Apakah Anda yakin ingin menghapus data ini?"),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text("Batal"),
-                                  ),
-                                  TextButton(
-                                    onPressed: () async {
-                                      String nrp = data[index]['nrp'];
-                                      await deleteData(nrp);
-                                      Navigator.of(context).pop();
-                                      // Panggil fetchData kembali setelah berhasil menghapus data
-                                      fetchData(searchQuery: searchQuery);
-                                    },
-                                    child: Text("Hapus"),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                        child: Icon(Icons.delete_outline, color: Colors.white),
-                      ),
-                    ),
-                  ],
+        (index) => DataRow(
+          cells: [
+            DataCell(Text((index + 1).toString())),
+            DataCell(Text(data[index]['nrp'] ?? 'null')),
+            DataCell(
+              Container(
+                width: 200,
+                child: Text(
+                  data[index]['nama'] ?? 'null',
+                  overflow: TextOverflow.clip,
                 ),
               ),
-            ],
-          );
-        },
-      ).whereType<DataRow>().toList(); // Remove nulls from the list.
+            ),
+            DataCell(
+              Container(
+                width: 150,
+                child: Text(
+                  data[index]['email'] ?? 'null',
+                  overflow: TextOverflow.clip,
+                ),
+              ),
+            ),
+            DataCell(Text(data[index]['cocd'] ?? 'null')),
+            DataCell(Text(data[index]['tgl_masuk'] ?? 'null')),
+            DataCell(Text(data[index]['role'] ?? 'null')),
+            DataCell(
+              Container(
+                width: 150,
+                child: Text(
+                  data[index]['entitas'] ?? 'null',
+                  overflow: TextOverflow.clip,
+                ),
+              ),
+            ),
+            DataCell(
+              Container(
+                width: 100,
+                child: Text(
+                  data[index]['nama_pangkat'] ?? 'null',
+                  overflow: TextOverflow.clip,
+                ),
+              ),
+            ),
+            DataCell(
+              Row(
+                children: [
+                  Container(
+                    height: 30,
+                    width: 30,
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: GestureDetector(
+                        onTap: () {
+                          updateData(context);
+                        },
+                        child: const Icon(Icons.edit, color: Colors.white)),
+                  ),
+                  const SizedBox(
+                    width: 5,
+                  ),
+                  Container(
+                    height: 30,
+                    width: 30,
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: const Icon(Icons.delete, color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
       setState(() {});
     } else {
       throw Exception('Failed to load data');
@@ -1044,19 +883,9 @@ class _UserManagementState extends State<UserManagement> {
   @override
   void initState() {
     super.initState();
-    _searchcontroller = TextEditingController();
-    _searchcontroller.addListener(() {
-      _onSearchChanged(_searchcontroller.text);
-    });
     fetchData();
     getDataRole();
     getDataPangkat();
-  }
-
-  @override
-  void dispose() {
-    _searchcontroller.dispose();
-    super.dispose();
   }
 
   Widget build(BuildContext context) {
@@ -1542,7 +1371,7 @@ class _UserManagementState extends State<UserManagement> {
           });
     }
 
-    _handleButtonUpdate() {
+    _handleButtonUpdate(dynamic value) {
       return showModalBottomSheet(
           context: context,
           isScrollControlled: true,
@@ -1999,7 +1828,6 @@ class _UserManagementState extends State<UserManagement> {
           });
     }
 
-    _handleButtonDelete() {}
     Widget content() {
       return Container(
         padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
@@ -2066,16 +1894,19 @@ class _UserManagementState extends State<UserManagement> {
     }
 
     Widget data() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-            child: Container(
-              height: 50,
-              width: 200,
-              padding: const EdgeInsets.all(3),
-              child: TextField(
+      return SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Padding(
+              padding:
+                  EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+              child: Container(
+                height: 50,
+                width: 200,
+                padding: const EdgeInsets.all(3),
+                child: TextField(
                   controller: _searchcontroller,
                   decoration: const InputDecoration(
                     labelText: "Search",
@@ -2087,102 +1918,110 @@ class _UserManagementState extends State<UserManagement> {
                       size: 17,
                     ),
                   ),
-                  onChanged: _onSearchChanged),
+                  onChanged: (value) {
+                    // setState(() {
+                    //   data = filterData!
+                    //       .where((element) => element.nama.contains(value))
+                    //       .toList();
+                    // });
+                  },
+                ),
+              ),
             ),
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          PaginatedDataTable(
-            rowsPerPage: _rowsPerPage,
-            onRowsPerPageChanged: (value) {
-              setState(() {
-                _rowsPerPage = value!;
-              });
-            },
-            onPageChanged: (pageIndex) {
-              setState(() {
-                _pageIndex = pageIndex + 1;
-                fetchData(); // Fetch data for the new page
-              });
-            },
-            columnSpacing: 15,
-            availableRowsPerPage: const [
-              5,
-              10,
-              50,
-              100,
-            ], // Choose rows per page
-            source: MyDataTableSource(
-              rows: _rows,
-              rowCount: _rowCount,
-              pageIndex: _pageIndex,
+            const SizedBox(
+              height: 10,
+            ),
+            PaginatedDataTable(
               rowsPerPage: _rowsPerPage,
+              onRowsPerPageChanged: (value) {
+                setState(() {
+                  _rowsPerPage = value!;
+                });
+              },
+              onPageChanged: (pageIndex) {
+                setState(() {
+                  _pageIndex = pageIndex + 1;
+                  fetchData(); // Fetch data for the new page
+                });
+              },
+              columnSpacing: 10,
+              availableRowsPerPage: const [
+                5,
+                10,
+                50,
+                100,
+              ], // Choose rows per page
+              source: MyDataTableSource(
+                rows: _rows,
+                rowCount: _rowCount,
+                pageIndex: _pageIndex,
+                rowsPerPage: _rowsPerPage,
+              ),
+              columns: const [
+                DataColumn(
+                  label: Text(
+                    "No",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "NRP",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "Nama",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "Email",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "cocd",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "Tgl masuk",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "Role",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "Entitas",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "Pangkat",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "Aksi",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+              ],
             ),
-            columns: const [
-              DataColumn(
-                label: Text(
-                  "No",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  "NRP",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  "Nama",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  "Email",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  "cocd",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  "Tgl masuk",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  "Role",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  "Entitas",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  "Pangkat",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  "Aksi",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       );
     }
 
@@ -2218,14 +2057,13 @@ class MyDataTableSource extends DataTableSource {
 
   @override
   DataRow? getRow(int index) {
-    if (index >= 0 && index < rows.length) {
-      return rows[index];
-    }
-    return null; // Return null for indexes outside the list range.
+    if (index >= rows.length) return null;
+    final data = rows[index];
+    return rows[index];
   }
 
   @override
-  int get _rowCount => rowCount;
+  int get _rowCount => rows.length;
 
   @override
   bool get isRowCountApproximate => false;

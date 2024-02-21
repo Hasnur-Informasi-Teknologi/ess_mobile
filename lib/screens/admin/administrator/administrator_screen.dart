@@ -131,7 +131,7 @@ class Administrator extends StatelessWidget {
         Get.toNamed('/admin/administrator/user_management/release_strategy');
         break;
       case 3:
-        Get.toNamed('/admin/administrator/user_management/master_data');
+        Get.toNamed('/admin/administrator/master_data/master_data_screen');
         break;
       default:
         return print('Error');

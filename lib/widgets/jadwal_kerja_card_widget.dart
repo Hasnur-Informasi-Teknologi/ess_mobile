@@ -1,9 +1,103 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/row_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:async';
 
-class JadwalKerjaCardWidget extends StatelessWidget {
+class JadwalKerjaController extends GetxController{
+  var date=[].obs;
+  var bulan="1".obs;
+  var jam_masuk="".obs;
+  var jam_keluar="".obs;
+  var status="".obs;
+  var sistem_kerja="".obs;
+  var index=0.obs;
+}
+
+class JadwalKerjaCardWidget extends StatefulWidget {
   const JadwalKerjaCardWidget({super.key});
+
+  @override
+  State<JadwalKerjaCardWidget> createState() => _JadwalKerjaCardWidgetState();
+}
+
+class _JadwalKerjaCardWidgetState extends State<JadwalKerjaCardWidget> {
+  JadwalKerjaController x = Get.put(JadwalKerjaController());
+
+   Future<void> getDataKaryawan() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    var karyawan=jsonDecode(prefs.getString('userData').toString())['data'];
+    if (token != null) {
+      try {
+        final response = await http.get(
+          Uri.parse('http://hg-attendance.hasnurgroup.com/api/attendance_report/'+karyawan['pernr']),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+        );
+        final responseData = jsonDecode(response.body);
+        x.date.value=responseData['data'];
+        x.bulan.value = x.date[0]['attendance_month'].toString();
+        x.jam_masuk.value=x.date[0]['clock_in_time'];
+        x.jam_keluar.value=x.date[0]['clock_out_time'];
+        x.status.value=x.date[0]['clock_in_status'];
+        x.sistem_kerja.value=x.date[0]['working_location_status'];
+      } catch (e) {
+        print(e);
+      }
+    } else {
+      print('tidak ada token home');
+    }
+  }
+  get_month(value){
+    if(value=='1'){
+      return 'Januari';
+    }else if(value=='2'){
+      return 'Februari';
+    }else if(value=='3'){
+      return 'Maret';
+    }else if(value=='4'){
+      return 'April';
+    }else if(value=='5'){
+      return 'Mei';
+    }else if(value=='6'){
+      return 'Juni';
+    }else if(value=='7'){
+      return 'Juli';
+    }else if(value=='8'){
+      return 'Agustus';
+    }else if(value=='9'){
+      return 'September';
+    }else if(value=='10'){
+      return 'Oktober';
+    }else if(value=='11'){
+      return 'November';
+    }else if(value=='12'){
+      return 'Desember';
+    }
+  }
+
+    @override
+    void initState() {
+        super.initState();
+        // main();
+        getDataKaryawan();
+    }
+
+  List<T> map<T>(List list, Function handler) { // CARA 4 dengan index value
+    List<T> result = [];
+    for (var i = 0; i < list.length; i++) {
+      result.add(handler(i, list[i]));
+    }
+    return result;
+  }
+   
 
   @override
   Widget build(BuildContext context) {
@@ -34,36 +128,48 @@ class JadwalKerjaCardWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const RowWidget(textLeft: 'Jadwal Kerja', textRight: 'April 2023'),
+            Obx(() => 
+             RowWidget(textLeft: 'Jadwal Kerja', textRight: get_month(x.bulan)),
+            ), 
             SizedBox(
               height: sizedBoxHeightTall,
             ),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: Row(
+              child: Obx(() => Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(7, (index) {
-                  return Padding(
+                 children : map<Widget>(x.date, (index, url) { 
+                        return  Padding(
                     padding: EdgeInsets.symmetric(horizontal: padding8),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(100.0),
-                      child: Container(
-                        width: size.width * 1 / 12,
-                        color: const Color(primaryYellow),
-                        padding: EdgeInsets.all(padding10),
-                        child: Text(
-                          '${index + 1}',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Colors.grey[700],
-                            fontSize: textSmall,
+                    child: GestureDetector(
+                      onTap: (){
+                        x.jam_masuk.value=x.date[index]['clock_in_time'];
+                        x.jam_keluar.value=x.date[index]['clock_out_time'];
+                        x.status.value=x.date[index]['clock_in_status'];
+                        x.sistem_kerja.value=x.date[index]['working_location_status'];
+                        x.index.value=index;
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(100.0),
+                        child: Obx(() => Container(
+                          width: size.width * 1 / 12,
+                          color: x.index.toInt()==index?const Color.fromARGB(255, 96, 170, 231):Color(primaryYellow),
+                          padding: EdgeInsets.all(padding10),
+                          child: Text(
+                            x.date[index]['attendance_day'].toString(),
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.grey[700],
+                              fontSize: textSmall,
+                            ),
                           ),
-                        ),
+                        )),
                       ),
                     ),
                   );
-                }),
-              ),
+                }
+                 )
+              ),), 
             ),
             SizedBox(
               height: sizedBoxHeightTall,
@@ -72,12 +178,12 @@ class JadwalKerjaCardWidget extends StatelessWidget {
             SizedBox(
               height: sizedBoxHeightShort,
             ),
-            const RowWidget(
-              textLeft: '10 April 2023 08.00 WITA',
-              textRight: '10 April 2023 17.00 WITA',
+            Obx(() => RowWidget(
+              textLeft: x.jam_masuk.toString(),
+              textRight: x.jam_keluar.toString(),
               fontWeightLeft: FontWeight.w300,
               fontWeightRight: FontWeight.w300,
-            ),
+            )), 
             SizedBox(
               height: sizedBoxHeightTall,
             ),
@@ -85,12 +191,12 @@ class JadwalKerjaCardWidget extends StatelessWidget {
             SizedBox(
               height: sizedBoxHeightShort,
             ),
-            const RowWidget(
-              textLeft: '10 April 2023 08.00 WITA',
-              textRight: '10 April 2023 17.00 WITA',
+            Obx(() => RowWidget(
+              textLeft: x.sistem_kerja.toString(),
+              textRight: x.status.toString(),
               fontWeightLeft: FontWeight.w300,
               fontWeightRight: FontWeight.w300,
-            ),
+            )), 
           ],
         ),
       ),
