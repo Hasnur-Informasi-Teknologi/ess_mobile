@@ -104,7 +104,7 @@ class _EntitasState extends State<Entitas> {
     }
   }
 
-  String? _validatorNrp(dynamic value) {
+  String? _validatorKode(dynamic value) {
     if (value == null || value.isEmpty) {
       setState(() {
         maxHeightValidator = 80.0;
@@ -225,7 +225,7 @@ class _EntitasState extends State<Entitas> {
                     EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                 child: TextFormField(
                   controller: _nrpController,
-                  validator: _validatorNrp,
+                  validator: _validatorKode,
                   decoration: InputDecoration(
                     hintText: "Masukan Kode",
                     hintStyle: TextStyle(
@@ -579,7 +579,7 @@ class _EntitasState extends State<Entitas> {
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: TextFormField(
                     controller: _nrpController,
-                    validator: _validatorNrp,
+                    validator: _validatorKode,
                     decoration: InputDecoration(
                       hintText: "Masukan Kode",
                       hintStyle: TextStyle(
@@ -709,7 +709,7 @@ class _EntitasState extends State<Entitas> {
                               horizontal: paddingHorizontalNarrow),
                           child: TextFormField(
                             controller: _nrpController,
-                            validator: _validatorNrp,
+                            validator: _validatorKode,
                             decoration: InputDecoration(
                               hintText: "Masukan NRP",
                               hintStyle: TextStyle(
