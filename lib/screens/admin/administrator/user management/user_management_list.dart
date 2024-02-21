@@ -188,7 +188,8 @@ class _UserManagementState extends State<UserManagement> {
     return null;
   }
 
-  Future<void> updateData(context) {
+  Future<void> updateData(context, String nrp, String nama, String tglMasuk,
+      String email, String cocd, String idRole, String pangkat) async {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double paddingHorizontalNarrow = size.width * 0.035;
@@ -199,6 +200,20 @@ class _UserManagementState extends State<UserManagement> {
     double sizedBoxHeightTall = size.height * 0.0163;
     double paddingHorizontalWide = size.width * 0.0585;
     double _maxHeightAtasan = 60.0;
+    DateTime dateTimeAwal = DateFormat("yyyy-MM-dd").parse(tglMasuk);
+    String formattedDateString = DateFormat("dd-MM-yyyy").format(dateTimeAwal);
+    DateTime dateTime = DateFormat("dd-MM-yyyy").parse(formattedDateString);
+    print("id role : $idRole");
+
+    //menyimpan data yang diketikan pada textfield
+    String textFieldValueNrp = nrp;
+    String textFieldValueCocd = cocd;
+    String textFieldValueNama = nama;
+    String textFieldValueTglMasuk = dateTime.toString();
+    String textFieldValueEmail = email;
+    String textFieldValueIdRole = idRole.toString();
+    String textFieldValuePangkat = pangkat;
+
     return showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -231,8 +246,15 @@ class _UserManagementState extends State<UserManagement> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: TextFormField(
-                          controller: _nrpController,
+                          // controller: _nrpController,
                           validator: _validatorNrp,
+                          initialValue: nrp,
+                          onChanged: (value) {
+                            setState(() {
+                              textFieldValueNrp =
+                                  value; // Menyimpan nilai setiap kali berubah
+                            });
+                          },
                           decoration: InputDecoration(
                             hintText: "Masukan NRP",
                             hintStyle: TextStyle(
@@ -269,8 +291,15 @@ class _UserManagementState extends State<UserManagement> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: TextFormField(
-                          controller: _namaController,
+                          // controller: _namaController,
                           validator: _validatorNama,
+                          initialValue: nama,
+                          onChanged: (value) {
+                            setState(() {
+                              textFieldValueNama =
+                                  value; // Menyimpan nilai setiap kali berubah
+                            });
+                          },
                           decoration: InputDecoration(
                             hintText: "Masukan Nama",
                             hintStyle: TextStyle(
@@ -321,9 +350,8 @@ class _UserManagementState extends State<UserManagement> {
                                 color: Colors.grey,
                               ),
                               Text(
-                                DateFormat('dd-MM-yyyy').format(
-                                    _tanggalJoinController.selectedDate ??
-                                        DateTime.now()),
+                                DateFormat('dd-MM-yyyy')
+                                    .format(dateTime ?? DateTime.now()),
                                 style: TextStyle(
                                   color: Colors.grey,
                                   fontSize: textMedium,
@@ -343,21 +371,34 @@ class _UserManagementState extends State<UserManagement> {
                                   height: 350,
                                   width: 350,
                                   child: SfDateRangePicker(
-                                    controller: _tanggalJoinController,
+                                    // controller: _tanggalJoinController,
+                                    initialSelectedDate: dateTime,
                                     onSelectionChanged:
                                         (DateRangePickerSelectionChangedArgs
                                             args) {
                                       setState(() {
-                                        tanggalJoin = args.value;
+                                        dateTime = args
+                                            .value; // Perbarui dateTime saat memilih tanggal baru
+                                        tanggalJoin = args
+                                            .value; // Perbarui tanggalJoin juga jika diperlukan
                                       });
                                     },
                                     selectionMode:
                                         DateRangePickerSelectionMode.single,
+                                    initialDisplayDate: dateTime,
                                   ),
                                 ),
                                 actions: <Widget>[
                                   TextButton(
-                                    onPressed: () => Navigator.pop(context),
+                                    onPressed: () {
+                                      setState(() {});
+                                      // Ambil tanggal yang sudah dipilih
+                                      textFieldValueTglMasuk =
+                                          dateTime.toString();
+                                      print('Tanggal yang dipilih: $dateTime');
+
+                                      Navigator.pop(context);
+                                    },
                                     child: const Text('OK'),
                                   ),
                                 ],
@@ -379,8 +420,15 @@ class _UserManagementState extends State<UserManagement> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: TextFormField(
-                          controller: _emailController,
+                          // controller: _emailController,
+                          initialValue: email,
                           validator: _validatorEmail,
+                          onChanged: (value) {
+                            setState(() {
+                              textFieldValueEmail =
+                                  value; // Menyimpan nilai setiap kali berubah
+                            });
+                          },
                           decoration: InputDecoration(
                             hintText: "Masukan email",
                             hintStyle: TextStyle(
@@ -417,8 +465,15 @@ class _UserManagementState extends State<UserManagement> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: TextFormField(
-                          controller: _cocdController,
+                          // controller: _cocdController,
+                          initialValue: cocd,
                           validator: _validatorCocd,
+                          onChanged: (value) {
+                            setState(() {
+                              textFieldValueCocd =
+                                  value; // Menyimpan nilai setiap kali berubah
+                            });
+                          },
                           decoration: InputDecoration(
                             hintText: "Masukan cocd",
                             hintStyle: TextStyle(
@@ -473,7 +528,7 @@ class _UserManagementState extends State<UserManagement> {
                               ),
                             ),
                             validator: _validatorRole,
-                            value: selectedValueRole,
+                            value: idRole.toString(),
                             icon: selectedRole.isEmpty
                                 ? const SizedBox(
                                     height: 20,
@@ -486,7 +541,7 @@ class _UserManagementState extends State<UserManagement> {
                                 : const Icon(Icons.arrow_drop_down),
                             onChanged: (String? newValue) {
                               setState(() {
-                                selectedValueRole = newValue ?? '';
+                                textFieldValueIdRole = newValue ?? '';
                                 print("$selectedValueRole");
                               });
                             },
@@ -560,7 +615,7 @@ class _UserManagementState extends State<UserManagement> {
                               ),
                             ),
                             validator: _validatorPangkat,
-                            value: selectedValuePangkat,
+                            value: pangkat,
                             icon: selectedPangkat.isEmpty
                                 ? const SizedBox(
                                     height: 20,
@@ -573,7 +628,7 @@ class _UserManagementState extends State<UserManagement> {
                                 : const Icon(Icons.arrow_drop_down),
                             onChanged: (String? newValue) {
                               setState(() {
-                                selectedValuePangkat = newValue ?? '';
+                                textFieldValuePangkat = newValue ?? '';
                                 print("$selectedValuePangkat");
                                 // selectedValueAtasan = null;
                               });
@@ -624,7 +679,14 @@ class _UserManagementState extends State<UserManagement> {
                               horizontal: paddingHorizontalNarrow),
                           child: ElevatedButton(
                             onPressed: () {
-                              _submitUpdate();
+                              _submitUpdate(
+                                  textFieldValueNrp,
+                                  textFieldValueNama,
+                                  textFieldValueTglMasuk,
+                                  textFieldValueEmail,
+                                  textFieldValueIdRole,
+                                  textFieldValuePangkat,
+                                  textFieldValueCocd);
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(primaryYellow),
@@ -653,7 +715,22 @@ class _UserManagementState extends State<UserManagement> {
         });
   }
 
-  Future<void> _submitUpdate() async {
+  Future<void> _submitUpdate(
+      String textFieldValueNrp,
+      String textFieldValueNama,
+      String textFieldValueTglMasuk,
+      String textFieldValueEmail,
+      String textFieldValueIdRole,
+      String textFieldValuePangkat,
+      String textFieldValueCocd) async {
+    // print("update btn");
+    // print("ini value nrp : $textFieldValueNrp");
+    // print("ini value nama : $textFieldValueNama");
+    // print("ini value tgl masuk : $textFieldValueTglMasuk");
+    // print("ini value email : $textFieldValueEmail");
+    // print("ini value id role : $textFieldValueIdRole");
+    // print("ini value pangkat : $textFieldValuePangkat");
+    // print("ini value Cocd : $textFieldValueCocd");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
@@ -671,21 +748,21 @@ class _UserManagementState extends State<UserManagement> {
     _formKey.currentState!.save();
 
     try {
-      final response = await http.put(
+      final response = await http.post(
         Uri.parse('$apiUrl/user-management/update'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token'
         },
         body: jsonEncode({
-          'nrp': _nrpController.text,
-          'cocd': _cocdController.text,
-          'nama': _namaController.text,
-          'email': _emailController.text,
-          'role': selectedValueRole.toString(),
-          'pangkat': selectedValuePangkat.toString(),
-          'tgl_masuk': tanggalJoin != null
-              ? tanggalJoin.toString()
+          'nrp': textFieldValueNrp,
+          'cocd': textFieldValueCocd,
+          'nama': textFieldValueNama,
+          'email': textFieldValueEmail,
+          'role_id': textFieldValueIdRole.toString(),
+          'pangkat': textFieldValuePangkat.toString(),
+          'tgl_masuk': textFieldValueTglMasuk != null
+              ? textFieldValueTglMasuk.toString()
               : DateTime.now().toString(),
           'terminate': 'X',
         }),
@@ -704,7 +781,7 @@ class _UserManagementState extends State<UserManagement> {
       print(responseData);
       if (responseData['status'] == 'success') {
         Navigator.pop(context);
-        // Get.toNamed('/admin/administrator/user_management/user_management');
+        fetchData();
       }
     } catch (e) {
       print(e);
@@ -716,17 +793,50 @@ class _UserManagementState extends State<UserManagement> {
     });
   }
 
-  Future<void> fetchData() async {
+  Future<void> deleteData(String nrp) async {
+    // print('tombol delet bekerja dengan nrp :  $nrp');
+    // print('API  : $apiUrl/user-management/delete/nrp=$nrp');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? token = prefs.getString('token');
+    print('ini token :  $token');
+    if (token != null) {
+      try {
+        final response =
+            await http.post(Uri.parse("$apiUrl/user-management/delete"),
+                headers: <String, String>{
+                  'Content-Type': 'application/json;charset=UTF-8',
+                  'Authorization': 'Bearer $token'
+                },
+                body: jsonEncode({'nrp': nrp}));
+        if (response.statusCode == 200) {
+          print('Item with NRP $nrp deleted successfully');
+
+          // Get.toNamed('/admin/administrator/user_management/user_management');
+        } else {
+          print("response error request: ${response.request}");
+          throw Exception('Failed to delete item');
+        }
+        // print("$token");
+        // print("$dataPangkatApi");
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
+  Future<void> fetchData({String searchQuery = ''}) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
     final response = await http.get(
-        Uri.parse(
-            "$apiUrl/user-management/get?page=$_pageIndex&perPage=$_rowsPerPage&search="),
-        headers: <String, String>{
-          "Content-Type": "application/json;charset=UTF-8",
-          'Authorization': 'Bearer $token',
-        });
+      Uri.parse(
+          "$apiUrl/user-management/get?page=$_pageIndex&perPage=$_rowsPerPage&search=$searchQuery"),
+      headers: <String, String>{
+        "Content-Type": "application/json;charset=UTF-8",
+        'Authorization': 'Bearer $token',
+      },
+    );
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
       final data = responseData["dataku"];
@@ -734,83 +844,145 @@ class _UserManagementState extends State<UserManagement> {
       _rowCount = total['total_records'] ?? 'null'.length;
       _rows = List.generate(
         data.length,
-        (index) => DataRow(
-          cells: [
-            DataCell(Text((index + 1).toString())),
-            DataCell(Text(data[index]['nrp'] ?? 'null')),
-            DataCell(
-              Container(
-                width: 200,
-                child: Text(
-                  data[index]['nama'] ?? 'null',
-                  overflow: TextOverflow.clip,
+        (index) {
+          final user = data[index];
+          // Filtering logic here. For example, if you want to filter by name:
+          if (searchQuery.isNotEmpty &&
+              !user['nama']
+                  .toString()
+                  .toLowerCase()
+                  .contains(searchQuery.toLowerCase())) {
+            return null; // Skip users that don't match the search query.
+          }
+          return DataRow(
+            cells: [
+              DataCell(Text((index + 1).toString())),
+              DataCell(Text(data[index]['nrp'] ?? 'null')),
+              DataCell(
+                Container(
+                  width: 200,
+                  child: Text(
+                    data[index]['nama'] ?? 'null',
+                    overflow: TextOverflow.fade,
+                  ),
                 ),
               ),
-            ),
-            DataCell(
-              Container(
-                width: 150,
-                child: Text(
-                  data[index]['email'] ?? 'null',
-                  overflow: TextOverflow.clip,
+              DataCell(
+                Container(
+                  width: 200,
+                  child: Text(
+                    data[index]['email'] ?? 'null',
+                    overflow: TextOverflow.fade,
+                  ),
                 ),
               ),
-            ),
-            DataCell(Text(data[index]['cocd'] ?? 'null')),
-            DataCell(Text(data[index]['tgl_masuk'] ?? 'null')),
-            DataCell(Text(data[index]['role'] ?? 'null')),
-            DataCell(
-              Container(
-                width: 150,
-                child: Text(
-                  data[index]['entitas'] ?? 'null',
-                  overflow: TextOverflow.clip,
+              DataCell(Text(data[index]['cocd'] ?? 'null')),
+              DataCell(Text(data[index]['tgl_masuk'] ?? 'null')),
+              DataCell(Text(data[index]['role'] ?? 'null')),
+              DataCell(
+                Container(
+                  width: 150,
+                  child: Text(
+                    data[index]['entitas'] ?? 'null',
+                    overflow: TextOverflow.fade,
+                  ),
                 ),
               ),
-            ),
-            DataCell(
-              Container(
-                width: 100,
-                child: Text(
-                  data[index]['nama_pangkat'] ?? 'null',
-                  overflow: TextOverflow.clip,
+              DataCell(
+                Container(
+                  width: 100,
+                  child: Text(
+                    data[index]['nama_pangkat'] ?? 'null',
+                    overflow: TextOverflow.fade,
+                  ),
                 ),
               ),
-            ),
-            DataCell(
-              Row(
-                children: [
-                  Container(
-                    height: 30,
-                    width: 30,
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: GestureDetector(
+              DataCell(
+                Row(
+                  children: [
+                    Container(
+                      height: 30,
+                      width: 30,
+                      decoration: BoxDecoration(
+                        color: Colors.green,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: GestureDetector(
                         onTap: () {
-                          updateData(context);
+                          String nrp = data[index]['nrp'];
+                          String nama = data[index]['nama'];
+                          String tglMasuk = data[index]['tgl_masuk'];
+                          String email = data[index]['email'];
+                          String cocd = data[index]['cocd'];
+                          String idRole = data[index]['role_id'].toString();
+                          String entitas = data[index]['entitas'];
+                          String namaPangkat = data[index]['nama_pangkat'];
+                          String pangkat = data[index]['pangkat'];
+                          updateData(
+                            context,
+                            nrp,
+                            nama,
+                            tglMasuk,
+                            email,
+                            cocd,
+                            idRole,
+                            pangkat,
+                          );
                         },
-                        child: const Icon(Icons.edit, color: Colors.white)),
-                  ),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  Container(
-                    height: 30,
-                    width: 30,
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(5),
+                        child: const Icon(Icons.edit, color: Colors.white),
+                      ),
                     ),
-                    child: const Icon(Icons.delete, color: Colors.white),
-                  ),
-                ],
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Container(
+                      height: 30,
+                      width: 30,
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text("Konfirmasi"),
+                                content: Text(
+                                    "Apakah Anda yakin ingin menghapus data ini?"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text("Batal"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () async {
+                                      String nrp = data[index]['nrp'];
+                                      await deleteData(nrp);
+                                      Navigator.of(context).pop();
+                                      // Panggil fetchData kembali setelah berhasil menghapus data
+                                      fetchData(searchQuery: searchQuery);
+                                    },
+                                    child: Text("Hapus"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: Icon(Icons.delete, color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-      );
+            ],
+          );
+        },
+      ).whereType<DataRow>().toList(); // Remove nulls from the list.
       setState(() {});
     } else {
       throw Exception('Failed to load data');
