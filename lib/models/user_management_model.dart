@@ -1,164 +1,73 @@
-// class Data {
-//   String? nrp;
-//   String? name;
-//   String? email;
-//   String? role;
-//   String? entitas;
-//   String? pangkat;
-//   String? status;
+class DatakuModel {
+  List<DatakuItemModel> dataku;
+  TotalPageModel totalPage;
 
-//   Data({
-//     required this.nrp,
-//     required this.name,
-//     required this.email,
-//     required this.role,
-//     required this.entitas,
-//     required this.pangkat,
-//     required this.status,
-//   });
-// }
+  DatakuModel({required this.dataku, required this.totalPage});
 
-// List<Data> myData = [
-//   Data(
-//     nrp: "16120034",
-//     name: "MADE WARSANA",
-//     email: "adam@gmail.com",
-//     role: "employe",
-//     entitas: "Hasnur Resources Terminal",
-//     pangkat: "Supervisor",
-//     status: "Tidak Aktif",
-//   ),
-//   Data(
-//     nrp: "16120034",
-//     name: "MADE WARSANA",
-//     email: "adam@gmail.com",
-//     role: "employe",
-//     entitas: "Hasnur Resources Terminal",
-//     pangkat: "Supervisor",
-//     status: "Tidak Aktif",
-//   ),
-//   Data(
-//     nrp: "16120034",
-//     name: "MADE WARSANA",
-//     email: "adam@gmail.com",
-//     role: "employe",
-//     entitas: "Hasnur Resources Terminal",
-//     pangkat: "Supervisor",
-//     status: "Tidak Aktif",
-//   ),
-//   Data(
-//     nrp: "16120034",
-//     name: "MADE WARSANA",
-//     email: "adam@gmail.com",
-//     role: "employe",
-//     entitas: "Hasnur Resources Terminal",
-//     pangkat: "Supervisor",
-//     status: "Tidak Aktif",
-//   ),
-//   Data(
-//     nrp: "16120034",
-//     name: "MADE WARSANA",
-//     email: "adam@gmail.com",
-//     role: "employe",
-//     entitas: "Hasnur Resources Terminal",
-//     pangkat: "Supervisor",
-//     status: "Tidak Aktif",
-//   ),
-//   Data(
-//     nrp: "16120034",
-//     name: "MADE WARSANA",
-//     email: "adam@gmail.com",
-//     role: "employe",
-//     entitas: "Hasnur Resources Terminal",
-//     pangkat: "Supervisor",
-//     status: "Tidak Aktif",
-//   ),
-//   Data(
-//     nrp: "16120034",
-//     name: "MADE WARSANA",
-//     email: "adam@gmail.com",
-//     role: "employe",
-//     entitas: "Hasnur Resources Terminal",
-//     pangkat: "Supervisor",
-//     status: "Tidak Aktif",
-//   ),
-//   Data(
-//     nrp: "16120034",
-//     name: "MADE WARSANA",
-//     email: "adam@gmail.com",
-//     role: "employe",
-//     entitas: "Hasnur Resources Terminal",
-//     pangkat: "Supervisor",
-//     status: "Tidak Aktif",
-//   ),
-//   Data(
-//     nrp: "16120034",
-//     name: "Adam Freelance",
-//     email: "adam@gmail.com",
-//     role: "employe",
-//     entitas: "Hasnur Resources Terminal",
-//     pangkat: "Supervisor",
-//     status: "Tidak Aktif",
-//   ),
-//   Data(
-//     nrp: "16120034",
-//     name: "Adam",
-//     email: "adam@gmail.com",
-//     role: "employe",
-//     entitas: "Hasnur Resources Terminal",
-//     pangkat: "Supervisor",
-//     status: "Tidak Aktif",
-//   ),
-//   Data(
-//     nrp: "16120034",
-//     name: "Adam",
-//     email: "adam@gmail.com",
-//     role: "employe",
-//     entitas: "Hasnur Resources Terminal",
-//     pangkat: "Supervisor",
-//     status: "Tidak Aktif",
-//   ),
-// ];
+  factory DatakuModel.fromJson(Map<String, dynamic> json) {
+    var datakuList = json['dataku'] as List;
+    List<DatakuItemModel> datakuItems =
+        datakuList.map((item) => DatakuItemModel.fromJson(item)).toList();
 
-class UserManagementModel {
-  String nrp;
-  String name;
-  String email;
-  String role;
-  String entitas;
-  String pangkat;
-  String status;
-
-  UserManagementModel({
-    required this.nrp,
-    required this.name,
-    required this.email,
-    required this.role,
-    required this.entitas,
-    required this.pangkat,
-    required this.status,
-  });
-
-  factory UserManagementModel.fromJson(Map<String, dynamic> json) {
-    return UserManagementModel(
-      nrp: json["nrp"],
-      name: json["nama"],
-      email: json["email"],
-      role: json["role"],
-      entitas: json["entitas"],
-      pangkat: json["pangkat"],
-      status: json["status"],
+    return DatakuModel(
+      dataku: datakuItems,
+      totalPage: TotalPageModel.fromJson(json['totalPage']),
     );
   }
-  Map<String, dynamic> toJson() {
-    return {
-      "nrp": nrp,
-      "nama": name,
-      "email": email,
-      "role": role,
-      "entitas": entitas,
-      "pangkat": pangkat,
-      "status": status,
-    };
+}
+
+class DatakuItemModel {
+  String? nrp;
+  String? nama;
+  String? tglMasuk;
+  String? email;
+  String? cocd;
+  int? roleId;
+  String? pangkat;
+  String? namaPangkat;
+  String? entitas;
+  String? role;
+  String? terminate;
+
+  DatakuItemModel({
+    required this.nrp,
+    required this.nama,
+    required this.tglMasuk,
+    required this.email,
+    required this.cocd,
+    required this.roleId,
+    required this.pangkat,
+    required this.namaPangkat,
+    required this.entitas,
+    required this.role,
+    required this.terminate,
+  });
+
+  factory DatakuItemModel.fromJson(Map<String, dynamic> json) {
+    return DatakuItemModel(
+      nrp: json['nrp'],
+      nama: json['nama'],
+      tglMasuk: json['tgl_masuk'],
+      email: json['email'],
+      cocd: json['cocd'],
+      roleId: json['role_id'],
+      pangkat: json['pangkat'],
+      namaPangkat: json['nama_pangkat'],
+      entitas: json['entitas'],
+      role: json['role'],
+      terminate: json['terminate'],
+    );
+  }
+}
+
+class TotalPageModel {
+  int totalRecords;
+
+  TotalPageModel({required this.totalRecords});
+
+  factory TotalPageModel.fromJson(Map<String, dynamic> json) {
+    return TotalPageModel(
+      totalRecords: json['total_records'],
+    );
   }
 }
