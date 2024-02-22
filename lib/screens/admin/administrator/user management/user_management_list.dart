@@ -8,7 +8,6 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
-import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -21,6 +20,7 @@ class UserManagement extends StatefulWidget {
 }
 
 class _UserManagementState extends State<UserManagement> {
+  late TextEditingController _searchcontroller;
   late List<DataRow> _rows = [];
   List<Map<String, dynamic>> selectedRole = [];
   List<Map<String, dynamic>> selectedPangkat = [];
@@ -1067,9 +1067,19 @@ class _UserManagementState extends State<UserManagement> {
   @override
   void initState() {
     super.initState();
+    _searchcontroller = TextEditingController();
+    _searchcontroller.addListener(() {
+      _onSearchChanged(_searchcontroller.text);
+    });
     fetchData();
     getDataRole();
     getDataPangkat();
+  }
+
+  @override
+  void dispose() {
+    _searchcontroller.dispose();
+    super.dispose();
   }
 
   Widget build(BuildContext context) {
@@ -2102,13 +2112,7 @@ class _UserManagementState extends State<UserManagement> {
                       size: 17,
                     ),
                   ),
-                  onChanged: (value) {
-                    // setState(() {
-                    //   data = filterData!
-                    //       .where((element) => element.nama.contains(value))
-                    //       .toList();
-                    // });
-                  },
+                  onChanged: _onSearchChanged,
                 ),
               ),
             ),
@@ -2241,9 +2245,10 @@ class MyDataTableSource extends DataTableSource {
 
   @override
   DataRow? getRow(int index) {
-    if (index >= rows.length) return null;
-    final data = rows[index];
-    return rows[index];
+    if (index >= 0 && index < rows.length) {
+      return rows[index];
+    }
+    return null; // Return null for indexes outside the list range.
   }
 
   @override
