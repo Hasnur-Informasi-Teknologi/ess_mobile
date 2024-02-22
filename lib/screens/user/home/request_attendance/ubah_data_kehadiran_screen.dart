@@ -556,15 +556,6 @@ class _UbahDataKehadiranScreenState extends State<UbahDataKehadiranScreen> {
                 ),
               ),
             ),
-            // ElevatedButton(
-            //   onPressed: () {
-            //     String enteredText = _textController.text;
-            //     // Lakukan sesuatu dengan teks yang diinputkan
-            //     print('Input Text: $enteredText');
-            //     Navigator.of(context).pop(); // Menutup modal
-            //   },
-            //   child: Text('Simpan'), // Tombol kedua
-            // ),
           ],
         );
       },
