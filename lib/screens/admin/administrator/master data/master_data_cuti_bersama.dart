@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
@@ -7,7 +8,6 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
-import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -20,185 +20,147 @@ class CutiBersama extends StatefulWidget {
 }
 
 class _CutiBersamaState extends State<CutiBersama> {
+  late TextEditingController _searchcontroller;
   late List<DataRow> _rows = [];
-  List<Map<String, dynamic>> selectedRole = [];
-  List<Map<String, dynamic>> selectedPangkat = [];
-  List<Map<String, dynamic>> selectedEntitas = [];
-  List<Map<String, dynamic>> selectedAtasan = [];
-  List<Map<String, dynamic>> selectedAtasanDariAtasan = [];
-  String? selectedValuePangkat, selectedValueRole;
-  bool _isLoading = false;
   late int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   late int _rowCount = 0;
   late int _pageIndex = 1;
+  bool _isLoading = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final String apiUrl = API_URL;
   double maxHeightValidator = 60.0;
-  TextEditingController _nrpController = TextEditingController();
-  TextEditingController _namaController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _cocdController = TextEditingController();
+  final TextEditingController _deskripsiController = TextEditingController();
+  final TextEditingController _jmlHariController = TextEditingController();
 
-  final DateRangePickerController _tanggalJoinController =
+  final DateRangePickerController _tanggalMulaiController =
       DateRangePickerController();
-  DateTime? tanggalJoin;
+  DateTime? tanggalMulai;
+  final DateRangePickerController _tanggalBerakhirController =
+      DateRangePickerController();
+  DateTime? tanggalBerakhir;
 
-  Future<void> getDataRole() async {
+  Timer? _searchDebounce;
+
+  int? parseJumlahHari(String value) {
+    // Convert jumlahHari to an integer.
+    final int? jumlahHariInt = int.tryParse(value);
+    if (jumlahHariInt == null) {
+      // Handle the error, maybe show a snackbar message indicating invalid input.
+      return null;
+    }
+    return jumlahHariInt;
+  }
+
+  void _onSearchChanged(String value) {
+    if (_searchDebounce?.isActive ?? false) _searchDebounce!.cancel();
+    _searchDebounce = Timer(const Duration(milliseconds: 500), () {
+      fetchData(searchQuery: value);
+    });
+  }
+
+  String? _validatorDeskripsi(dynamic value) {
+    if (value == null || value.isEmpty) {
+      setState(() {
+        maxHeightValidator = 80.0;
+      });
+      return 'Field Deskripsi Kosong';
+    }
+
+    setState(() {
+      maxHeightValidator = 60.0;
+    });
+    return null;
+  }
+
+  String? _validatorJmlHari(dynamic value) {
+    if (value == null || value.isEmpty) {
+      setState(() {
+        maxHeightValidator = 80.0;
+      });
+      return 'Field Jumlah Hari Kosong';
+    } else if (int.tryParse(value) == null) {
+      setState(() {
+        maxHeightValidator = 80.0;
+      });
+      return 'Field Jumlah Hari harus angka';
+    } else if (int.parse(value) <= 0) {
+      setState(() {
+        maxHeightValidator = 80.0;
+      });
+      return 'Jumlah Hari harus lebih besar dari 0';
+    }
+
+    setState(() {
+      maxHeightValidator = 60.0;
+    });
+    return null;
+  }
+
+  Future<void> deleteData(String id) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     String? token = prefs.getString('token');
-
     if (token != null) {
       try {
-        final response = await http.get(
-            Uri.parse("$apiUrl/user-autorization/get_all"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataRoleApi = responseData['data_role'];
-        print("$token");
-        print("$dataRoleApi");
-
-        setState(
-          () {
-            selectedRole = List<Map<String, dynamic>>.from(dataRoleApi);
-            // selectedEntitasPengganti =
-            //     List<Map<String, dynamic>>.from(dataEntitasApi);
-          },
-        );
+        final response =
+            await http.post(Uri.parse("$apiUrl/master/cuti-bersama/delete"),
+                headers: <String, String>{
+                  'Content-Type': 'application/json;charset=UTF-8',
+                  'Authorization': 'Bearer $token'
+                },
+                body: jsonEncode({'id': id}));
+        if (response.statusCode == 200) {
+          Get.snackbar('Infomation', 'Berhasil Hapus Data',
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.amber,
+              icon: const Icon(
+                Icons.info,
+                color: Colors.white,
+              ),
+              shouldIconPulse: false);
+          print('Item with id $id deleted successfully');
+        } else {
+          print("response error request: ${response.request}");
+          throw Exception('Failed to delete item');
+        }
       } catch (e) {
         print(e);
+        rethrow;
       }
     }
   }
 
-  Future<void> getDataPangkat() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    String? token = prefs.getString('token');
-
-    if (token != null) {
-      try {
-        final response = await http
-            .get(Uri.parse("$apiUrl/master/pangkat"), headers: <String, String>{
-          'Content-Type': 'application/json;charset=UTF-8',
-          'Authorization': 'Bearer $token'
-        });
-        final responseData = jsonDecode(response.body);
-        final dataPangkatApi = responseData['data'];
-        // print("$token");
-        // print("$dataPangkatApi");
-
-        setState(
-          () {
-            selectedPangkat = List<Map<String, dynamic>>.from(dataPangkatApi);
-            // selectedEntitasPengganti =
-            //     List<Map<String, dynamic>>.from(dataEntitasApi);
-          },
-        );
-      } catch (e) {
-        print(e);
-      }
-    }
-  }
-
-  String? _validatorNrp(dynamic value) {
-    if (value == null || value.isEmpty) {
-      setState(() {
-        maxHeightValidator = 80.0;
-      });
-      return 'Field Nrp Kosong';
-    }
-
-    setState(() {
-      maxHeightValidator = 60.0;
-    });
-    return null;
-  }
-
-  String? _validatorNama(dynamic value) {
-    if (value == null || value.isEmpty) {
-      setState(() {
-        maxHeightValidator = 80.0;
-      });
-      return 'Field Nama Kosong';
-    }
-
-    setState(() {
-      maxHeightValidator = 60.0;
-    });
-    return null;
-  }
-
-  String? _validatorEmail(dynamic value) {
-    if (value == null || value.isEmpty) {
-      setState(() {
-        maxHeightValidator = 80.0;
-      });
-      return 'Field Email Kosong';
-    }
-
-    setState(() {
-      maxHeightValidator = 60.0;
-    });
-    return null;
-  }
-
-  String? _validatorCocd(dynamic value) {
-    if (value == null || value.isEmpty) {
-      setState(() {
-        maxHeightValidator = 80.0;
-      });
-      return 'Field Cocd Kosong';
-    }
-
-    setState(() {
-      maxHeightValidator = 60.0;
-    });
-    return null;
-  }
-
-  String? _validatorRole(dynamic value) {
-    if (value == null || value.isEmpty) {
-      setState(() {
-        maxHeightValidator = 80.0;
-      });
-      return 'Field Role Kosong';
-    }
-
-    setState(() {
-      maxHeightValidator = 60.0;
-    });
-    return null;
-  }
-
-  String? _validatorPangkat(dynamic value) {
-    if (value == null || value.isEmpty) {
-      setState(() {
-        maxHeightValidator = 80.0;
-      });
-      return 'Field Pangkat Kosong';
-    }
-
-    setState(() {
-      maxHeightValidator = 60.0;
-    });
-    return null;
-  }
-
-  Future<void> updateData(context) {
+  Future<void> updateData(
+    context,
+    String id,
+    String deskripsi,
+    String jmlHari,
+    String tglMulai,
+    String tglBerakhir,
+  ) async {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
-    double paddingHorizontalNarrow = size.width * 0.035;
     double padding5 = size.width * 0.0115;
-    double padding7 = size.width * 0.018;
-    double sizedBoxHeightShort = size.height * 0.0086;
-    final double _maxHeightNrp = 40.0;
-    double sizedBoxHeightTall = size.height * 0.0163;
-    double paddingHorizontalWide = size.width * 0.0585;
-    double _maxHeightAtasan = 60.0;
+    double paddingHorizontalNarrow = size.width * 0.035;
+
+    DateTime dateTimeAwal = DateFormat("yyyy-MM-dd").parse(tglMulai);
+    String formattedDateStringAwal =
+        DateFormat("dd-MM-yyyy").format(dateTimeAwal);
+    DateTime dateTimeAwalFinal =
+        DateFormat("dd-MM-yyyy").parse(formattedDateStringAwal);
+
+    DateTime dateTimeAkhir = DateFormat("yyyy-MM-dd").parse(tglBerakhir);
+    String formattedDateStringAkhir =
+        DateFormat("dd-MM-yyyy").format(dateTimeAkhir);
+    DateTime dateTimeAkhirFinal =
+        DateFormat("dd-MM-yyyy").parse(formattedDateStringAkhir);
+
+    String textFieldValueId = id.toString();
+    String textFieldValueDeskripsi = deskripsi;
+    String textFieldValueJmlHari = jmlHari.toString();
+    String textFieldValueTglMulai = dateTimeAwalFinal.toString();
+    String textFieldValueTglBerakhir = dateTimeAkhirFinal.toString();
+
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -215,7 +177,7 @@ class _CutiBersamaState extends State<CutiBersama> {
                 padding:
                     EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                 child: TitleWidget(
-                  title: 'Kode *',
+                  title: 'Deskripsi *',
                   fontWeight: FontWeight.w300,
                   fontSize: textMedium,
                 ),
@@ -224,10 +186,15 @@ class _CutiBersamaState extends State<CutiBersama> {
                 padding:
                     EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                 child: TextFormField(
-                  controller: _nrpController,
-                  validator: _validatorNrp,
+                  validator: _validatorDeskripsi,
+                  initialValue: deskripsi,
+                  onChanged: (value) => {
+                    setState(() {
+                      textFieldValueDeskripsi = value;
+                    })
+                  },
                   decoration: InputDecoration(
-                    hintText: "Masukan Kode",
+                    hintText: "Masukkan Deskripsi",
                     hintStyle: TextStyle(
                       fontWeight: FontWeight.w300,
                       fontSize: textMedium,
@@ -253,7 +220,7 @@ class _CutiBersamaState extends State<CutiBersama> {
                 padding:
                     EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                 child: TitleWidget(
-                  title: 'Nama *',
+                  title: 'Jumlah Hari *',
                   fontWeight: FontWeight.w300,
                   fontSize: textMedium,
                 ),
@@ -262,10 +229,16 @@ class _CutiBersamaState extends State<CutiBersama> {
                 padding:
                     EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                 child: TextFormField(
-                  controller: _namaController,
-                  validator: _validatorNama,
+                  keyboardType: TextInputType.number,
+                  validator: _validatorJmlHari,
+                  initialValue: jmlHari,
+                  onChanged: (value) => {
+                    setState(() {
+                      textFieldValueJmlHari = value;
+                    })
+                  },
                   decoration: InputDecoration(
-                    hintText: "Masukan Nama",
+                    hintText: "Masukkan Jumlah Hari",
                     hintStyle: TextStyle(
                       fontWeight: FontWeight.w300,
                       fontSize: textMedium,
@@ -287,6 +260,157 @@ class _CutiBersamaState extends State<CutiBersama> {
               const SizedBox(
                 height: 10,
               ),
+              Padding(
+                padding:
+                    EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+                child: TitleWidget(
+                  title: 'Tanggal Mulai *',
+                  fontWeight: FontWeight.w300,
+                  fontSize: textMedium,
+                ),
+              ),
+              CupertinoButton(
+                child: Container(
+                  height: 50,
+                  width: size.width,
+                  padding: EdgeInsets.symmetric(
+                      horizontal: paddingHorizontalNarrow, vertical: padding5),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      border: Border.all(color: Colors.grey)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Icon(
+                        Icons.calendar_month_outlined,
+                        color: Colors.grey,
+                      ),
+                      Text(
+                        DateFormat('dd-MM-yyyy').format(dateTimeAwalFinal),
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: textMedium,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w300,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        content: SizedBox(
+                          height: 350,
+                          width: 350,
+                          child: SfDateRangePicker(
+                            initialSelectedDate: dateTimeAwalFinal,
+                            onSelectionChanged:
+                                (DateRangePickerSelectionChangedArgs args) {
+                              setState(() {
+                                dateTimeAwalFinal = args.value;
+                              });
+                            },
+                            selectionMode: DateRangePickerSelectionMode.single,
+                            initialDisplayDate: dateTimeAwalFinal,
+                          ),
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              setState(() {});
+                              textFieldValueTglMulai =
+                                  dateTimeAwalFinal.toString();
+
+                              Navigator.pop(context);
+                            },
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Padding(
+                padding:
+                    EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+                child: TitleWidget(
+                  title: 'Tanggal Berakhir *',
+                  fontWeight: FontWeight.w300,
+                  fontSize: textMedium,
+                ),
+              ),
+              CupertinoButton(
+                child: Container(
+                  height: 50,
+                  width: size.width,
+                  padding: EdgeInsets.symmetric(
+                      horizontal: paddingHorizontalNarrow, vertical: padding5),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      border: Border.all(color: Colors.grey)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Icon(
+                        Icons.calendar_month_outlined,
+                        color: Colors.grey,
+                      ),
+                      Text(
+                        DateFormat('dd-MM-yyyy').format(dateTimeAkhirFinal),
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: textMedium,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w300,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        content: SizedBox(
+                          height: 350,
+                          width: 350,
+                          child: SfDateRangePicker(
+                            initialSelectedDate: dateTimeAkhirFinal,
+                            onSelectionChanged:
+                                (DateRangePickerSelectionChangedArgs args) {
+                              setState(() {
+                                dateTimeAkhirFinal = args.value;
+                              });
+                            },
+                            selectionMode: DateRangePickerSelectionMode.single,
+                            initialDisplayDate: dateTimeAkhirFinal,
+                          ),
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () {
+                              setState(() {});
+                              textFieldValueTglBerakhir =
+                                  dateTimeAkhirFinal.toString();
+
+                              Navigator.pop(context);
+                            },
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
               SizedBox(
                 width: size.width,
                 child: Padding(
@@ -294,7 +418,13 @@ class _CutiBersamaState extends State<CutiBersama> {
                       horizontal: paddingHorizontalNarrow, vertical: 10),
                   child: ElevatedButton(
                     onPressed: () {
-                      _submitUpdate();
+                      _submitUpdate(
+                        textFieldValueId,
+                        textFieldValueDeskripsi,
+                        textFieldValueJmlHari,
+                        textFieldValueTglMulai,
+                        textFieldValueTglBerakhir,
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(primaryYellow),
@@ -321,143 +451,19 @@ class _CutiBersamaState extends State<CutiBersama> {
     );
   }
 
-  Future<void> _submitUpdate() async {
+  Future<void> _submitUpdate(
+    String textFieldValueId,
+    String textFieldValueDeskripsi,
+    String textFieldValueJmlHari,
+    String textFieldValueTglMulai,
+    String textFieldValueTglBerakhir,
+  ) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
+    final int? jmlHariInt = parseJumlahHari(textFieldValueJmlHari);
 
-    setState(() {
-      _isLoading = true;
-    });
-
-    if (_formKey.currentState!.validate() == false) {
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
-
-    _formKey.currentState!.save();
-
-    try {
-      final response = await http.put(
-        Uri.parse('$apiUrl/user-management/update'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token'
-        },
-        body: jsonEncode({
-          'nrp': _nrpController.text,
-          'cocd': _cocdController.text,
-          'nama': _namaController.text,
-          'email': _emailController.text,
-          'role': selectedValueRole.toString(),
-          'pangkat': selectedValuePangkat.toString(),
-          'tgl_masuk': tanggalJoin != null
-              ? tanggalJoin.toString()
-              : DateTime.now().toString(),
-          'terminate': 'X',
-        }),
-      );
-
-      final responseData = jsonDecode(response.body);
-      Get.snackbar('Infomation', responseData['message'],
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.amber,
-          icon: const Icon(
-            Icons.info,
-            color: Colors.white,
-          ),
-          shouldIconPulse: false);
-
-      print(responseData);
-      if (responseData['status'] == 'success') {
-        Navigator.pop(context);
-        // Get.toNamed('/admin/administrator/user_management/user_management');
-      }
-    } catch (e) {
-      print(e);
-      throw e;
-    }
-
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  Future<void> fetchData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    final response = await http.get(
-        Uri.parse(
-            "$apiUrl/master/entity/get?page=$_pageIndex&perPage=$_rowsPerPage&search="),
-        headers: <String, String>{
-          "Content-Type": "application/json;charset=UTF-8",
-          'Authorization': 'Bearer $token',
-        });
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      final data = responseData["dataku"];
-      final total = responseData["totalPage"];
-      _rowCount = total['total_records'] ?? 'null'.length;
-      _rows = List.generate(
-        data.length,
-        (index) => DataRow(
-          cells: [
-            DataCell(Text((index + 1).toString())),
-            DataCell(Text(data[index]['kode'] ?? 'null')),
-            DataCell(
-              Container(
-                width: 200,
-                child: Text(
-                  data[index]['nama'] ?? 'null',
-                  overflow: TextOverflow.clip,
-                ),
-              ),
-            ),
-            DataCell(
-              Row(
-                children: [
-                  Container(
-                    height: 30,
-                    width: 30,
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: GestureDetector(
-                        onTap: () {
-                          updateData(context);
-                        },
-                        child: const Icon(Icons.edit, color: Colors.white)),
-                  ),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  Container(
-                    height: 30,
-                    width: 30,
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: const Icon(Icons.delete, color: Colors.white),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-      setState(() {});
-    } else {
-      throw Exception('Failed to load data');
-    }
-  }
-
-  Future<void> _submit() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
+    print('click update');
+    print(_formKey.currentState!.validate());
 
     setState(() {
       _isLoading = true;
@@ -474,27 +480,25 @@ class _CutiBersamaState extends State<CutiBersama> {
 
     try {
       final response = await http.post(
-        Uri.parse('$apiUrl/user-management/add'),
+        Uri.parse("$apiUrl/master/cuti-bersama/update"),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token'
         },
         body: jsonEncode({
-          'nrp': _nrpController.text,
-          'cocd': _cocdController.text,
-          'nama': _namaController.text,
-          'email': _emailController.text,
-          'role': selectedValueRole.toString(),
-          'pangkat': selectedValuePangkat.toString(),
-          'tgl_masuk': tanggalJoin != null
-              ? tanggalJoin.toString()
-              : DateTime.now().toString(),
-          'terminate': 'X',
+          'id': textFieldValueId,
+          'deskripsi': textFieldValueDeskripsi,
+          'jml_hari': jmlHariInt,
+          'tgl_mulai': textFieldValueTglMulai.toString(),
+          'tgl_berakhir': textFieldValueTglBerakhir.toString()
         }),
       );
 
       final responseData = jsonDecode(response.body);
-      Get.snackbar('Infomation', responseData['message'],
+
+      print('response: $responseData');
+
+      Get.snackbar('Infomation', responseData['success'],
           snackPosition: SnackPosition.TOP,
           backgroundColor: Colors.amber,
           icon: const Icon(
@@ -503,14 +507,193 @@ class _CutiBersamaState extends State<CutiBersama> {
           ),
           shouldIconPulse: false);
 
-      print(responseData);
-      if (responseData['status'] == 'success') {
+      if (responseData['success'] == 'Data has been updated') {
         Navigator.pop(context);
-        // Get.toNamed('/admin/administrator/user_management/user_management');
+        fetchData();
       }
     } catch (e) {
       print(e);
-      throw e;
+      rethrow;
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future<void> fetchData({String searchQuery = ''}) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    final response = await http.get(
+      Uri.parse(
+          "$apiUrl/master/cuti-bersama/get?page=$_pageIndex&perPage=$_rowsPerPage&search=$searchQuery"),
+      headers: <String, String>{
+        "Content-Type": "application/json;charset=UTF-8",
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      final data = responseData["dataku"];
+      final total = responseData["totalPage"];
+
+      setState(() {
+        _rowCount = total['total_records'] ?? 0;
+        _rows = data.asMap().entries.map<DataRow>((entry) {
+          int index = entry.key;
+          var item = entry.value;
+
+          return DataRow(
+            key: ValueKey<String>(item['id'].toString()),
+            cells: [
+              DataCell(Text((index + 1).toString())),
+              DataCell(Text(item['deskripsi'] ?? 'null')),
+              DataCell(Text(item['jml_hari'].toString())),
+              DataCell(Text(item['tgl_mulai'] ?? 'null')),
+              DataCell(Text(item['tgl_berakhir'] ?? 'null')),
+              DataCell(
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          String id = item['id'].toString();
+                          String deskripsi = item['deskripsi'];
+                          String jmlHari = item['jml_hari'].toString();
+                          String tglMulai = item['tgl_mulai'];
+                          String tglBerakhir = item['tgl_berakhir'];
+                          updateData(context, id, deskripsi, jmlHari, tglMulai,
+                              tglBerakhir);
+                        },
+                        child: Container(
+                          height: 30,
+                          width: 30,
+                          decoration: BoxDecoration(
+                            color: Colors.green,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: const Icon(Icons.edit, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text("Konfirmasi"),
+                                content: const Text(
+                                    "Apakah Anda yakin ingin menghapus data ini?"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text("Batal"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () async {
+                                      String id = item['id'].toString();
+                                      await deleteData(id);
+                                      Navigator.of(context).pop();
+                                      fetchData();
+                                    },
+                                    child: const Text("Hapus"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: Container(
+                          height: 30,
+                          width: 30,
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: const Icon(Icons.delete_outline,
+                              color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        }).toList();
+      });
+    } else {
+      throw Exception('Failed to load data');
+    }
+  }
+
+  Future<void> _submit() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    final int? jmlHariInt = parseJumlahHari(_jmlHariController.text);
+
+    print('click add');
+    print(_formKey.currentState!.validate());
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    if (_formKey.currentState!.validate() == false) {
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    _formKey.currentState!.save();
+
+    try {
+      final response = await http.post(
+        Uri.parse("$apiUrl/master/cuti-bersama/add"),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token'
+        },
+        body: jsonEncode({
+          'deskripsi': _deskripsiController.text,
+          'jml_hari': jmlHariInt,
+          'tgl_mulai': tanggalMulai != null
+              ? tanggalMulai.toString()
+              : DateTime.now().toString(),
+          'tgl_berakhir': tanggalBerakhir != null
+              ? tanggalBerakhir.toString()
+              : DateTime.now().toString(),
+        }),
+      );
+
+      final responseData = jsonDecode(response.body);
+
+      print('response: $responseData');
+
+      Get.snackbar('Infomation', responseData['success'],
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.amber,
+          icon: const Icon(
+            Icons.info,
+            color: Colors.white,
+          ),
+          shouldIconPulse: false);
+
+      if (responseData['success'] == 'Data telah ditambahkan') {
+        Navigator.pop(context);
+        fetchData();
+      }
+    } catch (e) {
+      print(e);
+      rethrow;
     }
 
     setState(() {
@@ -521,34 +704,26 @@ class _CutiBersamaState extends State<CutiBersama> {
   @override
   void initState() {
     super.initState();
+    _searchcontroller = TextEditingController();
+    _searchcontroller.addListener(() {
+      _onSearchChanged(_searchcontroller.text);
+    });
     fetchData();
-    getDataRole();
-    getDataPangkat();
   }
 
+  @override
+  void dispose() {
+    _searchcontroller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    DateTime tanggalMasuk = DateTime(3000, 2, 1, 10, 20);
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding5 = size.width * 0.0115;
-    double padding7 = size.width * 0.018;
-    double sizedBoxHeightShort = size.height * 0.0086;
-    final double _maxHeightNrp = 40.0;
     double sizedBoxHeightTall = size.height * 0.0163;
-    double paddingHorizontalWide = size.width * 0.0585;
-    double _maxHeightAtasan = 60.0;
-    // double padding8 = size.width * 0.0188;
-    // double padding10 = size.width * 0.023;
-    List<DataRow>? filterData;
-
-    bool _isLoading = false;
-
-    @override
-    void initState() {
-      filterData = _rows;
-      super.initState();
-    }
 
     TextEditingController _searchcontroller = TextEditingController();
 
@@ -556,6 +731,7 @@ class _CutiBersamaState extends State<CutiBersama> {
       return showModalBottomSheet(
         context: context,
         isScrollControlled: true,
+        useSafeArea: true,
         builder: (context) => Padding(
           padding: EdgeInsets.only(
               top: 10, bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -569,7 +745,7 @@ class _CutiBersamaState extends State<CutiBersama> {
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: TitleWidget(
-                    title: 'Kode *',
+                    title: 'Deskripsi *',
                     fontWeight: FontWeight.w300,
                     fontSize: textMedium,
                   ),
@@ -578,10 +754,10 @@ class _CutiBersamaState extends State<CutiBersama> {
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: TextFormField(
-                    controller: _nrpController,
-                    validator: _validatorNrp,
+                    controller: _deskripsiController,
+                    validator: _validatorDeskripsi,
                     decoration: InputDecoration(
-                      hintText: "Masukan Kode",
+                      hintText: "Masukkan Deskripsi",
                       hintStyle: TextStyle(
                         fontWeight: FontWeight.w300,
                         fontSize: textMedium,
@@ -607,7 +783,7 @@ class _CutiBersamaState extends State<CutiBersama> {
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: TitleWidget(
-                    title: 'Nama *',
+                    title: 'Jumlah Hari *',
                     fontWeight: FontWeight.w300,
                     fontSize: textMedium,
                   ),
@@ -616,10 +792,11 @@ class _CutiBersamaState extends State<CutiBersama> {
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: TextFormField(
-                    controller: _namaController,
-                    validator: _validatorNama,
+                    controller: _jmlHariController,
+                    keyboardType: TextInputType.number,
+                    validator: _validatorJmlHari,
                     decoration: InputDecoration(
-                      hintText: "Masukan Nama",
+                      hintText: "Masukkan Jumlah Hari",
                       hintStyle: TextStyle(
                         fontWeight: FontWeight.w300,
                         fontSize: textMedium,
@@ -640,6 +817,154 @@ class _CutiBersamaState extends State<CutiBersama> {
                 ),
                 const SizedBox(
                   height: 10,
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+                  child: TitleWidget(
+                    title: 'Tanggal Mulai *',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+                CupertinoButton(
+                  child: Container(
+                    height: 50,
+                    width: size.width,
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow,
+                        vertical: padding5),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(color: Colors.grey)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Icon(
+                          Icons.calendar_month_outlined,
+                          color: Colors.grey,
+                        ),
+                        Text(
+                          DateFormat('dd-MM-yyyy').format(
+                              _tanggalMulaiController.selectedDate ??
+                                  DateTime.now()),
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          content: SizedBox(
+                            height: 350,
+                            width: 350,
+                            child: SfDateRangePicker(
+                              controller: _tanggalMulaiController,
+                              onSelectionChanged:
+                                  (DateRangePickerSelectionChangedArgs args) {
+                                setState(() {
+                                  tanggalMulai = args.value;
+                                });
+                              },
+                              selectionMode:
+                                  DateRangePickerSelectionMode.single,
+                            ),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+                  child: TitleWidget(
+                    title: 'Tanggal Berakhir *',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+                CupertinoButton(
+                  child: Container(
+                    height: 50,
+                    width: size.width,
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow,
+                        vertical: padding5),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(color: Colors.grey)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Icon(
+                          Icons.calendar_month_outlined,
+                          color: Colors.grey,
+                        ),
+                        Text(
+                          DateFormat('dd-MM-yyyy').format(
+                              _tanggalBerakhirController.selectedDate ??
+                                  DateTime.now()),
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          content: SizedBox(
+                            height: 350,
+                            width: 350,
+                            child: SfDateRangePicker(
+                              controller: _tanggalBerakhirController,
+                              onSelectionChanged:
+                                  (DateRangePickerSelectionChangedArgs args) {
+                                setState(() {
+                                  tanggalBerakhir = args.value;
+                                });
+                              },
+                              selectionMode:
+                                  DateRangePickerSelectionMode.single,
+                            ),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+                SizedBox(
+                  height: sizedBoxHeightTall,
                 ),
                 SizedBox(
                   width: size.width,
@@ -673,463 +998,6 @@ class _CutiBersamaState extends State<CutiBersama> {
           ),
         ),
       );
-    }
-
-    _handleButtonUpdate(dynamic value) {
-      return showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          useSafeArea: true,
-          builder: (context) {
-            return Container(
-              margin: EdgeInsets.symmetric(
-                horizontal: paddingHorizontalNarrow,
-                vertical: paddingHorizontalNarrow,
-              ),
-              height: 650,
-              width: double.infinity,
-              child: ListView(
-                children: [
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TitleWidget(
-                            title: 'NRP *',
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TextFormField(
-                            controller: _nrpController,
-                            validator: _validatorNrp,
-                            decoration: InputDecoration(
-                              hintText: "Masukan NRP",
-                              hintStyle: TextStyle(
-                                fontWeight: FontWeight.w300,
-                                fontSize: textMedium,
-                              ),
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.grey,
-                                  width: 1.0,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.fromLTRB(
-                                  20.0, 10.0, 20.0, 10.0),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TitleWidget(
-                            title: 'Nama *',
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TextFormField(
-                            controller: _namaController,
-                            validator: _validatorNama,
-                            decoration: InputDecoration(
-                              hintText: "Masukan Nama",
-                              hintStyle: TextStyle(
-                                fontWeight: FontWeight.w300,
-                                fontSize: textMedium,
-                              ),
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.grey,
-                                  width: 1.0,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.fromLTRB(
-                                  20.0, 10.0, 20.0, 10.0),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TitleWidget(
-                            title: 'Tanggal masuk *',
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                        CupertinoButton(
-                          child: Container(
-                            height: 50,
-                            width: size.width,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow,
-                                vertical: padding5),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                border: Border.all(color: Colors.grey)),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Icon(
-                                  Icons.calendar_month_outlined,
-                                  color: Colors.grey,
-                                ),
-                                Text(
-                                  DateFormat('dd-MM-yyyy').format(
-                                      _tanggalJoinController.selectedDate ??
-                                          DateTime.now()),
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: textMedium,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w300,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  content: Container(
-                                    height: 350,
-                                    width: 350,
-                                    child: SfDateRangePicker(
-                                      controller: _tanggalJoinController,
-                                      onSelectionChanged:
-                                          (DateRangePickerSelectionChangedArgs
-                                              args) {
-                                        setState(() {
-                                          tanggalJoin = args.value;
-                                        });
-                                      },
-                                      selectionMode:
-                                          DateRangePickerSelectionMode.single,
-                                    ),
-                                  ),
-                                  actions: <Widget>[
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: const Text('OK'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TitleWidget(
-                            title: "Email *",
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TextFormField(
-                            controller: _emailController,
-                            validator: _validatorEmail,
-                            decoration: InputDecoration(
-                              hintText: "Masukan email",
-                              hintStyle: TextStyle(
-                                fontWeight: FontWeight.w300,
-                                fontSize: textMedium,
-                              ),
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.grey,
-                                  width: 1.0,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.fromLTRB(
-                                  20.0, 10.0, 20.0, 10.0),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TitleWidget(
-                            title: "Cocd *",
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TextFormField(
-                            controller: _cocdController,
-                            validator: _validatorCocd,
-                            decoration: InputDecoration(
-                              hintText: "Masukan cocd",
-                              hintStyle: TextStyle(
-                                fontWeight: FontWeight.w300,
-                                fontSize: textMedium,
-                              ),
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.grey,
-                                  width: 1.0,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.fromLTRB(
-                                  20.0, 10.0, 20.0, 10.0),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TitleWidget(
-                            title: 'Role *',
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: Container(
-                            height: 50,
-                            width: size.width,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(color: Colors.grey),
-                            ),
-                            child: DropdownButtonFormField<String>(
-                              hint: Text(
-                                "Pilih Role",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                              validator: _validatorRole,
-                              value: selectedValueRole,
-                              icon: selectedRole.isEmpty
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Colors.blue),
-                                      ),
-                                    )
-                                  : const Icon(Icons.arrow_drop_down),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  selectedValueRole = newValue ?? '';
-                                  print("$selectedValueRole");
-                                });
-                              },
-                              items: selectedRole
-                                  .map((Map<String, dynamic> value) {
-                                return DropdownMenuItem<String>(
-                                  value: value["id"].toString(),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(1.0),
-                                    child: TitleWidget(
-                                      title: value["role"] as String,
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: textMedium,
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                              decoration: InputDecoration(
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightAtasan),
-                                labelStyle: TextStyle(fontSize: textMedium),
-                                focusedBorder: const UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.transparent,
-                                    width: 1.0,
-                                  ),
-                                ),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: selectedValueRole != null
-                                        ? Colors.transparent
-                                        : Colors.transparent,
-                                    width: 1.0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TitleWidget(
-                            title: 'Pangkat *',
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: Container(
-                            height: 50,
-                            width: size.width,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(color: Colors.grey),
-                            ),
-                            child: DropdownButtonFormField<String>(
-                              hint: Text(
-                                'Pilih Pangkat',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                              validator: _validatorPangkat,
-                              value: selectedValuePangkat,
-                              icon: selectedPangkat.isEmpty
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Colors.blue),
-                                      ),
-                                    )
-                                  : const Icon(Icons.arrow_drop_down),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  selectedValuePangkat = newValue ?? '';
-                                  print("$selectedValuePangkat");
-                                  // selectedValueAtasan = null;
-                                });
-                              },
-                              items: selectedPangkat
-                                  .map((Map<String, dynamic> value) {
-                                return DropdownMenuItem<String>(
-                                  value: value["kode"].toString(),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(1.0),
-                                    child: TitleWidget(
-                                      title: value["nama"] as String,
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: textMedium,
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                              decoration: InputDecoration(
-                                constraints: BoxConstraints(
-                                    maxHeight: maxHeightValidator),
-                                labelStyle: TextStyle(fontSize: textMedium),
-                                focusedBorder: const UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.transparent,
-                                    width: 1.0,
-                                  ),
-                                ),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: selectedValuePangkat != null
-                                        ? Colors.transparent
-                                        : Colors.transparent,
-                                    width: 1.0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: sizedBoxHeightTall,
-                        ),
-                        SizedBox(
-                          width: size.width,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                _submit();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(primaryYellow),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                              ),
-                              child: Text(
-                                'Add',
-                                style: TextStyle(
-                                    color: const Color(primaryBlack),
-                                    fontSize: textMedium,
-                                    fontFamily: 'Poppins',
-                                    letterSpacing: 0.9,
-                                    fontWeight: FontWeight.w700),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          });
     }
 
     Widget content() {
@@ -1222,13 +1090,7 @@ class _CutiBersamaState extends State<CutiBersama> {
                       size: 17,
                     ),
                   ),
-                  onChanged: (value) {
-                    // setState(() {
-                    //   data = filterData!
-                    //       .where((element) => element.nama.contains(value))
-                    //       .toList();
-                    // });
-                  },
+                  onChanged: _onSearchChanged,
                 ),
               ),
             ),
@@ -1245,8 +1107,8 @@ class _CutiBersamaState extends State<CutiBersama> {
               onPageChanged: (pageIndex) {
                 setState(() {
                   _pageIndex = pageIndex + 1;
-                  fetchData(); // Fetch data for the new page
                 });
+                fetchData();
               },
               columnSpacing: 10,
               availableRowsPerPage: const [
@@ -1254,7 +1116,7 @@ class _CutiBersamaState extends State<CutiBersama> {
                 10,
                 50,
                 100,
-              ], // Choose rows per page
+              ],
               source: MyDataTableSource(
                 rows: _rows,
                 rowCount: _rowCount,
@@ -1270,13 +1132,25 @@ class _CutiBersamaState extends State<CutiBersama> {
                 ),
                 DataColumn(
                   label: Text(
-                    "Kode",
+                    "Deskripsi",
                     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                   ),
                 ),
                 DataColumn(
                   label: Text(
-                    "Nama",
+                    "Jumlah Hari",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "Tanggal Mulai",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    "Tanggal Berakhir",
                     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                   ),
                 ),
@@ -1325,13 +1199,11 @@ class MyDataTableSource extends DataTableSource {
 
   @override
   DataRow? getRow(int index) {
-    if (index >= rows.length) return null;
-    final data = rows[index];
-    return rows[index];
+    if (index >= 0 && index < rows.length) {
+      return rows[index];
+    }
+    return null;
   }
-
-  @override
-  int get _rowCount => rows.length;
 
   @override
   bool get isRowCountApproximate => false;
@@ -1339,6 +1211,3 @@ class MyDataTableSource extends DataTableSource {
   @override
   int get selectedRowCount => 0;
 }
-
-
-//cuti bersama
