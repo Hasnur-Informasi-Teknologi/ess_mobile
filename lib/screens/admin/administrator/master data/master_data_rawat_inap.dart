@@ -1753,7 +1753,7 @@ class _RawatInapState extends State<RawatInap> {
                                 ),
                                 enabledBorder: UnderlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: selectedValuePangkat != null
+                                    color: selectedValueStatus != null
                                         ? Colors.transparent
                                         : Colors.transparent,
                                     width: 1.0,
