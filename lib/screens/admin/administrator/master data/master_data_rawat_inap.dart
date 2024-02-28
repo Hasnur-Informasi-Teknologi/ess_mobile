@@ -176,12 +176,12 @@ class _RawatInapState extends State<RawatInap> {
     {
       "data": [
         {
-          "id": "0",
-          "nama": "0"
+          "id": "1",
+          "nama": "Aktif"
         },
         {
-          "id": "1",
-          "nama": "1"
+          "id": "0",
+          "nama": "Tidak Aktif"
         }
       ]
     }
