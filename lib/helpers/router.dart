@@ -53,6 +53,8 @@ import 'package:mobile_ess/screens/user/submition/detail_form_pengajuan_lembur.d
 
 import 'package:mobile_ess/splash_screen.dart';
 
+import '../screens/admin/administrator/master data/master_data_pic_hrgs.dart';
+
 Map<String, Widget Function(BuildContext)> routers() {
   return {
     '/': (context) => const SignInScreen(),
@@ -143,6 +145,6 @@ Map<String, Widget Function(BuildContext)> routers() {
     '/admin/administrator/user_management/kamar_hotel': (context) =>
         const KamarHotel(),
     '/admin/administrator/user_management/pic_hrgs': (context) =>
-        const PicHrgs(),
+        const PicHrgs()
   };
 }
