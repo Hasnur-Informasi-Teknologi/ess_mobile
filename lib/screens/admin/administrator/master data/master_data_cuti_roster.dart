@@ -166,6 +166,47 @@ class _CutiRosterState extends State<CutiRoster> {
     }
   }
 
+  Future<void> deleteData(String id) async {
+    // print('tombol delet bekerja dengan id :  $id');
+    // print('API  : $apiUrl/user-management/delete/id=$id');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? token = prefs.getString('token');
+    print('ini token :  $token');
+    if (token != null) {
+      try {
+        final response =
+            await http.post(Uri.parse("$apiUrl/master/cuti-roster/delete"),
+                headers: <String, String>{
+                  'Content-Type': 'application/json;charset=UTF-8',
+                  'Authorization': 'Bearer $token'
+                },
+                body: jsonEncode({'id': id}));
+        final responseData = jsonDecode(response.body);
+        if (response.statusCode == 200) {
+          Get.snackbar('Infomation', responseData['status'],
+              snackPosition: SnackPosition.TOP,
+              backgroundColor: Colors.amber,
+              icon: const Icon(
+                Icons.info,
+                color: Colors.white,
+              ),
+              shouldIconPulse: false);
+          print('Item with id $id deleted successfully');
+
+          // Get.toNamed('/admin/administrator/user_management/user_management');
+        } else {
+          print("response error request: ${response.request}");
+          throw Exception('Failed to delete item');
+        }
+        // print("$token");
+        // print("$dataPangkatApi");
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
   String? _validatorNrp(dynamic value) {
     if (value == null || value.isEmpty) {
       setState(() {
@@ -1080,15 +1121,57 @@ class _CutiRosterState extends State<CutiRoster> {
                   const SizedBox(
                     width: 5,
                   ),
-                  Container(
-                    height: 30,
-                    width: 30,
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(5),
+                  Expanded(
+                    child: Container(
+                      height: 30,
+                      width: 30,
+                      decoration: BoxDecoration(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: GestureDetector(
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text("Konfirmasi"),
+                                content: Text(
+                                    "Apakah Anda yakin ingin menghapus data ini?"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text("Batal"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () async {
+                                      String id = data[index]['id'].toString();
+                                      await deleteData(id);
+                                      Navigator.of(context).pop();
+                                      fetchData();
+                                    },
+                                    child: Text("Hapus"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: Icon(Icons.delete_outline, color: Colors.white),
+                      ),
                     ),
-                    child: const Icon(Icons.delete, color: Colors.white),
                   ),
+                  // Container(
+                  //   height: 30,
+                  //   width: 30,
+                  //   decoration: BoxDecoration(
+                  //     color: Colors.red,
+                  //     borderRadius: BorderRadius.circular(5),
+                  //   ),
+                  //   child: const Icon(Icons.delete, color: Colors.white),
+                  // ),
                 ],
               ),
             ),
