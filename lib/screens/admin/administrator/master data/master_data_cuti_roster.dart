@@ -58,6 +58,16 @@ class _CutiRosterState extends State<CutiRoster> {
       DateRangePickerController();
   DateTime? tanggalJoin;
 
+  int? parseToInt(String value) {
+    // Convert jumlahHari to an integer.
+    final int? intValue = int.tryParse(value);
+    if (intValue == null) {
+      // Handle the error, maybe show a snackbar message indicating invalid input.
+      return null;
+    }
+    return intValue;
+  }
+
   // Future<void> getDataRole() async {
   //   SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -328,7 +338,7 @@ class _CutiRosterState extends State<CutiRoster> {
       context,
       String id,
       String nrp,
-      String entitas,
+      // String entitas,
       String jml_roster,
       String potong_cuti_bersama,
       String status,
@@ -359,7 +369,7 @@ class _CutiRosterState extends State<CutiRoster> {
 
     String textFieldValueId = id.toString();
     String textFieldValuenNrp = nrp.toString();
-    String textFieldValueEntitas = entitas.toString();
+    // String textFieldValueEntitas = entitas.toString();
     String textFieldValueJmlRoster = jml_roster.toString();
     String textFieldValuePotongCutiBersama = potong_cuti_bersama.toString();
     String textFieldValuestatus = status.toString();
@@ -399,8 +409,13 @@ class _CutiRosterState extends State<CutiRoster> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: TextFormField(
-                          controller: _nrpController,
                           validator: _validatorNrp,
+                          initialValue: nrp,
+                          onChanged: (value) {
+                            setState(() {
+                              textFieldValuenNrp = value;
+                            });
+                          },
                           decoration: InputDecoration(
                             hintText: "Masukan NRP",
                             hintStyle: TextStyle(
@@ -424,94 +439,94 @@ class _CutiRosterState extends State<CutiRoster> {
                       const SizedBox(
                         height: 10,
                       ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Entitas *',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Container(
-                          height: 50,
-                          width: size.width,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(5),
-                            border: Border.all(color: Colors.grey),
-                          ),
-                          child: DropdownButtonFormField<String>(
-                            hint: Text(
-                              'Pilih Entitas',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w300,
-                                fontSize: textMedium,
-                              ),
-                            ),
-                            validator: _validator_entitas,
-                            value: selectedValueEntitas,
-                            icon: selectedEntitas.isEmpty
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.blue),
-                                    ),
-                                  )
-                                : const Icon(Icons.arrow_drop_down),
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                selectedValueEntitas = newValue ?? '';
-                                print(
-                                    'selectedValueEntitas: $selectedValueEntitas');
-                              });
-                            },
-                            items: selectedEntitas
-                                .map((Map<String, dynamic> value) {
-                              return DropdownMenuItem<String>(
-                                value: value["kode"].toString(),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(1.0),
-                                  child: TitleWidget(
-                                    title: value["nama"] as String,
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: textMedium,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                            decoration: InputDecoration(
-                              constraints:
-                                  BoxConstraints(maxHeight: maxHeightValidator),
-                              labelStyle: TextStyle(fontSize: textMedium),
-                              focusedBorder: const UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.transparent,
-                                  width: 1.0,
-                                ),
-                              ),
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: selectedValueEntitas != null
-                                      ? Colors.transparent
-                                      : Colors.transparent,
-                                  width: 1.0,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
+                      // Padding(
+                      //   padding: EdgeInsets.symmetric(
+                      //       horizontal: paddingHorizontalNarrow),
+                      //   child: TitleWidget(
+                      //     title: 'Entitas *',
+                      //     fontWeight: FontWeight.w300,
+                      //     fontSize: textMedium,
+                      //   ),
+                      // ),
+                      // Padding(
+                      //   padding: EdgeInsets.symmetric(
+                      //       horizontal: paddingHorizontalNarrow),
+                      //   child: Container(
+                      //     height: 50,
+                      //     width: size.width,
+                      //     padding: EdgeInsets.symmetric(
+                      //       horizontal: paddingHorizontalNarrow,
+                      //     ),
+                      //     decoration: BoxDecoration(
+                      //       borderRadius: BorderRadius.circular(5),
+                      //       border: Border.all(color: Colors.grey),
+                      //     ),
+                      //     child: DropdownButtonFormField<String>(
+                      //       hint: Text(
+                      //         'Pilih Entitas',
+                      //         style: TextStyle(
+                      //           fontWeight: FontWeight.w300,
+                      //           fontSize: textMedium,
+                      //         ),
+                      //       ),
+                      //       validator: _validator_entitas,
+                      //       value: selectedValueEntitas.toString(),
+                      //       icon: selectedEntitas.isEmpty
+                      //           ? const SizedBox(
+                      //               height: 20,
+                      //               width: 20,
+                      //               child: CircularProgressIndicator(
+                      //                 valueColor: AlwaysStoppedAnimation<Color>(
+                      //                     Colors.blue),
+                      //               ),
+                      //             )
+                      //           : const Icon(Icons.arrow_drop_down),
+                      //       onChanged: (String? newValue) {
+                      //         setState(() {
+                      //           selectedValueEntitas = newValue ?? '';
+                      //           print(
+                      //               'selectedValueEntitas: $selectedValueEntitas');
+                      //         });
+                      //       },
+                      //       items: selectedEntitas
+                      //           .map((Map<String, dynamic> value) {
+                      //         return DropdownMenuItem<String>(
+                      //           value: value["kode"].toString(),
+                      //           child: Padding(
+                      //             padding: const EdgeInsets.all(1.0),
+                      //             child: TitleWidget(
+                      //               title: value["nama"] as String,
+                      //               fontWeight: FontWeight.w300,
+                      //               fontSize: textMedium,
+                      //             ),
+                      //           ),
+                      //         );
+                      //       }).toList(),
+                      //       decoration: InputDecoration(
+                      //         constraints:
+                      //             BoxConstraints(maxHeight: maxHeightValidator),
+                      //         labelStyle: TextStyle(fontSize: textMedium),
+                      //         focusedBorder: const UnderlineInputBorder(
+                      //           borderSide: BorderSide(
+                      //             color: Colors.transparent,
+                      //             width: 1.0,
+                      //           ),
+                      //         ),
+                      //         enabledBorder: UnderlineInputBorder(
+                      //           borderSide: BorderSide(
+                      //             color: selectedValueEntitas != null
+                      //                 ? Colors.transparent
+                      //                 : Colors.transparent,
+                      //             width: 1.0,
+                      //           ),
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
+                      // const SizedBox(
+                      //   height: 10,
+                      // ),
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
@@ -525,8 +540,13 @@ class _CutiRosterState extends State<CutiRoster> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: TextFormField(
-                          controller: _jumlahRosterController,
                           validator: _validator_jumlahRoster,
+                          initialValue: jml_roster,
+                          onChanged: (value) {
+                            setState(() {
+                              textFieldValueJmlRoster = value;
+                            });
+                          },
                           decoration: InputDecoration(
                             hintText: "Masukan Jumlah Roster",
                             hintStyle: TextStyle(
@@ -563,8 +583,13 @@ class _CutiRosterState extends State<CutiRoster> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: TextFormField(
-                          controller: _potongCutiBersamaController,
                           validator: _validator_potong_cuti_bersama,
+                          initialValue: potong_cuti_bersama,
+                          onChanged: (value) {
+                            setState(() {
+                              textFieldValuePotongCutiBersama = value;
+                            });
+                          },
                           decoration: InputDecoration(
                             hintText: "Masukan Potong Cuti Bersama",
                             hintStyle: TextStyle(
@@ -620,7 +645,7 @@ class _CutiRosterState extends State<CutiRoster> {
                               ),
                             ),
                             validator: _validator_status,
-                            value: selectedValueStatus,
+                            value: status,
                             icon: selectedStatus.isEmpty
                                 ? const SizedBox(
                                     height: 20,
@@ -633,7 +658,7 @@ class _CutiRosterState extends State<CutiRoster> {
                                 : const Icon(Icons.arrow_drop_down),
                             onChanged: (String? newValue) {
                               setState(() {
-                                selectedValueStatus = newValue ?? '';
+                                textFieldValuestatus = newValue ?? '';
                                 print(
                                     'selectedValueStatus: $selectedValueStatus');
                               });
@@ -726,7 +751,8 @@ class _CutiRosterState extends State<CutiRoster> {
                                   height: 350,
                                   width: 350,
                                   child: SfDateRangePicker(
-                                    controller: _tglMulaiController,
+                                    initialSelectedDate: tanggalMulai,
+                                    // controller: _tglMulaiController,
                                     onSelectionChanged:
                                         (DateRangePickerSelectionChangedArgs
                                             args) {
@@ -736,11 +762,18 @@ class _CutiRosterState extends State<CutiRoster> {
                                     },
                                     selectionMode:
                                         DateRangePickerSelectionMode.single,
+                                    initialDisplayDate: tanggalMulai,
                                   ),
                                 ),
                                 actions: <Widget>[
                                   TextButton(
-                                    onPressed: () => Navigator.pop(context),
+                                    onPressed: () {
+                                      setState(() {});
+                                      textFieldValueTglMulai =
+                                          tanggalMulai.toString();
+                                      print('tanggalMulai: $tanggalMulai');
+                                      Navigator.pop(context);
+                                    },
                                     child: const Text('OK'),
                                   ),
                                 ],
@@ -801,7 +834,8 @@ class _CutiRosterState extends State<CutiRoster> {
                                   height: 350,
                                   width: 350,
                                   child: SfDateRangePicker(
-                                    controller: _tglBerakhirController,
+                                    // controller: _tglBerakhirController,
+                                    initialSelectedDate: tanggalBerakhir,
                                     onSelectionChanged:
                                         (DateRangePickerSelectionChangedArgs
                                             args) {
@@ -811,11 +845,19 @@ class _CutiRosterState extends State<CutiRoster> {
                                     },
                                     selectionMode:
                                         DateRangePickerSelectionMode.single,
+                                    initialDisplayDate: tanggalBerakhir,
                                   ),
                                 ),
                                 actions: <Widget>[
                                   TextButton(
-                                    onPressed: () => Navigator.pop(context),
+                                    onPressed: () {
+                                      setState(() {});
+                                      textFieldValueTglBerakhir =
+                                          tanggalBerakhir.toString();
+                                      print(
+                                          'tanggalBerakhir: $tanggalBerakhir');
+                                      Navigator.pop(context);
+                                    },
                                     child: const Text('OK'),
                                   ),
                                 ],
@@ -838,7 +880,7 @@ class _CutiRosterState extends State<CutiRoster> {
                               _submitUpdate(
                                   textFieldValueId,
                                   textFieldValuenNrp,
-                                  textFieldValueEntitas,
+                                  // textFieldValueEntitas,
                                   textFieldValueJmlRoster,
                                   textFieldValuePotongCutiBersama,
                                   textFieldValuestatus,
@@ -876,7 +918,7 @@ class _CutiRosterState extends State<CutiRoster> {
   Future<void> _submitUpdate(
       textFieldValueId,
       String textFieldValuenNrp,
-      String textFieldValueEntitas,
+      // String textFieldValueEntitas,
       String textFieldValueJmlRoster,
       String textFieldValuePotongCutiBersama,
       String textFieldValuestatus,
@@ -896,30 +938,31 @@ class _CutiRosterState extends State<CutiRoster> {
       return;
     }
 
+    print('click update');
+    print(_formKey.currentState!.validate());
+
     _formKey.currentState!.save();
 
     try {
-      final response = await http.put(
+      final body = jsonEncode({
+        'id': textFieldValueId,
+        'nrp': textFieldValuenNrp,
+        'potong_cuti_bersama': textFieldValuePotongCutiBersama,
+        'status': textFieldValuestatus,
+        'tgl_mulai': textFieldValueTglMulai,
+        'tgl_berakhir': textFieldValueTglBerakhir,
+        'jml_roster': textFieldValueJmlRoster,
+        // 'entitas': _entitasController.text,
+      });
+      print('🚀 ~ _CutiRosterState ~ body: $body');
+
+      final response = await http.post(
         Uri.parse('$apiUrl/master/cuti-roster/update'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': 'Bearer $token'
         },
-        body: jsonEncode({
-          /* 'id':id, */
-          'entitas': _entitasController.text,
-          'jml_roster': _jumlahRosterController.text,
-          'nrp': _nrpController.text,
-          'potong_cuti_bersama': _potongCutiBersamaController.text,
-          'status': _statusController.text,
-          'tgl_mulai': tanggalMulai != null
-              ? tanggalMulai.toString()
-              : DateTime.now().toString(),
-          'tgl_berakhir': tanggalBerakhir != null
-              ? tanggalBerakhir.toString()
-              : DateTime.now().toString(),
-          'terminate': 'X',
-        }),
+        body: body,
       );
 
       final responseData = jsonDecode(response.body);
@@ -935,7 +978,7 @@ class _CutiRosterState extends State<CutiRoster> {
       print(responseData);
       if (responseData['status'] == 'success') {
         Navigator.pop(context);
-        // Get.toNamed('/admin/administrator/user_management/user_management');
+        fetchData();
       }
     } catch (e) {
       print(e);
@@ -960,7 +1003,8 @@ class _CutiRosterState extends State<CutiRoster> {
         });
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
-      log('🚀 ~ _CutiRosterState ~ Future<void>fetchData ~ responseData:$responseData');
+      print(
+          '🚀 ~ _CutiRosterState ~ Future<void>fetchData ~ responseData:$responseData');
       final data = responseData["dataku"];
       final total = responseData["totalPage"];
       _rowCount = total['total_records'] ?? 'null'.length;
@@ -979,15 +1023,15 @@ class _CutiRosterState extends State<CutiRoster> {
             //     ),
             //   ),
             // ),
-            DataCell(
-              SizedBox(
-                width: 200,
-                child: Text(
-                  data[index]['entitas'] ?? 'null',
-                  overflow: TextOverflow.clip,
-                ),
-              ),
-            ),
+            // DataCell(
+            //   SizedBox(
+            //     width: 200,
+            //     child: Text(
+            //       data[index]['entitas'] ?? 'null',
+            //       overflow: TextOverflow.clip,
+            //     ),
+            //   ),
+            // ),
             DataCell(Text(data[index]['jml_roster']?.toString() ?? 'null')),
             DataCell(Center(
                 child: Text(data[index]['potong_cuti_bersama'] ?? 'null'))),
@@ -1010,21 +1054,21 @@ class _CutiRosterState extends State<CutiRoster> {
                         onTap: () {
                           String id = data[index]['id'].toString();
                           String nrp = data[index]['nrp'].toString();
-                          String entitas = data[index]['entitas'].toString();
+                          // String entitas = data[index]['entitas'].toString();
                           String jml_roster =
                               data[index]['jml_roster'].toString();
                           String potong_cuti_bersama =
-                              data[index]['potong_cuti_bersama'];
+                              data[index]['potong_cuti_bersama'].toString();
                           String created_by = data[index]['created_by'];
                           String created_at = data[index]['created_at'];
-                          String status = data[index]['status'];
+                          String status = data[index]['status'].toString();
                           String tglMulai = data[index]['tgl_mulai'];
                           String tglBerakhir = data[index]['tgl_berakhir'];
                           updateData(
                               context,
                               id,
                               nrp,
-                              entitas,
+                              // entitas,
                               jml_roster,
                               potong_cuti_bersama,
                               status,
@@ -1221,95 +1265,95 @@ class _CutiRosterState extends State<CutiRoster> {
                         const SizedBox(
                           height: 10,
                         ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TitleWidget(
-                            title: 'Entitas *',
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: Container(
-                            height: 50,
-                            width: size.width,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(color: Colors.grey),
-                            ),
-                            child: DropdownButtonFormField<String>(
-                              hint: Text(
-                                'Pilih Entitas',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                              validator: _validator_entitas,
-                              value: selectedValueEntitas,
-                              icon: selectedEntitas.isEmpty
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Colors.blue),
-                                      ),
-                                    )
-                                  : const Icon(Icons.arrow_drop_down),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  selectedValueEntitas = newValue ?? '';
-                                  print(
-                                      'selectedValueEntitas: $selectedValueEntitas');
-                                });
-                              },
-                              items: selectedEntitas
-                                  .map((Map<String, dynamic> value) {
-                                return DropdownMenuItem<String>(
-                                  value: value["kode"].toString(),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(1.0),
-                                    child: TitleWidget(
-                                      title: value["nama"] as String,
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: textMedium,
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                              decoration: InputDecoration(
-                                constraints: BoxConstraints(
-                                    maxHeight: maxHeightValidator),
-                                labelStyle: TextStyle(fontSize: textMedium),
-                                focusedBorder: const UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.transparent,
-                                    width: 1.0,
-                                  ),
-                                ),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: selectedValueEntitas != null
-                                        ? Colors.transparent
-                                        : Colors.transparent,
-                                    width: 1.0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
+                        // Padding(
+                        //   padding: EdgeInsets.symmetric(
+                        //       horizontal: paddingHorizontalNarrow),
+                        //   child: TitleWidget(
+                        //     title: 'Entitas *',
+                        //     fontWeight: FontWeight.w300,
+                        //     fontSize: textMedium,
+                        //   ),
+                        // ),
+                        // Padding(
+                        //   padding: EdgeInsets.symmetric(
+                        //       horizontal: paddingHorizontalNarrow),
+                        //   child: Container(
+                        //     height: 50,
+                        //     width: size.width,
+                        //     padding: EdgeInsets.symmetric(
+                        //       horizontal: paddingHorizontalNarrow,
+                        //     ),
+                        //     decoration: BoxDecoration(
+                        //       borderRadius: BorderRadius.circular(5),
+                        //       border: Border.all(color: Colors.grey),
+                        //     ),
+                        //     child: DropdownButtonFormField<String>(
+                        //       hint: Text(
+                        //         'Pilih Entitas',
+                        //         style: TextStyle(
+                        //           fontWeight: FontWeight.w300,
+                        //           fontSize: textMedium,
+                        //         ),
+                        //       ),
+                        //       validator: _validator_entitas,
+                        //       value: selectedValueEntitas,
+                        //       icon: selectedEntitas.isEmpty
+                        //           ? const SizedBox(
+                        //               height: 20,
+                        //               width: 20,
+                        //               child: CircularProgressIndicator(
+                        //                 valueColor:
+                        //                     AlwaysStoppedAnimation<Color>(
+                        //                         Colors.blue),
+                        //               ),
+                        //             )
+                        //           : const Icon(Icons.arrow_drop_down),
+                        //       onChanged: (String? newValue) {
+                        //         setState(() {
+                        //           selectedValueEntitas = newValue ?? '';
+                        //           print(
+                        //               'selectedValueEntitas: $selectedValueEntitas');
+                        //         });
+                        //       },
+                        //       items: selectedEntitas
+                        //           .map((Map<String, dynamic> value) {
+                        //         return DropdownMenuItem<String>(
+                        //           value: value["kode"].toString(),
+                        //           child: Padding(
+                        //             padding: const EdgeInsets.all(1.0),
+                        //             child: TitleWidget(
+                        //               title: value["nama"] as String,
+                        //               fontWeight: FontWeight.w300,
+                        //               fontSize: textMedium,
+                        //             ),
+                        //           ),
+                        //         );
+                        //       }).toList(),
+                        //       decoration: InputDecoration(
+                        //         constraints: BoxConstraints(
+                        //             maxHeight: maxHeightValidator),
+                        //         labelStyle: TextStyle(fontSize: textMedium),
+                        //         focusedBorder: const UnderlineInputBorder(
+                        //           borderSide: BorderSide(
+                        //             color: Colors.transparent,
+                        //             width: 1.0,
+                        //           ),
+                        //         ),
+                        //         enabledBorder: UnderlineInputBorder(
+                        //           borderSide: BorderSide(
+                        //             color: selectedValueEntitas != null
+                        //                 ? Colors.transparent
+                        //                 : Colors.transparent,
+                        //             width: 1.0,
+                        //           ),
+                        //         ),
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
+                        // const SizedBox(
+                        //   height: 10,
+                        // ),
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
@@ -1805,12 +1849,12 @@ class _CutiRosterState extends State<CutiRoster> {
                     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                   ),
                 ),
-                DataColumn(
-                  label: Text(
-                    "Entitas",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                  ),
-                ),
+                // DataColumn(
+                //   label: Text(
+                //     "Entitas",
+                //     style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                //   ),
+                // ),
                 DataColumn(
                   label: Text(
                     "Jumlah Roster",
