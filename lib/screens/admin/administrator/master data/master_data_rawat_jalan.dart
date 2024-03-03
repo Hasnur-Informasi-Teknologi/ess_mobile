@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
@@ -7,7 +8,6 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
-import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -20,61 +20,100 @@ class RawatJalan extends StatefulWidget {
 }
 
 class _RawatJalanState extends State<RawatJalan> {
-  late List<DataRow> _rows = [];
-  List<Map<String, dynamic>> selectedRole = [];
-  List<Map<String, dynamic>> selectedPangkat = [];
-  List<Map<String, dynamic>> selectedEntitas = [];
-  List<Map<String, dynamic>> selectedAtasan = [];
-  List<Map<String, dynamic>> selectedAtasanDariAtasan = [];
-  String? selectedValuePangkat, selectedValueRole;
-  bool _isLoading = false;
-  late int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
-  late int _rowCount = 0;
-  late int _pageIndex = 1;
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final String apiUrl = API_URL;
-  double maxHeightValidator = 60.0;
-  TextEditingController _nrpController = TextEditingController();
-  TextEditingController _namaController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _cocdController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  List<Map<String, dynamic>> selectedMdNikah = [];
+  List<Map<String, dynamic>> selectedMdPangkat = [];
+  TextEditingController _searchcontroller = TextEditingController();
+  TextEditingController _mdPangkatController = TextEditingController();
+  TextEditingController _mdNikahController = TextEditingController();
+  TextEditingController _kursController = TextEditingController();
+  TextEditingController _nominalController = TextEditingController();
+  TextEditingController _statusController = TextEditingController();
+  String? selectedValueAnnouncement,
+      selectedValueApplication,
+      selectedValueApprovalList,
+      selectedValueAssignmentInterviewer,
+      selectedValueDashboardAdmin,
+      selectedValueDataProfile,
+      selectedValueDetailPlafon,
+      selectedValueDocumentCompany,
+      selectedValueEmployee,
+      selectedValueFormOnline,
+      selectedValuePerformanceManagement,
+      selectedValueUserAdministrator,
+      selectedValueMdPangkat,
+      selectedValueMdNikah;
 
-  final DateRangePickerController _tanggalJoinController =
+  final DateRangePickerController _tanggalMulaiController =
       DateRangePickerController();
-  DateTime? tanggalJoin;
+  DateTime? tanggalMulai;
 
-  Future<void> getDataRole() async {
+  final DateRangePickerController _tanggalBerakhirController =
+      DateRangePickerController();
+  DateTime? tanggalBerakhir;
+  int _rowsPerPage = 5;
+  int _pageIndex = 1;
+  int _totalRecords = 0;
+  String searchQuery = '';
+  List<dynamic> _data = [];
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+    getDataMdPangkat();
+    getDataMdNikah();
+  }
+
+  Future<void> fetchData({
+    int? pageIndex,
+  }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
     String? token = prefs.getString('token');
 
-    if (token != null) {
-      try {
-        final response = await http.get(
-            Uri.parse("$apiUrl/user-autorization/get_all"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataRoleApi = responseData['data_role'];
-        print("$token");
-        print("$dataRoleApi");
+    setState(() {
+      _isLoading = true;
+    });
 
-        setState(
-          () {
-            selectedRole = List<Map<String, dynamic>>.from(dataRoleApi);
-            // selectedEntitasPengganti =
-            //     List<Map<String, dynamic>>.from(dataEntitasApi);
-          },
-        );
-      } catch (e) {
-        print(e);
+    try {
+      final response = await http.get(
+        Uri.parse(
+            '$apiUrl/master/rawat-jalan/get?page=${pageIndex ?? _pageIndex}&perPage=$_rowsPerPage&search=$searchQuery'),
+        headers: <String, String>{
+          "Content-Type": "application/json;charset=UTF-8",
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        final List<dynamic> data = responseData['dataku'];
+        final total = responseData["totalPage"];
+
+        setState(() {
+          _totalRecords = total['total_records'] ?? 0;
+
+          if (pageIndex != null) {
+            _data.clear();
+          }
+
+          _data.addAll(data);
+          _isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load data from API');
       }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print('Error: $e');
     }
   }
 
-  Future<void> getDataPangkat() async {
+  Future<void> getDataMdPangkat() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     String? token = prefs.getString('token');
@@ -87,15 +126,14 @@ class _RawatJalanState extends State<RawatJalan> {
           'Authorization': 'Bearer $token'
         });
         final responseData = jsonDecode(response.body);
-        final dataPangkatApi = responseData['data'];
-        // print("$token");
-        // print("$dataPangkatApi");
+        final dataMdPangkatApi = responseData['data'];
+
+        print("$dataMdPangkatApi");
 
         setState(
           () {
-            selectedPangkat = List<Map<String, dynamic>>.from(dataPangkatApi);
-            // selectedEntitasPengganti =
-            //     List<Map<String, dynamic>>.from(dataEntitasApi);
+            selectedMdPangkat =
+                List<Map<String, dynamic>>.from(dataMdPangkatApi);
           },
         );
       } catch (e) {
@@ -104,1039 +142,949 @@ class _RawatJalanState extends State<RawatJalan> {
     }
   }
 
-  String? _validatorNrp(dynamic value) {
-    if (value == null || value.isEmpty) {
-      setState(() {
-        maxHeightValidator = 80.0;
-      });
-      return 'Field Nrp Kosong';
-    }
-
-    setState(() {
-      maxHeightValidator = 60.0;
-    });
-    return null;
-  }
-
-  String? _validatorNama(dynamic value) {
-    if (value == null || value.isEmpty) {
-      setState(() {
-        maxHeightValidator = 80.0;
-      });
-      return 'Field Nama Kosong';
-    }
-
-    setState(() {
-      maxHeightValidator = 60.0;
-    });
-    return null;
-  }
-
-  String? _validatorEmail(dynamic value) {
-    if (value == null || value.isEmpty) {
-      setState(() {
-        maxHeightValidator = 80.0;
-      });
-      return 'Field Email Kosong';
-    }
-
-    setState(() {
-      maxHeightValidator = 60.0;
-    });
-    return null;
-  }
-
-  String? _validatorCocd(dynamic value) {
-    if (value == null || value.isEmpty) {
-      setState(() {
-        maxHeightValidator = 80.0;
-      });
-      return 'Field Cocd Kosong';
-    }
-
-    setState(() {
-      maxHeightValidator = 60.0;
-    });
-    return null;
-  }
-
-  String? _validatorRole(dynamic value) {
-    if (value == null || value.isEmpty) {
-      setState(() {
-        maxHeightValidator = 80.0;
-      });
-      return 'Field Role Kosong';
-    }
-
-    setState(() {
-      maxHeightValidator = 60.0;
-    });
-    return null;
-  }
-
-  String? _validatorPangkat(dynamic value) {
-    if (value == null || value.isEmpty) {
-      setState(() {
-        maxHeightValidator = 80.0;
-      });
-      return 'Field Pangkat Kosong';
-    }
-
-    setState(() {
-      maxHeightValidator = 60.0;
-    });
-    return null;
-  }
-
-  Future<void> updateData(context) {
-    Size size = MediaQuery.of(context).size;
-    double textMedium = size.width * 0.0329;
-    double paddingHorizontalNarrow = size.width * 0.035;
-    double padding5 = size.width * 0.0115;
-    double padding7 = size.width * 0.018;
-    double sizedBoxHeightShort = size.height * 0.0086;
-    final double _maxHeightNrp = 40.0;
-    double sizedBoxHeightTall = size.height * 0.0163;
-    double paddingHorizontalWide = size.width * 0.0585;
-    double _maxHeightAtasan = 60.0;
-    return showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-            top: 10, bottom: MediaQuery.of(context).viewInsets.bottom),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                child: TitleWidget(
-                  title: 'Kode *',
-                  fontWeight: FontWeight.w300,
-                  fontSize: textMedium,
-                ),
-              ),
-              Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                child: TextFormField(
-                  controller: _nrpController,
-                  validator: _validatorNrp,
-                  decoration: InputDecoration(
-                    hintText: "Masukan Kode",
-                    hintStyle: TextStyle(
-                      fontWeight: FontWeight.w300,
-                      fontSize: textMedium,
-                    ),
-                    enabledBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                        width: 1.0,
-                      ),
-                    ),
-                    contentPadding:
-                        const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                child: TitleWidget(
-                  title: 'Nama *',
-                  fontWeight: FontWeight.w300,
-                  fontSize: textMedium,
-                ),
-              ),
-              Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                child: TextFormField(
-                  controller: _namaController,
-                  validator: _validatorNama,
-                  decoration: InputDecoration(
-                    hintText: "Masukan Nama",
-                    hintStyle: TextStyle(
-                      fontWeight: FontWeight.w300,
-                      fontSize: textMedium,
-                    ),
-                    enabledBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                        width: 1.0,
-                      ),
-                    ),
-                    contentPadding:
-                        const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              SizedBox(
-                width: size.width,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: paddingHorizontalNarrow, vertical: 10),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _submitUpdate();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(primaryYellow),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: Text(
-                      'Update',
-                      style: TextStyle(
-                          color: const Color(primaryBlack),
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          letterSpacing: 0.9,
-                          fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _submitUpdate() async {
+  Future<void> getDataMdNikah() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
     String? token = prefs.getString('token');
 
-    setState(() {
-      _isLoading = true;
-    });
-
-    if (_formKey.currentState!.validate() == false) {
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
-
-    _formKey.currentState!.save();
-
-    try {
-      final response = await http.put(
-        Uri.parse('$apiUrl/user-management/update'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
+    if (token != null) {
+      try {
+        final response = await http
+            .get(Uri.parse("$apiUrl/master/nikah"), headers: <String, String>{
+          'Content-Type': 'application/json;charset=UTF-8',
           'Authorization': 'Bearer $token'
-        },
-        body: jsonEncode({
-          'nrp': _nrpController.text,
-          'cocd': _cocdController.text,
-          'nama': _namaController.text,
-          'email': _emailController.text,
-          'role': selectedValueRole.toString(),
-          'pangkat': selectedValuePangkat.toString(),
-          'tgl_masuk': tanggalJoin != null
-              ? tanggalJoin.toString()
-              : DateTime.now().toString(),
-          'terminate': 'X',
-        }),
-      );
-
-      final responseData = jsonDecode(response.body);
-      Get.snackbar('Infomation', responseData['message'],
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.amber,
-          icon: const Icon(
-            Icons.info,
-            color: Colors.white,
-          ),
-          shouldIconPulse: false);
-
-      print(responseData);
-      if (responseData['status'] == 'success') {
-        Navigator.pop(context);
-        // Get.toNamed('/admin/administrator/user_management/user_management');
-      }
-    } catch (e) {
-      print(e);
-      throw e;
-    }
-
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  Future<void> fetchData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    final response = await http.get(
-        Uri.parse(
-            "$apiUrl/master/entity/get?page=$_pageIndex&perPage=$_rowsPerPage&search="),
-        headers: <String, String>{
-          "Content-Type": "application/json;charset=UTF-8",
-          'Authorization': 'Bearer $token',
         });
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      final data = responseData["dataku"];
-      final total = responseData["totalPage"];
-      _rowCount = total['total_records'] ?? 'null'.length;
-      _rows = List.generate(
-        data.length,
-        (index) => DataRow(
-          cells: [
-            DataCell(Text((index + 1).toString())),
-            DataCell(Text(data[index]['kode'] ?? 'null')),
-            DataCell(
-              Container(
-                width: 200,
-                child: Text(
-                  data[index]['nama'] ?? 'null',
-                  overflow: TextOverflow.clip,
-                ),
-              ),
-            ),
-            DataCell(
-              Row(
-                children: [
-                  Container(
-                    height: 30,
-                    width: 30,
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: GestureDetector(
-                        onTap: () {
-                          updateData(context);
-                        },
-                        child: const Icon(Icons.edit, color: Colors.white)),
-                  ),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  Container(
-                    height: 30,
-                    width: 30,
-                    decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: const Icon(Icons.delete, color: Colors.white),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      );
-      setState(() {});
-    } else {
-      throw Exception('Failed to load data');
+        final responseData = jsonDecode(response.body);
+        final dataMdNikah = responseData['data'];
+        print("$token");
+        print("$dataMdNikah");
+
+        setState(
+          () {
+            selectedMdNikah = List<Map<String, dynamic>>.from(dataMdNikah);
+            // selectedEntitasPengganti =
+          },
+        );
+      } catch (e) {
+        print(e);
+      }
     }
   }
 
-  Future<void> _submit() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
+  void _filterData(String query) {
+    setState(() {});
+  }
 
-    setState(() {
-      _isLoading = true;
-    });
-
-    if (_formKey.currentState!.validate() == false) {
+  void nextPage() {
+    if ((_pageIndex * _rowsPerPage) < _totalRecords) {
       setState(() {
-        _isLoading = false;
+        _pageIndex++;
       });
-      return;
+      fetchData(pageIndex: _pageIndex);
     }
+  }
 
-    _formKey.currentState!.save();
-
-    try {
-      final response = await http.post(
-        Uri.parse('$apiUrl/user-management/add'),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token'
-        },
-        body: jsonEncode({
-          'nrp': _nrpController.text,
-          'cocd': _cocdController.text,
-          'nama': _namaController.text,
-          'email': _emailController.text,
-          'role': selectedValueRole.toString(),
-          'pangkat': selectedValuePangkat.toString(),
-          'tgl_masuk': tanggalJoin != null
-              ? tanggalJoin.toString()
-              : DateTime.now().toString(),
-          'terminate': 'X',
-        }),
-      );
-
-      final responseData = jsonDecode(response.body);
-      Get.snackbar('Infomation', responseData['message'],
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.amber,
-          icon: const Icon(
-            Icons.info,
-            color: Colors.white,
-          ),
-          shouldIconPulse: false);
-
-      print(responseData);
-      if (responseData['status'] == 'success') {
-        Navigator.pop(context);
-        // Get.toNamed('/admin/administrator/user_management/user_management');
-      }
-    } catch (e) {
-      print(e);
-      throw e;
+  void prevPage() {
+    if (_pageIndex > 1) {
+      setState(() {
+        _pageIndex--;
+      });
+      fetchData(pageIndex: _pageIndex);
     }
+  }
 
+  void onRowsPerPageChanged(int? value) {
     setState(() {
-      _isLoading = false;
+      _rowsPerPage = value!;
+      _pageIndex = 1;
     });
+    fetchData(pageIndex: 1);
   }
 
   @override
-  void initState() {
-    super.initState();
-    fetchData();
-    getDataRole();
-    getDataPangkat();
-  }
-
   Widget build(BuildContext context) {
-    DateTime tanggalMasuk = DateTime(3000, 2, 1, 10, 20);
     Size size = MediaQuery.of(context).size;
-    double textMedium = size.width * 0.0329;
     double paddingHorizontalNarrow = size.width * 0.035;
+    double textMedium = size.width * 0.0329;
     double padding5 = size.width * 0.0115;
-    double padding7 = size.width * 0.018;
-    double sizedBoxHeightShort = size.height * 0.0086;
-    final double _maxHeightNrp = 40.0;
-    double sizedBoxHeightTall = size.height * 0.0163;
-    double paddingHorizontalWide = size.width * 0.0585;
+    double maxHeightValidator = 60.0;
     double _maxHeightAtasan = 60.0;
-    // double padding8 = size.width * 0.0188;
-    // double padding10 = size.width * 0.023;
-    List<DataRow>? filterData;
+    double sizedBoxHeightTall = size.height * 0.0163;
 
-    bool _isLoading = false;
+    Future<void> deleteData(String id) async {
+      print('tombol delet bekerja dengan id :  $id');
+      SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    @override
-    void initState() {
-      filterData = _rows;
-      super.initState();
+      String? token = prefs.getString('token');
+      print('ini token :  $token');
+      if (token != null) {
+        try {
+          final response =
+              await http.post(Uri.parse("$apiUrl/master/rawat-jalan/delete"),
+                  headers: <String, String>{
+                    'Content-Type': 'application/json;charset=UTF-8',
+                    'Authorization': 'Bearer $token'
+                  },
+                  body: jsonEncode({'id': id}));
+          if (response.statusCode == 200) {
+            print('Item with id $id deleted successfully');
+          } else {
+            print("response error request: ${response.request}");
+            throw Exception('Failed to delete item');
+          }
+        } catch (e) {
+          print(e);
+        }
+      }
     }
 
-    TextEditingController _searchcontroller = TextEditingController();
+    String? _validatorAnnouncement(dynamic value) {
+      if (value == null || value.isEmpty) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field announcement Kosong';
+      }
 
-    _handleButtonAdd() {
+      setState(() {
+        maxHeightValidator = 60.0;
+      });
+      return null;
+    }
+
+    String? _validatorApplication(dynamic value) {
+      if (value == null || value.isEmpty) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field application Kosong';
+      }
+
+      setState(() {
+        maxHeightValidator = 60.0;
+      });
+      return null;
+    }
+
+    String? _validatorApprovalList(dynamic value) {
+      if (value == null || value.isEmpty) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field approval_list Kosong';
+      }
+
+      setState(() {
+        maxHeightValidator = 60.0;
+      });
+      return null;
+    }
+
+    String? _validatorAssignmentInterviewer(dynamic value) {
+      if (value == null || value.isEmpty) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field assignment_interviewer Kosong';
+      }
+
+      setState(() {
+        maxHeightValidator = 60.0;
+      });
+      return null;
+    }
+
+    String? _validatorDashboardAdmin(dynamic value) {
+      if (value == null || value.isEmpty) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field dashboard_admin Kosong';
+      }
+
+      setState(() {
+        maxHeightValidator = 60.0;
+      });
+      return null;
+    }
+
+    String? _validatorDataProfile(dynamic value) {
+      if (value == null || value.isEmpty) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field data_profile Kosong';
+      }
+
+      setState(() {
+        maxHeightValidator = 60.0;
+      });
+      return null;
+    }
+
+    String? _validatorDetailPlafon(dynamic value) {
+      if (value == null || value.isEmpty) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field detail_plafon Kosong';
+      }
+
+      setState(() {
+        maxHeightValidator = 60.0;
+      });
+      return null;
+    }
+
+    String? _validatorDocumentCompany(dynamic value) {
+      if (value == null || value.isEmpty) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field document_company Kosong';
+      }
+
+      setState(() {
+        maxHeightValidator = 60.0;
+      });
+      return null;
+    }
+
+    String? _validatorEmployee(dynamic value) {
+      if (value == null || value.isEmpty) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field employee Kosong';
+      }
+
+      setState(() {
+        maxHeightValidator = 60.0;
+      });
+      return null;
+    }
+
+    String? _validatorFormOnline(dynamic value) {
+      if (value == null || value.isEmpty) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field form_online Kosong';
+      }
+
+      setState(() {
+        maxHeightValidator = 60.0;
+      });
+      return null;
+    }
+
+    String? _validatorPerformanceManagement(dynamic value) {
+      if (value == null || value.isEmpty) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field performance_management Kosong';
+      }
+
+      setState(() {
+        maxHeightValidator = 60.0;
+      });
+      return null;
+    }
+
+    String? _validatorUserAdministrator(dynamic value) {
+      if (value == null || value.isEmpty) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field user_administrator Kosong';
+      }
+
+      setState(() {
+        maxHeightValidator = 60.0;
+      });
+      return null;
+    }
+
+    String? _validatorRole(dynamic value) {
+      if (value == null || value.isEmpty) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field Role Kosong';
+      }
+
+      setState(() {
+        maxHeightValidator = 60.0;
+      });
+      return null;
+    }
+
+    String? _validatorMdPangkat(dynamic value) {
+      if (value == null || value.isEmpty) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field Role Kosong';
+      }
+
+      setState(() {
+        maxHeightValidator = 60.0;
+      });
+      return null;
+    }
+
+    String? _validatorMdNikah(dynamic value) {
+      if (value == null || value.isEmpty) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field Role Kosong';
+      }
+
+      setState(() {
+        maxHeightValidator = 60.0;
+      });
+      return null;
+    }
+
+    String? _validatorKurs(dynamic value) {
+      if (value == null || value.isEmpty) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field Role Kosong';
+      }
+
+      setState(() {
+        maxHeightValidator = 60.0;
+      });
+      return null;
+    }
+
+    String? _validatorNominal(dynamic value) {
+      if (value == null || value.isEmpty) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field Role Kosong';
+      }
+
+      setState(() {
+        maxHeightValidator = 60.0;
+      });
+      return null;
+    }
+
+    String? _validatorStatus(dynamic value) {
+      if (value == null || value.isEmpty) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field Role Kosong';
+      }
+
+      setState(() {
+        maxHeightValidator = 60.0;
+      });
+      return null;
+    }
+
+    Future<void> _submit() async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+
+      setState(() {
+        _isLoading = true;
+      });
+
+      if (_formKey.currentState!.validate() == false) {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      _formKey.currentState!.save();
+      // print(_roleController.text);
+      // print("ini announce : " + _announcementController.text);
+      // print("ini applicatin : " + _applicationController.text);
+      // print("ini approval : " + _approvalListController.text);
+      // print("ini assignmen : " + _assignmentInterviewerController.text);
+      // print("ini dashboard : " + _dashboardAdminController.text);
+      // print("ini datprof : " + _dataProfileController.text);
+      // print("ini detplaf : " + _detailPlafonController.text);
+      // print("ini doc : " + _documentCompanyController.text);
+      // print("ini employ : " + _employeeController.text);
+      // print("ini formonli : " + _formOnlineController.text);
+      // print("ini pertform : " + _performanceManagementController.text);
+      // print("ini user : " + _userAdministratorController.text);
+      print("ini md pangkat : " + _mdPangkatController.text);
+      print("ini md nikah : " + _mdNikahController.text);
+      print("ini kurs : " + _kursController.text);
+      print("ini nominal : " + _nominalController.text);
+      print("ini status : " + _statusController.text);
+      print("ini tgl mulai : " + tanggalMulai.toString());
+      print("ini tgl berakhir : " + tanggalBerakhir.toString());
+      try {
+        final response = await http.post(
+          Uri.parse('$apiUrl/master/rawat-jalan/add'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token'
+          },
+          body: jsonEncode({
+            'kode_nikah': _mdNikahController.text,
+            'kode_pangkat': _mdPangkatController.text,
+            'kurs': _kursController.text,
+            'nominal': _nominalController.text,
+            'status': _statusController.text,
+            'tgl_berakhir': tanggalBerakhir != null
+                ? tanggalBerakhir.toString()
+                : DateTime.now().toString(),
+            'tgl_mulai': tanggalMulai != null
+                ? tanggalMulai.toString()
+                : DateTime.now().toString(),
+          }),
+        );
+
+        final responseData = jsonDecode(response.body);
+        Get.snackbar('Infomation', responseData['success'],
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
+
+        print(responseData);
+        if (responseData['status'] == 'success') {
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        print(e);
+        throw e;
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+    }
+
+    Future<void> _handleButtonAdd() {
       return showModalBottomSheet(
         context: context,
         isScrollControlled: true,
-        builder: (context) => Padding(
-          padding: EdgeInsets.only(
-              top: 10, bottom: MediaQuery.of(context).viewInsets.bottom),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Kode *',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
-                  ),
+        useSafeArea: true,
+        builder: (context) {
+          return StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Container(
+                margin: EdgeInsets.symmetric(
+                  horizontal: paddingHorizontalNarrow,
+                  vertical: paddingHorizontalNarrow,
                 ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
-                    controller: _nrpController,
-                    validator: _validatorNrp,
-                    decoration: InputDecoration(
-                      hintText: "Masukan Kode",
-                      hintStyle: TextStyle(
-                        fontWeight: FontWeight.w300,
-                        fontSize: textMedium,
-                      ),
-                      enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.grey,
-                          width: 1.0,
-                        ),
-                      ),
-                      contentPadding:
-                          const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Nama *',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
-                  ),
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
-                    controller: _namaController,
-                    validator: _validatorNama,
-                    decoration: InputDecoration(
-                      hintText: "Masukan Nama",
-                      hintStyle: TextStyle(
-                        fontWeight: FontWeight.w300,
-                        fontSize: textMedium,
-                      ),
-                      enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.grey,
-                          width: 1.0,
-                        ),
-                      ),
-                      contentPadding:
-                          const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                SizedBox(
-                  width: size.width,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: paddingHorizontalNarrow, vertical: 10),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _submit();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(primaryYellow),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        'Add',
-                        style: TextStyle(
-                            color: const Color(primaryBlack),
-                            fontSize: textMedium,
-                            fontFamily: 'Poppins',
-                            letterSpacing: 0.9,
-                            fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    _handleButtonUpdate(dynamic value) {
-      return showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          useSafeArea: true,
-          builder: (context) {
-            return Container(
-              margin: EdgeInsets.symmetric(
-                horizontal: paddingHorizontalNarrow,
-                vertical: paddingHorizontalNarrow,
-              ),
-              height: 650,
-              width: double.infinity,
-              child: ListView(
-                children: [
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TitleWidget(
-                            title: 'NRP *',
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TextFormField(
-                            controller: _nrpController,
-                            validator: _validatorNrp,
-                            decoration: InputDecoration(
-                              hintText: "Masukan NRP",
-                              hintStyle: TextStyle(
-                                fontWeight: FontWeight.w300,
-                                fontSize: textMedium,
-                              ),
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.grey,
-                                  width: 1.0,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.fromLTRB(
-                                  20.0, 10.0, 20.0, 10.0),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TitleWidget(
-                            title: 'Nama *',
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TextFormField(
-                            controller: _namaController,
-                            validator: _validatorNama,
-                            decoration: InputDecoration(
-                              hintText: "Masukan Nama",
-                              hintStyle: TextStyle(
-                                fontWeight: FontWeight.w300,
-                                fontSize: textMedium,
-                              ),
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.grey,
-                                  width: 1.0,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.fromLTRB(
-                                  20.0, 10.0, 20.0, 10.0),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TitleWidget(
-                            title: 'Tanggal masuk *',
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                        CupertinoButton(
-                          child: Container(
-                            height: 50,
-                            width: size.width,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow,
-                                vertical: padding5),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                border: Border.all(color: Colors.grey)),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Icon(
-                                  Icons.calendar_month_outlined,
-                                  color: Colors.grey,
-                                ),
-                                Text(
-                                  DateFormat('dd-MM-yyyy').format(
-                                      _tanggalJoinController.selectedDate ??
-                                          DateTime.now()),
-                                  style: TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: textMedium,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w300,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertDialog(
-                                  content: Container(
-                                    height: 350,
-                                    width: 350,
-                                    child: SfDateRangePicker(
-                                      controller: _tanggalJoinController,
-                                      onSelectionChanged:
-                                          (DateRangePickerSelectionChangedArgs
-                                              args) {
-                                        setState(() {
-                                          tanggalJoin = args.value;
-                                        });
-                                      },
-                                      selectionMode:
-                                          DateRangePickerSelectionMode.single,
-                                    ),
-                                  ),
-                                  actions: <Widget>[
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: const Text('OK'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TitleWidget(
-                            title: "Email *",
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TextFormField(
-                            controller: _emailController,
-                            validator: _validatorEmail,
-                            decoration: InputDecoration(
-                              hintText: "Masukan email",
-                              hintStyle: TextStyle(
-                                fontWeight: FontWeight.w300,
-                                fontSize: textMedium,
-                              ),
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.grey,
-                                  width: 1.0,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.fromLTRB(
-                                  20.0, 10.0, 20.0, 10.0),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TitleWidget(
-                            title: "Cocd *",
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TextFormField(
-                            controller: _cocdController,
-                            validator: _validatorCocd,
-                            decoration: InputDecoration(
-                              hintText: "Masukan cocd",
-                              hintStyle: TextStyle(
-                                fontWeight: FontWeight.w300,
-                                fontSize: textMedium,
-                              ),
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.grey,
-                                  width: 1.0,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.fromLTRB(
-                                  20.0, 10.0, 20.0, 10.0),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TitleWidget(
-                            title: 'Role *',
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: Container(
-                            height: 50,
-                            width: size.width,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(color: Colors.grey),
-                            ),
-                            child: DropdownButtonFormField<String>(
-                              hint: Text(
-                                "Pilih Role",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                              validator: _validatorRole,
-                              value: selectedValueRole,
-                              icon: selectedRole.isEmpty
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Colors.blue),
-                                      ),
-                                    )
-                                  : const Icon(Icons.arrow_drop_down),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  selectedValueRole = newValue ?? '';
-                                  print("$selectedValueRole");
-                                });
-                              },
-                              items: selectedRole
-                                  .map((Map<String, dynamic> value) {
-                                return DropdownMenuItem<String>(
-                                  value: value["id"].toString(),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(1.0),
-                                    child: TitleWidget(
-                                      title: value["role"] as String,
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: textMedium,
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                              decoration: InputDecoration(
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightAtasan),
-                                labelStyle: TextStyle(fontSize: textMedium),
-                                focusedBorder: const UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.transparent,
-                                    width: 1.0,
-                                  ),
-                                ),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: selectedValueRole != null
-                                        ? Colors.transparent
-                                        : Colors.transparent,
-                                    width: 1.0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TitleWidget(
-                            title: 'Pangkat *',
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: Container(
-                            height: 50,
-                            width: size.width,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(color: Colors.grey),
-                            ),
-                            child: DropdownButtonFormField<String>(
-                              hint: Text(
-                                'Pilih Pangkat',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                              validator: _validatorPangkat,
-                              value: selectedValuePangkat,
-                              icon: selectedPangkat.isEmpty
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Colors.blue),
-                                      ),
-                                    )
-                                  : const Icon(Icons.arrow_drop_down),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  selectedValuePangkat = newValue ?? '';
-                                  print("$selectedValuePangkat");
-                                  // selectedValueAtasan = null;
-                                });
-                              },
-                              items: selectedPangkat
-                                  .map((Map<String, dynamic> value) {
-                                return DropdownMenuItem<String>(
-                                  value: value["kode"].toString(),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(1.0),
-                                    child: TitleWidget(
-                                      title: value["nama"] as String,
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: textMedium,
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                              decoration: InputDecoration(
-                                constraints: BoxConstraints(
-                                    maxHeight: maxHeightValidator),
-                                labelStyle: TextStyle(fontSize: textMedium),
-                                focusedBorder: const UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.transparent,
-                                    width: 1.0,
-                                  ),
-                                ),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: selectedValuePangkat != null
-                                        ? Colors.transparent
-                                        : Colors.transparent,
-                                    width: 1.0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: sizedBoxHeightTall,
-                        ),
-                        SizedBox(
-                          width: size.width,
-                          child: Padding(
+                height: 650,
+                width: double.infinity,
+                child: ListView(
+                  children: [
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                _submit();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(primaryYellow),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
+                            child: TitleWidget(
+                              title: 'Md pangkat *',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow),
+                            child: Container(
+                              height: 50,
+                              width: size.width,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                border: Border.all(color: Colors.grey),
                               ),
-                              child: Text(
-                                'Add',
-                                style: TextStyle(
-                                    color: const Color(primaryBlack),
+                              child: DropdownButtonFormField<String>(
+                                hint: Text(
+                                  "Pilih md pangkat",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w300,
                                     fontSize: textMedium,
-                                    fontFamily: 'Poppins',
-                                    letterSpacing: 0.9,
-                                    fontWeight: FontWeight.w700),
+                                  ),
+                                ),
+                                validator: _validatorMdPangkat,
+                                value: selectedValueMdPangkat,
+                                icon: selectedMdPangkat.isEmpty
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.blue),
+                                        ),
+                                      )
+                                    : Icon(Icons.arrow_drop_down),
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    selectedValueMdPangkat = newValue;
+                                    _mdPangkatController.text = newValue ??
+                                        ''; // Update the TextEditingController value
+                                    print("$selectedValueMdPangkat");
+                                  });
+                                },
+                                items: selectedMdPangkat
+                                    .map((Map<String, dynamic> value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value["kode"] as String,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(1.0),
+                                      child: TitleWidget(
+                                        title: value["nama"] as String,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                decoration: InputDecoration(
+                                  constraints: BoxConstraints(
+                                      maxHeight: _maxHeightAtasan),
+                                  labelStyle: TextStyle(fontSize: textMedium),
+                                  focusedBorder: const UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.transparent,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: selectedValueMdPangkat != null
+                                          ? Colors.transparent
+                                          : Colors.transparent,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 10),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow),
+                            child: TitleWidget(
+                              title: 'Md nikah *',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow),
+                            child: Container(
+                              height: 50,
+                              width: size.width,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                border: Border.all(color: Colors.grey),
+                              ),
+                              child: DropdownButtonFormField<String>(
+                                hint: Text(
+                                  "Pilih md nikah",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: textMedium,
+                                  ),
+                                ),
+                                value: selectedValueMdNikah,
+                                icon: selectedMdNikah.isEmpty
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.blue),
+                                        ),
+                                      )
+                                    : const Icon(Icons.arrow_drop_down),
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    selectedValueMdNikah = newValue;
+                                    _mdNikahController.text = newValue ?? '';
+                                    print("$selectedValueMdNikah");
+                                  });
+                                },
+                                items: selectedMdNikah
+                                    .map((Map<String, dynamic> value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value["kode"] as String,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(1.0),
+                                      child: TitleWidget(
+                                        title: value["nama"] as String,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                decoration: InputDecoration(
+                                  constraints: BoxConstraints(
+                                      maxHeight: _maxHeightAtasan),
+                                  labelStyle: TextStyle(fontSize: textMedium),
+                                  focusedBorder: const UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.transparent,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: selectedValueMdNikah != null
+                                          ? Colors.transparent
+                                          : Colors.transparent,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow),
+                            child: TitleWidget(
+                              title: 'Kurs *',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow),
+                            child: TextFormField(
+                              controller: _kursController,
+                              validator: _validatorKurs,
+                              decoration: InputDecoration(
+                                hintText: "Masukan kurs",
+                                hintStyle: TextStyle(
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                                enabledBorder: const OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.grey,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.fromLTRB(
+                                  20.0,
+                                  10.0,
+                                  20.0,
+                                  10.0,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow),
+                            child: TitleWidget(
+                              title: 'Nominal *',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow),
+                            child: TextFormField(
+                              controller: _nominalController,
+                              validator: _validatorNominal,
+                              decoration: InputDecoration(
+                                hintText: "Masukan Nominal",
+                                hintStyle: TextStyle(
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                                enabledBorder: const OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.grey,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.fromLTRB(
+                                  20.0,
+                                  10.0,
+                                  20.0,
+                                  10.0,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow),
+                            child: TitleWidget(
+                              title: 'Status *',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow),
+                            child: TextFormField(
+                              controller: _statusController,
+                              validator: _validatorStatus,
+                              decoration: InputDecoration(
+                                hintText: "Masukan Status",
+                                hintStyle: TextStyle(
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                                enabledBorder: const OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.grey,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.fromLTRB(
+                                  20.0,
+                                  10.0,
+                                  20.0,
+                                  10.0,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow),
+                            child: TitleWidget(
+                              title: 'Tanggal mulai *',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                          ),
+                          CupertinoButton(
+                            child: Container(
+                              height: 50,
+                              width: size.width,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow,
+                                  vertical: padding5),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                  border: Border.all(color: Colors.grey)),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Icon(
+                                    Icons.calendar_month_outlined,
+                                    color: Colors.grey,
+                                  ),
+                                  Text(
+                                    DateFormat('dd-MM-yyyy').format(
+                                        _tanggalMulaiController.selectedDate ??
+                                            DateTime.now()),
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: textMedium,
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    content: Container(
+                                      height: 350,
+                                      width: 350,
+                                      child: SfDateRangePicker(
+                                        controller: _tanggalMulaiController,
+                                        onSelectionChanged:
+                                            (DateRangePickerSelectionChangedArgs
+                                                args) {
+                                          setState(() {
+                                            tanggalMulai = args.value;
+                                          });
+                                        },
+                                        selectionMode:
+                                            DateRangePickerSelectionMode.single,
+                                      ),
+                                    ),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('OK'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 10),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow),
+                            child: TitleWidget(
+                              title: 'Tanggal Berakhir *',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                          ),
+                          CupertinoButton(
+                            child: Container(
+                              height: 50,
+                              width: size.width,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow,
+                                  vertical: padding5),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                  border: Border.all(color: Colors.grey)),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Icon(
+                                    Icons.calendar_month_outlined,
+                                    color: Colors.grey,
+                                  ),
+                                  Text(
+                                    DateFormat('dd-MM-yyyy').format(
+                                        _tanggalBerakhirController
+                                                .selectedDate ??
+                                            DateTime.now()),
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: textMedium,
+                                      fontFamily: 'Poppins',
+                                      fontWeight: FontWeight.w300,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    content: Container(
+                                      height: 350,
+                                      width: 350,
+                                      child: SfDateRangePicker(
+                                        controller: _tanggalBerakhirController,
+                                        onSelectionChanged:
+                                            (DateRangePickerSelectionChangedArgs
+                                                args) {
+                                          setState(() {
+                                            tanggalBerakhir = args.value;
+                                          });
+                                        },
+                                        selectionMode:
+                                            DateRangePickerSelectionMode.single,
+                                      ),
+                                    ),
+                                    actions: <Widget>[
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('OK'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                          SizedBox(
+                            height: sizedBoxHeightTall,
+                          ),
+                          SizedBox(
+                            width: size.width,
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  _submit();
+                                  Navigator.pop(context);
+                                  fetchData(pageIndex: 1);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(primaryYellow),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Add',
+                                  style: TextStyle(
+                                      color: const Color(primaryBlack),
+                                      fontSize: textMedium,
+                                      fontFamily: 'Poppins',
+                                      letterSpacing: 0.9,
+                                      fontWeight: FontWeight.w700),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            );
-          });
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      );
     }
 
     Widget content() {
       return Container(
         padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1192,150 +1140,947 @@ class _RawatJalanState extends State<RawatJalan> {
             const SizedBox(
               height: 10,
             ),
-          ],
-        ),
-      );
-    }
-
-    Widget data() {
-      return SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Padding(
-              padding:
-                  EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-              child: Container(
-                height: 50,
-                width: 200,
-                padding: const EdgeInsets.all(3),
-                child: TextField(
-                  controller: _searchcontroller,
-                  decoration: const InputDecoration(
-                    labelText: "Search",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                    prefixIcon: Icon(
-                      Icons.search,
-                      size: 17,
-                    ),
+            Container(
+              height: 50,
+              width: 200,
+              child: TextField(
+                controller: _searchcontroller,
+                decoration: const InputDecoration(
+                  labelText: "Search",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
                   ),
-                  onChanged: (value) {
-                    // setState(() {
-                    //   data = filterData!
-                    //       .where((element) => element.nama.contains(value))
-                    //       .toList();
-                    // });
-                  },
+                  prefixIcon: Icon(
+                    Icons.search,
+                    size: 17,
+                  ),
                 ),
+                onChanged: _filterData,
               ),
             ),
             const SizedBox(
               height: 10,
             ),
-            PaginatedDataTable(
-              rowsPerPage: _rowsPerPage,
-              onRowsPerPageChanged: (value) {
-                setState(() {
-                  _rowsPerPage = value!;
-                });
-              },
-              onPageChanged: (pageIndex) {
-                setState(() {
-                  _pageIndex = pageIndex + 1;
-                  fetchData(); // Fetch data for the new page
-                });
-              },
-              columnSpacing: 10,
-              availableRowsPerPage: const [
-                5,
-                10,
-                50,
-                100,
-              ], // Choose rows per page
-              source: MyDataTableSource(
-                rows: _rows,
-                rowCount: _rowCount,
-                pageIndex: _pageIndex,
-                rowsPerPage: _rowsPerPage,
-              ),
-              columns: const [
-                DataColumn(
-                  label: Text(
-                    "No",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    "Kode",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    "Nama",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    "Aksi",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                  ),
-                ),
-              ],
-            ),
           ],
         ),
       );
     }
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: const Text('Master Data - Rawat Jalan'),
-      ),
-      body: SingleChildScrollView(
+    Future<void> _submitUpdate(
+        String valueTglBerakhir,
+        String valueTglMulai,
+        String valueNominal,
+        String valueStatus,
+        String valueKurs,
+        String valueMdNikah,
+        String valueMdPangkat,
+        String id) async {
+      print("update btn");
+      print("ini id : " + id);
+      print("ini valueTglMulai : " + valueTglMulai);
+      print("ini valueTglBerakhir: " + valueTglBerakhir);
+      print("ini valueNominal : " + valueNominal);
+      print("ini valueStatus : " + valueStatus);
+      print("ini valueKurs : " + valueKurs);
+      print("ini valueMdNikah : " + valueMdNikah);
+      print("ini valueMdPangkat : " + valueMdPangkat);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+
+      setState(() {
+        _isLoading = true;
+      });
+
+      if (_formKey.currentState!.validate() == false) {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      _formKey.currentState!.save();
+
+      try {
+        final response = await http.post(
+          Uri.parse('$apiUrl/master/rawat-jalan/update'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token'
+          },
+          body: jsonEncode({
+            "id": id,
+            "kode_nikah": valueMdNikah,
+            "kode_pangkat": valueMdPangkat,
+            "kurs": valueKurs,
+            "nominal": valueNominal,
+            "status": valueStatus,
+            "tgl_berakhir": valueTglBerakhir != null
+                ? valueTglBerakhir.toString()
+                : DateTime.now().toString(),
+            "tgl_mulai": valueTglMulai != null
+                ? valueTglMulai.toString()
+                : DateTime.now().toString(),
+          }),
+        );
+
+        final responseData = jsonDecode(response.body);
+        Get.snackbar('Infomation', responseData['success'],
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
+
+        print(responseData);
+        if (responseData['status'] == 'success') {}
+      } catch (e) {
+        print(e);
+        throw e;
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+    }
+
+    Future<void> updateData(
+        context,
+        String id,
+        String mdNikah,
+        String mdPangkat,
+        String kurs,
+        String nominal,
+        String status,
+        String tgl_mulai,
+        String tgl_berakhir) async {
+      Size size = MediaQuery.of(context).size;
+      double textMedium = size.width * 0.0329;
+      double paddingHorizontalNarrow = size.width * 0.035;
+      double padding5 = size.width * 0.0115;
+      double padding7 = size.width * 0.018;
+      double sizedBoxHeightShort = size.height * 0.0086;
+      final double _maxHeightNrp = 40.0;
+      double sizedBoxHeightTall = size.height * 0.0163;
+      double paddingHorizontalWide = size.width * 0.0585;
+      double _maxHeightAtasan = 60.0;
+
+      DateTime dateTimeMulai = DateFormat("yyyy-MM-dd").parse(tgl_mulai);
+      String formattedDateMulaiString =
+          DateFormat("yyyy-MM-dd").format(dateTimeMulai);
+      DateTime dateMulai =
+          DateFormat("yyyy-MM-dd").parse(formattedDateMulaiString);
+
+      DateTime dateTimeBerakhir = DateFormat("yyyy-MM-dd").parse(tgl_berakhir);
+      String formattedDateBerakhirString =
+          DateFormat("yyyy-MM-dd").format(dateTimeBerakhir);
+      DateTime dateBerakhir =
+          DateFormat("yyyy-MM-dd").parse(formattedDateBerakhirString);
+
+      String valueMdPangkat = mdPangkat;
+      String valueMdNikah = mdNikah;
+      String valueKurs = kurs;
+      String valueNominal = nominal;
+      String valueStatus = status;
+      String valueTglMulai = dateMulai.toString();
+      String valueTglBerakhir = dateBerakhir.toString();
+
+      print(mdNikah);
+      print(mdPangkat);
+
+      return showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          useSafeArea: true,
+          builder: (context) {
+            return Container(
+              margin: EdgeInsets.symmetric(
+                horizontal: paddingHorizontalNarrow,
+                vertical: paddingHorizontalNarrow,
+              ),
+              height: 650,
+              width: double.infinity,
+              child: ListView(
+                children: [
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow),
+                          child: TitleWidget(
+                            title: 'Md pangkat *',
+                            fontWeight: FontWeight.w300,
+                            fontSize: textMedium,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow),
+                          child: Container(
+                            height: 50,
+                            width: size.width,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: Colors.grey),
+                            ),
+                            child: DropdownButtonFormField<String>(
+                              hint: Text(
+                                "Pilih md pangkat",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                              ),
+                              validator: _validatorMdPangkat,
+                              value: mdPangkat,
+                              icon: selectedMdPangkat.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : Icon(Icons.arrow_drop_down),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  selectedValueMdPangkat = newValue;
+                                  valueMdPangkat = newValue ?? '';
+                                  print("$selectedValueMdPangkat");
+                                });
+                              },
+                              items: selectedMdPangkat
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["kode"] as String,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: TitleWidget(
+                                      title: value["nama"] as String,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              decoration: InputDecoration(
+                                constraints:
+                                    BoxConstraints(maxHeight: _maxHeightAtasan),
+                                labelStyle: TextStyle(fontSize: textMedium),
+                                focusedBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: selectedValueMdPangkat != null
+                                        ? Colors.transparent
+                                        : Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow),
+                          child: TitleWidget(
+                            title: 'Md nikah *',
+                            fontWeight: FontWeight.w300,
+                            fontSize: textMedium,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow),
+                          child: Container(
+                            height: 50,
+                            width: size.width,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: Colors.grey),
+                            ),
+                            child: DropdownButtonFormField<String>(
+                              hint: Text(
+                                "Pilih md nikah",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                              ),
+                              value: mdNikah,
+                              icon: selectedMdNikah.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  selectedValueMdNikah = newValue;
+                                  valueMdNikah = newValue ?? '';
+                                  print("$selectedValueMdNikah");
+                                });
+                              },
+                              items: selectedMdNikah
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["kode"] as String,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: TitleWidget(
+                                      title: value["nama"] as String,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              decoration: InputDecoration(
+                                constraints:
+                                    BoxConstraints(maxHeight: _maxHeightAtasan),
+                                labelStyle: TextStyle(fontSize: textMedium),
+                                focusedBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: selectedValueMdNikah != null
+                                        ? Colors.transparent
+                                        : Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow),
+                          child: TitleWidget(
+                            title: 'Kurs *',
+                            fontWeight: FontWeight.w300,
+                            fontSize: textMedium,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow),
+                          child: TextFormField(
+                            validator: _validatorKurs,
+                            initialValue: kurs,
+                            onChanged: (value) {
+                              setState(() {
+                                valueKurs = value;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              hintText: "Masukan kurs",
+                              hintStyle: TextStyle(
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              ),
+                              enabledBorder: const OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.grey,
+                                  width: 1.0,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.fromLTRB(
+                                20.0,
+                                10.0,
+                                20.0,
+                                10.0,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow),
+                          child: TitleWidget(
+                            title: 'Nominal *',
+                            fontWeight: FontWeight.w300,
+                            fontSize: textMedium,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow),
+                          child: TextFormField(
+                            initialValue: nominal,
+                            validator: _validatorNominal,
+                            onChanged: (value) {
+                              setState(() {
+                                valueNominal = value;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              hintText: "Masukan Nominal",
+                              hintStyle: TextStyle(
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              ),
+                              enabledBorder: const OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.grey,
+                                  width: 1.0,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.fromLTRB(
+                                20.0,
+                                10.0,
+                                20.0,
+                                10.0,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow),
+                          child: TitleWidget(
+                            title: 'Status *',
+                            fontWeight: FontWeight.w300,
+                            fontSize: textMedium,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow),
+                          child: TextFormField(
+                            initialValue: status,
+                            validator: _validatorStatus,
+                            onChanged: (value) {
+                              setState(() {
+                                valueStatus = value;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              hintText: "Masukan Status",
+                              hintStyle: TextStyle(
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              ),
+                              enabledBorder: const OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.grey,
+                                  width: 1.0,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.fromLTRB(
+                                20.0,
+                                10.0,
+                                20.0,
+                                10.0,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow),
+                          child: TitleWidget(
+                            title: 'Tanggal mulai *',
+                            fontWeight: FontWeight.w300,
+                            fontSize: textMedium,
+                          ),
+                        ),
+                        CupertinoButton(
+                          child: Container(
+                            height: 50,
+                            width: size.width,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow,
+                                vertical: padding5),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                border: Border.all(color: Colors.grey)),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Icon(
+                                  Icons.calendar_month_outlined,
+                                  color: Colors.grey,
+                                ),
+                                Text(
+                                  DateFormat('yyyy-MM-dd')
+                                      .format(dateMulai ?? DateTime.now()),
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: textMedium,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  content: Container(
+                                    height: 350,
+                                    width: 350,
+                                    child: SfDateRangePicker(
+                                      initialSelectedDate: dateMulai,
+                                      onSelectionChanged:
+                                          (DateRangePickerSelectionChangedArgs
+                                              args) {
+                                        setState(() {
+                                          dateMulai = args.value;
+                                        });
+                                      },
+                                      selectionMode:
+                                          DateRangePickerSelectionMode.single,
+                                      initialDisplayDate: dateMulai,
+                                    ),
+                                  ),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        setState(() {});
+                                        valueTglMulai = dateMulai.toString();
+                                        print(
+                                            'Tanggal yang dipilih: $dateMulai');
+
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow),
+                          child: TitleWidget(
+                            title: 'Tanggal Berakhir *',
+                            fontWeight: FontWeight.w300,
+                            fontSize: textMedium,
+                          ),
+                        ),
+                        CupertinoButton(
+                          child: Container(
+                            height: 50,
+                            width: size.width,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow,
+                                vertical: padding5),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                border: Border.all(color: Colors.grey)),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Icon(
+                                  Icons.calendar_month_outlined,
+                                  color: Colors.grey,
+                                ),
+                                Text(
+                                  DateFormat('yyyy-MM-dd')
+                                      .format(dateBerakhir ?? DateTime.now()),
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: textMedium,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  content: Container(
+                                    height: 350,
+                                    width: 350,
+                                    child: SfDateRangePicker(
+                                      initialSelectedDate: dateBerakhir,
+                                      onSelectionChanged:
+                                          (DateRangePickerSelectionChangedArgs
+                                              args) {
+                                        setState(() {
+                                          dateBerakhir = args.value;
+                                        });
+                                      },
+                                      selectionMode:
+                                          DateRangePickerSelectionMode.single,
+                                      initialDisplayDate: dateBerakhir,
+                                    ),
+                                  ),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      onPressed: () {
+                                        setState(() {});
+
+                                        valueTglBerakhir =
+                                            dateBerakhir.toString();
+                                        print(
+                                            'Tanggal yang dipilih: $dateBerakhir');
+
+                                        Navigator.pop(context);
+                                      },
+                                      child: const Text('OK'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ),
+                        SizedBox(
+                          height: sizedBoxHeightTall,
+                        ),
+                        SizedBox(
+                          width: size.width,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                _submitUpdate(
+                                    valueTglBerakhir,
+                                    valueTglMulai,
+                                    valueNominal,
+                                    valueStatus,
+                                    valueKurs,
+                                    valueMdNikah,
+                                    valueMdPangkat,
+                                    id);
+                                Navigator.pop(context);
+                                fetchData(pageIndex: 1);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(primaryYellow),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: Text(
+                                'update',
+                                style: TextStyle(
+                                    color: const Color(primaryBlack),
+                                    fontSize: textMedium,
+                                    fontFamily: 'Poppins',
+                                    letterSpacing: 0.9,
+                                    fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          });
+    }
+
+    Widget data() {
+      List<dynamic> filteredData = _data.where((data) {
+        String kodeNikah = data['kode_nikah'].toString().toLowerCase();
+        String searchLower = _searchcontroller.text.toLowerCase();
+        return kodeNikah.contains(searchLower);
+      }).toList();
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Container(
           child: Column(
-        children: [
-          content(),
-          data(),
-        ],
-      )),
+            children: [
+              DataTable(
+                columns: const <DataColumn>[
+                  DataColumn(label: Text('No')),
+                  DataColumn(
+                    label: Text(
+                      "ID",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Kode Nikah",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Kode Pangkat",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Kurs",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Nominal",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Tanggal Mulai",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Tanggal Berakhir",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Status",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Kategori",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Pangkat",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Aksi",
+                      style:
+                          TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                    ),
+                  ),
+                ],
+                columnSpacing: 20,
+                rows: filteredData.map((data) {
+                  int index = _data.indexOf(data) + 1;
+                  return DataRow(
+                    cells: <DataCell>[
+                      DataCell(Text('$index')),
+                      DataCell(Text(data['id'].toString())),
+                      DataCell(Text(data['kode_nikah'] ?? '')),
+                      DataCell(Text(data['kode_pangkat'] ?? '')),
+                      DataCell(Text(data['kurs'] ?? '')),
+                      DataCell(Text(data['nominal'].toString() ?? '')),
+                      DataCell(Text(data['tgl_mulai'] ?? '')),
+                      DataCell(Text(data['tgl_berakhir'] ?? '')),
+                      DataCell(Text(data['status'] ?? '')),
+                      DataCell(Text(data['kategori'] ?? '')),
+                      DataCell(Text(data['pangkat'] ?? '')),
+                      DataCell(
+                        Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  String id = data['id'].toString();
+                                  String mdNikah = data['kode_nikah'];
+                                  String mdPangkat = data['kode_pangkat'];
+                                  String kurs = data['kurs'];
+                                  String nominal = data['nominal'].toString();
+                                  String status = data['status'];
+                                  String tgl_mulai = data['tgl_mulai'];
+                                  String tgl_berakhir = data['tgl_berakhir'];
+
+                                  updateData(
+                                      context,
+                                      id,
+                                      mdNikah,
+                                      mdPangkat,
+                                      kurs,
+                                      nominal,
+                                      status,
+                                      tgl_mulai,
+                                      tgl_berakhir);
+                                },
+                                child: Container(
+                                  height: 30,
+                                  width: 30,
+                                  decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: const Icon(Icons.edit,
+                                      color: Colors.white),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: Text("Konfirmasi"),
+                                        content: Text(
+                                            "Apakah Anda yakin ingin menghapus data ini?"),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: Text("Batal"),
+                                          ),
+                                          TextButton(
+                                            onPressed: () async {
+                                              String id = data['id'].toString();
+                                              await deleteData(id);
+                                              Navigator.of(context).pop();
+                                              fetchData(pageIndex: 1);
+                                            },
+                                            child: Text("Hapus"),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                                child: Container(
+                                  height: 30,
+                                  width: 30,
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: const Icon(Icons.delete,
+                                      color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.white,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(190),
+        child: Container(
+          color: Colors.white,
+          child: Column(
+            children: [
+              AppBar(
+                surfaceTintColor: Colors.white,
+                elevation: 0,
+                backgroundColor: Colors.white,
+                title: const Text('Master Data - Rawat Jalan'),
+              ),
+              content(),
+            ],
+          ),
+        ),
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  data(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      const Text(
+                        "Showing",
+                        style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            color: Color(primaryYellow)),
+                      ),
+                      const SizedBox(width: 10),
+                      DropdownButton<int>(
+                        value: _rowsPerPage,
+                        onChanged: onRowsPerPageChanged,
+                        items: [5, 10, 50, 100]
+                            .map<DropdownMenuItem<int>>((int value) {
+                          return DropdownMenuItem<int>(
+                            value: value,
+                            child: Text(
+                              '$value',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.normal, fontSize: 14),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      Text('of $_totalRecords'),
+                      TextButton(
+                        onPressed: prevPage,
+                        child: const Icon(
+                          Icons.arrow_back_ios,
+                          color: Color(primaryYellow),
+                        ),
+                      ),
+                      Text('Page $_pageIndex'),
+                      TextButton(
+                        onPressed: nextPage,
+                        child: const Icon(
+                          Icons.arrow_forward_ios,
+                          color: Color(primaryYellow),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
     );
   }
-}
-
-class MyDataTableSource extends DataTableSource {
-  final List<DataRow> rows;
-  final int rowCount;
-  final int pageIndex;
-  final int rowsPerPage;
-
-  MyDataTableSource({
-    required this.rows,
-    required this.rowCount,
-    required this.pageIndex,
-    required this.rowsPerPage,
-  });
-
-  @override
-  DataRow? getRow(int index) {
-    if (index >= rows.length) return null;
-    final data = rows[index];
-    return rows[index];
-  }
-
-  @override
-  int get _rowCount => rows.length;
-
-  @override
-  bool get isRowCountApproximate => false;
-
-  @override
-  int get selectedRowCount => 0;
 }

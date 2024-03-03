@@ -24,7 +24,7 @@ class Administrator extends StatelessWidget {
           },
         ),
         title: const Text(
-          'Administration',
+          'Administrator',
         ),
       ),
       body: Center(
