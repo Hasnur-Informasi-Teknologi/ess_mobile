@@ -8,7 +8,6 @@ import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data
 import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_rawat_inap.dart';
 import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_rawat_jalan.dart';
 import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_uang_makan.dart';
-import 'package:mobile_ess/screens/admin/administrator/user management/user_management.dart';
 import 'package:mobile_ess/screens/admin/administrator/user%20management/user_management_list.dart';
 import 'package:mobile_ess/screens/admin/administrator/user_authorization/user_authorization_list.dart';
 import 'package:mobile_ess/screens/admin/main/dashboard.dart';

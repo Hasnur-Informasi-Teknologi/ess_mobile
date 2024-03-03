@@ -411,8 +411,6 @@ class _EntitasState extends State<Entitas> {
     }
 
     Future<void> deleteData(String kode) async {
-      // print('tombol delet bekerja dengan nrp :  $nrp');
-      // print('API  : $apiUrl/user-management/delete/nrp=$nrp');
       SharedPreferences prefs = await SharedPreferences.getInstance();
 
       String? token = prefs.getString('token');
@@ -437,14 +435,10 @@ class _EntitasState extends State<Entitas> {
               shouldIconPulse: false);
           if (response.statusCode == 200) {
             print('Item with Kode $kode deleted successfully');
-
-            // Get.toNamed('/admin/administrator/user_management/user_management');
           } else {
             print("response error request: ${response.request}");
             throw Exception('Failed to delete item');
           }
-          // print("$token");
-          // print("$dataPangkatApi");
         } catch (e) {
           print(e);
         }

@@ -147,12 +147,29 @@ class MasterDataScreen extends StatelessWidget {
         break;
       case 3:
         Get.toNamed('/admin/administrator/user_management/rawat_jalan');
+        break;
       case 4:
         Get.toNamed('/admin/administrator/user_management/rawat_inap');
+        break;
       case 5:
-        Get.toNamed('/admin/administrator/user_management/uang_makan');
+        Get.snackbar('Infomation', 'Coming Soon',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
       case 6:
-        Get.toNamed('/admin/administrator/user_management/kamar_hotel');
+        Get.snackbar('Infomation', 'Coming Soon',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
+        break;
       case 7:
         Get.toNamed('/admin/administrator/user_management/pic_hrgs');
         break;
