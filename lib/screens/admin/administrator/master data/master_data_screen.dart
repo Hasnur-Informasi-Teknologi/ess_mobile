@@ -2,20 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_ess/themes/constant.dart';
 
-class OnlineFormScreen extends StatelessWidget {
-  const OnlineFormScreen({super.key});
+class MasterDataScreen extends StatelessWidget {
+  const MasterDataScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textSmall = size.width * 0.027;
-    double textLarge = size.width * 0.04;
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding8 = size.width * 0.0188;
     double padding10 = size.width * 0.023;
-
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         centerTitle: false,
         elevation: 0,
@@ -23,17 +20,11 @@ class OnlineFormScreen extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Get.offAllNamed('/user/main');
+            Get.back();
           },
         ),
-        title: Text(
-          'Online Form',
-          style: TextStyle(
-              color: const Color(primaryBlack),
-              fontSize: textLarge,
-              fontFamily: 'Poppins',
-              letterSpacing: 0.6,
-              fontWeight: FontWeight.w700),
+        title: const Text(
+          'Master Data',
         ),
       ),
       body: Center(
@@ -50,7 +41,7 @@ class OnlineFormScreen extends StatelessWidget {
               crossAxisCount: 3,
               childAspectRatio: 1.0,
             ),
-            itemCount: 11, // Jumlah total item
+            itemCount: 8, // Jumlah total item
             itemBuilder: (BuildContext context, int index) {
               return Padding(
                 padding: EdgeInsets.all(padding8),
@@ -99,26 +90,20 @@ class OnlineFormScreen extends StatelessWidget {
     // Mengembalikan ikon berdasarkan indeks
     switch (index) {
       case 0:
-        return Icons.assessment;
+        return Icons.edit_document;
       case 1:
-        return Icons.business_center;
+        return Icons.edit_document;
       case 2:
-        return Icons.check_circle;
+        return Icons.edit_document;
       case 3:
-        return Icons.account_balance_wallet;
+        return Icons.edit_document;
       case 4:
-        return Icons.assignment_ind;
+        return Icons.edit_document;
       case 5:
-        return Icons.home;
+        return Icons.edit_document;
       case 6:
-        return Icons.person;
+        return Icons.edit_document;
       case 7:
-        return Icons.settings;
-      case 8:
-        return Icons.assignment;
-      case 9:
-        return Icons.description;
-      case 10:
         return Icons.admin_panel_settings;
       default:
         return Icons.error;
@@ -126,29 +111,24 @@ class OnlineFormScreen extends StatelessWidget {
   }
 
   String getText(int index) {
+    // Mengembalikan teks berdasarkan indeks
     switch (index) {
       case 0:
-        return 'Pengajuan\nTraining';
+        return 'Entitas';
       case 1:
-        return 'Pengajuan Aplikasi Recruitment';
+        return 'Cuti Bersama';
       case 2:
-        return 'Pengajuan Perjalanan Dinas';
+        return 'Cuti Roster';
       case 3:
-        return 'Pengajuan Fasilitas Kesehatan';
+        return 'Rawat jalan';
       case 4:
-        return 'Pengajuan\nIzin';
+        return 'Rawat Inap';
       case 5:
-        return 'Pengajuan Bantuan Komunikasi';
+        return 'Uang Makan';
       case 6:
-        return 'Pengajuan Hardware & Software';
+        return 'Kamar Hotel';
       case 7:
-        return 'Pengajuan Surat Keterangan';
-      case 8:
-        return 'Pengajuan\nCuti';
-      case 9:
-        return 'Penilaian Kinerja Karyawan';
-      case 10:
-        return 'Administrator';
+        return 'PIC HRGS';
       default:
         return 'Error';
     }
@@ -157,52 +137,19 @@ class OnlineFormScreen extends StatelessWidget {
   void handleIconTap(int index) {
     switch (index) {
       case 0:
-        // Get.toNamed('/user/main/home/online_form/aplikasi_training');
-        Get.snackbar('Infomation', 'Coming Soon',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.amber,
-            icon: const Icon(
-              Icons.info,
-              color: Colors.white,
-            ),
-            shouldIconPulse: false);
+        Get.toNamed('/admin/administrator/master_data/entitas');
         break;
       case 1:
-        // Get.toNamed('/user/main/home/online_form/aplikasi_recruitment');
-        Get.snackbar('Infomation', 'Coming Soon',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.amber,
-            icon: const Icon(
-              Icons.info,
-              color: Colors.white,
-            ),
-            shouldIconPulse: false);
+        Get.toNamed('/admin/administrator/master_data/cuti_bersama');
         break;
       case 2:
-        // Get.toNamed('/user/main/home/online_form/pengajuan_perjalanan_dinas');
-        Get.snackbar('Infomation', 'Coming Soon',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.amber,
-            icon: const Icon(
-              Icons.info,
-              color: Colors.white,
-            ),
-            shouldIconPulse: false);
+        Get.toNamed('/admin/administrator/master_data/cuti_roster');
         break;
       case 3:
-        Get.toNamed(
-            '/user/main/home/online_form/pengajuan_fasilitas_kesehatan');
+        Get.toNamed('/admin/administrator/user_management/rawat_jalan');
         break;
       case 4:
-        // Get.toNamed('/user/main/home/online_form/pengajuan_izin');
-        Get.snackbar('Infomation', 'Coming Soon',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.amber,
-            icon: const Icon(
-              Icons.info,
-              color: Colors.white,
-            ),
-            shouldIconPulse: false);
+        Get.toNamed('/admin/administrator/user_management/rawat_inap');
         break;
       case 5:
         Get.snackbar('Infomation', 'Coming Soon',
@@ -213,9 +160,7 @@ class OnlineFormScreen extends StatelessWidget {
               color: Colors.white,
             ),
             shouldIconPulse: false);
-        break;
       case 6:
-        // Get.toNamed('/user/main/home/online_form/pengajuan_hardware_software');
         Get.snackbar('Infomation', 'Coming Soon',
             snackPosition: SnackPosition.TOP,
             backgroundColor: Colors.amber,
@@ -226,34 +171,11 @@ class OnlineFormScreen extends StatelessWidget {
             shouldIconPulse: false);
         break;
       case 7:
-        // Get.toNamed('/user/main/home/online_form/pengajuan_surat_keterangan');
-        Get.snackbar('Infomation', 'Coming Soon',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.amber,
-            icon: const Icon(
-              Icons.info,
-              color: Colors.white,
-            ),
-            shouldIconPulse: false);
-        break;
-      case 8:
-        Get.toNamed('/user/main/home/online_form/pengajuan_cuti');
-        break;
-      case 9:
-        Get.snackbar('Infomation', 'Coming Soon',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.amber,
-            icon: const Icon(
-              Icons.info,
-              color: Colors.white,
-            ),
-            shouldIconPulse: false);
-        break;
-      case 10:
-        Get.toNamed('/admin/administrator/administrator_screen');
+        Get.toNamed('/admin/administrator/user_management/pic_hrgs');
         break;
       default:
         return print('Error');
     }
   }
 }
+// master data screen

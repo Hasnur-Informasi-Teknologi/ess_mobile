@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/models/http_exception.dart';
+import 'package:mobile_ess/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider with ChangeNotifier {
@@ -81,7 +82,7 @@ class AuthProvider with ChangeNotifier {
       // SharedPreferences prefs = await SharedPreferences.getInstance();
       // final userId = prefs.getString('userId');
       final response = await http.post(
-          Uri.parse('http://202.165.33.98/api/check_device'),
+          Uri.parse('http://ess-dev.hasnurgroup.com:8081/api/check_device'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
