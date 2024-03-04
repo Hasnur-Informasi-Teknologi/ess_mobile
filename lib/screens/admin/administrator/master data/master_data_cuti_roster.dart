@@ -120,11 +120,11 @@ class _CutiRosterState extends State<CutiRoster> {
     {
       "data": [
         {
-          "id": "1",
+          "id": "0",
           "nama": "Aktif"
         },
         {
-          "id": "0",
+          "id": "1",
           "nama": "Tidak Aktif"
         }
       ]
