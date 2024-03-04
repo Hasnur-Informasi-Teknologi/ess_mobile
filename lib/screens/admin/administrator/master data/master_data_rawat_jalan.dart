@@ -1922,7 +1922,7 @@ class _RawatJalanState extends State<RawatJalan> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(190),
+        preferredSize: const Size.fromHeight(100),
         child: Container(
           color: Colors.white,
           child: Column(
