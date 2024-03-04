@@ -1,6 +1,5 @@
-import 'dart:async';
+import 'package:flutter/material.dart';
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -12,26 +11,23 @@ import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
-class RawatJalan extends StatefulWidget {
-  const RawatJalan({super.key});
+class BingkaiLensa extends StatefulWidget {
+  const BingkaiLensa({super.key});
 
   @override
-  State<RawatJalan> createState() => _RawatJalanState();
+  State<BingkaiLensa> createState() => _BingkaiLensaState();
 }
 
-class _RawatJalanState extends State<RawatJalan> {
+class _BingkaiLensaState extends State<BingkaiLensa> {
   final String apiUrl = API_URL;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  List<Map<String, dynamic>> selectedMdNikah = [];
   List<Map<String, dynamic>> selectedMdPangkat = [];
-  List<Map<String, dynamic>> selectedStatus = [];
   TextEditingController _searchcontroller = TextEditingController();
   TextEditingController _mdPangkatController = TextEditingController();
-  TextEditingController _mdNikahController = TextEditingController();
-  TextEditingController _kursController = TextEditingController();
-  TextEditingController _nominalController = TextEditingController();
+  TextEditingController _bingkaiController = TextEditingController();
+  TextEditingController _lensaController = TextEditingController();
   TextEditingController _statusController = TextEditingController();
-  String? selectedValueStatus, selectedValueMdPangkat, selectedValueMdNikah;
+  String? selectedValueMdPangkat, selectedValueStatus;
 
   final DateRangePickerController _tanggalMulaiController =
       DateRangePickerController();
@@ -45,6 +41,7 @@ class _RawatJalanState extends State<RawatJalan> {
   int _totalRecords = 0;
   String searchQuery = '';
   List<dynamic> _data = [];
+  List<Map<String, dynamic>> selectedStatus = [];
   bool _isLoading = false;
 
   @override
@@ -52,7 +49,6 @@ class _RawatJalanState extends State<RawatJalan> {
     super.initState();
     fetchData();
     getDataMdPangkat();
-    getDataMdNikah();
     getDataStatus();
   }
 
@@ -69,7 +65,7 @@ class _RawatJalanState extends State<RawatJalan> {
     try {
       final response = await http.get(
         Uri.parse(
-            '$apiUrl/master/rawat-jalan/get?page=${pageIndex ?? _pageIndex}&perPage=$_rowsPerPage&search=$searchQuery'),
+            '$apiUrl/master/bingkai-lensa/get?page=${pageIndex ?? _pageIndex}&perPage=$_rowsPerPage&search=$searchQuery'),
         headers: <String, String>{
           "Content-Type": "application/json;charset=UTF-8",
           "Authorization": "Bearer $token",
@@ -123,35 +119,6 @@ class _RawatJalanState extends State<RawatJalan> {
           () {
             selectedMdPangkat =
                 List<Map<String, dynamic>>.from(dataMdPangkatApi);
-          },
-        );
-      } catch (e) {
-        print(e);
-      }
-    }
-  }
-
-  Future<void> getDataMdNikah() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    String? token = prefs.getString('token');
-
-    if (token != null) {
-      try {
-        final response = await http
-            .get(Uri.parse("$apiUrl/master/nikah"), headers: <String, String>{
-          'Content-Type': 'application/json;charset=UTF-8',
-          'Authorization': 'Bearer $token'
-        });
-        final responseData = jsonDecode(response.body);
-        final dataMdNikah = responseData['data'];
-        print("$token");
-        print("$dataMdNikah");
-
-        setState(
-          () {
-            selectedMdNikah = List<Map<String, dynamic>>.from(dataMdNikah);
-            // selectedEntitasPengganti =
           },
         );
       } catch (e) {
@@ -237,7 +204,7 @@ class _RawatJalanState extends State<RawatJalan> {
       if (token != null) {
         try {
           final response =
-              await http.post(Uri.parse("$apiUrl/master/rawat-jalan/delete"),
+              await http.post(Uri.parse("$apiUrl/master/bingkai-lensa/delete"),
                   headers: <String, String>{
                     'Content-Type': 'application/json;charset=UTF-8',
                     'Authorization': 'Bearer $token'
@@ -255,180 +222,12 @@ class _RawatJalanState extends State<RawatJalan> {
       }
     }
 
-    String? _validatorAnnouncement(dynamic value) {
+    String? _validatorStatus(dynamic value) {
       if (value == null || value.isEmpty) {
         setState(() {
           maxHeightValidator = 80.0;
         });
-        return 'Field announcement Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorApplication(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field application Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorApprovalList(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field approval_list Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorAssignmentInterviewer(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field assignment_interviewer Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorDashboardAdmin(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field dashboard_admin Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorDataProfile(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field data_profile Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorDetailPlafon(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field detail_plafon Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorDocumentCompany(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field document_company Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorEmployee(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field employee Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorFormOnline(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field form_online Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorPerformanceManagement(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field performance_management Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorUserAdministrator(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field user_administrator Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorRole(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field Role Kosong';
+        return 'Field Status Kosong';
       }
 
       setState(() {
@@ -451,12 +250,12 @@ class _RawatJalanState extends State<RawatJalan> {
       return null;
     }
 
-    String? _validatorMdNikah(dynamic value) {
+    String? _validatorBingkai(dynamic value) {
       if (value == null || value.isEmpty) {
         setState(() {
           maxHeightValidator = 80.0;
         });
-        return 'Field Role Kosong';
+        return 'Field Harga Kosong';
       }
 
       setState(() {
@@ -465,40 +264,12 @@ class _RawatJalanState extends State<RawatJalan> {
       return null;
     }
 
-    String? _validatorKurs(dynamic value) {
+    String? _validatorLensa(dynamic value) {
       if (value == null || value.isEmpty) {
         setState(() {
           maxHeightValidator = 80.0;
         });
-        return 'Field Role Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorNominal(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field Role Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorStatus(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field Role Kosong';
+        return 'Field Harga Kosong';
       }
 
       setState(() {
@@ -525,17 +296,16 @@ class _RawatJalanState extends State<RawatJalan> {
       _formKey.currentState!.save();
       try {
         final response = await http.post(
-          Uri.parse('$apiUrl/master/rawat-jalan/add'),
+          Uri.parse('$apiUrl/master/bingkai-lensa/add'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token'
           },
           body: jsonEncode({
-            'kode_nikah': _mdNikahController.text,
             'kode_pangkat': _mdPangkatController.text,
-            'kurs': _kursController.text,
-            'nominal': _nominalController.text,
-            'status': _statusController.text,
+            'bingkai': _bingkaiController.text,
+            'lensa': _lensaController.text,
+            'status': selectedValueStatus.toString(),
             'tgl_berakhir': tanggalBerakhir != null
                 ? tanggalBerakhir.toString()
                 : DateTime.now().toString(),
@@ -582,7 +352,7 @@ class _RawatJalanState extends State<RawatJalan> {
                   horizontal: paddingHorizontalNarrow,
                   vertical: paddingHorizontalNarrow,
                 ),
-                height: 650,
+                height: 570,
                 width: double.infinity,
                 child: ListView(
                   children: [
@@ -682,93 +452,7 @@ class _RawatJalanState extends State<RawatJalan> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
                             child: TitleWidget(
-                              title: 'Md nikah *',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
-                            child: Container(
-                              height: 50,
-                              width: size.width,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                border: Border.all(color: Colors.grey),
-                              ),
-                              child: DropdownButtonFormField<String>(
-                                hint: Text(
-                                  "Pilih md nikah",
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: textMedium,
-                                  ),
-                                ),
-                                value: selectedValueMdNikah,
-                                icon: selectedMdNikah.isEmpty
-                                    ? const SizedBox(
-                                        height: 20,
-                                        width: 20,
-                                        child: CircularProgressIndicator(
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                  Colors.blue),
-                                        ),
-                                      )
-                                    : const Icon(Icons.arrow_drop_down),
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    selectedValueMdNikah = newValue;
-                                    _mdNikahController.text = newValue ?? '';
-                                    print("$selectedValueMdNikah");
-                                  });
-                                },
-                                items: selectedMdNikah
-                                    .map((Map<String, dynamic> value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value["kode"] as String,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(1.0),
-                                      child: TitleWidget(
-                                        title: value["nama"] as String,
-                                        fontWeight: FontWeight.w300,
-                                        fontSize: textMedium,
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
-                                decoration: InputDecoration(
-                                  constraints: BoxConstraints(
-                                      maxHeight: _maxHeightAtasan),
-                                  labelStyle: TextStyle(fontSize: textMedium),
-                                  focusedBorder: const UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: Colors.transparent,
-                                      width: 1.0,
-                                    ),
-                                  ),
-                                  enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                      color: selectedValueMdNikah != null
-                                          ? Colors.transparent
-                                          : Colors.transparent,
-                                      width: 1.0,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
-                            child: TitleWidget(
-                              title: 'Kurs *',
+                              title: 'Plafon Bingkai (IDR) *',
                               fontWeight: FontWeight.w300,
                               fontSize: textMedium,
                             ),
@@ -777,10 +461,10 @@ class _RawatJalanState extends State<RawatJalan> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
                             child: TextFormField(
-                              controller: _kursController,
-                              validator: _validatorKurs,
+                              controller: _bingkaiController,
+                              validator: _validatorBingkai,
                               decoration: InputDecoration(
-                                hintText: "Masukan kurs",
+                                hintText: "Plafon Bingkai (IDR)",
                                 hintStyle: TextStyle(
                                   fontWeight: FontWeight.w300,
                                   fontSize: textMedium,
@@ -808,7 +492,7 @@ class _RawatJalanState extends State<RawatJalan> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
                             child: TitleWidget(
-                              title: 'Nominal *',
+                              title: 'Plafon Lensa (IDR) *',
                               fontWeight: FontWeight.w300,
                               fontSize: textMedium,
                             ),
@@ -817,10 +501,10 @@ class _RawatJalanState extends State<RawatJalan> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
                             child: TextFormField(
-                              controller: _nominalController,
-                              validator: _validatorNominal,
+                              controller: _lensaController,
+                              validator: _validatorLensa,
                               decoration: InputDecoration(
-                                hintText: "Masukan Nominal",
+                                hintText: "Plafon Lensa (IDR)",
                                 hintStyle: TextStyle(
                                   fontWeight: FontWeight.w300,
                                   fontSize: textMedium,
@@ -1080,9 +764,6 @@ class _RawatJalanState extends State<RawatJalan> {
                             },
                           ),
                           SizedBox(
-                            height: sizedBoxHeightTall,
-                          ),
-                          SizedBox(
                             width: size.width,
                             child: Padding(
                               padding: EdgeInsets.symmetric(
@@ -1111,7 +792,6 @@ class _RawatJalanState extends State<RawatJalan> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 10),
                         ],
                       ),
                     ),
@@ -1219,21 +899,11 @@ class _RawatJalanState extends State<RawatJalan> {
     Future<void> _submitUpdate(
         String valueTglBerakhir,
         String valueTglMulai,
-        String valueNominal,
+        String valueLensa,
         String valueStatus,
-        String valueKurs,
-        String valueMdNikah,
+        String valueBingkai,
         String valueMdPangkat,
         String id) async {
-      print("update btn");
-      print("ini id : " + id);
-      print("ini valueTglMulai : " + valueTglMulai);
-      print("ini valueTglBerakhir: " + valueTglBerakhir);
-      print("ini valueNominal : " + valueNominal);
-      print("ini valueStatus : " + valueStatus);
-      print("ini valueKurs : " + valueKurs);
-      print("ini valueMdNikah : " + valueMdNikah);
-      print("ini valueMdPangkat : " + valueMdPangkat);
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
 
@@ -1252,17 +922,16 @@ class _RawatJalanState extends State<RawatJalan> {
 
       try {
         final response = await http.post(
-          Uri.parse('$apiUrl/master/rawat-jalan/update'),
+          Uri.parse('$apiUrl/master/bingkai-lensa/update'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token'
           },
           body: jsonEncode({
             "id": id,
-            "kode_nikah": valueMdNikah,
             "kode_pangkat": valueMdPangkat,
-            "kurs": valueKurs,
-            "nominal": valueNominal,
+            "bingkai": valueBingkai,
+            "lensa": valueLensa,
             "status": valueStatus,
             "tgl_berakhir": valueTglBerakhir != null
                 ? valueTglBerakhir.toString()
@@ -1298,10 +967,9 @@ class _RawatJalanState extends State<RawatJalan> {
     Future<void> updateData(
         context,
         String id,
-        String mdNikah,
         String mdPangkat,
-        String kurs,
-        String nominal,
+        String bingkai,
+        String lensa,
         String status,
         String tgl_mulai,
         String tgl_berakhir) async {
@@ -1329,14 +997,12 @@ class _RawatJalanState extends State<RawatJalan> {
           DateFormat("yyyy-MM-dd").parse(formattedDateBerakhirString);
 
       String valueMdPangkat = mdPangkat;
-      String valueMdNikah = mdNikah;
-      String valueKurs = kurs;
-      String valueNominal = nominal;
-      String valueStatus = status;
+      String valueBingkai = bingkai;
+      String valueLensa = lensa;
+      String valueStatus = status.toString();
       String valueTglMulai = dateMulai.toString();
       String valueTglBerakhir = dateBerakhir.toString();
 
-      print(mdNikah);
       print(mdPangkat);
 
       return showModalBottomSheet(
@@ -1349,7 +1015,7 @@ class _RawatJalanState extends State<RawatJalan> {
                 horizontal: paddingHorizontalNarrow,
                 vertical: paddingHorizontalNarrow,
               ),
-              height: 650,
+              height: 570,
               width: double.infinity,
               child: ListView(
                 children: [
@@ -1448,93 +1114,7 @@ class _RawatJalanState extends State<RawatJalan> {
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
                           child: TitleWidget(
-                            title: 'Md nikah *',
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: Container(
-                            height: 50,
-                            width: size.width,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(color: Colors.grey),
-                            ),
-                            child: DropdownButtonFormField<String>(
-                              hint: Text(
-                                "Pilih md nikah",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                              value: mdNikah,
-                              icon: selectedMdNikah.isEmpty
-                                  ? const SizedBox(
-                                      height: 20,
-                                      width: 20,
-                                      child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Colors.blue),
-                                      ),
-                                    )
-                                  : const Icon(Icons.arrow_drop_down),
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  selectedValueMdNikah = newValue;
-                                  valueMdNikah = newValue ?? '';
-                                  print("$selectedValueMdNikah");
-                                });
-                              },
-                              items: selectedMdNikah
-                                  .map((Map<String, dynamic> value) {
-                                return DropdownMenuItem<String>(
-                                  value: value["kode"] as String,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(1.0),
-                                    child: TitleWidget(
-                                      title: value["nama"] as String,
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: textMedium,
-                                    ),
-                                  ),
-                                );
-                              }).toList(),
-                              decoration: InputDecoration(
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightAtasan),
-                                labelStyle: TextStyle(fontSize: textMedium),
-                                focusedBorder: const UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.transparent,
-                                    width: 1.0,
-                                  ),
-                                ),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: selectedValueMdNikah != null
-                                        ? Colors.transparent
-                                        : Colors.transparent,
-                                    width: 1.0,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TitleWidget(
-                            title: 'Kurs *',
+                            title: 'Plafon Bingkai (IDR) *',
                             fontWeight: FontWeight.w300,
                             fontSize: textMedium,
                           ),
@@ -1543,15 +1123,15 @@ class _RawatJalanState extends State<RawatJalan> {
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
                           child: TextFormField(
-                            validator: _validatorKurs,
-                            initialValue: kurs,
+                            validator: _validatorBingkai,
+                            initialValue: bingkai,
                             onChanged: (value) {
                               setState(() {
-                                valueKurs = value;
+                                valueBingkai = value;
                               });
                             },
                             decoration: InputDecoration(
-                              hintText: "Masukan kurs",
+                              hintText: "Plafon Bingkai (IDR)",
                               hintStyle: TextStyle(
                                 fontWeight: FontWeight.w300,
                                 fontSize: textMedium,
@@ -1579,7 +1159,7 @@ class _RawatJalanState extends State<RawatJalan> {
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
                           child: TitleWidget(
-                            title: 'Nominal *',
+                            title: 'Plafon Lensa (IDR)* *',
                             fontWeight: FontWeight.w300,
                             fontSize: textMedium,
                           ),
@@ -1588,15 +1168,15 @@ class _RawatJalanState extends State<RawatJalan> {
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
                           child: TextFormField(
-                            initialValue: nominal,
-                            validator: _validatorNominal,
+                            initialValue: lensa,
+                            validator: _validatorLensa,
                             onChanged: (value) {
                               setState(() {
-                                valueNominal = value;
+                                valueLensa = value;
                               });
                             },
                             decoration: InputDecoration(
-                              hintText: "Masukan Nominal",
+                              hintText: "Plafon Lensa (IDR)*",
                               hintStyle: TextStyle(
                                 fontWeight: FontWeight.w300,
                                 fontSize: textMedium,
@@ -1869,9 +1449,6 @@ class _RawatJalanState extends State<RawatJalan> {
                           },
                         ),
                         SizedBox(
-                          height: sizedBoxHeightTall,
-                        ),
-                        SizedBox(
                           width: size.width,
                           child: Padding(
                             padding: EdgeInsets.symmetric(
@@ -1881,10 +1458,9 @@ class _RawatJalanState extends State<RawatJalan> {
                                 _submitUpdate(
                                     valueTglBerakhir,
                                     valueTglMulai,
-                                    valueNominal,
+                                    valueLensa,
                                     valueStatus,
-                                    valueKurs,
-                                    valueMdNikah,
+                                    valueBingkai,
                                     valueMdPangkat,
                                     id);
                                 Navigator.pop(context);
@@ -1933,27 +1509,17 @@ class _RawatJalanState extends State<RawatJalan> {
                   DataColumn(label: Text('No')),
                   DataColumn(
                     label: Text(
-                      "ID",
+                      "Pangkat",
                     ),
                   ),
                   DataColumn(
                     label: Text(
-                      "Kode Nikah",
+                      "Plafon Bingkai (IDR)",
                     ),
                   ),
                   DataColumn(
                     label: Text(
-                      "Kode Pangkat",
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      "Kurs",
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      "Nominal",
+                      " Plafon Lensa (IDR) ",
                     ),
                   ),
                   DataColumn(
@@ -1973,16 +1539,6 @@ class _RawatJalanState extends State<RawatJalan> {
                   ),
                   DataColumn(
                     label: Text(
-                      "Kategori",
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      "Pangkat",
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
                       "Aksi",
                       style:
                           TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
@@ -1995,18 +1551,13 @@ class _RawatJalanState extends State<RawatJalan> {
                   return DataRow(
                     cells: <DataCell>[
                       DataCell(Text('$index')),
-                      DataCell(Text(data['id'].toString())),
-                      DataCell(Text(data['kode_nikah'] ?? '')),
-                      DataCell(Text(data['kode_pangkat'] ?? '')),
-                      DataCell(Text(data['kurs'] ?? '')),
-                      DataCell(Text(data['nominal'].toString() ?? '')),
-                      DataCell(Text(data['tgl_mulai'] ?? '')),
-                      DataCell(Text(data['tgl_berakhir'] ?? '')),
-                      DataCell(Text(data['status'] == "0"
-                          ? 'Aktif'
-                          : 'Tidak Aktif' ?? '')),
-                      DataCell(Text(data['kategori'] ?? '')),
-                      DataCell(Text(data['pangkat'] ?? '')),
+                      DataCell(Text(data['pangkat'])),
+                      DataCell(Text(data['bingkai'].toString())),
+                      DataCell(Text(data['lensa'].toString())),
+                      DataCell(Text(data['tgl_mulai'])),
+                      DataCell(Text(data['tgl_berakhir'])),
+                      DataCell(Text(
+                          data['status'] == "0" ? 'Aktif' : 'Tidak Aktif')),
                       DataCell(
                         Row(
                           children: [
@@ -2014,24 +1565,15 @@ class _RawatJalanState extends State<RawatJalan> {
                               child: GestureDetector(
                                 onTap: () {
                                   String id = data['id'].toString();
-                                  String mdNikah = data['kode_nikah'];
                                   String mdPangkat = data['kode_pangkat'];
-                                  String kurs = data['kurs'];
-                                  String nominal = data['nominal'].toString();
+                                  String bingkai = data['bingkai'].toString();
+                                  String lensa = data['lensa'].toString();
                                   String status = data['status'];
                                   String tgl_mulai = data['tgl_mulai'];
                                   String tgl_berakhir = data['tgl_berakhir'];
 
-                                  updateData(
-                                      context,
-                                      id,
-                                      mdNikah,
-                                      mdPangkat,
-                                      kurs,
-                                      nominal,
-                                      status,
-                                      tgl_mulai,
-                                      tgl_berakhir);
+                                  updateData(context, id, mdPangkat, bingkai,
+                                      lensa, status, tgl_mulai, tgl_berakhir);
                                 },
                                 child: Container(
                                   height: 30,
@@ -2106,14 +1648,10 @@ class _RawatJalanState extends State<RawatJalan> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(190),
+        preferredSize: const Size.fromHeight(100),
         child: Container(
           color: Colors.white,
-          child: Column(
-            children: [
-              content(),
-            ],
-          ),
+          child: content(),
         ),
       ),
       body: _isLoading

@@ -146,10 +146,10 @@ class MasterDataScreen extends StatelessWidget {
         Get.toNamed('/admin/administrator/master_data/cuti_roster');
         break;
       case 3:
-        Get.toNamed('/admin/administrator/user_management/rawat_jalan');
+        Get.toNamed('/admin/administrator/master_data/tab_rawat_jalan');
         break;
       case 4:
-        Get.toNamed('/admin/administrator/user_management/rawat_inap');
+        Get.toNamed('/admin/administrator/master_data/rawat_inap');
         break;
       case 5:
         Get.snackbar('Infomation', 'Coming Soon',
@@ -160,6 +160,7 @@ class MasterDataScreen extends StatelessWidget {
               color: Colors.white,
             ),
             shouldIconPulse: false);
+        break;
       case 6:
         Get.snackbar('Infomation', 'Coming Soon',
             snackPosition: SnackPosition.TOP,
@@ -171,7 +172,7 @@ class MasterDataScreen extends StatelessWidget {
             shouldIconPulse: false);
         break;
       case 7:
-        Get.toNamed('/admin/administrator/user_management/pic_hrgs');
+        Get.toNamed('/admin/administrator/master_data/pic_hrgs');
         break;
       default:
         return print('Error');
