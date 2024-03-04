@@ -8,6 +8,7 @@ import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data
 import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_rawat_inap.dart';
 import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_rawat_jalan.dart';
 import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_uang_makan.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/tab%20rawat%20jalan/tabs.dart';
 import 'package:mobile_ess/screens/admin/administrator/user%20management/user_management_list.dart';
 import 'package:mobile_ess/screens/admin/administrator/user_authorization/user_authorization_list.dart';
 import 'package:mobile_ess/screens/admin/main/dashboard.dart';
@@ -51,6 +52,7 @@ import 'package:mobile_ess/screens/user/profile/profile_screen.dart';
 import 'package:mobile_ess/screens/user/submition/detail_form_pengajuan_lembur.dart';
 
 import 'package:mobile_ess/splash_screen.dart';
+import 'package:path/path.dart';
 
 import '../screens/admin/administrator/master data/master_data_pic_hrgs.dart';
 
@@ -135,15 +137,16 @@ Map<String, Widget Function(BuildContext)> routers() {
         const CutiBersama(),
     '/admin/administrator/master_data/cuti_roster': (context) =>
         const CutiRoster(),
-    '/admin/administrator/user_management/rawat_jalan': (context) =>
+    '/admin/administrator/master_data/tab_rawat_jalan': (context) =>
+        const Tabs(),
+    '/admin/administrator/master_data/rawat_jalan': (context) =>
         const RawatJalan(),
-    '/admin/administrator/user_management/rawat_inap': (context) =>
+    '/admin/administrator/master_data/rawat_inap': (context) =>
         const RawatInap(),
-    '/admin/administrator/user_management/uang_makan': (context) =>
+    '/admin/administrator/master_data/uang_makan': (context) =>
         const UangMakan(),
-    '/admin/administrator/user_management/kamar_hotel': (context) =>
+    '/admin/administrator/master_data/kamar_hotel': (context) =>
         const KamarHotel(),
-    '/admin/administrator/user_management/pic_hrgs': (context) =>
-        const PicHrgs()
+    '/admin/administrator/master_data/pic_hrgs': (context) => const PicHrgs()
   };
 }
