@@ -19,7 +19,7 @@ class ErrorDialogWidget extends StatelessWidget {
       title: const Text(
         'errorDialogTitle',
         textAlign: TextAlign.center,
-        style: TextStyle(fontWeight: FontWeight.w700),
+        style: TextStyle(fontWeight: FontWeight.w500),
       ),
       content: SizedBox(
           width: MediaQuery.of(context).size.width,
@@ -38,7 +38,7 @@ class ErrorDialogWidget extends StatelessWidget {
               padding: EdgeInsets.all(padding10),
               child: const Text('OK',
                   style: TextStyle(
-                      fontWeight: FontWeight.w700, color: Color(primaryBlack))),
+                      fontWeight: FontWeight.w500, color: Color(primaryBlack))),
             ),
             onPressed: () {
               Navigator.pop(context);

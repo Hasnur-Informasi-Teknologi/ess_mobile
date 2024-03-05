@@ -20,7 +20,10 @@ import 'package:geocoding/geocoding.dart';
 
 class TakeSelfieScreen extends StatefulWidget {
   const TakeSelfieScreen(
-      {Key? key, required this.clockInType, required this.attendanceData,  this.shift='false'})
+      {Key? key,
+      required this.clockInType,
+      required this.attendanceData,
+      this.shift = 'false'})
       : super(key: key);
 
   final String clockInType;
@@ -68,9 +71,8 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
     setState(() => _isLoading = true);
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var karyawan=jsonDecode(prefs.getString('userData').toString())['data'];
+    var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
     final userId = karyawan['pernr'];
-
 
     // Directory root = await getTemporaryDirectory();
     // String directoryPath = '${root.path}/hg_selfie';
@@ -162,19 +164,21 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
                 "workingLocation": workingLocation,
                 "address": alamat
               };
-              var request =
-                  http.MultipartRequest('POST', Uri.parse('http://ess.hasnurgroup.com/api/attendance/clock_in'))
-                    ..headers.addAll(headers)
-                    ..fields['nrp'] = nrp
-                    ..fields['lat'] = lat
-                    ..fields['long'] = long
-                    ..fields['hari'] = hari + 'in'
-                    ..fields['clock_in_time'] = clockInTime
-                    ..fields['working_location'] = workingLocation
-                    ..fields['address'] = alamat.toString()
-                    ..files.add(http.MultipartFile.fromBytes(
-                        'image', imageFile.readAsBytesSync(),
-                        filename: imageFile.path.split('/').last));
+              var request = http.MultipartRequest(
+                  'POST',
+                  Uri.parse(
+                      'http://ess.hasnurgroup.com/api/attendance/clock_in'))
+                ..headers.addAll(headers)
+                ..fields['nrp'] = nrp
+                ..fields['lat'] = lat
+                ..fields['long'] = long
+                ..fields['hari'] = hari + 'in'
+                ..fields['clock_in_time'] = clockInTime
+                ..fields['working_location'] = workingLocation
+                ..fields['address'] = alamat.toString()
+                ..files.add(http.MultipartFile.fromBytes(
+                    'image', imageFile.readAsBytesSync(),
+                    filename: imageFile.path.split('/').last));
               var response = await request.send();
 
               final responseData = await response.stream.bytesToString();
@@ -188,27 +192,31 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
                 "clockInTime": clockOutTime,
                 "address": alamat
               };
-              var request =
-                  http.MultipartRequest('POST', Uri.parse('http://ess.hasnurgroup.com/api/attendance/clock_out'))
-                    ..headers.addAll(headers)
-                    ..fields['nrp'] = nrp
-                    ..fields['lat'] = lat
-                    ..fields['shift']=widget.shift
-                    ..fields['long'] = long
-                    ..fields['hari'] = hari + 'out'
-                    ..fields['clock_out_time'] = clockOutTime
-                    ..fields['address'] = alamat.toString()
-                    ..files.add(http.MultipartFile.fromBytes(
-                        'image', imageFile.readAsBytesSync(),
-                        filename: imageFile.path.split('/').last));
+              var request = http.MultipartRequest(
+                  'POST',
+                  Uri.parse(
+                      'http://ess.hasnurgroup.com/api/attendance/clock_out'))
+                ..headers.addAll(headers)
+                ..fields['nrp'] = nrp
+                ..fields['lat'] = lat
+                ..fields['shift'] = widget.shift
+                ..fields['long'] = long
+                ..fields['hari'] = hari + 'out'
+                ..fields['clock_out_time'] = clockOutTime
+                ..fields['address'] = alamat.toString()
+                ..files.add(http.MultipartFile.fromBytes(
+                    'image', imageFile.readAsBytesSync(),
+                    filename: imageFile.path.split('/').last));
               var response = await request.send();
 
               final responseData = await response.stream.bytesToString();
               print('Response clock out: $responseData');
             }
             _cameraController!.dispose();
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (ctx) => const MainScreenWithAnimation()));
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (ctx) => const MainScreenWithAnimation()));
             setState(() {
               _camera = false;
             });
@@ -307,7 +315,7 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
                                   'Take Picture',
                                   style: TextStyle(
                                       fontSize: 16,
-                                      fontWeight: FontWeight.w700,
+                                      fontWeight: FontWeight.w500,
                                       color: Color(primaryBlack)),
                                 ).tr(),
                                 onPressed: () async {

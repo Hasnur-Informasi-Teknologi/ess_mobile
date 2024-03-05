@@ -82,9 +82,8 @@ class _WFHLocationScreenState extends State<WFHLocationScreen> {
     var clockIn = DateFormat('yyyy-MM-dd HH:mm:ss')
         .format(DateTime.fromMillisecondsSinceEpoch(stimestamp));
 
-    var karyawan=jsonDecode(prefs.getString('userData').toString())['data'];
+    var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
     final userId = karyawan['pernr'];
-
 
     Map<String, Object> clockInData = {
       'nrp': userId.toString(),
@@ -113,8 +112,10 @@ class _WFHLocationScreenState extends State<WFHLocationScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const MainScreenWithAnimation()));
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const MainScreenWithAnimation()));
         return Future.value(true);
       },
       child: Scaffold(
@@ -128,7 +129,8 @@ class _WFHLocationScreenState extends State<WFHLocationScreen> {
                   Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const MainScreenWithAnimation()));
+                          builder: (context) =>
+                              const MainScreenWithAnimation()));
                 },
               )),
           body: _isLoading
@@ -201,7 +203,7 @@ class _WFHLocationScreenState extends State<WFHLocationScreen> {
                                         'Button Proses Absen',
                                         style: TextStyle(
                                             fontSize: 16,
-                                            fontWeight: FontWeight.w700),
+                                            fontWeight: FontWeight.w500),
                                       ).tr(namedArgs: {
                                         'check': widget.attendanceType
                                       }),
@@ -222,7 +224,7 @@ class _WFHLocationScreenState extends State<WFHLocationScreen> {
                                               'Position',
                                               style: TextStyle(
                                                   fontSize: 20,
-                                                  fontWeight: FontWeight.w700),
+                                                  fontWeight: FontWeight.w500),
                                             ).tr(namedArgs: {
                                               'check': widget.attendanceType
                                             }),
@@ -240,7 +242,7 @@ class _WFHLocationScreenState extends State<WFHLocationScreen> {
                                                     style: const TextStyle(
                                                         fontSize: 14,
                                                         fontWeight:
-                                                            FontWeight.w700,
+                                                            FontWeight.w500,
                                                         color: Colors.black38),
                                                   ),
                                                 ),

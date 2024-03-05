@@ -33,7 +33,7 @@ class _TrackTransparencyState extends State<TrackTransparency> {
                         Text(
                           'Allow Mobile ESS to use your app activity?',
                           style: TextStyle(
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500,
                               fontSize: 30,
                               color: Color(primaryBlack)),
                         ),
@@ -223,7 +223,7 @@ class _TrackTransparencyState extends State<TrackTransparency> {
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 16,
-                              fontWeight: FontWeight.w700),
+                              fontWeight: FontWeight.w500),
                         ),
                       ),
                     )

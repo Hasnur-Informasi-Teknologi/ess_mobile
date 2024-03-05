@@ -188,7 +188,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             'Employee Self Service Login',
                             style: TextStyle(
                               fontSize: textExtraLarge,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500,
                               fontFamily: 'Poppins',
                             ),
                           ),
@@ -354,7 +354,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                                     fontFamily: 'Poppins',
                                                     letterSpacing: 0.9,
                                                     fontWeight:
-                                                        FontWeight.w700),
+                                                        FontWeight.w500),
                                               ),
                                             ),
                                           )

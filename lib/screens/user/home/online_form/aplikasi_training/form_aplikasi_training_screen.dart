@@ -282,7 +282,7 @@ class _FormAplikasiTrainingScreenState
                                               color: const Color(primaryBlack),
                                               fontSize: textLarge,
                                               fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w700),
+                                              fontWeight: FontWeight.w500),
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
@@ -453,7 +453,7 @@ class _FormAplikasiTrainingScreenState
                                               color: const Color(primaryBlack),
                                               fontSize: textLarge,
                                               fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w700),
+                                              fontWeight: FontWeight.w500),
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
@@ -627,7 +627,7 @@ class _FormAplikasiTrainingScreenState
                                               color: const Color(primaryBlack),
                                               fontSize: textLarge,
                                               fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w700),
+                                              fontWeight: FontWeight.w500),
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
@@ -877,7 +877,7 @@ class _FormAplikasiTrainingScreenState
                                               color: const Color(primaryBlack),
                                               fontSize: textLarge,
                                               fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w700),
+                                              fontWeight: FontWeight.w500),
                                         ),
                                         SizedBox(
                                           height: sizedBoxHeightTall,
