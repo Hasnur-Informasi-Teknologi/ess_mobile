@@ -24,7 +24,7 @@ class Administrator extends StatelessWidget {
           },
         ),
         title: const Text(
-          'Administration',
+          'Administrator',
         ),
       ),
       body: Center(
@@ -128,7 +128,14 @@ class Administrator extends StatelessWidget {
             '/admin/administrator/user_authorization/user_authorization');
         break;
       case 2:
-        Get.toNamed('/admin/administrator/user_management/release_strategy');
+        Get.snackbar('Infomation', 'Coming Soon',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
         break;
       case 3:
         Get.toNamed('/admin/administrator/master_data/master_data_screen');

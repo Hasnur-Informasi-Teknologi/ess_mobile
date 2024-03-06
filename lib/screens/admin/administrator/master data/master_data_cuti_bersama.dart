@@ -20,42 +20,105 @@ class CutiBersama extends StatefulWidget {
 }
 
 class _CutiBersamaState extends State<CutiBersama> {
-  late TextEditingController _searchcontroller;
-  late List<DataRow> _rows = [];
-  late int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
-  late int _rowCount = 0;
-  late int _pageIndex = 1;
-  bool _isLoading = false;
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final String apiUrl = API_URL;
-  double maxHeightValidator = 60.0;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  TextEditingController _searchcontroller = TextEditingController();
   final TextEditingController _deskripsiController = TextEditingController();
   final TextEditingController _jmlHariController = TextEditingController();
-
   final DateRangePickerController _tanggalMulaiController =
       DateRangePickerController();
   DateTime? tanggalMulai;
   final DateRangePickerController _tanggalBerakhirController =
       DateRangePickerController();
   DateTime? tanggalBerakhir;
+  double maxHeightValidator = 60.0;
+  int _rowsPerPage = 5;
+  int _pageIndex = 1;
+  int _totalRecords = 0;
+  String searchQuery = '';
+  List<dynamic> _data = [];
+  bool _isLoading = false;
 
-  Timer? _searchDebounce;
-
-  int? parseJumlahHari(String value) {
-    // Convert jumlahHari to an integer.
-    final int? jumlahHariInt = int.tryParse(value);
-    if (jumlahHariInt == null) {
-      // Handle the error, maybe show a snackbar message indicating invalid input.
-      return null;
-    }
-    return jumlahHariInt;
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
   }
 
-  void _onSearchChanged(String value) {
-    if (_searchDebounce?.isActive ?? false) _searchDebounce!.cancel();
-    _searchDebounce = Timer(const Duration(milliseconds: 500), () {
-      fetchData(searchQuery: value);
+  Future<void> fetchData({
+    int? pageIndex,
+  }) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    setState(() {
+      _isLoading = true;
     });
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+            '$apiUrl/master/cuti-bersama/get?page=${pageIndex ?? _pageIndex}&perPage=$_rowsPerPage&search=$searchQuery'),
+        headers: <String, String>{
+          "Content-Type": "application/json;charset=UTF-8",
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        final List<dynamic> data = responseData['dataku'];
+        final total = responseData["totalPage"];
+
+        setState(() {
+          _totalRecords = total['total_records'] ?? 0;
+
+          if (pageIndex != null) {
+            _data.clear();
+          }
+
+          _data.addAll(data);
+          _isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load data from API');
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print('Error: $e');
+    }
+  }
+
+  void _filterData(String query) {
+    setState(() {});
+  }
+
+  void nextPage() {
+    if ((_pageIndex * _rowsPerPage) < _totalRecords) {
+      setState(() {
+        _pageIndex++;
+      });
+      fetchData(pageIndex: _pageIndex);
+    }
+  }
+
+  void prevPage() {
+    if (_pageIndex > 1) {
+      setState(() {
+        _pageIndex--;
+      });
+      fetchData(pageIndex: _pageIndex);
+    }
+  }
+
+  void onRowsPerPageChanged(int? value) {
+    setState(() {
+      _rowsPerPage = value!;
+      _pageIndex = 1;
+    });
+    fetchData(pageIndex: 1);
   }
 
   String? _validatorDeskripsi(dynamic value) {
@@ -72,662 +135,117 @@ class _CutiBersamaState extends State<CutiBersama> {
     return null;
   }
 
-  String? _validatorJmlHari(dynamic value) {
-    if (value == null || value.isEmpty) {
+  @override
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double textMedium = size.width * 0.0329;
+    double padding5 = size.width * 0.0115;
+    double maxHeightValidator = 60.0;
+    double sizedBoxHeightTall = size.height * 0.0163;
+
+    String? _validatorJmlHari(dynamic value) {
+      if (value == null || value.isEmpty) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field Jumlah Hari Kosong';
+      } else if (int.tryParse(value) == null) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field Jumlah Hari harus angka';
+      } else if (int.parse(value) <= 0) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Jumlah Hari harus lebih besar dari 0';
+      }
+
       setState(() {
-        maxHeightValidator = 80.0;
+        maxHeightValidator = 60.0;
       });
-      return 'Field Jumlah Hari Kosong';
-    } else if (int.tryParse(value) == null) {
-      setState(() {
-        maxHeightValidator = 80.0;
-      });
-      return 'Field Jumlah Hari harus angka';
-    } else if (int.parse(value) <= 0) {
-      setState(() {
-        maxHeightValidator = 80.0;
-      });
-      return 'Jumlah Hari harus lebih besar dari 0';
+      return null;
     }
 
-    setState(() {
-      maxHeightValidator = 60.0;
-    });
-    return null;
-  }
+    int? parseJumlahHari(String value) {
+      // Convert jumlahHari to an integer.
+      final int? jumlahHariInt = int.tryParse(value);
+      if (jumlahHariInt == null) {
+        // Handle the error, maybe show a snackbar message indicating invalid input.
+        return null;
+      }
+      return jumlahHariInt;
+    }
 
-  Future<void> deleteData(String id) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Future<void> _submit() async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+      final int? jmlHariInt = parseJumlahHari(_jmlHariController.text);
 
-    String? token = prefs.getString('token');
-    if (token != null) {
+      print('click add');
+      print(_formKey.currentState!.validate());
+
+      setState(() {
+        _isLoading = true;
+      });
+
+      if (_formKey.currentState!.validate() == false) {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      _formKey.currentState!.save();
+
       try {
-        final response =
-            await http.post(Uri.parse("$apiUrl/master/cuti-bersama/delete"),
-                headers: <String, String>{
-                  'Content-Type': 'application/json;charset=UTF-8',
-                  'Authorization': 'Bearer $token'
-                },
-                body: jsonEncode({'id': id}));
-        if (response.statusCode == 200) {
-          Get.snackbar('Infomation', 'Berhasil Hapus Data',
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: Colors.amber,
-              icon: const Icon(
-                Icons.info,
-                color: Colors.white,
-              ),
-              shouldIconPulse: false);
-          print('Item with id $id deleted successfully');
-        } else {
-          print("response error request: ${response.request}");
-          throw Exception('Failed to delete item');
+        final response = await http.post(
+          Uri.parse("$apiUrl/master/cuti-bersama/add"),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token'
+          },
+          body: jsonEncode({
+            'deskripsi': _deskripsiController.text,
+            'jml_hari': jmlHariInt,
+            'tgl_mulai': tanggalMulai != null
+                ? tanggalMulai.toString()
+                : DateTime.now().toString(),
+            'tgl_berakhir': tanggalBerakhir != null
+                ? tanggalBerakhir.toString()
+                : DateTime.now().toString(),
+          }),
+        );
+
+        final responseData = jsonDecode(response.body);
+
+        print('response: $responseData');
+
+        Get.snackbar('Infomation', responseData['success'],
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
+
+        if (responseData['success'] == 'Data telah ditambahkan') {
+          Navigator.pop(context);
+          fetchData();
         }
       } catch (e) {
         print(e);
         rethrow;
       }
-    }
-  }
 
-  Future<void> updateData(
-    context,
-    String id,
-    String deskripsi,
-    String jmlHari,
-    String tglMulai,
-    String tglBerakhir,
-  ) async {
-    Size size = MediaQuery.of(context).size;
-    double textMedium = size.width * 0.0329;
-    double padding5 = size.width * 0.0115;
-    double paddingHorizontalNarrow = size.width * 0.035;
-
-    DateTime dateTimeAwal = DateFormat("yyyy-MM-dd").parse(tglMulai);
-    String formattedDateStringAwal =
-        DateFormat("dd-MM-yyyy").format(dateTimeAwal);
-    DateTime dateTimeAwalFinal =
-        DateFormat("dd-MM-yyyy").parse(formattedDateStringAwal);
-
-    DateTime dateTimeAkhir = DateFormat("yyyy-MM-dd").parse(tglBerakhir);
-    String formattedDateStringAkhir =
-        DateFormat("dd-MM-yyyy").format(dateTimeAkhir);
-    DateTime dateTimeAkhirFinal =
-        DateFormat("dd-MM-yyyy").parse(formattedDateStringAkhir);
-
-    String textFieldValueId = id.toString();
-    String textFieldValueDeskripsi = deskripsi;
-    String textFieldValueJmlHari = jmlHari.toString();
-    String textFieldValueTglMulai = dateTimeAwalFinal.toString();
-    String textFieldValueTglBerakhir = dateTimeAkhirFinal.toString();
-
-    return showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-            top: 10, bottom: MediaQuery.of(context).viewInsets.bottom),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                child: TitleWidget(
-                  title: 'Deskripsi *',
-                  fontWeight: FontWeight.w300,
-                  fontSize: textMedium,
-                ),
-              ),
-              Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                child: TextFormField(
-                  validator: _validatorDeskripsi,
-                  initialValue: deskripsi,
-                  onChanged: (value) => {
-                    setState(() {
-                      textFieldValueDeskripsi = value;
-                    })
-                  },
-                  decoration: InputDecoration(
-                    hintText: "Masukkan Deskripsi",
-                    hintStyle: TextStyle(
-                      fontWeight: FontWeight.w300,
-                      fontSize: textMedium,
-                    ),
-                    enabledBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                        width: 1.0,
-                      ),
-                    ),
-                    contentPadding:
-                        const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                child: TitleWidget(
-                  title: 'Jumlah Hari *',
-                  fontWeight: FontWeight.w300,
-                  fontSize: textMedium,
-                ),
-              ),
-              Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                child: TextFormField(
-                  keyboardType: TextInputType.number,
-                  validator: _validatorJmlHari,
-                  initialValue: jmlHari,
-                  onChanged: (value) => {
-                    setState(() {
-                      textFieldValueJmlHari = value;
-                    })
-                  },
-                  decoration: InputDecoration(
-                    hintText: "Masukkan Jumlah Hari",
-                    hintStyle: TextStyle(
-                      fontWeight: FontWeight.w300,
-                      fontSize: textMedium,
-                    ),
-                    enabledBorder: const OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                        width: 1.0,
-                      ),
-                    ),
-                    contentPadding:
-                        const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                child: TitleWidget(
-                  title: 'Tanggal Mulai *',
-                  fontWeight: FontWeight.w300,
-                  fontSize: textMedium,
-                ),
-              ),
-              CupertinoButton(
-                child: Container(
-                  height: 50,
-                  width: size.width,
-                  padding: EdgeInsets.symmetric(
-                      horizontal: paddingHorizontalNarrow, vertical: padding5),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      border: Border.all(color: Colors.grey)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Icon(
-                        Icons.calendar_month_outlined,
-                        color: Colors.grey,
-                      ),
-                      Text(
-                        DateFormat('dd-MM-yyyy').format(dateTimeAwalFinal),
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w300,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        content: SizedBox(
-                          height: 350,
-                          width: 350,
-                          child: SfDateRangePicker(
-                            initialSelectedDate: dateTimeAwalFinal,
-                            onSelectionChanged:
-                                (DateRangePickerSelectionChangedArgs args) {
-                              setState(() {
-                                dateTimeAwalFinal = args.value;
-                              });
-                            },
-                            selectionMode: DateRangePickerSelectionMode.single,
-                            initialDisplayDate: dateTimeAwalFinal,
-                          ),
-                        ),
-                        actions: <Widget>[
-                          TextButton(
-                            onPressed: () {
-                              setState(() {});
-                              textFieldValueTglMulai =
-                                  dateTimeAwalFinal.toString();
-
-                              Navigator.pop(context);
-                            },
-                            child: const Text('OK'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                child: TitleWidget(
-                  title: 'Tanggal Berakhir *',
-                  fontWeight: FontWeight.w300,
-                  fontSize: textMedium,
-                ),
-              ),
-              CupertinoButton(
-                child: Container(
-                  height: 50,
-                  width: size.width,
-                  padding: EdgeInsets.symmetric(
-                      horizontal: paddingHorizontalNarrow, vertical: padding5),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      border: Border.all(color: Colors.grey)),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Icon(
-                        Icons.calendar_month_outlined,
-                        color: Colors.grey,
-                      ),
-                      Text(
-                        DateFormat('dd-MM-yyyy').format(dateTimeAkhirFinal),
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w300,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        content: SizedBox(
-                          height: 350,
-                          width: 350,
-                          child: SfDateRangePicker(
-                            initialSelectedDate: dateTimeAkhirFinal,
-                            onSelectionChanged:
-                                (DateRangePickerSelectionChangedArgs args) {
-                              setState(() {
-                                dateTimeAkhirFinal = args.value;
-                              });
-                            },
-                            selectionMode: DateRangePickerSelectionMode.single,
-                            initialDisplayDate: dateTimeAkhirFinal,
-                          ),
-                        ),
-                        actions: <Widget>[
-                          TextButton(
-                            onPressed: () {
-                              setState(() {});
-                              textFieldValueTglBerakhir =
-                                  dateTimeAkhirFinal.toString();
-
-                              Navigator.pop(context);
-                            },
-                            child: const Text('OK'),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-              ),
-              SizedBox(
-                width: size.width,
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                      horizontal: paddingHorizontalNarrow, vertical: 10),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _submitUpdate(
-                        textFieldValueId,
-                        textFieldValueDeskripsi,
-                        textFieldValueJmlHari,
-                        textFieldValueTglMulai,
-                        textFieldValueTglBerakhir,
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(primaryYellow),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: Text(
-                      'Update',
-                      style: TextStyle(
-                          color: const Color(primaryBlack),
-                          fontSize: textMedium,
-                          fontFamily: 'Poppins',
-                          letterSpacing: 0.9,
-                          fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Future<void> _submitUpdate(
-    String textFieldValueId,
-    String textFieldValueDeskripsi,
-    String textFieldValueJmlHari,
-    String textFieldValueTglMulai,
-    String textFieldValueTglBerakhir,
-  ) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    final int? jmlHariInt = parseJumlahHari(textFieldValueJmlHari);
-
-    print('click update');
-    print(_formKey.currentState!.validate());
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    if (_formKey.currentState!.validate() == false) {
       setState(() {
         _isLoading = false;
       });
-      return;
     }
 
-    _formKey.currentState!.save();
-
-    try {
-      final response = await http.post(
-        Uri.parse("$apiUrl/master/cuti-bersama/update"),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token'
-        },
-        body: jsonEncode({
-          'id': textFieldValueId,
-          'deskripsi': textFieldValueDeskripsi,
-          'jml_hari': jmlHariInt,
-          'tgl_mulai': textFieldValueTglMulai.toString(),
-          'tgl_berakhir': textFieldValueTglBerakhir.toString()
-        }),
-      );
-
-      final responseData = jsonDecode(response.body);
-
-      print('response: $responseData');
-
-      Get.snackbar('Infomation', responseData['success'],
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.amber,
-          icon: const Icon(
-            Icons.info,
-            color: Colors.white,
-          ),
-          shouldIconPulse: false);
-
-      if (responseData['success'] == 'Data has been updated') {
-        Navigator.pop(context);
-        fetchData();
-      }
-    } catch (e) {
-      print(e);
-      rethrow;
-    }
-
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  Future<void> fetchData({String searchQuery = ''}) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    final response = await http.get(
-      Uri.parse(
-          "$apiUrl/master/cuti-bersama/get?page=$_pageIndex&perPage=$_rowsPerPage&search=$searchQuery"),
-      headers: <String, String>{
-        "Content-Type": "application/json;charset=UTF-8",
-        'Authorization': 'Bearer $token',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      final data = responseData["dataku"];
-      final total = responseData["totalPage"];
-
-      setState(() {
-        _rowCount = total['total_records'] ?? 0;
-        _rows = data.asMap().entries.map<DataRow>((entry) {
-          int index = entry.key;
-          var item = entry.value;
-
-          return DataRow(
-            key: ValueKey<String>(item['id'].toString()),
-            cells: [
-              DataCell(Text((index + 1).toString())),
-              DataCell(Text(item['deskripsi'] ?? 'null')),
-              DataCell(Text(item['jml_hari'].toString())),
-              DataCell(Text(item['tgl_mulai'] ?? 'null')),
-              DataCell(Text(item['tgl_berakhir'] ?? 'null')),
-              DataCell(
-                Row(
-                  children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          String id = item['id'].toString();
-                          String deskripsi = item['deskripsi'];
-                          String jmlHari = item['jml_hari'].toString();
-                          String tglMulai = item['tgl_mulai'];
-                          String tglBerakhir = item['tgl_berakhir'];
-                          updateData(context, id, deskripsi, jmlHari, tglMulai,
-                              tglBerakhir);
-                        },
-                        child: Container(
-                          height: 30,
-                          width: 30,
-                          decoration: BoxDecoration(
-                            color: Colors.green,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: const Icon(Icons.edit, color: Colors.white),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: const Text("Konfirmasi"),
-                                content: const Text(
-                                    "Apakah Anda yakin ingin menghapus data ini?"),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text("Batal"),
-                                  ),
-                                  TextButton(
-                                    onPressed: () async {
-                                      String id = item['id'].toString();
-                                      await deleteData(id);
-                                      Navigator.of(context).pop();
-                                      fetchData();
-                                    },
-                                    child: const Text("Hapus"),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                        child: Container(
-                          height: 30,
-                          width: 30,
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: const Icon(Icons.delete_outline,
-                              color: Colors.white),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          );
-        }).toList();
-      });
-    } else {
-      throw Exception('Failed to load data');
-    }
-  }
-
-  Future<void> _submit() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    final int? jmlHariInt = parseJumlahHari(_jmlHariController.text);
-
-    print('click add');
-    print(_formKey.currentState!.validate());
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    if (_formKey.currentState!.validate() == false) {
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
-
-    _formKey.currentState!.save();
-
-    try {
-      final response = await http.post(
-        Uri.parse("$apiUrl/master/cuti-bersama/add"),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token'
-        },
-        body: jsonEncode({
-          'deskripsi': _deskripsiController.text,
-          'jml_hari': jmlHariInt,
-          'tgl_mulai': tanggalMulai != null
-              ? tanggalMulai.toString()
-              : DateTime.now().toString(),
-          'tgl_berakhir': tanggalBerakhir != null
-              ? tanggalBerakhir.toString()
-              : DateTime.now().toString(),
-        }),
-      );
-
-      final responseData = jsonDecode(response.body);
-
-      print('response: $responseData');
-
-      Get.snackbar('Infomation', responseData['success'],
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.amber,
-          icon: const Icon(
-            Icons.info,
-            color: Colors.white,
-          ),
-          shouldIconPulse: false);
-
-      if (responseData['success'] == 'Data telah ditambahkan') {
-        Navigator.pop(context);
-        fetchData();
-      }
-    } catch (e) {
-      print(e);
-      rethrow;
-    }
-
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _searchcontroller = TextEditingController();
-    _searchcontroller.addListener(() {
-      _onSearchChanged(_searchcontroller.text);
-    });
-    fetchData();
-  }
-
-  @override
-  void dispose() {
-    _searchcontroller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    double textMedium = size.width * 0.0329;
-    double paddingHorizontalNarrow = size.width * 0.035;
-    double padding5 = size.width * 0.0115;
-    double sizedBoxHeightTall = size.height * 0.0163;
-
-    TextEditingController _searchcontroller = TextEditingController();
-
-    _handleButtonAdd() {
+    Future<void> _handleButtonAdd() {
       return showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -974,6 +492,7 @@ class _CutiBersamaState extends State<CutiBersama> {
                     child: ElevatedButton(
                       onPressed: () {
                         _submit();
+                        fetchData(pageIndex: 1);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(primaryYellow),
@@ -1000,11 +519,442 @@ class _CutiBersamaState extends State<CutiBersama> {
       );
     }
 
+    Future<void> deleteData(String id) async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      String? token = prefs.getString('token');
+      if (token != null) {
+        try {
+          final response =
+              await http.post(Uri.parse("$apiUrl/master/cuti-bersama/delete"),
+                  headers: <String, String>{
+                    'Content-Type': 'application/json;charset=UTF-8',
+                    'Authorization': 'Bearer $token'
+                  },
+                  body: jsonEncode({'id': id}));
+          if (response.statusCode == 200) {
+            Get.snackbar('Infomation', 'Berhasil Hapus Data',
+                snackPosition: SnackPosition.TOP,
+                backgroundColor: Colors.amber,
+                icon: const Icon(
+                  Icons.info,
+                  color: Colors.white,
+                ),
+                shouldIconPulse: false);
+            print('Item with id $id deleted successfully');
+          } else {
+            print("response error request: ${response.request}");
+            throw Exception('Failed to delete item');
+          }
+        } catch (e) {
+          print(e);
+          rethrow;
+        }
+      }
+    }
+
+    Future<void> _submitUpdate(
+      String textFieldValueId,
+      String textFieldValueDeskripsi,
+      String textFieldValueJmlHari,
+      String textFieldValueTglMulai,
+      String textFieldValueTglBerakhir,
+    ) async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+      final int? jmlHariInt = parseJumlahHari(textFieldValueJmlHari);
+
+      print('click update');
+      print(_formKey.currentState!.validate());
+
+      setState(() {
+        _isLoading = true;
+      });
+
+      if (_formKey.currentState!.validate() == false) {
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      _formKey.currentState!.save();
+
+      try {
+        final response = await http.post(
+          Uri.parse("$apiUrl/master/cuti-bersama/update"),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token'
+          },
+          body: jsonEncode({
+            'id': textFieldValueId,
+            'deskripsi': textFieldValueDeskripsi,
+            'jml_hari': jmlHariInt,
+            'tgl_mulai': textFieldValueTglMulai.toString(),
+            'tgl_berakhir': textFieldValueTglBerakhir.toString()
+          }),
+        );
+
+        final responseData = jsonDecode(response.body);
+
+        print('response: $responseData');
+
+        Get.snackbar('Infomation', responseData['success'],
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
+
+        if (responseData['success'] == 'Data has been updated') {
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        print(e);
+        rethrow;
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+    }
+
+    Future<void> updateData(
+      context,
+      String id,
+      String deskripsi,
+      String jmlHari,
+      String tglMulai,
+      String tglBerakhir,
+    ) async {
+      Size size = MediaQuery.of(context).size;
+      double textMedium = size.width * 0.0329;
+      double padding5 = size.width * 0.0115;
+      double paddingHorizontalNarrow = size.width * 0.035;
+
+      DateTime dateTimeAwal = DateFormat("yyyy-MM-dd").parse(tglMulai);
+      String formattedDateStringAwal =
+          DateFormat("dd-MM-yyyy").format(dateTimeAwal);
+      DateTime dateTimeAwalFinal =
+          DateFormat("dd-MM-yyyy").parse(formattedDateStringAwal);
+
+      DateTime dateTimeAkhir = DateFormat("yyyy-MM-dd").parse(tglBerakhir);
+      String formattedDateStringAkhir =
+          DateFormat("dd-MM-yyyy").format(dateTimeAkhir);
+      DateTime dateTimeAkhirFinal =
+          DateFormat("dd-MM-yyyy").parse(formattedDateStringAkhir);
+
+      String textFieldValueId = id.toString();
+      String textFieldValueDeskripsi = deskripsi;
+      String textFieldValueJmlHari = jmlHari.toString();
+      String textFieldValueTglMulai = dateTimeAwalFinal.toString();
+      String textFieldValueTglBerakhir = dateTimeAkhirFinal.toString();
+
+      return showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        builder: (context) => Padding(
+          padding: EdgeInsets.only(
+              top: 10, bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+                  child: TitleWidget(
+                    title: 'Deskripsi *',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+                  child: TextFormField(
+                    validator: _validatorDeskripsi,
+                    initialValue: deskripsi,
+                    onChanged: (value) => {
+                      setState(() {
+                        textFieldValueDeskripsi = value;
+                      })
+                    },
+                    decoration: InputDecoration(
+                      hintText: "Masukkan Deskripsi",
+                      hintStyle: TextStyle(
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      enabledBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                      contentPadding:
+                          const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+                  child: TitleWidget(
+                    title: 'Jumlah Hari *',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+                  child: TextFormField(
+                    keyboardType: TextInputType.number,
+                    validator: _validatorJmlHari,
+                    initialValue: jmlHari,
+                    onChanged: (value) => {
+                      setState(() {
+                        textFieldValueJmlHari = value;
+                      })
+                    },
+                    decoration: InputDecoration(
+                      hintText: "Masukkan Jumlah Hari",
+                      hintStyle: TextStyle(
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      enabledBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                      contentPadding:
+                          const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+                  child: TitleWidget(
+                    title: 'Tanggal Mulai *',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+                CupertinoButton(
+                  child: Container(
+                    height: 50,
+                    width: size.width,
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow,
+                        vertical: padding5),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(color: Colors.grey)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Icon(
+                          Icons.calendar_month_outlined,
+                          color: Colors.grey,
+                        ),
+                        Text(
+                          DateFormat('dd-MM-yyyy').format(dateTimeAwalFinal),
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          content: SizedBox(
+                            height: 350,
+                            width: 350,
+                            child: SfDateRangePicker(
+                              initialSelectedDate: dateTimeAwalFinal,
+                              onSelectionChanged:
+                                  (DateRangePickerSelectionChangedArgs args) {
+                                setState(() {
+                                  dateTimeAwalFinal = args.value;
+                                });
+                              },
+                              selectionMode:
+                                  DateRangePickerSelectionMode.single,
+                              initialDisplayDate: dateTimeAwalFinal,
+                            ),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                setState(() {});
+                                textFieldValueTglMulai =
+                                    dateTimeAwalFinal.toString();
+
+                                Navigator.pop(context);
+                              },
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+                  child: TitleWidget(
+                    title: 'Tanggal Berakhir *',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+                CupertinoButton(
+                  child: Container(
+                    height: 50,
+                    width: size.width,
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow,
+                        vertical: padding5),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(color: Colors.grey)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Icon(
+                          Icons.calendar_month_outlined,
+                          color: Colors.grey,
+                        ),
+                        Text(
+                          DateFormat('dd-MM-yyyy').format(dateTimeAkhirFinal),
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          content: SizedBox(
+                            height: 350,
+                            width: 350,
+                            child: SfDateRangePicker(
+                              initialSelectedDate: dateTimeAkhirFinal,
+                              onSelectionChanged:
+                                  (DateRangePickerSelectionChangedArgs args) {
+                                setState(() {
+                                  dateTimeAkhirFinal = args.value;
+                                });
+                              },
+                              selectionMode:
+                                  DateRangePickerSelectionMode.single,
+                              initialDisplayDate: dateTimeAkhirFinal,
+                            ),
+                          ),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                setState(() {});
+                                textFieldValueTglBerakhir =
+                                    dateTimeAkhirFinal.toString();
+
+                                Navigator.pop(context);
+                              },
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+                SizedBox(
+                  width: size.width,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow, vertical: 10),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _submitUpdate(
+                          textFieldValueId,
+                          textFieldValueDeskripsi,
+                          textFieldValueJmlHari,
+                          textFieldValueTglMulai,
+                          textFieldValueTglBerakhir,
+                        );
+
+                        fetchData(pageIndex: 1);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(primaryYellow),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        'Update',
+                        style: TextStyle(
+                            color: const Color(primaryBlack),
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.9,
+                            fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     Widget content() {
       return Container(
         padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1060,154 +1010,242 @@ class _CutiBersamaState extends State<CutiBersama> {
             const SizedBox(
               height: 10,
             ),
+            Container(
+              height: 50,
+              width: 200,
+              child: TextField(
+                controller: _searchcontroller,
+                decoration: const InputDecoration(
+                  labelText: "Search",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    size: 17,
+                  ),
+                ),
+                onChanged: _filterData,
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
           ],
         ),
       );
     }
 
     Widget data() {
+      List<dynamic> filteredData = _data.where((data) {
+        String deskripsi = data['deskripsi'].toString().toLowerCase();
+        String searchLower = _searchcontroller.text.toLowerCase();
+        return deskripsi.contains(searchLower);
+      }).toList();
       return SingleChildScrollView(
-        scrollDirection: Axis.vertical,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Padding(
-              padding:
-                  EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-              child: Container(
-                height: 50,
-                width: 200,
-                padding: const EdgeInsets.all(3),
-                child: TextField(
-                  controller: _searchcontroller,
-                  decoration: const InputDecoration(
-                    labelText: "Search",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
-                    ),
-                    prefixIcon: Icon(
-                      Icons.search,
-                      size: 17,
+        scrollDirection: Axis.horizontal,
+        child: Container(
+          child: Column(
+            children: [
+              DataTable(
+                columns: const <DataColumn>[
+                  DataColumn(
+                    label: Text(
+                      "No",
                     ),
                   ),
-                  onChanged: _onSearchChanged,
-                ),
+                  DataColumn(
+                    label: Text(
+                      "Deskripsi",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Jumlah Hari",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Tanggal Mulai",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Tanggal Berakhir",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Aksi",
+                    ),
+                  ),
+                ],
+                columnSpacing: 20,
+                rows: filteredData.map((data) {
+                  int index = _data.indexOf(data) + 1;
+                  return DataRow(
+                    cells: <DataCell>[
+                      DataCell(Text('$index')),
+                      DataCell(Text(data['deskripsi'] ?? 'null')),
+                      DataCell(Text(data['jml_hari'].toString())),
+                      DataCell(Text(data['tgl_mulai'] ?? 'null')),
+                      DataCell(Text(data['tgl_berakhir'] ?? 'null')),
+                      DataCell(
+                        Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  String id = data['id'].toString();
+                                  String deskripsi = data['deskripsi'];
+                                  String jmlHari = data['jml_hari'].toString();
+                                  String tglMulai = data['tgl_mulai'];
+                                  String tglBerakhir = data['tgl_berakhir'];
+                                  updateData(context, id, deskripsi, jmlHari,
+                                      tglMulai, tglBerakhir);
+                                },
+                                child: Container(
+                                  height: 30,
+                                  width: 30,
+                                  decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: const Icon(Icons.edit,
+                                      color: Colors.white),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 5),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text("Konfirmasi"),
+                                        content: const Text(
+                                            "Apakah Anda yakin ingin menghapus data ini?"),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: const Text("Batal"),
+                                          ),
+                                          TextButton(
+                                            onPressed: () async {
+                                              String id = data['id'].toString();
+                                              await deleteData(id);
+                                              Navigator.of(context).pop();
+                                              fetchData();
+                                            },
+                                            child: const Text("Hapus"),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                                },
+                                child: Container(
+                                  height: 30,
+                                  width: 30,
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: const Icon(Icons.delete,
+                                      color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                }).toList(),
               ),
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            PaginatedDataTable(
-              rowsPerPage: _rowsPerPage,
-              onRowsPerPageChanged: (value) {
-                setState(() {
-                  _rowsPerPage = value!;
-                });
-              },
-              onPageChanged: (pageIndex) {
-                setState(() {
-                  _pageIndex = pageIndex + 1;
-                });
-                fetchData();
-              },
-              columnSpacing: 10,
-              availableRowsPerPage: const [
-                5,
-                10,
-                50,
-                100,
-              ],
-              source: MyDataTableSource(
-                rows: _rows,
-                rowCount: _rowCount,
-                pageIndex: _pageIndex,
-                rowsPerPage: _rowsPerPage,
-              ),
-              columns: const [
-                DataColumn(
-                  label: Text(
-                    "No",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    "Deskripsi",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    "Jumlah Hari",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    "Tanggal Mulai",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    "Tanggal Berakhir",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    "Aksi",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                  ),
-                ),
-              ],
-            ),
-          ],
+            ],
+          ),
         ),
       );
     }
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: const Text('Master Data - Cuti Bersama'),
-      ),
-      body: SingleChildScrollView(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(190),
+        child: Container(
+          color: Colors.white,
           child: Column(
-        children: [
-          content(),
-          data(),
-        ],
-      )),
+            children: [
+              AppBar(
+                surfaceTintColor: Colors.white,
+                elevation: 0,
+                backgroundColor: Colors.white,
+                title: const Text('Master Data - Cuti Bersama'),
+              ),
+              content(),
+            ],
+          ),
+        ),
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  data(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      const Text(
+                        "Showing",
+                        style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            color: Color(primaryYellow)),
+                      ),
+                      const SizedBox(width: 10),
+                      DropdownButton<int>(
+                        value: _rowsPerPage,
+                        onChanged: onRowsPerPageChanged,
+                        items: [5, 10, 50, 100]
+                            .map<DropdownMenuItem<int>>((int value) {
+                          return DropdownMenuItem<int>(
+                            value: value,
+                            child: Text(
+                              '$value',
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.normal, fontSize: 14),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      Text('of $_totalRecords'),
+                      TextButton(
+                        onPressed: prevPage,
+                        child: const Icon(
+                          Icons.arrow_back_ios,
+                          color: Color(primaryYellow),
+                        ),
+                      ),
+                      Text('Page $_pageIndex'),
+                      TextButton(
+                        onPressed: nextPage,
+                        child: const Icon(
+                          Icons.arrow_forward_ios,
+                          color: Color(primaryYellow),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
     );
   }
-}
-
-class MyDataTableSource extends DataTableSource {
-  final List<DataRow> rows;
-  final int rowCount;
-  final int pageIndex;
-  final int rowsPerPage;
-
-  MyDataTableSource({
-    required this.rows,
-    required this.rowCount,
-    required this.pageIndex,
-    required this.rowsPerPage,
-  });
-
-  @override
-  DataRow? getRow(int index) {
-    if (index >= 0 && index < rows.length) {
-      return rows[index];
-    }
-    return null;
-  }
-
-  @override
-  bool get isRowCountApproximate => false;
-
-  @override
-  int get selectedRowCount => 0;
 }
