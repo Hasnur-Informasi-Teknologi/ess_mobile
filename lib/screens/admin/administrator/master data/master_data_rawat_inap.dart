@@ -26,18 +26,19 @@ class _RawatInapState extends State<RawatInap> {
   List<Map<String, dynamic>> selectedPangkat = [];
   List<Map<String, dynamic>> selectedSatuan = [];
   List<Map<String, dynamic>> selectedStatus = [];
+  List<Map<String, dynamic>> selectedKurs = [];
   late int _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   late int _rowCount = 0;
   late int _pageIndex = 1;
   String? selectedValueKategori,
       selectedValuePangkat,
       selectedValueSatuan,
-      selectedValueStatus;
+      selectedValueStatus,
+      selectedValueKurs;
   bool _isLoading = false;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final String apiUrl = API_URL;
   double maxHeightValidator = 60.0;
-  final TextEditingController _kursController = TextEditingController();
   final TextEditingController _nominalController = TextEditingController();
 
   final DateRangePickerController _tanggalMulaiController =
@@ -206,6 +207,42 @@ class _RawatInapState extends State<RawatInap> {
     }
   }
 
+  Future<void> getDataKurs() async {
+    // Your JSON string
+    String jsonString = '''
+    {
+      "data": [
+        {
+          "id": "1",
+          "nama": "USD"
+        },
+        {
+          "id": "0",
+          "nama": "Rupiah"
+        }
+      ]
+    }
+    ''';
+
+    try {
+      // Decode the JSON string
+      final responseData = jsonDecode(jsonString);
+      final dataKursApi = responseData['data'];
+
+      // Debugging purposes
+      print('dataKursApi: $dataKursApi');
+
+      // Assuming this is inside a StatefulWidget and you have access to setState
+      setState(() {
+        // Update your state with the new data
+        selectedKurs = List<Map<String, dynamic>>.from(dataKursApi);
+      });
+    } catch (e) {
+      print(e); // Handle any errors here
+      // Consider showing an error message in the UI
+    }
+  }
+
   Future<void> deleteData(String id) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -257,7 +294,7 @@ class _RawatInapState extends State<RawatInap> {
     double padding5 = size.width * 0.0115;
     double sizedBoxHeightTall = size.height * 0.0163;
     double paddingHorizontalNarrow = size.width * 0.035;
-    double maxHeightAtasan = 60.0;
+    double maxHeightValidator = 60.0;
 
     DateTime dateTimeMulai = DateFormat("yyyy-MM-dd").parse(tglMulai);
     String formattedDateStringMulai =
@@ -274,7 +311,7 @@ class _RawatInapState extends State<RawatInap> {
     String textFieldValueKodeKategori = kodeKategori.toString();
     String textFieldValueKodePangkat = kodePangkat.toString();
     String textFieldValueKodeSatuan = kodeSatuan.toString();
-    String textFieldValueKurs = kurs;
+    String textFieldValueKurs = kurs.toString();
     String textFieldValueNominal = nominal.toString();
     String textFieldValueStatus = status;
     String textFieldValueTglMulai = dateTimeMulaiFinal.toString();
@@ -369,7 +406,7 @@ class _RawatInapState extends State<RawatInap> {
                             }).toList(),
                             decoration: InputDecoration(
                               constraints:
-                                  BoxConstraints(maxHeight: maxHeightAtasan),
+                                  BoxConstraints(maxHeight: maxHeightValidator),
                               labelStyle: TextStyle(fontSize: textMedium),
                               focusedBorder: const UnderlineInputBorder(
                                 borderSide: BorderSide(
@@ -462,7 +499,7 @@ class _RawatInapState extends State<RawatInap> {
                             }).toList(),
                             decoration: InputDecoration(
                               constraints:
-                                  BoxConstraints(maxHeight: maxHeightAtasan),
+                                  BoxConstraints(maxHeight: maxHeightValidator),
                               labelStyle: TextStyle(fontSize: textMedium),
                               focusedBorder: const UnderlineInputBorder(
                                 borderSide: BorderSide(
@@ -555,7 +592,7 @@ class _RawatInapState extends State<RawatInap> {
                             }).toList(),
                             decoration: InputDecoration(
                               constraints:
-                                  BoxConstraints(maxHeight: maxHeightAtasan),
+                                  BoxConstraints(maxHeight: maxHeightValidator),
                               labelStyle: TextStyle(fontSize: textMedium),
                               focusedBorder: const UnderlineInputBorder(
                                 borderSide: BorderSide(
@@ -591,31 +628,77 @@ class _RawatInapState extends State<RawatInap> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
-                        child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          validator: (value) => validateField(value, 'Kurs'),
-                          initialValue: kurs,
-                          onChanged: (value) {
-                            setState(() {
-                              textFieldValueKurs = value;
-                            });
-                          },
-                          decoration: InputDecoration(
-                            hintText: "Masukan Kurs",
-                            hintStyle: TextStyle(
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
+                        child: Container(
+                          height: 50,
+                          width: size.width,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalNarrow,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(5),
+                            border: Border.all(color: Colors.grey),
+                          ),
+                          child: DropdownButtonFormField<String>(
+                            hint: Text(
+                              'Pilih Kurs',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                  overflow: TextOverflow.ellipsis),
                             ),
-                            enabledBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.grey,
-                                width: 1.0,
+                            validator: (value) => validateField(value, 'Kurs'),
+                            value: kurs.toString(),
+                            icon: selectedKurs.isEmpty
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.blue),
+                                    ),
+                                  )
+                                : const Icon(Icons.arrow_drop_down),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                textFieldValueKurs = newValue ?? '';
+                                print('selectedValueKurs: $selectedValueKurs');
+                              });
+                            },
+                            items:
+                                selectedKurs.map((Map<String, dynamic> value) {
+                              return DropdownMenuItem<String>(
+                                value: value["id"].toString(),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(1.0),
+                                  child: Text(
+                                    value["nama"] as String,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium * 0.9,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                            decoration: InputDecoration(
+                              constraints:
+                                  BoxConstraints(maxHeight: maxHeightValidator),
+                              labelStyle: TextStyle(fontSize: textMedium),
+                              focusedBorder: const UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.transparent,
+                                  width: 1.0,
+                                ),
                               ),
-                            ),
-                            contentPadding: const EdgeInsets.fromLTRB(
-                                20.0, 10.0, 20.0, 10.0),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5),
+                              enabledBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: selectedValueKurs != null
+                                      ? Colors.transparent
+                                      : Colors.transparent,
+                                  width: 1.0,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -735,7 +818,7 @@ class _RawatInapState extends State<RawatInap> {
                             }).toList(),
                             decoration: InputDecoration(
                               constraints:
-                                  BoxConstraints(maxHeight: maxHeightAtasan),
+                                  BoxConstraints(maxHeight: maxHeightValidator),
                               labelStyle: TextStyle(fontSize: textMedium),
                               focusedBorder: const UnderlineInputBorder(
                                 borderSide: BorderSide(
@@ -1091,11 +1174,11 @@ class _RawatInapState extends State<RawatInap> {
                           String kategori = item['kode_kategori'].toString();
                           String pangkat = item['kode_pangkat'].toString();
                           String satuan = item['kode_satuan'].toString();
-                          String kurs = item['kurs'];
+                          String kurs = item['kurs'].toString();
                           String nominal = item['nominal'].toString();
                           String status = item['status'];
-                          String tglMulai = item['tgl_mulai'];
-                          String tglBerakhir = item['tgl_berakhir'];
+                          String tglMulai = item['tgl_mulai'] ?? 'null';
+                          String tglBerakhir = item['tgl_berakhir'] ?? 'null';
                           updateData(
                             context,
                             kategori,
@@ -1201,7 +1284,7 @@ class _RawatInapState extends State<RawatInap> {
         'kode_kategori': selectedValueKategori.toString(),
         'kode_pangkat': selectedValuePangkat.toString(),
         'kode_satuan': selectedValueSatuan.toString(),
-        'kurs': _kursController.text,
+        'kurs': selectedValueKurs.toString(),
         'nominal': parseToInt(_nominalController.text),
         'status': selectedValueStatus.toString(),
         'tgl_mulai': tanggalMulai != null
@@ -1270,6 +1353,7 @@ class _RawatInapState extends State<RawatInap> {
     getDataPangkat();
     getDataSatuan();
     getDataStatus();
+    getDataKurs();
   }
 
   @override
@@ -1607,26 +1691,81 @@ class _RawatInapState extends State<RawatInap> {
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
-                          child: TextFormField(
-                            controller: _kursController,
-                            keyboardType: TextInputType.number,
-                            validator: (value) => validateField(value, 'Kurs'),
-                            decoration: InputDecoration(
-                              hintText: "Masukkan Kurs",
-                              hintStyle: TextStyle(
-                                fontWeight: FontWeight.w300,
-                                fontSize: textMedium,
-                              ),
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.grey,
-                                  width: 1.0,
+                          child: Container(
+                            height: 50,
+                            width: size.width,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: Colors.grey),
+                            ),
+                            child: DropdownButtonFormField<String>(
+                              hint: Text(
+                                'Pilih Kurs',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              contentPadding: const EdgeInsets.fromLTRB(
-                                  20.0, 10.0, 20.0, 10.0),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
+                              validator: (value) =>
+                                  validateField(value, 'Kurs'),
+                              value: selectedValueKurs,
+                              icon: selectedKurs.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  selectedValueKurs = newValue ?? '';
+                                  print(
+                                      'selectedValueKurs: $selectedValueKurs');
+                                });
+                              },
+                              items: selectedKurs
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["id"].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: Text(
+                                      value["nama"] as String,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium * 0.9,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              decoration: InputDecoration(
+                                constraints: BoxConstraints(
+                                    maxHeight: maxHeightValidator),
+                                labelStyle: TextStyle(fontSize: textMedium),
+                                focusedBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: selectedValueKurs != null
+                                        ? Colors.transparent
+                                        : Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
