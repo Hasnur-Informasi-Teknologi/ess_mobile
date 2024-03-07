@@ -117,8 +117,6 @@ class _UserManagementState extends State<UserManagement> {
         setState(
           () {
             selectedRole = List<Map<String, dynamic>>.from(dataRoleApi);
-            // selectedEntitasPengganti =
-            //     List<Map<String, dynamic>>.from(dataEntitasApi);
           },
         );
       } catch (e) {
@@ -326,7 +324,6 @@ class _UserManagementState extends State<UserManagement> {
         print(responseData);
         if (responseData['status'] == 'Berhasil Tambah Data') {
           Navigator.pop(context);
-          // Get.toNamed('/admin/administrator/user_management/user_management');
         }
       } catch (e) {
         print(e);
@@ -548,7 +545,7 @@ class _UserManagementState extends State<UserManagement> {
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
                           child: TitleWidget(
-                            title: "Cocd *",
+                            title: "Company Code *",
                             fontWeight: FontWeight.w300,
                             fontSize: textMedium,
                           ),
@@ -560,7 +557,7 @@ class _UserManagementState extends State<UserManagement> {
                             controller: _cocdController,
                             validator: _validatorCocd,
                             decoration: InputDecoration(
-                              hintText: "Masukan cocd",
+                              hintText: "Masukan Company Code",
                               hintStyle: TextStyle(
                                 fontWeight: FontWeight.w300,
                                 fontSize: textMedium,
@@ -717,7 +714,6 @@ class _UserManagementState extends State<UserManagement> {
                                 setState(() {
                                   selectedValuePangkat = newValue ?? '';
                                   print("$selectedValuePangkat");
-                                  // selectedValueAtasan = null;
                                 });
                               },
                               items: selectedPangkat
@@ -804,14 +800,6 @@ class _UserManagementState extends State<UserManagement> {
         String textFieldValueIdRole,
         String textFieldValuePangkat,
         String textFieldValueCocd) async {
-      // print("update btn");
-      // print("ini value nrp : $textFieldValueNrp");
-      // print("ini value nama : $textFieldValueNama");
-      // print("ini value tgl masuk : $textFieldValueTglMasuk");
-      // print("ini value email : $textFieldValueEmail");
-      // print("ini value id role : $textFieldValueIdRole");
-      // print("ini value pangkat : $textFieldValuePangkat");
-      // print("ini value Cocd : $textFieldValueCocd");
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
 
@@ -889,10 +877,10 @@ class _UserManagementState extends State<UserManagement> {
       DateTime dateTimeAwal = DateFormat("yyyy-MM-dd").parse(tglMasuk);
       String formattedDateString =
           DateFormat("dd-MM-yyyy").format(dateTimeAwal);
-      DateTime dateTime = DateFormat("dd-MM-yyyy").parse(formattedDateString);
+      // DateTime dateTime = DateFormat("dd-MM-yyyy").parse(formattedDateString);
+      DateTime dateTime = DateTime.now();
       print("id role : $idRole");
 
-      //menyimpan data yang diketikan pada textfield
       String textFieldValueNrp = nrp;
       String textFieldValueCocd = cocd;
       String textFieldValueNama = nama;
@@ -1014,7 +1002,7 @@ class _UserManagementState extends State<UserManagement> {
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
                           child: TitleWidget(
-                            title: 'Tanggal masuk *',
+                            title: 'Tanggal Masuk *',
                             fontWeight: FontWeight.w300,
                             fontSize: textMedium,
                           ),
@@ -1407,8 +1395,6 @@ class _UserManagementState extends State<UserManagement> {
     }
 
     Future<void> deleteData(String nrp) async {
-      // print('tombol delet bekerja dengan nrp :  $nrp');
-      // print('API  : $apiUrl/user-management/delete/nrp=$nrp');
       SharedPreferences prefs = await SharedPreferences.getInstance();
 
       String? token = prefs.getString('token');

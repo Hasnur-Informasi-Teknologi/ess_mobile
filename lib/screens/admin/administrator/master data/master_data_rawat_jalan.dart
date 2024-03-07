@@ -156,7 +156,6 @@ class _RawatJalanState extends State<RawatJalan> {
         setState(
           () {
             selectedMdNikah = List<Map<String, dynamic>>.from(dataMdNikah);
-            // selectedEntitasPengganti =
           },
         );
       } catch (e) {
@@ -288,188 +287,6 @@ class _RawatJalanState extends State<RawatJalan> {
       }
     }
 
-    String? _validatorAnnouncement(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field announcement Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorApplication(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field application Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorApprovalList(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field approval_list Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorAssignmentInterviewer(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field assignment_interviewer Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorDashboardAdmin(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field dashboard_admin Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorDataProfile(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field data_profile Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorDetailPlafon(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field detail_plafon Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorDocumentCompany(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field document_company Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorEmployee(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field employee Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorFormOnline(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field form_online Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorPerformanceManagement(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field performance_management Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorUserAdministrator(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field user_administrator Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorRole(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field Role Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
     String? _validatorMdPangkat(dynamic value) {
       if (value == null || value.isEmpty) {
         setState(() {
@@ -540,7 +357,7 @@ class _RawatJalanState extends State<RawatJalan> {
       return null;
     }
 
-    Future<void> _submit(void reset) async {
+    Future<void> _submit() async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
 
@@ -669,8 +486,7 @@ class _RawatJalanState extends State<RawatJalan> {
                                 onChanged: (String? newValue) {
                                   setState(() {
                                     selectedValueMdPangkat = newValue;
-                                    _mdPangkatController.text = newValue ??
-                                        ''; // Update the TextEditingController value
+                                    _mdPangkatController.text = newValue ?? '';
                                     print("$selectedValueMdPangkat");
                                   });
                                 },
@@ -1171,7 +987,7 @@ class _RawatJalanState extends State<RawatJalan> {
                                   horizontal: paddingHorizontalNarrow),
                               child: ElevatedButton(
                                 onPressed: () {
-                                  _submit(_formKey.currentState!.reset());
+                                  _submit();
                                   Navigator.pop(context);
                                   fetchData(pageIndex: 1);
                                 },
@@ -2253,7 +2069,7 @@ class _RawatJalanState extends State<RawatJalan> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(190),
+        preferredSize: const Size.fromHeight(100),
         child: Container(
           color: Colors.white,
           child: Column(

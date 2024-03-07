@@ -26,10 +26,8 @@ class _RawatInapState extends State<RawatInap> {
   List<Map<String, dynamic>> selectedPangkat = [];
   List<Map<String, dynamic>> selectedSatuan = [];
   List<Map<String, dynamic>> selectedStatus = [];
+  List<Map<String, dynamic>> selectedKurs = [];
   TextEditingController _searchcontroller = TextEditingController();
-  TextEditingController _kodeController = TextEditingController();
-  TextEditingController _namaController = TextEditingController();
-  final TextEditingController _kursController = TextEditingController();
   final TextEditingController _nominalController = TextEditingController();
 
   final DateRangePickerController _tanggalMulaiController =
@@ -41,7 +39,8 @@ class _RawatInapState extends State<RawatInap> {
   String? selectedValueKategori,
       selectedValuePangkat,
       selectedValueSatuan,
-      selectedValueStatus;
+      selectedValueStatus,
+      selectedValueKurs;
 
   int _rowsPerPage = 5;
   int _pageIndex = 1;
@@ -58,6 +57,7 @@ class _RawatInapState extends State<RawatInap> {
     getDataSatuan();
     getDataPangkat();
     getDataStatus();
+    getDataKurs();
   }
 
   Future<void> fetchData({
@@ -196,16 +196,15 @@ class _RawatInapState extends State<RawatInap> {
   }
 
   Future<void> getDataStatus() async {
-    // Your JSON string
     String jsonString = '''
     {
       "data": [
         {
-          "id": "1",
+          "id": "0",
           "nama": "Aktif"
         },
         {
-          "id": "0",
+          "id": "1",
           "nama": "Tidak Aktif"
         }
       ]
@@ -224,6 +223,42 @@ class _RawatInapState extends State<RawatInap> {
       setState(() {
         // Update your state with the new data
         selectedStatus = List<Map<String, dynamic>>.from(dataStatusApi);
+      });
+    } catch (e) {
+      print(e); // Handle any errors here
+      // Consider showing an error message in the UI
+    }
+  }
+
+  Future<void> getDataKurs() async {
+    // Your JSON string
+    String jsonString = '''
+    {
+      "data": [
+        {
+          "id": "1",
+          "nama": "USD"
+        },
+        {
+          "id": "0",
+          "nama": "Rupiah"
+        }
+      ]
+    }
+    ''';
+
+    try {
+      // Decode the JSON string
+      final responseData = jsonDecode(jsonString);
+      final dataKursApi = responseData['data'];
+
+      // Debugging purposes
+      print('dataKursApi: $dataKursApi');
+
+      // Assuming this is inside a StatefulWidget and you have access to setState
+      setState(() {
+        // Update your state with the new data
+        selectedKurs = List<Map<String, dynamic>>.from(dataKursApi);
       });
     } catch (e) {
       print(e); // Handle any errors here
@@ -316,7 +351,7 @@ class _RawatInapState extends State<RawatInap> {
           'kode_kategori': selectedValueKategori.toString(),
           'kode_pangkat': selectedValuePangkat.toString(),
           'kode_satuan': selectedValueSatuan.toString(),
-          'kurs': _kursController.text,
+          'kurs': selectedValueKurs.toString(),
           'nominal': parseToInt(_nominalController.text),
           'status': selectedValueStatus.toString(),
           'tgl_mulai': tanggalMulai != null
@@ -689,26 +724,81 @@ class _RawatInapState extends State<RawatInap> {
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
-                          child: TextFormField(
-                            controller: _kursController,
-                            keyboardType: TextInputType.number,
-                            validator: (value) => validateField(value, 'Kurs'),
-                            decoration: InputDecoration(
-                              hintText: "Masukkan Kurs",
-                              hintStyle: TextStyle(
-                                fontWeight: FontWeight.w300,
-                                fontSize: textMedium,
-                              ),
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.grey,
-                                  width: 1.0,
+                          child: Container(
+                            height: 50,
+                            width: size.width,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: Colors.grey),
+                            ),
+                            child: DropdownButtonFormField<String>(
+                              hint: Text(
+                                'Pilih Kurs',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              contentPadding: const EdgeInsets.fromLTRB(
-                                  20.0, 10.0, 20.0, 10.0),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
+                              validator: (value) =>
+                                  validateField(value, 'Kurs'),
+                              value: selectedValueKurs,
+                              icon: selectedKurs.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  selectedValueKurs = newValue ?? '';
+                                  print(
+                                      'selectedValueKurs: $selectedValueKurs');
+                                });
+                              },
+                              items: selectedKurs
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["id"].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: Text(
+                                      value["nama"] as String,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium * 0.9,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              decoration: InputDecoration(
+                                constraints: BoxConstraints(
+                                    maxHeight: maxHeightValidator),
+                                labelStyle: TextStyle(fontSize: textMedium),
+                                focusedBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: selectedValueKurs != null
+                                        ? Colors.transparent
+                                        : Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -1278,7 +1368,7 @@ class _RawatInapState extends State<RawatInap> {
       String textFieldValueKodeKategori = kodeKategori.toString();
       String textFieldValueKodePangkat = kodePangkat.toString();
       String textFieldValueKodeSatuan = kodeSatuan.toString();
-      String textFieldValueKurs = kurs;
+      String textFieldValueKurs = kurs.toString();
       String textFieldValueNominal = nominal.toString();
       String textFieldValueStatus = status;
       String textFieldValueTglMulai = dateTimeMulaiFinal.toString();
@@ -1598,31 +1688,80 @@ class _RawatInapState extends State<RawatInap> {
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
-                          child: TextFormField(
-                            keyboardType: TextInputType.number,
-                            validator: (value) => validateField(value, 'Kurs'),
-                            initialValue: kurs,
-                            onChanged: (value) {
-                              setState(() {
-                                textFieldValueKurs = value;
-                              });
-                            },
-                            decoration: InputDecoration(
-                              hintText: "Masukan Kurs",
-                              hintStyle: TextStyle(
-                                fontWeight: FontWeight.w300,
-                                fontSize: textMedium,
+                          child: Container(
+                            height: 50,
+                            width: size.width,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: Colors.grey),
+                            ),
+                            child: DropdownButtonFormField<String>(
+                              hint: Text(
+                                'Pilih Kurs',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: textMedium,
+                                    overflow: TextOverflow.ellipsis),
                               ),
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.grey,
-                                  width: 1.0,
+                              validator: (value) =>
+                                  validateField(value, 'Kurs'),
+                              value: kurs.toString(),
+                              icon: selectedKurs.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  textFieldValueKurs = newValue ?? '';
+                                  print(
+                                      'selectedValueKurs: $selectedValueKurs');
+                                });
+                              },
+                              items: selectedKurs
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["id"].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: Text(
+                                      value["nama"] as String,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium * 0.9,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              decoration: InputDecoration(
+                                constraints:
+                                    BoxConstraints(maxHeight: maxHeightAtasan),
+                                labelStyle: TextStyle(fontSize: textMedium),
+                                focusedBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.transparent,
+                                    width: 1.0,
+                                  ),
                                 ),
-                              ),
-                              contentPadding: const EdgeInsets.fromLTRB(
-                                  20.0, 10.0, 20.0, 10.0),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: selectedValueKurs != null
+                                        ? Colors.transparent
+                                        : Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -2049,7 +2188,7 @@ class _RawatInapState extends State<RawatInap> {
                                       data['kode_pangkat'].toString();
                                   String satuan =
                                       data['kode_satuan'].toString();
-                                  String kurs = data['kurs'];
+                                  String kurs = data['kurs'].toString();
                                   String nominal = data['nominal'].toString();
                                   String status = data['status'];
                                   String tglMulai = data['tgl_mulai'];

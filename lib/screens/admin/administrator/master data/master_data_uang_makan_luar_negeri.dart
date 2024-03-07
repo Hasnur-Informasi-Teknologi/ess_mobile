@@ -12,14 +12,14 @@ import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
-class KamarHotel extends StatefulWidget {
-  const KamarHotel({super.key});
+class UangMakanLuarNegeri extends StatefulWidget {
+  const UangMakanLuarNegeri({super.key});
 
   @override
-  State<KamarHotel> createState() => _KamarHotelState();
+  State<UangMakanLuarNegeri> createState() => _UangMakanLuarNegeriState();
 }
 
-class _KamarHotelState extends State<KamarHotel> {
+class _UangMakanLuarNegeriState extends State<UangMakanLuarNegeri> {
   final String apiUrl = API_URL;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController _searchcontroller = TextEditingController();
@@ -52,7 +52,7 @@ class _KamarHotelState extends State<KamarHotel> {
     try {
       final response = await http.get(
         Uri.parse(
-            '$apiUrl/master/kamar-hotel/get?page=${pageIndex ?? _pageIndex}&perPage=$_rowsPerPage&search=$searchQuery'),
+            '$apiUrl/master/makan-luar/get?page=${pageIndex ?? _pageIndex}&perPage=$_rowsPerPage&search=$searchQuery'),
         headers: <String, String>{
           "Content-Type": "application/json;charset=UTF-8",
           "Authorization": "Bearer $token",
@@ -62,6 +62,7 @@ class _KamarHotelState extends State<KamarHotel> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
         final List<dynamic> data = responseData['dataku'];
+
         final total = responseData["totalPage"];
 
         setState(() {
@@ -221,7 +222,7 @@ class _KamarHotelState extends State<KamarHotel> {
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: TitleWidget(
-                    title: 'Pangkat *',
+                    title: 'Kode *',
                     fontWeight: FontWeight.w300,
                     fontSize: textMedium,
                   ),
@@ -672,7 +673,9 @@ class _KamarHotelState extends State<KamarHotel> {
                 columns: const <DataColumn>[
                   DataColumn(label: Text('No')),
                   DataColumn(label: Text('Pangkat')),
+                  DataColumn(label: Text('Negara')),
                   DataColumn(label: Text('Nominal')),
+                  DataColumn(label: Text('Status Jumlah')),
                   DataColumn(label: Text('Tanggal Mulai')),
                   DataColumn(label: Text('Tanggal Berakhir')),
                   DataColumn(label: Text('Status')),
@@ -690,8 +693,19 @@ class _KamarHotelState extends State<KamarHotel> {
                   return DataRow(
                     cells: <DataCell>[
                       DataCell(Text('$index')),
-                      DataCell(Text(data['pangkat'])),
+                      DataCell(Text(data['pangkat'].toString() ?? '')),
+                      DataCell(
+                        Container(
+                          width: 150,
+                          child: Text(
+                            data['negara'] ?? '',
+                          ),
+                        ),
+                      ),
                       DataCell(Text(data['nominal'].toString())),
+                      DataCell(Text(data['status_nominal'] == "0"
+                          ? 'Terbatas'
+                          : 'Tidak Terbatas')),
                       DataCell(
                         Text(DateFormat('dd-MM-yyyy')
                             .format(DateTime.parse(data['tgl_mulai']))),
@@ -782,21 +796,8 @@ class _KamarHotelState extends State<KamarHotel> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(190),
-        child: Container(
-          color: Colors.white,
-          child: Column(
-            children: [
-              AppBar(
-                surfaceTintColor: Colors.white,
-                elevation: 0,
-                backgroundColor: Colors.white,
-                title: const Text('Master Data - Kamar Hotel'),
-              ),
-              content(),
-            ],
-          ),
-        ),
+        preferredSize: const Size.fromHeight(100),
+        child: content(),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

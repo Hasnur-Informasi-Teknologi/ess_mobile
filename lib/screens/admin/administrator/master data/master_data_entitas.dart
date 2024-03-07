@@ -146,7 +146,7 @@ class _EntitasState extends State<Entitas> {
       return null;
     }
 
-    Future<void> _submit() async {
+    Future<void> _submit(void reset) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
 
@@ -296,7 +296,7 @@ class _EntitasState extends State<Entitas> {
                         horizontal: paddingHorizontalNarrow, vertical: 10),
                     child: ElevatedButton(
                       onPressed: () {
-                        _submit();
+                        _submit(_formKey.currentState!.reset());
                         fetchData(pageIndex: 1);
                       },
                       style: ElevatedButton.styleFrom(
@@ -677,7 +677,7 @@ class _EntitasState extends State<Entitas> {
                     ),
                   ),
                 ],
-                columnSpacing: 20,
+                columnSpacing: 30,
                 rows: filteredData.map((data) {
                   int index = _data.indexOf(data) + 1;
                   return DataRow(
