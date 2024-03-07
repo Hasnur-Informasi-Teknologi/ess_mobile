@@ -254,7 +254,6 @@ class _RawatInapState extends State<RawatInap> {
       });
     } catch (e) {
       print(e);
-      rethrow;
     }
   }
 
