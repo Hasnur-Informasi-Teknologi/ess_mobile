@@ -103,6 +103,7 @@ class _RawatInapState extends State<RawatInap> {
         _isLoading = false;
       });
       print('Error: $e');
+      rethrow;
     }
   }
 
@@ -201,68 +202,59 @@ class _RawatInapState extends State<RawatInap> {
       "data": [
         {
           "id": "0",
-          "nama": "Aktif"
+          "nama": "Tidak Aktif"
         },
         {
           "id": "1",
-          "nama": "Tidak Aktif"
+          "nama": "Aktif"
         }
       ]
     }
     ''';
 
     try {
-      // Decode the JSON string
       final responseData = jsonDecode(jsonString);
       final dataStatusApi = responseData['data'];
 
-      // Debugging purposes
       print('dataStatusApi: $dataStatusApi');
 
-      // Assuming this is inside a StatefulWidget and you have access to setState
       setState(() {
-        // Update your state with the new data
         selectedStatus = List<Map<String, dynamic>>.from(dataStatusApi);
       });
     } catch (e) {
-      print(e); // Handle any errors here
-      // Consider showing an error message in the UI
+      print(e);
+      rethrow;
     }
   }
 
   Future<void> getDataKurs() async {
-    // Your JSON string
     String jsonString = '''
     {
       "data": [
         {
-          "id": "1",
-          "nama": "USD"
-        },
-        {
           "id": "0",
           "nama": "Rupiah"
         }
+        {
+          "id": "1",
+          "nama": "USD"
+        },
       ]
     }
     ''';
 
     try {
-      // Decode the JSON string
       final responseData = jsonDecode(jsonString);
       final dataKursApi = responseData['data'];
 
-      // Debugging purposes
       print('dataKursApi: $dataKursApi');
 
-      // Assuming this is inside a StatefulWidget and you have access to setState
       setState(() {
-        // Update your state with the new data
         selectedKurs = List<Map<String, dynamic>>.from(dataKursApi);
       });
     } catch (e) {
-      print(e); // Handle any errors here
-      // Consider showing an error message in the UI
+      print(e);
+      rethrow;
     }
   }
 
@@ -2170,9 +2162,10 @@ class _RawatInapState extends State<RawatInap> {
                       DataCell(Text(data['kategori'] ?? '')),
                       DataCell(Text(data['pangkat'] ?? '')),
                       DataCell(Text(data['satuan'] ?? '')),
-                      DataCell(Text(data['kurs'] ?? '')),
+                      DataCell(Text(data['kurs'] == "0" ? 'Rupiah' : 'USD')),
                       DataCell(Text(data['nominal'].toString())),
-                      DataCell(Text(data['status'] ?? '')),
+                      DataCell(Text(
+                          data['status'] == "0" ? 'Tidak Aktif' : 'Aktif')),
                       DataCell(Text(data['tgl_mulai'] ?? '')),
                       DataCell(Text(data['tgl_berakhir'] ?? '')),
                       DataCell(
