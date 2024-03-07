@@ -132,11 +132,11 @@ class _BingkaiLensaState extends State<BingkaiLensa> {
     {
       "data": [
         {
-          "id": "0",
+          "id": "1",
           "nama": "Aktif"
         },
         {
-          "id": "1",
+          "id": "0",
           "nama": "Tidak Aktif"
         }
       ]
@@ -1563,7 +1563,7 @@ class _BingkaiLensaState extends State<BingkaiLensa> {
                       DataCell(Text(data['tgl_mulai'])),
                       DataCell(Text(data['tgl_berakhir'])),
                       DataCell(Text(
-                          data['status'] == "0" ? 'Aktif' : 'Tidak Aktif')),
+                          data['status'] == "1" ? 'Aktif' : 'Tidak Aktif')),
                       DataCell(
                         Row(
                           children: [
