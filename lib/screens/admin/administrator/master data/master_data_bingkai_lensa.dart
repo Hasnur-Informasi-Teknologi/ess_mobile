@@ -1552,8 +1552,14 @@ class _BingkaiLensaState extends State<BingkaiLensa> {
                     cells: <DataCell>[
                       DataCell(Text('$index')),
                       DataCell(Text(data['pangkat'])),
-                      DataCell(Text(data['bingkai'].toString())),
-                      DataCell(Text(data['lensa'].toString())),
+                      DataCell(TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child:
+                              Center(child: Text(data['bingkai'].toString())))),
+                      DataCell(TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child:
+                              Center(child: Text(data['lensa'].toString())))),
                       DataCell(Text(data['tgl_mulai'])),
                       DataCell(Text(data['tgl_berakhir'])),
                       DataCell(Text(

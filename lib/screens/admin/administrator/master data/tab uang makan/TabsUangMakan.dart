@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_bingkai_lensa.dart';
 import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_rawat_jalan.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_uang_makan_dalam_negeri.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_uang_makan_luar_negeri.dart';
 import 'package:mobile_ess/themes/colors.dart';
 
-class Tabs extends StatefulWidget {
-  const Tabs({super.key});
+class TabsUangMakan extends StatefulWidget {
+  const TabsUangMakan({super.key});
 
   @override
-  State<Tabs> createState() => _TabsState();
+  State<TabsUangMakan> createState() => _TabsUangMakanState();
 }
 
-class _TabsState extends State<Tabs> with TickerProviderStateMixin {
+class _TabsUangMakanState extends State<TabsUangMakan>
+    with TickerProviderStateMixin {
   late TabController _tabController;
   @override
   void initState() {
@@ -51,8 +54,8 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
               labelColor: Colors.black,
               unselectedLabelColor: Colors.white,
               tabs: const [
-                Tab(text: 'Rawat Jalan'),
-                Tab(text: 'Bingkai & Lensa'),
+                Tab(text: 'Dalam Negeri'),
+                Tab(text: 'Luar Negeri'),
               ],
             ),
           ),
@@ -77,8 +80,8 @@ class _TabsState extends State<Tabs> with TickerProviderStateMixin {
             child: TabBarView(
               controller: _tabController,
               children: const [
-                RawatJalan(),
-                BingkaiLensa(),
+                UangMakanDalamNegeri(),
+                UangMakanLuarNegeri(),
               ],
             ),
           ),

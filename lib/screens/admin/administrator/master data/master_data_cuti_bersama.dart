@@ -178,7 +178,7 @@ class _CutiBersamaState extends State<CutiBersama> {
       return jumlahHariInt;
     }
 
-    Future<void> _submit() async {
+    Future<void> _submit(void reset) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
       final int? jmlHariInt = parseJumlahHari(_jmlHariController.text);
@@ -491,7 +491,7 @@ class _CutiBersamaState extends State<CutiBersama> {
                         horizontal: paddingHorizontalNarrow, vertical: 10),
                     child: ElevatedButton(
                       onPressed: () {
-                        _submit();
+                        _submit(_formKey.currentState!.reset());
                         fetchData(pageIndex: 1);
                       },
                       style: ElevatedButton.styleFrom(
@@ -1086,7 +1086,10 @@ class _CutiBersamaState extends State<CutiBersama> {
                     cells: <DataCell>[
                       DataCell(Text('$index')),
                       DataCell(Text(data['deskripsi'] ?? 'null')),
-                      DataCell(Text(data['jml_hari'].toString())),
+                      DataCell(TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                              child: Text(data['jml_hari'].toString())))),
                       DataCell(Text(data['tgl_mulai'] ?? 'null')),
                       DataCell(Text(data['tgl_berakhir'] ?? 'null')),
                       DataCell(

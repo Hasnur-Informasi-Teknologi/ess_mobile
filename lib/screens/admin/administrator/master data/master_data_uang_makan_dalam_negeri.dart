@@ -12,14 +12,14 @@ import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
-class KamarHotel extends StatefulWidget {
-  const KamarHotel({super.key});
+class UangMakanDalamNegeri extends StatefulWidget {
+  const UangMakanDalamNegeri({super.key});
 
   @override
-  State<KamarHotel> createState() => _KamarHotelState();
+  State<UangMakanDalamNegeri> createState() => _UangMakanDalamNegeriState();
 }
 
-class _KamarHotelState extends State<KamarHotel> {
+class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
   final String apiUrl = API_URL;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController _searchcontroller = TextEditingController();
@@ -31,6 +31,7 @@ class _KamarHotelState extends State<KamarHotel> {
   int _totalRecords = 0;
   String searchQuery = '';
   List<dynamic> _data = [];
+  List<dynamic> _subData = [];
   bool _isLoading = false;
 
   @override
@@ -52,7 +53,7 @@ class _KamarHotelState extends State<KamarHotel> {
     try {
       final response = await http.get(
         Uri.parse(
-            '$apiUrl/master/kamar-hotel/get?page=${pageIndex ?? _pageIndex}&perPage=$_rowsPerPage&search=$searchQuery'),
+            '$apiUrl/master/makan-dalam/get?page=${pageIndex ?? _pageIndex}&perPage=$_rowsPerPage&search=$searchQuery'),
         headers: <String, String>{
           "Content-Type": "application/json;charset=UTF-8",
           "Authorization": "Bearer $token",
@@ -62,6 +63,9 @@ class _KamarHotelState extends State<KamarHotel> {
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
         final List<dynamic> data = responseData['dataku'];
+        final List<dynamic> subData = responseData['child'];
+        print(data);
+
         final total = responseData["totalPage"];
 
         setState(() {
@@ -72,6 +76,7 @@ class _KamarHotelState extends State<KamarHotel> {
           }
 
           _data.addAll(data);
+          _subData.addAll(subData);
           _isLoading = false;
         });
       } else {
@@ -221,7 +226,7 @@ class _KamarHotelState extends State<KamarHotel> {
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: TitleWidget(
-                    title: 'Pangkat *',
+                    title: 'Kode *',
                     fontWeight: FontWeight.w300,
                     fontSize: textMedium,
                   ),
@@ -658,10 +663,9 @@ class _KamarHotelState extends State<KamarHotel> {
 
     Widget data() {
       List<dynamic> filteredData = _data.where((data) {
-        String kode = data['kode'].toString().toLowerCase();
-        String nama = data['nama'].toString().toLowerCase();
+        String pangkat = data['pangkat'].toString().toLowerCase();
         String searchLower = _searchcontroller.text.toLowerCase();
-        return kode.contains(searchLower) || nama.contains(searchLower);
+        return pangkat.contains(searchLower);
       }).toList();
       return SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -671,6 +675,7 @@ class _KamarHotelState extends State<KamarHotel> {
               DataTable(
                 columns: const <DataColumn>[
                   DataColumn(label: Text('No')),
+                  DataColumn(label: Text('Jenis')),
                   DataColumn(label: Text('Pangkat')),
                   DataColumn(label: Text('Nominal')),
                   DataColumn(label: Text('Tanggal Mulai')),
@@ -687,10 +692,30 @@ class _KamarHotelState extends State<KamarHotel> {
                 columnSpacing: 30,
                 rows: filteredData.map((data) {
                   int index = _data.indexOf(data) + 1;
+                  List<dynamic> dataChild = _subData
+                      .where((item) => item['id_makan_pic'] == data['id'])
+                      .toList();
+                  Set<String> distinctDataChild = Set.from(dataChild
+                      .map((subDataItem) => subDataItem['pangkat'].toString()));
+                  print(dataChild);
                   return DataRow(
                     cells: <DataCell>[
                       DataCell(Text('$index')),
-                      DataCell(Text(data['pangkat'])),
+                      DataCell(Text(data['jenis'].toString() ?? '')),
+                      DataCell(
+                        SingleChildScrollView(
+                          scrollDirection: Axis.vertical,
+                          child: Container(
+                            width: 150,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: distinctDataChild.map((pangkat) {
+                                return Text(pangkat);
+                              }).toList(),
+                            ),
+                          ),
+                        ),
+                      ),
                       DataCell(Text(data['nominal'].toString())),
                       DataCell(
                         Text(DateFormat('dd-MM-yyyy')
@@ -782,21 +807,8 @@ class _KamarHotelState extends State<KamarHotel> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(190),
-        child: Container(
-          color: Colors.white,
-          child: Column(
-            children: [
-              AppBar(
-                surfaceTintColor: Colors.white,
-                elevation: 0,
-                backgroundColor: Colors.white,
-                title: const Text('Master Data - Kamar Hotel'),
-              ),
-              content(),
-            ],
-          ),
-        ),
+        preferredSize: const Size.fromHeight(100),
+        child: content(),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

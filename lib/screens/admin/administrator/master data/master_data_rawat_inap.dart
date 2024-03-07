@@ -196,16 +196,15 @@ class _RawatInapState extends State<RawatInap> {
   }
 
   Future<void> getDataStatus() async {
-    // Your JSON string
     String jsonString = '''
     {
       "data": [
         {
-          "id": "1",
+          "id": "0",
           "nama": "Aktif"
         },
         {
-          "id": "0",
+          "id": "1",
           "nama": "Tidak Aktif"
         }
       ]
@@ -291,7 +290,7 @@ class _RawatInapState extends State<RawatInap> {
       return intValue;
     }
 
-    Future<void> _submit() async {
+    Future<void> _submit(void reset) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
 
@@ -1014,7 +1013,7 @@ class _RawatInapState extends State<RawatInap> {
                                 vertical: 10),
                             child: ElevatedButton(
                               onPressed: () {
-                                _submit();
+                                _submit(_formKey.currentState!.reset());
                                 Navigator.pop(context);
                                 fetchData(pageIndex: 1);
                               },
@@ -2028,9 +2027,13 @@ class _RawatInapState extends State<RawatInap> {
                       DataCell(Text(data['kategori'] ?? '')),
                       DataCell(Text(data['pangkat'] ?? '')),
                       DataCell(Text(data['satuan'] ?? '')),
-                      DataCell(Text(data['kurs'] ?? '')),
+                      DataCell(TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(child: Text(data['kurs'] ?? '')))),
                       DataCell(Text(data['nominal'].toString())),
-                      DataCell(Text(data['status'] ?? '')),
+                      DataCell(Text(data['status'] == "0"
+                          ? 'Aktif'
+                          : 'Tidak Aktif'.toString())),
                       DataCell(Text(data['tgl_mulai'] ?? '')),
                       DataCell(Text(data['tgl_berakhir'] ?? '')),
                       DataCell(

@@ -152,24 +152,10 @@ class MasterDataScreen extends StatelessWidget {
         Get.toNamed('/admin/administrator/master_data/rawat_inap');
         break;
       case 5:
-        Get.snackbar('Infomation', 'Coming Soon',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.amber,
-            icon: const Icon(
-              Icons.info,
-              color: Colors.white,
-            ),
-            shouldIconPulse: false);
+        Get.toNamed('/admin/administrator/master_data/tab_uang_makan');
         break;
       case 6:
-        Get.snackbar('Infomation', 'Coming Soon',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.amber,
-            icon: const Icon(
-              Icons.info,
-              color: Colors.white,
-            ),
-            shouldIconPulse: false);
+        Get.toNamed('/admin/administrator/master_data/kamar_hotel');
         break;
       case 7:
         Get.toNamed('/admin/administrator/master_data/pic_hrgs');
@@ -179,4 +165,3 @@ class MasterDataScreen extends StatelessWidget {
     }
   }
 }
-// master data screen

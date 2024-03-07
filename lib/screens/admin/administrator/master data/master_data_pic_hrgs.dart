@@ -283,7 +283,7 @@ class _PicHrgsState extends State<PicHrgs> {
                           items: _data
                               .map<DropdownMenuItem<String>>((dynamic item) {
                             return DropdownMenuItem<String>(
-                              value: item['nrp'],
+                              value: item['nrp'].toString(),
                               child: Text(item['nrp'] + "-" + item['nama']),
                             );
                           }).toList(),
@@ -294,19 +294,6 @@ class _PicHrgsState extends State<PicHrgs> {
                   const SizedBox(
                     height: 10,
                   ),
-                  // ListView.builder(
-                  //   itemCount: _items.length,
-                  //   itemBuilder: (context, index) {
-                  //     return CheckboxListTile(
-                  //         title: Text(_items[index].kode.toString()),
-                  //         value: _items[index].isSelected,
-                  //         onChanged: ((value) {
-                  //           setState(() {
-                  //             _items[index].isSelected = value!;
-                  //           });
-                  //         }));
-                  //   },
-                  // ),
                   SizedBox(
                     width: size.width,
                     child: Padding(

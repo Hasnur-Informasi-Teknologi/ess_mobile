@@ -28,7 +28,6 @@ class _CutiRosterState extends State<CutiRoster> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _cocdController = TextEditingController();
   final TextEditingController _searchcontroller = TextEditingController();
-
   final TextEditingController _jumlahRosterController = TextEditingController();
   final TextEditingController _entitasController = TextEditingController();
   final TextEditingController _potongCutiBersamaController =
@@ -1068,7 +1067,7 @@ class _CutiRosterState extends State<CutiRoster> {
                 horizontal: paddingHorizontalNarrow,
                 vertical: paddingHorizontalNarrow,
               ),
-              height: 650,
+              height: 600,
               width: double.infinity,
               child: ListView(
                 children: [
@@ -1363,7 +1362,6 @@ class _CutiRosterState extends State<CutiRoster> {
                                         setState(() {});
                                         textFieldValueTglMulai =
                                             tanggalMulai.toString();
-                                        print('tanggalMulai: $tanggalMulai');
                                         Navigator.pop(context);
                                       },
                                       child: const Text('OK'),
@@ -1455,9 +1453,6 @@ class _CutiRosterState extends State<CutiRoster> {
                               },
                             );
                           },
-                        ),
-                        const SizedBox(
-                          height: 10,
                         ),
                         SizedBox(
                           width: size.width,
@@ -1580,12 +1575,19 @@ class _CutiRosterState extends State<CutiRoster> {
                     cells: <DataCell>[
                       DataCell(Text('$index')),
                       DataCell(Text(data['nrp'])),
-                      DataCell(Text(data['jml_roster'].toString())),
-                      DataCell(
-                          Center(child: Text(data['potong_cuti_bersama']))),
+                      DataCell(TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                              child: Text(data['jml_roster'].toString())))),
+                      DataCell(TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                              child: Text(data['potong_cuti_bersama'])))),
                       DataCell(Text(data['tgl_mulai'])),
                       DataCell(Text(data['tgl_berakhir'])),
-                      DataCell(Text(data['status'].toString())),
+                      DataCell(Text(data['status'] == "0"
+                          ? 'Aktif'
+                          : 'Tidak'.toString())),
                       DataCell(Text(data['created_by'])),
                       DataCell(
                         Row(

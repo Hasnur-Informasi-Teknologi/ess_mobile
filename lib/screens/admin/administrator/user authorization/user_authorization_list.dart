@@ -428,7 +428,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
       });
     }
 
-    Future<void> _submit() async {
+    Future<void> _submit(void reset) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
 
@@ -444,19 +444,6 @@ class _UserAuthorizationState extends State<UserAuthorization> {
       }
 
       _formKey.currentState!.save();
-      print(_roleController.text);
-      print("ini announce : " + _announcementController.text);
-      print("ini applicatin : " + _applicationController.text);
-      print("ini approval : " + _approvalListController.text);
-      print("ini assignmen : " + _assignmentInterviewerController.text);
-      print("ini dashboard : " + _dashboardAdminController.text);
-      print("ini datprof : " + _dataProfileController.text);
-      print("ini detplaf : " + _detailPlafonController.text);
-      print("ini doc : " + _documentCompanyController.text);
-      print("ini employ : " + _employeeController.text);
-      print("ini formonli : " + _formOnlineController.text);
-      print("ini pertform : " + _performanceManagementController.text);
-      print("ini user : " + _userAdministratorController.text);
       try {
         final response = await http.post(
           Uri.parse('$apiUrl/user-autorization/add'),
@@ -495,7 +482,6 @@ class _UserAuthorizationState extends State<UserAuthorization> {
         if (responseData['status'] == 'success') {
           Navigator.pop(context);
           fetchData();
-          // Get.toNamed('/admin/administrator/user_management/user_management');
         }
       } catch (e) {
         print(e);
@@ -1453,7 +1439,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                                   horizontal: paddingHorizontalNarrow),
                               child: ElevatedButton(
                                 onPressed: () {
-                                  _submit();
+                                  _submit(_formKey.currentState!.reset());
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(primaryYellow),
@@ -2645,11 +2631,6 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                   DataColumn(label: Text('No')),
                   DataColumn(
                     label: Text(
-                      "ID",
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
                       "Role",
                     ),
                   ),
@@ -2742,23 +2723,247 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                   return DataRow(
                     cells: <DataCell>[
                       DataCell(Text('$index')),
-                      DataCell(Text(data['id'].toString())),
                       DataCell(Text(data['role'] ?? '')),
-                      DataCell(Text(data['form_online'] ?? '')),
-                      DataCell(Text(data['approval_list'] ?? '')),
-                      DataCell(Text(data['assignment_interviewer'] ?? '')),
-                      DataCell(Text(data['document_company'] ?? '')),
-                      DataCell(Text(data['employee'] ?? '')),
-                      DataCell(Text(data['detail_plafon'] ?? '')),
-                      DataCell(Text(data['application'] ?? '')),
-                      DataCell(Text(data['announcement'] ?? '')),
-                      DataCell(Text(data['user_administrator'] ?? '')),
-                      DataCell(Text(data['performance_management'] ?? '')),
-                      DataCell(Text(data['data_profile'] ?? '')),
-                      DataCell(Text(data['change_password'] ?? '')),
-                      DataCell(Text(data['dashboard_admin'] ?? '')),
-                      DataCell(Text(data['dashboard_user'] ?? '')),
-                      DataCell(Text(data['notification'] ?? '')),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['form_online'] == "0"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['approval_list'] == "0"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['assignment_interviewer'] == "0"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['document_company'] == "0"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['employee'] == "0"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['detail_plafon'] == "0"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['application'] == "0"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['announcement'] == "0"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['user_administrator'] == "0"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['performance_management'] == "0"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['data_profile'] == "0"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['change_password'] == "0"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['dashboard_admin'] == "0"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['dashboard_user'] == "0"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['notification'] == "0"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
                       DataCell(
                         Row(
                           children: [
