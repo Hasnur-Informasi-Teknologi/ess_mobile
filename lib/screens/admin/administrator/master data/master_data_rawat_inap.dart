@@ -1769,6 +1769,7 @@ class _RawatInapState extends State<RawatInap> {
                         const SizedBox(
                           height: 10,
                         ),
+                        /* Nominal */
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
@@ -1814,6 +1815,7 @@ class _RawatInapState extends State<RawatInap> {
                         const SizedBox(
                           height: 10,
                         ),
+                        /* Status */
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
@@ -2069,7 +2071,8 @@ class _RawatInapState extends State<RawatInap> {
                           width: size.width,
                           child: Padding(
                             padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
+                                horizontal: paddingHorizontalNarrow,
+                                vertical: 10),
                             child: ElevatedButton(
                               onPressed: () {
                                 _submitUpdate(

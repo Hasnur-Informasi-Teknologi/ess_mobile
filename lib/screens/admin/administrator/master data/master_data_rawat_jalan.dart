@@ -25,13 +25,17 @@ class _RawatJalanState extends State<RawatJalan> {
   List<Map<String, dynamic>> selectedMdNikah = [];
   List<Map<String, dynamic>> selectedMdPangkat = [];
   List<Map<String, dynamic>> selectedStatus = [];
+  List<Map<String, dynamic>> selectedKurs = [];
   TextEditingController _searchcontroller = TextEditingController();
   TextEditingController _mdPangkatController = TextEditingController();
   TextEditingController _mdNikahController = TextEditingController();
   TextEditingController _kursController = TextEditingController();
   TextEditingController _nominalController = TextEditingController();
   TextEditingController _statusController = TextEditingController();
-  String? selectedValueStatus, selectedValueMdPangkat, selectedValueMdNikah;
+  String? selectedValueStatus,
+      selectedValueMdPangkat,
+      selectedValueMdNikah,
+      selectedValueKurs;
 
   final DateRangePickerController _tanggalMulaiController =
       DateRangePickerController();
@@ -54,6 +58,7 @@ class _RawatJalanState extends State<RawatJalan> {
     getDataMdPangkat();
     getDataMdNikah();
     getDataStatus();
+    getDatakurs();
   }
 
   Future<void> fetchData({
@@ -181,6 +186,34 @@ class _RawatJalanState extends State<RawatJalan> {
       print('dataStatusApi: $dataStatusApi');
       setState(() {
         selectedStatus = List<Map<String, dynamic>>.from(dataStatusApi);
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> getDatakurs() async {
+    String jsonString = '''
+    {
+      "data": [
+        {
+          "id": "0",
+          "nama": "Rupiah"
+        },
+        {
+          "id": "1",
+          "nama": "USD"
+        }
+      ]
+    }
+    ''';
+
+    try {
+      final responseData = jsonDecode(jsonString);
+      final dataKursApi = responseData['data'];
+      print('dataKursApi: $dataKursApi');
+      setState(() {
+        selectedKurs = List<Map<String, dynamic>>.from(dataKursApi);
       });
     } catch (e) {
       print(e);
@@ -592,29 +625,77 @@ class _RawatJalanState extends State<RawatJalan> {
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
-                            child: TextFormField(
-                              controller: _kursController,
-                              validator: _validatorKurs,
-                              decoration: InputDecoration(
-                                hintText: "Masukan kurs",
-                                hintStyle: TextStyle(
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                                enabledBorder: const OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.grey,
-                                    width: 1.0,
+                            child: Container(
+                              height: 50,
+                              width: size.width,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                border: Border.all(color: Colors.grey),
+                              ),
+                              child: DropdownButtonFormField<String>(
+                                hint: Text(
+                                  'Pilih Kurs',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: textMedium,
                                   ),
                                 ),
-                                contentPadding: const EdgeInsets.fromLTRB(
-                                  20.0,
-                                  10.0,
-                                  20.0,
-                                  10.0,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5),
+                                validator: _validatorStatus,
+                                value: selectedValueKurs,
+                                icon: selectedKurs.isEmpty
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.blue),
+                                        ),
+                                      )
+                                    : const Icon(Icons.arrow_drop_down),
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    _kursController.text = newValue ?? '';
+                                    selectedValueKurs = newValue ?? '';
+                                    print(
+                                        'selectedValueKurs: $selectedValueKurs');
+                                  });
+                                },
+                                items: selectedKurs
+                                    .map((Map<String, dynamic> value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value["id"].toString(),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(1.0),
+                                      child: TitleWidget(
+                                        title: value["nama"] as String,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                decoration: InputDecoration(
+                                  constraints: BoxConstraints(
+                                      maxHeight: maxHeightValidator),
+                                  labelStyle: TextStyle(fontSize: textMedium),
+                                  focusedBorder: const UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.transparent,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: selectedValueKurs != null
+                                          ? Colors.transparent
+                                          : Colors.transparent,
+                                      width: 1.0,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -706,6 +787,7 @@ class _RawatJalanState extends State<RawatJalan> {
                                 onChanged: (String? newValue) {
                                   setState(() {
                                     selectedValueStatus = newValue ?? '';
+                                    _statusController.text = newValue ?? '';
                                     print(
                                         'selectedValueStatus: $selectedValueStatus');
                                   });
@@ -1355,37 +1437,114 @@ class _RawatJalanState extends State<RawatJalan> {
                             fontSize: textMedium,
                           ),
                         ),
+                        // Padding(
+                        //   padding: EdgeInsets.symmetric(
+                        //       horizontal: paddingHorizontalNarrow),
+                        //   child: TextFormField(
+                        //     validator: _validatorKurs,
+                        //     initialValue: kurs,
+                        //     onChanged: (value) {
+                        //       setState(() {
+                        //         valueKurs = value;
+                        //       });
+                        //     },
+                        //     decoration: InputDecoration(
+                        //       hintText: "Masukan kurs",
+                        //       hintStyle: TextStyle(
+                        //         fontWeight: FontWeight.w300,
+                        //         fontSize: textMedium,
+                        //       ),
+                        //       enabledBorder: const OutlineInputBorder(
+                        //         borderSide: BorderSide(
+                        //           color: Colors.grey,
+                        //           width: 1.0,
+                        //         ),
+                        //       ),
+                        //       contentPadding: const EdgeInsets.fromLTRB(
+                        //         20.0,
+                        //         10.0,
+                        //         20.0,
+                        //         10.0,
+                        //       ),
+                        //       border: OutlineInputBorder(
+                        //         borderRadius: BorderRadius.circular(5),
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
-                          child: TextFormField(
-                            validator: _validatorKurs,
-                            initialValue: kurs,
-                            onChanged: (value) {
-                              setState(() {
-                                valueKurs = value;
-                              });
-                            },
-                            decoration: InputDecoration(
-                              hintText: "Masukan kurs",
-                              hintStyle: TextStyle(
-                                fontWeight: FontWeight.w300,
-                                fontSize: textMedium,
-                              ),
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.grey,
-                                  width: 1.0,
+                          child: Container(
+                            height: 50,
+                            width: size.width,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: Colors.grey),
+                            ),
+                            child: DropdownButtonFormField<String>(
+                              hint: Text(
+                                'Pilih Kurs',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
                                 ),
                               ),
-                              contentPadding: const EdgeInsets.fromLTRB(
-                                20.0,
-                                10.0,
-                                20.0,
-                                10.0,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
+                              validator: _validatorKurs,
+                              value: kurs,
+                              icon: selectedKurs.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  valueKurs = newValue ?? '';
+                                  print(
+                                      'selectedValueStatus: $selectedValueKurs');
+                                });
+                              },
+                              items: selectedKurs
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["id"].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: TitleWidget(
+                                      title: value["nama"] as String,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              decoration: InputDecoration(
+                                constraints: BoxConstraints(
+                                    maxHeight: maxHeightValidator),
+                                labelStyle: TextStyle(fontSize: textMedium),
+                                focusedBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: selectedValueKurs != null
+                                        ? Colors.transparent
+                                        : Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -1468,7 +1627,7 @@ class _RawatJalanState extends State<RawatJalan> {
                               ),
                               validator: _validatorStatus,
                               value: status,
-                              icon: selectedStatus.isEmpty
+                              icon: selectedKurs.isEmpty
                                   ? const SizedBox(
                                       height: 20,
                                       width: 20,
@@ -1812,23 +1971,24 @@ class _RawatJalanState extends State<RawatJalan> {
                     cells: <DataCell>[
                       DataCell(Text('$index')),
                       DataCell(Text(data['id'].toString())),
-                      DataCell(TableCell(
+                      DataCell(Text(data['kode_nikah'] ?? '')),
+                      DataCell(Text(data['kode_pangkat'] ?? '')),
+                      DataCell(
+                        TableCell(
                           verticalAlignment: TableCellVerticalAlignment.middle,
-                          child:
-                              Center(child: Text(data['kode_nikah'] ?? '')))),
-                      DataCell(TableCell(
-                          verticalAlignment: TableCellVerticalAlignment.middle,
-                          child:
-                              Center(child: Text(data['kode_pangkat'] ?? '')))),
-                      DataCell(TableCell(
-                          verticalAlignment: TableCellVerticalAlignment.middle,
-                          child: Center(child: Text(data['kurs'] ?? '')))),
+                          child: Center(
+                            child: data['kurs'].toString() == "1"
+                                ? Text("USD")
+                                : Text("Rupiah"),
+                          ),
+                        ),
+                      ),
                       DataCell(Text(data['nominal'].toString() ?? '')),
                       DataCell(Text(data['tgl_mulai'] ?? '')),
                       DataCell(Text(data['tgl_berakhir'] ?? '')),
-                      DataCell(Text(data['status'] == "0"
+                      DataCell(Text(data['status'].toString() == "0"
                           ? 'Aktif'
-                          : 'Tidak Aktif' ?? '')),
+                          : 'Tidak Aktif')),
                       DataCell(Text(data['kategori'] ?? '')),
                       DataCell(Text(data['pangkat'] ?? '')),
                       DataCell(

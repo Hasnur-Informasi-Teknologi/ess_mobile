@@ -656,6 +656,7 @@ class _CutiBersamaState extends State<CutiBersama> {
       return showModalBottomSheet(
         context: context,
         isScrollControlled: true,
+        useSafeArea: true,
         builder: (context) => Padding(
           padding: EdgeInsets.only(
               top: 10, bottom: MediaQuery.of(context).viewInsets.bottom),
