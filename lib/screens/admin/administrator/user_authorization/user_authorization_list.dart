@@ -62,11 +62,40 @@ class _UserAuthorizationState extends State<UserAuthorization> {
       selectedValueFormOnline,
       selectedValuePerformanceManagement,
       selectedValueUserAdministrator;
-
+  List<Map<String, dynamic>> selectedHakAkses = [];
   @override
   void initState() {
     super.initState();
     fetchData();
+    getPilihan();
+  }
+
+  Future<void> getPilihan() async {
+    String jsonString = '''
+    {
+      "data": [
+        {
+          "id": "0",
+          "nama": "No"
+        },
+        {
+          "id": "1",
+          "nama": "Yes"
+        }
+      ]
+    }
+    ''';
+
+    try {
+      final responseData = jsonDecode(jsonString);
+      final dataPilihanApi = responseData['data'];
+      print('dataPilihanApi: $dataPilihanApi');
+      setState(() {
+        selectedHakAkses = List<Map<String, dynamic>>.from(dataPilihanApi);
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future<void> fetchData({int? pageIndex}) async {
@@ -568,6 +597,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               ),
                             ),
                           ),
+                          //yabetul
                           const SizedBox(height: 10),
                           Padding(
                             padding: EdgeInsets.symmetric(
@@ -578,6 +608,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               fontSize: textMedium,
                             ),
                           ),
+
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
@@ -585,14 +616,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               height: 50,
                               width: size.width,
                               padding: EdgeInsets.symmetric(
-                                  horizontal: paddingHorizontalNarrow),
+                                horizontal: paddingHorizontalNarrow,
+                              ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                                 border: Border.all(color: Colors.grey),
                               ),
                               child: DropdownButtonFormField<String>(
                                 hint: Text(
-                                  "Pilih Hak Akses",
+                                  'Pilih Hak Akses',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w300,
                                     fontSize: textMedium,
@@ -600,27 +632,43 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                                 ),
                                 validator: _validatorAnnouncement,
                                 value: selectedValueAnnouncement,
+                                icon: selectedHakAkses.isEmpty
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.blue),
+                                        ),
+                                      )
+                                    : const Icon(Icons.arrow_drop_down),
                                 onChanged: (String? newValue) {
                                   setState(() {
-                                    selectedValueAnnouncement = newValue ?? '';
                                     _announcementController.text =
                                         newValue ?? '';
-                                    print("$selectedValueAnnouncement");
+                                    selectedValueAnnouncement = newValue ?? '';
+                                    print(
+                                        'selectedValueStatus: $selectedValueAnnouncement');
                                   });
                                 },
-                                items: [
-                                  DropdownMenuItem<String>(
-                                    value: '1',
-                                    child: Text('Iya'),
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    value: '0',
-                                    child: Text('Tidak'),
-                                  ),
-                                ],
+                                items: selectedHakAkses
+                                    .map((Map<String, dynamic> value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value["id"].toString(),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(1.0),
+                                      child: TitleWidget(
+                                        title: value["nama"] as String,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
                                 decoration: InputDecoration(
                                   constraints: BoxConstraints(
-                                      maxHeight: _maxHeightAtasan),
+                                      maxHeight: maxHeightValidator),
                                   labelStyle: TextStyle(fontSize: textMedium),
                                   focusedBorder: const UnderlineInputBorder(
                                     borderSide: BorderSide(
@@ -650,6 +698,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               fontSize: textMedium,
                             ),
                           ),
+
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
@@ -657,14 +706,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               height: 50,
                               width: size.width,
                               padding: EdgeInsets.symmetric(
-                                  horizontal: paddingHorizontalNarrow),
+                                horizontal: paddingHorizontalNarrow,
+                              ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                                 border: Border.all(color: Colors.grey),
                               ),
                               child: DropdownButtonFormField<String>(
                                 hint: Text(
-                                  "Pilih Hak Akses",
+                                  'Pilih Hak Akses',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w300,
                                     fontSize: textMedium,
@@ -672,27 +722,43 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                                 ),
                                 validator: _validatorApplication,
                                 value: selectedValueApplication,
+                                icon: selectedHakAkses.isEmpty
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.blue),
+                                        ),
+                                      )
+                                    : const Icon(Icons.arrow_drop_down),
                                 onChanged: (String? newValue) {
                                   setState(() {
-                                    selectedValueApplication = newValue ?? '';
                                     _applicationController.text =
                                         newValue ?? '';
-                                    print("$selectedValueApplication");
+                                    selectedValueApplication = newValue ?? '';
+                                    print(
+                                        'selectedValueStatus: $selectedValueApplication');
                                   });
                                 },
-                                items: [
-                                  DropdownMenuItem<String>(
-                                    value: '1',
-                                    child: Text('Iya'),
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    value: '0',
-                                    child: Text('Tidak'),
-                                  ),
-                                ],
+                                items: selectedHakAkses
+                                    .map((Map<String, dynamic> value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value["id"].toString(),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(1.0),
+                                      child: TitleWidget(
+                                        title: value["nama"] as String,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
                                 decoration: InputDecoration(
                                   constraints: BoxConstraints(
-                                      maxHeight: _maxHeightAtasan),
+                                      maxHeight: maxHeightValidator),
                                   labelStyle: TextStyle(fontSize: textMedium),
                                   focusedBorder: const UnderlineInputBorder(
                                     borderSide: BorderSide(
@@ -722,6 +788,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               fontSize: textMedium,
                             ),
                           ),
+
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
@@ -729,14 +796,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               height: 50,
                               width: size.width,
                               padding: EdgeInsets.symmetric(
-                                  horizontal: paddingHorizontalNarrow),
+                                horizontal: paddingHorizontalNarrow,
+                              ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                                 border: Border.all(color: Colors.grey),
                               ),
                               child: DropdownButtonFormField<String>(
                                 hint: Text(
-                                  "Pilih Hak Akses",
+                                  'Pilih Hak Akses',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w300,
                                     fontSize: textMedium,
@@ -744,27 +812,43 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                                 ),
                                 validator: _validatorApprovalList,
                                 value: selectedValueApprovalList,
+                                icon: selectedHakAkses.isEmpty
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.blue),
+                                        ),
+                                      )
+                                    : const Icon(Icons.arrow_drop_down),
                                 onChanged: (String? newValue) {
                                   setState(() {
-                                    selectedValueApprovalList = newValue ?? '';
                                     _approvalListController.text =
                                         newValue ?? '';
-                                    print("$selectedValueApprovalList");
+                                    selectedValueApprovalList = newValue ?? '';
+                                    print(
+                                        'selectedValueStatus: $selectedValueApprovalList');
                                   });
                                 },
-                                items: [
-                                  DropdownMenuItem<String>(
-                                    value: '1',
-                                    child: Text('Iya'),
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    value: '0',
-                                    child: Text('Tidak'),
-                                  ),
-                                ],
+                                items: selectedHakAkses
+                                    .map((Map<String, dynamic> value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value["id"].toString(),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(1.0),
+                                      child: TitleWidget(
+                                        title: value["nama"] as String,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
                                 decoration: InputDecoration(
                                   constraints: BoxConstraints(
-                                      maxHeight: _maxHeightAtasan),
+                                      maxHeight: maxHeightValidator),
                                   labelStyle: TextStyle(fontSize: textMedium),
                                   focusedBorder: const UnderlineInputBorder(
                                     borderSide: BorderSide(
@@ -794,6 +878,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               fontSize: textMedium,
                             ),
                           ),
+
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
@@ -801,14 +886,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               height: 50,
                               width: size.width,
                               padding: EdgeInsets.symmetric(
-                                  horizontal: paddingHorizontalNarrow),
+                                horizontal: paddingHorizontalNarrow,
+                              ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                                 border: Border.all(color: Colors.grey),
                               ),
                               child: DropdownButtonFormField<String>(
                                 hint: Text(
-                                  "Pilih Hak Akses",
+                                  'Pilih Hak Akses',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w300,
                                     fontSize: textMedium,
@@ -816,29 +902,44 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                                 ),
                                 validator: _validatorAssignmentInterviewer,
                                 value: selectedValueAssignmentInterviewer,
+                                icon: selectedHakAkses.isEmpty
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.blue),
+                                        ),
+                                      )
+                                    : const Icon(Icons.arrow_drop_down),
                                 onChanged: (String? newValue) {
                                   setState(() {
-                                    selectedValueAssignmentInterviewer =
-                                        newValue ?? '';
                                     _assignmentInterviewerController.text =
                                         newValue ?? '';
+                                    selectedValueAssignmentInterviewer =
+                                        newValue ?? '';
                                     print(
-                                        "$selectedValueAssignmentInterviewer");
+                                        'selectedValueStatus: $selectedValueAssignmentInterviewer');
                                   });
                                 },
-                                items: [
-                                  DropdownMenuItem<String>(
-                                    value: '1',
-                                    child: Text('Iya'),
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    value: '0',
-                                    child: Text('Tidak'),
-                                  ),
-                                ],
+                                items: selectedHakAkses
+                                    .map((Map<String, dynamic> value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value["id"].toString(),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(1.0),
+                                      child: TitleWidget(
+                                        title: value["nama"] as String,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
                                 decoration: InputDecoration(
                                   constraints: BoxConstraints(
-                                      maxHeight: _maxHeightAtasan),
+                                      maxHeight: maxHeightValidator),
                                   labelStyle: TextStyle(fontSize: textMedium),
                                   focusedBorder: const UnderlineInputBorder(
                                     borderSide: BorderSide(
@@ -870,6 +971,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               fontSize: textMedium,
                             ),
                           ),
+
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
@@ -877,14 +979,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               height: 50,
                               width: size.width,
                               padding: EdgeInsets.symmetric(
-                                  horizontal: paddingHorizontalNarrow),
+                                horizontal: paddingHorizontalNarrow,
+                              ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                                 border: Border.all(color: Colors.grey),
                               ),
                               child: DropdownButtonFormField<String>(
                                 hint: Text(
-                                  "Pilih Hak Akses",
+                                  'Pilih Hak Akses',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w300,
                                     fontSize: textMedium,
@@ -892,28 +995,44 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                                 ),
                                 validator: _validatorDashboardAdmin,
                                 value: selectedValueDashboardAdmin,
+                                icon: selectedHakAkses.isEmpty
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.blue),
+                                        ),
+                                      )
+                                    : const Icon(Icons.arrow_drop_down),
                                 onChanged: (String? newValue) {
                                   setState(() {
-                                    selectedValueDashboardAdmin =
-                                        newValue ?? '';
                                     _dashboardAdminController.text =
                                         newValue ?? '';
-                                    print("$selectedValueDashboardAdmin");
+                                    selectedValueDashboardAdmin =
+                                        newValue ?? '';
+                                    print(
+                                        'selectedValueStatus: $selectedValueDashboardAdmin');
                                   });
                                 },
-                                items: [
-                                  DropdownMenuItem<String>(
-                                    value: '1',
-                                    child: Text('Iya'),
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    value: '0',
-                                    child: Text('Tidak'),
-                                  ),
-                                ],
+                                items: selectedHakAkses
+                                    .map((Map<String, dynamic> value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value["id"].toString(),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(1.0),
+                                      child: TitleWidget(
+                                        title: value["nama"] as String,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
                                 decoration: InputDecoration(
                                   constraints: BoxConstraints(
-                                      maxHeight: _maxHeightAtasan),
+                                      maxHeight: maxHeightValidator),
                                   labelStyle: TextStyle(fontSize: textMedium),
                                   focusedBorder: const UnderlineInputBorder(
                                     borderSide: BorderSide(
@@ -943,6 +1062,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               fontSize: textMedium,
                             ),
                           ),
+
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
@@ -950,14 +1070,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               height: 50,
                               width: size.width,
                               padding: EdgeInsets.symmetric(
-                                  horizontal: paddingHorizontalNarrow),
+                                horizontal: paddingHorizontalNarrow,
+                              ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                                 border: Border.all(color: Colors.grey),
                               ),
                               child: DropdownButtonFormField<String>(
                                 hint: Text(
-                                  "Pilih Hak Akses",
+                                  'Pilih Hak Akses',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w300,
                                     fontSize: textMedium,
@@ -965,27 +1086,43 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                                 ),
                                 validator: _validatorDataProfile,
                                 value: selectedValueDataProfile,
+                                icon: selectedHakAkses.isEmpty
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.blue),
+                                        ),
+                                      )
+                                    : const Icon(Icons.arrow_drop_down),
                                 onChanged: (String? newValue) {
                                   setState(() {
-                                    selectedValueDataProfile = newValue ?? '';
                                     _dataProfileController.text =
                                         newValue ?? '';
-                                    print("$selectedValueDataProfile");
+                                    selectedValueDataProfile = newValue ?? '';
+                                    print(
+                                        'selectedValueStatus: $selectedValueDataProfile');
                                   });
                                 },
-                                items: [
-                                  DropdownMenuItem<String>(
-                                    value: '1',
-                                    child: Text('Iya'),
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    value: '0',
-                                    child: Text('Tidak'),
-                                  ),
-                                ],
+                                items: selectedHakAkses
+                                    .map((Map<String, dynamic> value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value["id"].toString(),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(1.0),
+                                      child: TitleWidget(
+                                        title: value["nama"] as String,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
                                 decoration: InputDecoration(
                                   constraints: BoxConstraints(
-                                      maxHeight: _maxHeightAtasan),
+                                      maxHeight: maxHeightValidator),
                                   labelStyle: TextStyle(fontSize: textMedium),
                                   focusedBorder: const UnderlineInputBorder(
                                     borderSide: BorderSide(
@@ -1015,6 +1152,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               fontSize: textMedium,
                             ),
                           ),
+
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
@@ -1022,14 +1160,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               height: 50,
                               width: size.width,
                               padding: EdgeInsets.symmetric(
-                                  horizontal: paddingHorizontalNarrow),
+                                horizontal: paddingHorizontalNarrow,
+                              ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                                 border: Border.all(color: Colors.grey),
                               ),
                               child: DropdownButtonFormField<String>(
                                 hint: Text(
-                                  "Pilih Hak Akses",
+                                  'Pilih Hak Akses',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w300,
                                     fontSize: textMedium,
@@ -1037,27 +1176,43 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                                 ),
                                 validator: _validatorDetailPlafon,
                                 value: selectedValueDetailPlafon,
+                                icon: selectedHakAkses.isEmpty
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.blue),
+                                        ),
+                                      )
+                                    : const Icon(Icons.arrow_drop_down),
                                 onChanged: (String? newValue) {
                                   setState(() {
-                                    selectedValueDetailPlafon = newValue ?? '';
                                     _detailPlafonController.text =
                                         newValue ?? '';
-                                    print("$selectedValueDetailPlafon");
+                                    selectedValueDetailPlafon = newValue ?? '';
+                                    print(
+                                        'selectedValueStatus: $selectedValueDetailPlafon');
                                   });
                                 },
-                                items: [
-                                  DropdownMenuItem<String>(
-                                    value: '1',
-                                    child: Text('Iya'),
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    value: '0',
-                                    child: Text('Tidak'),
-                                  ),
-                                ],
+                                items: selectedHakAkses
+                                    .map((Map<String, dynamic> value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value["id"].toString(),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(1.0),
+                                      child: TitleWidget(
+                                        title: value["nama"] as String,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
                                 decoration: InputDecoration(
                                   constraints: BoxConstraints(
-                                      maxHeight: _maxHeightAtasan),
+                                      maxHeight: maxHeightValidator),
                                   labelStyle: TextStyle(fontSize: textMedium),
                                   focusedBorder: const UnderlineInputBorder(
                                     borderSide: BorderSide(
@@ -1087,6 +1242,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               fontSize: textMedium,
                             ),
                           ),
+
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
@@ -1094,14 +1250,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               height: 50,
                               width: size.width,
                               padding: EdgeInsets.symmetric(
-                                  horizontal: paddingHorizontalNarrow),
+                                horizontal: paddingHorizontalNarrow,
+                              ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                                 border: Border.all(color: Colors.grey),
                               ),
                               child: DropdownButtonFormField<String>(
                                 hint: Text(
-                                  "Pilih Hak Akses",
+                                  'Pilih Hak Akses',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w300,
                                     fontSize: textMedium,
@@ -1109,28 +1266,44 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                                 ),
                                 validator: _validatorDocumentCompany,
                                 value: selectedValueDocumentCompany,
+                                icon: selectedHakAkses.isEmpty
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.blue),
+                                        ),
+                                      )
+                                    : const Icon(Icons.arrow_drop_down),
                                 onChanged: (String? newValue) {
                                   setState(() {
-                                    selectedValueDocumentCompany =
-                                        newValue ?? '';
                                     _documentCompanyController.text =
                                         newValue ?? '';
-                                    print("$selectedValueDocumentCompany");
+                                    selectedValueDocumentCompany =
+                                        newValue ?? '';
+                                    print(
+                                        'selectedValueStatus: $selectedValueDocumentCompany');
                                   });
                                 },
-                                items: [
-                                  DropdownMenuItem<String>(
-                                    value: '1',
-                                    child: Text('Iya'),
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    value: '0',
-                                    child: Text('Tidak'),
-                                  ),
-                                ],
+                                items: selectedHakAkses
+                                    .map((Map<String, dynamic> value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value["id"].toString(),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(1.0),
+                                      child: TitleWidget(
+                                        title: value["nama"] as String,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
                                 decoration: InputDecoration(
                                   constraints: BoxConstraints(
-                                      maxHeight: _maxHeightAtasan),
+                                      maxHeight: maxHeightValidator),
                                   labelStyle: TextStyle(fontSize: textMedium),
                                   focusedBorder: const UnderlineInputBorder(
                                     borderSide: BorderSide(
@@ -1161,6 +1334,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               fontSize: textMedium,
                             ),
                           ),
+
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
@@ -1168,14 +1342,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               height: 50,
                               width: size.width,
                               padding: EdgeInsets.symmetric(
-                                  horizontal: paddingHorizontalNarrow),
+                                horizontal: paddingHorizontalNarrow,
+                              ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                                 border: Border.all(color: Colors.grey),
                               ),
                               child: DropdownButtonFormField<String>(
                                 hint: Text(
-                                  "Pilih Hak Akses",
+                                  'Pilih Hak Akses',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w300,
                                     fontSize: textMedium,
@@ -1183,26 +1358,42 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                                 ),
                                 validator: _validatorEmployee,
                                 value: selectedValueEmployee,
+                                icon: selectedHakAkses.isEmpty
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.blue),
+                                        ),
+                                      )
+                                    : const Icon(Icons.arrow_drop_down),
                                 onChanged: (String? newValue) {
                                   setState(() {
-                                    selectedValueEmployee = newValue ?? '';
                                     _employeeController.text = newValue ?? '';
-                                    print("$selectedValueEmployee");
+                                    selectedValueEmployee = newValue ?? '';
+                                    print(
+                                        'selectedValueStatus: $selectedValueEmployee');
                                   });
                                 },
-                                items: [
-                                  DropdownMenuItem<String>(
-                                    value: '1',
-                                    child: Text('Iya'),
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    value: '0',
-                                    child: Text('Tidak'),
-                                  ),
-                                ],
+                                items: selectedHakAkses
+                                    .map((Map<String, dynamic> value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value["id"].toString(),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(1.0),
+                                      child: TitleWidget(
+                                        title: value["nama"] as String,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
                                 decoration: InputDecoration(
                                   constraints: BoxConstraints(
-                                      maxHeight: _maxHeightAtasan),
+                                      maxHeight: maxHeightValidator),
                                   labelStyle: TextStyle(fontSize: textMedium),
                                   focusedBorder: const UnderlineInputBorder(
                                     borderSide: BorderSide(
@@ -1232,6 +1423,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               fontSize: textMedium,
                             ),
                           ),
+
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
@@ -1239,14 +1431,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               height: 50,
                               width: size.width,
                               padding: EdgeInsets.symmetric(
-                                  horizontal: paddingHorizontalNarrow),
+                                horizontal: paddingHorizontalNarrow,
+                              ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                                 border: Border.all(color: Colors.grey),
                               ),
                               child: DropdownButtonFormField<String>(
                                 hint: Text(
-                                  "Pilih Hak Akses",
+                                  'Pilih Hak Akses',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w300,
                                     fontSize: textMedium,
@@ -1254,26 +1447,42 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                                 ),
                                 validator: _validatorFormOnline,
                                 value: selectedValueFormOnline,
+                                icon: selectedHakAkses.isEmpty
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.blue),
+                                        ),
+                                      )
+                                    : const Icon(Icons.arrow_drop_down),
                                 onChanged: (String? newValue) {
                                   setState(() {
-                                    selectedValueFormOnline = newValue ?? '';
                                     _formOnlineController.text = newValue ?? '';
-                                    print("$selectedValueFormOnline");
+                                    selectedValueFormOnline = newValue ?? '';
+                                    print(
+                                        'selectedValueStatus: $selectedValueFormOnline');
                                   });
                                 },
-                                items: [
-                                  DropdownMenuItem<String>(
-                                    value: '1',
-                                    child: Text('Iya'),
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    value: '0',
-                                    child: Text('Tidak'),
-                                  ),
-                                ],
+                                items: selectedHakAkses
+                                    .map((Map<String, dynamic> value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value["id"].toString(),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(1.0),
+                                      child: TitleWidget(
+                                        title: value["nama"] as String,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
                                 decoration: InputDecoration(
                                   constraints: BoxConstraints(
-                                      maxHeight: _maxHeightAtasan),
+                                      maxHeight: maxHeightValidator),
                                   labelStyle: TextStyle(fontSize: textMedium),
                                   focusedBorder: const UnderlineInputBorder(
                                     borderSide: BorderSide(
@@ -1303,6 +1512,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               fontSize: textMedium,
                             ),
                           ),
+
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
@@ -1310,14 +1520,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               height: 50,
                               width: size.width,
                               padding: EdgeInsets.symmetric(
-                                  horizontal: paddingHorizontalNarrow),
+                                horizontal: paddingHorizontalNarrow,
+                              ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                                 border: Border.all(color: Colors.grey),
                               ),
                               child: DropdownButtonFormField<String>(
                                 hint: Text(
-                                  "Pilih Hak Akses",
+                                  'Pilih Hak Akses',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w300,
                                     fontSize: textMedium,
@@ -1325,29 +1536,44 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                                 ),
                                 validator: _validatorPerformanceManagement,
                                 value: selectedValuePerformanceManagement,
+                                icon: selectedHakAkses.isEmpty
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.blue),
+                                        ),
+                                      )
+                                    : const Icon(Icons.arrow_drop_down),
                                 onChanged: (String? newValue) {
                                   setState(() {
-                                    selectedValuePerformanceManagement =
-                                        newValue ?? '';
                                     _performanceManagementController.text =
                                         newValue ?? '';
+                                    selectedValuePerformanceManagement =
+                                        newValue ?? '';
                                     print(
-                                        "$selectedValuePerformanceManagement");
+                                        'selectedValueStatus: $selectedValuePerformanceManagement');
                                   });
                                 },
-                                items: [
-                                  DropdownMenuItem<String>(
-                                    value: '1',
-                                    child: Text('Iya'),
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    value: '0',
-                                    child: Text('Tidak'),
-                                  ),
-                                ],
+                                items: selectedHakAkses
+                                    .map((Map<String, dynamic> value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value["id"].toString(),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(1.0),
+                                      child: TitleWidget(
+                                        title: value["nama"] as String,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
                                 decoration: InputDecoration(
                                   constraints: BoxConstraints(
-                                      maxHeight: _maxHeightAtasan),
+                                      maxHeight: maxHeightValidator),
                                   labelStyle: TextStyle(fontSize: textMedium),
                                   focusedBorder: const UnderlineInputBorder(
                                     borderSide: BorderSide(
@@ -1379,6 +1605,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               fontSize: textMedium,
                             ),
                           ),
+
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
@@ -1386,14 +1613,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               height: 50,
                               width: size.width,
                               padding: EdgeInsets.symmetric(
-                                  horizontal: paddingHorizontalNarrow),
+                                horizontal: paddingHorizontalNarrow,
+                              ),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                                 border: Border.all(color: Colors.grey),
                               ),
                               child: DropdownButtonFormField<String>(
                                 hint: Text(
-                                  "Pilih Hak Akses",
+                                  'Pilih Hak Akses',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w300,
                                     fontSize: textMedium,
@@ -1401,28 +1629,44 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                                 ),
                                 validator: _validatorUserAdministrator,
                                 value: selectedValueUserAdministrator,
+                                icon: selectedHakAkses.isEmpty
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.blue),
+                                        ),
+                                      )
+                                    : const Icon(Icons.arrow_drop_down),
                                 onChanged: (String? newValue) {
                                   setState(() {
-                                    selectedValueUserAdministrator =
-                                        newValue ?? '';
                                     _userAdministratorController.text =
                                         newValue ?? '';
-                                    print("$selectedValueUserAdministrator");
+                                    selectedValueUserAdministrator =
+                                        newValue ?? '';
+                                    print(
+                                        'selectedValueStatus: $selectedValueUserAdministrator');
                                   });
                                 },
-                                items: [
-                                  DropdownMenuItem<String>(
-                                    value: '1',
-                                    child: Text('Iya'),
-                                  ),
-                                  DropdownMenuItem<String>(
-                                    value: '0',
-                                    child: Text('Tidak'),
-                                  ),
-                                ],
+                                items: selectedHakAkses
+                                    .map((Map<String, dynamic> value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value["id"].toString(),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(1.0),
+                                      child: TitleWidget(
+                                        title: value["nama"] as String,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
                                 decoration: InputDecoration(
                                   constraints: BoxConstraints(
-                                      maxHeight: _maxHeightAtasan),
+                                      maxHeight: maxHeightValidator),
                                   labelStyle: TextStyle(fontSize: textMedium),
                                   focusedBorder: const UnderlineInputBorder(
                                     borderSide: BorderSide(
@@ -1598,7 +1842,80 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             ),
                           ),
                         ),
+
                         const SizedBox(height: 10),
+                        //   padding: EdgeInsets.symmetric(
+                        //       horizontal: paddingHorizontalNarrow),
+                        //   child: TitleWidget(
+                        //     title: 'announcement *',
+                        //     fontWeight: FontWeight.w300,
+                        //     fontSize: textMedium,
+                        //   ),
+                        // ),
+                        // Padding(
+                        //   padding: EdgeInsets.symmetric(
+                        //       horizontal: paddingHorizontalNarrow),
+                        //   child: Container(
+                        //     height: 50,
+                        //     width: size.width,
+                        //     padding: EdgeInsets.symmetric(
+                        //         horizontal: paddingHorizontalNarrow),
+                        //     decoration: BoxDecoration(
+                        //       borderRadius: BorderRadius.circular(5),
+                        //       border: Border.all(color: Colors.grey),
+                        //     ),
+                        //     child: DropdownButtonFormField<String>(
+                        //       hint: Text(
+                        //         "Pilih Hak Akses",
+                        //         style: TextStyle(
+                        //           fontWeight: FontWeight.w300,
+                        //           fontSize: textMedium,
+                        //         ),
+                        //       ),
+                        //       validator: _validatorAnnouncement,
+                        //       value: announcement,
+                        //       onChanged: (String? newValue) {
+                        //         setState(() {
+                        //           // selectedValueAnnouncement = newValue ?? '';
+                        //           announcementDataValue =
+                        //               newValue ?? announcement;
+                        //           print("$selectedValueAnnouncement");
+                        //         });
+                        //       },
+                        //       items: [
+                        //         DropdownMenuItem<String>(
+                        //           value: '1',
+                        //           child: Text('Iya'),
+                        //         ),
+                        //         DropdownMenuItem<String>(
+                        //           value: '0',
+                        //           child: Text('Tidak'),
+                        //         ),
+                        //       ],
+                        //       decoration: InputDecoration(
+                        //         constraints:
+                        //             BoxConstraints(maxHeight: _maxHeightAtasan),
+                        //         labelStyle: TextStyle(fontSize: textMedium),
+                        //         focusedBorder: const UnderlineInputBorder(
+                        //           borderSide: BorderSide(
+                        //             color: Colors.transparent,
+                        //             width: 1.0,
+                        //           ),
+                        //         ),
+                        //         enabledBorder: UnderlineInputBorder(
+                        //           borderSide: BorderSide(
+                        //             color: selectedValueAnnouncement != null
+                        //                 ? Colors.transparent
+                        //                 : Colors.transparent,
+                        //             width: 1.0,
+                        //           ),
+                        //         ),
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
+                        // const SizedBox(height: 10),
+
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
@@ -1608,6 +1925,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             fontSize: textMedium,
                           ),
                         ),
+
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
@@ -1615,14 +1933,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             height: 50,
                             width: size.width,
                             padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
+                              horizontal: paddingHorizontalNarrow,
+                            ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(5),
                               border: Border.all(color: Colors.grey),
                             ),
                             child: DropdownButtonFormField<String>(
                               hint: Text(
-                                "Pilih Hak Akses",
+                                'Pilih Hak Akses',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w300,
                                   fontSize: textMedium,
@@ -1630,27 +1949,42 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               ),
                               validator: _validatorAnnouncement,
                               value: announcement,
+                              icon: selectedHakAkses.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
                               onChanged: (String? newValue) {
                                 setState(() {
-                                  // selectedValueAnnouncement = newValue ?? '';
-                                  announcementDataValue =
-                                      newValue ?? announcement;
-                                  print("$selectedValueAnnouncement");
+                                  _announcementController.text = newValue ?? '';
+                                  announcementDataValue = newValue ?? '';
+                                  print(
+                                      'selectedValueStatus: $selectedValueAnnouncement');
                                 });
                               },
-                              items: [
-                                DropdownMenuItem<String>(
-                                  value: '1',
-                                  child: Text('Iya'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: '0',
-                                  child: Text('Tidak'),
-                                ),
-                              ],
+                              items: selectedHakAkses
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["id"].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: TitleWidget(
+                                      title: value["nama"] as String,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
                               decoration: InputDecoration(
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightAtasan),
+                                constraints: BoxConstraints(
+                                    maxHeight: maxHeightValidator),
                                 labelStyle: TextStyle(fontSize: textMedium),
                                 focusedBorder: const UnderlineInputBorder(
                                   borderSide: BorderSide(
@@ -1680,6 +2014,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             fontSize: textMedium,
                           ),
                         ),
+
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
@@ -1687,14 +2022,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             height: 50,
                             width: size.width,
                             padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
+                              horizontal: paddingHorizontalNarrow,
+                            ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(5),
                               border: Border.all(color: Colors.grey),
                             ),
                             child: DropdownButtonFormField<String>(
                               hint: Text(
-                                "Pilih Hak Akses",
+                                'Pilih Hak Akses',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w300,
                                   fontSize: textMedium,
@@ -1702,25 +2038,42 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               ),
                               validator: _validatorApplication,
                               value: application,
+                              icon: selectedHakAkses.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
                               onChanged: (String? newValue) {
                                 setState(() {
-                                  approval_listDataValue = newValue ?? '';
-                                  print("$selectedValueApplication");
+                                  _applicationController.text = newValue ?? '';
+                                  applicationDataValue = newValue ?? '';
+                                  print(
+                                      'selectedValueStatus: $selectedValueApplication');
                                 });
                               },
-                              items: [
-                                DropdownMenuItem<String>(
-                                  value: '1',
-                                  child: Text('Iya'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: '0',
-                                  child: Text('Tidak'),
-                                ),
-                              ],
+                              items: selectedHakAkses
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["id"].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: TitleWidget(
+                                      title: value["nama"] as String,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
                               decoration: InputDecoration(
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightAtasan),
+                                constraints: BoxConstraints(
+                                    maxHeight: maxHeightValidator),
                                 labelStyle: TextStyle(fontSize: textMedium),
                                 focusedBorder: const UnderlineInputBorder(
                                   borderSide: BorderSide(
@@ -1750,6 +2103,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             fontSize: textMedium,
                           ),
                         ),
+
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
@@ -1757,14 +2111,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             height: 50,
                             width: size.width,
                             padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
+                              horizontal: paddingHorizontalNarrow,
+                            ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(5),
                               border: Border.all(color: Colors.grey),
                             ),
                             child: DropdownButtonFormField<String>(
                               hint: Text(
-                                "Pilih Hak Akses",
+                                'Pilih Hak Akses',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w300,
                                   fontSize: textMedium,
@@ -1772,25 +2127,42 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               ),
                               validator: _validatorApprovalList,
                               value: approval_list,
+                              icon: selectedHakAkses.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
                               onChanged: (String? newValue) {
                                 setState(() {
+                                  _approvalListController.text = newValue ?? '';
                                   approval_listDataValue = newValue ?? '';
-                                  print("$selectedValueApprovalList");
+                                  print(
+                                      'selectedValueStatus: $selectedValueApprovalList');
                                 });
                               },
-                              items: [
-                                DropdownMenuItem<String>(
-                                  value: '1',
-                                  child: Text('Iya'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: '0',
-                                  child: Text('Tidak'),
-                                ),
-                              ],
+                              items: selectedHakAkses
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["id"].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: TitleWidget(
+                                      title: value["nama"] as String,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
                               decoration: InputDecoration(
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightAtasan),
+                                constraints: BoxConstraints(
+                                    maxHeight: maxHeightValidator),
                                 labelStyle: TextStyle(fontSize: textMedium),
                                 focusedBorder: const UnderlineInputBorder(
                                   borderSide: BorderSide(
@@ -1820,6 +2192,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             fontSize: textMedium,
                           ),
                         ),
+
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
@@ -1827,14 +2200,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             height: 50,
                             width: size.width,
                             padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
+                              horizontal: paddingHorizontalNarrow,
+                            ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(5),
                               border: Border.all(color: Colors.grey),
                             ),
                             child: DropdownButtonFormField<String>(
                               hint: Text(
-                                "Pilih Hak Akses",
+                                'Pilih Hak Akses',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w300,
                                   fontSize: textMedium,
@@ -1842,26 +2216,44 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               ),
                               validator: _validatorAssignmentInterviewer,
                               value: assignment_interviewer,
+                              icon: selectedHakAkses.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
                               onChanged: (String? newValue) {
                                 setState(() {
+                                  _assignmentInterviewerController.text =
+                                      newValue ?? '';
                                   assignment_interviewerDataValue =
                                       newValue ?? '';
-                                  print("$selectedValueAssignmentInterviewer");
+                                  print(
+                                      'selectedValueStatus: $selectedValueAssignmentInterviewer');
                                 });
                               },
-                              items: [
-                                DropdownMenuItem<String>(
-                                  value: '1',
-                                  child: Text('Iya'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: '0',
-                                  child: Text('Tidak'),
-                                ),
-                              ],
+                              items: selectedHakAkses
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["id"].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: TitleWidget(
+                                      title: value["nama"] as String,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
                               decoration: InputDecoration(
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightAtasan),
+                                constraints: BoxConstraints(
+                                    maxHeight: maxHeightValidator),
                                 labelStyle: TextStyle(fontSize: textMedium),
                                 focusedBorder: const UnderlineInputBorder(
                                   borderSide: BorderSide(
@@ -1892,6 +2284,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             fontSize: textMedium,
                           ),
                         ),
+
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
@@ -1899,14 +2292,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             height: 50,
                             width: size.width,
                             padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
+                              horizontal: paddingHorizontalNarrow,
+                            ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(5),
                               border: Border.all(color: Colors.grey),
                             ),
                             child: DropdownButtonFormField<String>(
                               hint: Text(
-                                "Pilih Hak Akses",
+                                'Pilih Hak Akses',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w300,
                                   fontSize: textMedium,
@@ -1914,25 +2308,43 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               ),
                               validator: _validatorDashboardAdmin,
                               value: dashboard_admin,
+                              icon: selectedHakAkses.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
                               onChanged: (String? newValue) {
                                 setState(() {
+                                  _dashboardAdminController.text =
+                                      newValue ?? '';
                                   dashboard_adminDataValue = newValue ?? '';
-                                  print("$selectedValueDashboardAdmin");
+                                  print(
+                                      'selectedValueStatus: $selectedValueDashboardAdmin');
                                 });
                               },
-                              items: [
-                                DropdownMenuItem<String>(
-                                  value: '1',
-                                  child: Text('Iya'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: '0',
-                                  child: Text('Tidak'),
-                                ),
-                              ],
+                              items: selectedHakAkses
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["id"].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: TitleWidget(
+                                      title: value["nama"] as String,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
                               decoration: InputDecoration(
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightAtasan),
+                                constraints: BoxConstraints(
+                                    maxHeight: maxHeightValidator),
                                 labelStyle: TextStyle(fontSize: textMedium),
                                 focusedBorder: const UnderlineInputBorder(
                                   borderSide: BorderSide(
@@ -1962,6 +2374,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             fontSize: textMedium,
                           ),
                         ),
+
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
@@ -1969,14 +2382,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             height: 50,
                             width: size.width,
                             padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
+                              horizontal: paddingHorizontalNarrow,
+                            ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(5),
                               border: Border.all(color: Colors.grey),
                             ),
                             child: DropdownButtonFormField<String>(
                               hint: Text(
-                                "Pilih Hak Akses",
+                                'Pilih Hak Akses',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w300,
                                   fontSize: textMedium,
@@ -1984,25 +2398,42 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               ),
                               validator: _validatorDataProfile,
                               value: data_profile,
+                              icon: selectedHakAkses.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
                               onChanged: (String? newValue) {
                                 setState(() {
+                                  _dataProfileController.text = newValue ?? '';
                                   data_profileDataValue = newValue ?? '';
-                                  print("$selectedValueDataProfile");
+                                  print(
+                                      'selectedValueStatus: $selectedValueDataProfile');
                                 });
                               },
-                              items: [
-                                DropdownMenuItem<String>(
-                                  value: '1',
-                                  child: Text('Iya'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: '0',
-                                  child: Text('Tidak'),
-                                ),
-                              ],
+                              items: selectedHakAkses
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["id"].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: TitleWidget(
+                                      title: value["nama"] as String,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
                               decoration: InputDecoration(
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightAtasan),
+                                constraints: BoxConstraints(
+                                    maxHeight: maxHeightValidator),
                                 labelStyle: TextStyle(fontSize: textMedium),
                                 focusedBorder: const UnderlineInputBorder(
                                   borderSide: BorderSide(
@@ -2032,6 +2463,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             fontSize: textMedium,
                           ),
                         ),
+
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
@@ -2039,14 +2471,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             height: 50,
                             width: size.width,
                             padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
+                              horizontal: paddingHorizontalNarrow,
+                            ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(5),
                               border: Border.all(color: Colors.grey),
                             ),
                             child: DropdownButtonFormField<String>(
                               hint: Text(
-                                "Pilih Hak Akses",
+                                'Pilih Hak Akses',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w300,
                                   fontSize: textMedium,
@@ -2054,25 +2487,42 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               ),
                               validator: _validatorDetailPlafon,
                               value: detail_plafon,
+                              icon: selectedHakAkses.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
                               onChanged: (String? newValue) {
                                 setState(() {
+                                  _detailPlafonController.text = newValue ?? '';
                                   detail_plafonDataValue = newValue ?? '';
-                                  print("$selectedValueDetailPlafon");
+                                  print(
+                                      'selectedValueStatus: $selectedValueDetailPlafon');
                                 });
                               },
-                              items: [
-                                DropdownMenuItem<String>(
-                                  value: '1',
-                                  child: Text('Iya'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: '0',
-                                  child: Text('Tidak'),
-                                ),
-                              ],
+                              items: selectedHakAkses
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["id"].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: TitleWidget(
+                                      title: value["nama"] as String,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
                               decoration: InputDecoration(
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightAtasan),
+                                constraints: BoxConstraints(
+                                    maxHeight: maxHeightValidator),
                                 labelStyle: TextStyle(fontSize: textMedium),
                                 focusedBorder: const UnderlineInputBorder(
                                   borderSide: BorderSide(
@@ -2102,6 +2552,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             fontSize: textMedium,
                           ),
                         ),
+
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
@@ -2109,14 +2560,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             height: 50,
                             width: size.width,
                             padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
+                              horizontal: paddingHorizontalNarrow,
+                            ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(5),
                               border: Border.all(color: Colors.grey),
                             ),
                             child: DropdownButtonFormField<String>(
                               hint: Text(
-                                "Pilih Hak Akses",
+                                'Pilih Hak Akses',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w300,
                                   fontSize: textMedium,
@@ -2124,25 +2576,43 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               ),
                               validator: _validatorDocumentCompany,
                               value: document_company,
+                              icon: selectedHakAkses.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
                               onChanged: (String? newValue) {
                                 setState(() {
+                                  _documentCompanyController.text =
+                                      newValue ?? '';
                                   document_companyDataValue = newValue ?? '';
-                                  print("$selectedValueDocumentCompany");
+                                  print(
+                                      'selectedValueStatus: $selectedValueDocumentCompany');
                                 });
                               },
-                              items: [
-                                DropdownMenuItem<String>(
-                                  value: '1',
-                                  child: Text('Iya'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: '0',
-                                  child: Text('Tidak'),
-                                ),
-                              ],
+                              items: selectedHakAkses
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["id"].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: TitleWidget(
+                                      title: value["nama"] as String,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
                               decoration: InputDecoration(
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightAtasan),
+                                constraints: BoxConstraints(
+                                    maxHeight: maxHeightValidator),
                                 labelStyle: TextStyle(fontSize: textMedium),
                                 focusedBorder: const UnderlineInputBorder(
                                   borderSide: BorderSide(
@@ -2172,6 +2642,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             fontSize: textMedium,
                           ),
                         ),
+
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
@@ -2179,14 +2650,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             height: 50,
                             width: size.width,
                             padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
+                              horizontal: paddingHorizontalNarrow,
+                            ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(5),
                               border: Border.all(color: Colors.grey),
                             ),
                             child: DropdownButtonFormField<String>(
                               hint: Text(
-                                "Pilih Hak Akses",
+                                'Pilih Hak Akses',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w300,
                                   fontSize: textMedium,
@@ -2194,25 +2666,42 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               ),
                               validator: _validatorEmployee,
                               value: employee,
+                              icon: selectedHakAkses.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
                               onChanged: (String? newValue) {
                                 setState(() {
+                                  _employeeController.text = newValue ?? '';
                                   employeeDataValue = newValue ?? '';
-                                  print("$selectedValueEmployee");
+                                  print(
+                                      'selectedValueStatus: $selectedValueEmployee');
                                 });
                               },
-                              items: [
-                                DropdownMenuItem<String>(
-                                  value: '1',
-                                  child: Text('Iya'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: '0',
-                                  child: Text('Tidak'),
-                                ),
-                              ],
+                              items: selectedHakAkses
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["id"].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: TitleWidget(
+                                      title: value["nama"] as String,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
                               decoration: InputDecoration(
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightAtasan),
+                                constraints: BoxConstraints(
+                                    maxHeight: maxHeightValidator),
                                 labelStyle: TextStyle(fontSize: textMedium),
                                 focusedBorder: const UnderlineInputBorder(
                                   borderSide: BorderSide(
@@ -2242,6 +2731,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             fontSize: textMedium,
                           ),
                         ),
+
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
@@ -2249,14 +2739,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             height: 50,
                             width: size.width,
                             padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
+                              horizontal: paddingHorizontalNarrow,
+                            ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(5),
                               border: Border.all(color: Colors.grey),
                             ),
                             child: DropdownButtonFormField<String>(
                               hint: Text(
-                                "Pilih Hak Akses",
+                                'Pilih Hak Akses',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w300,
                                   fontSize: textMedium,
@@ -2264,25 +2755,42 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               ),
                               validator: _validatorFormOnline,
                               value: form_online,
+                              icon: selectedHakAkses.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
                               onChanged: (String? newValue) {
                                 setState(() {
+                                  _formOnlineController.text = newValue ?? '';
                                   form_onlineDataValue = newValue ?? '';
-                                  print("$selectedValueFormOnline");
+                                  print(
+                                      'selectedValueStatus: $selectedValueFormOnline');
                                 });
                               },
-                              items: [
-                                DropdownMenuItem<String>(
-                                  value: '1',
-                                  child: Text('Iya'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: '0',
-                                  child: Text('Tidak'),
-                                ),
-                              ],
+                              items: selectedHakAkses
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["id"].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: TitleWidget(
+                                      title: value["nama"] as String,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
                               decoration: InputDecoration(
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightAtasan),
+                                constraints: BoxConstraints(
+                                    maxHeight: maxHeightValidator),
                                 labelStyle: TextStyle(fontSize: textMedium),
                                 focusedBorder: const UnderlineInputBorder(
                                   borderSide: BorderSide(
@@ -2312,6 +2820,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             fontSize: textMedium,
                           ),
                         ),
+
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
@@ -2319,14 +2828,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             height: 50,
                             width: size.width,
                             padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
+                              horizontal: paddingHorizontalNarrow,
+                            ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(5),
                               border: Border.all(color: Colors.grey),
                             ),
                             child: DropdownButtonFormField<String>(
                               hint: Text(
-                                "Pilih Hak Akses",
+                                'Pilih Hak Akses',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w300,
                                   fontSize: textMedium,
@@ -2334,26 +2844,44 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               ),
                               validator: _validatorPerformanceManagement,
                               value: performance_management,
+                              icon: selectedHakAkses.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
                               onChanged: (String? newValue) {
                                 setState(() {
+                                  _performanceManagementController.text =
+                                      newValue ?? '';
                                   performance_managementDataValue =
                                       newValue ?? '';
-                                  print("$selectedValuePerformanceManagement");
+                                  print(
+                                      'selectedValueStatus: $selectedValuePerformanceManagement');
                                 });
                               },
-                              items: [
-                                DropdownMenuItem<String>(
-                                  value: '1',
-                                  child: Text('Iya'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: '0',
-                                  child: Text('Tidak'),
-                                ),
-                              ],
+                              items: selectedHakAkses
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["id"].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: TitleWidget(
+                                      title: value["nama"] as String,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
                               decoration: InputDecoration(
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightAtasan),
+                                constraints: BoxConstraints(
+                                    maxHeight: maxHeightValidator),
                                 labelStyle: TextStyle(fontSize: textMedium),
                                 focusedBorder: const UnderlineInputBorder(
                                   borderSide: BorderSide(
@@ -2384,6 +2912,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             fontSize: textMedium,
                           ),
                         ),
+
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
@@ -2391,14 +2920,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                             height: 50,
                             width: size.width,
                             padding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
+                              horizontal: paddingHorizontalNarrow,
+                            ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(5),
                               border: Border.all(color: Colors.grey),
                             ),
                             child: DropdownButtonFormField<String>(
                               hint: Text(
-                                "Pilih Hak Akses",
+                                'Pilih Hak Akses',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w300,
                                   fontSize: textMedium,
@@ -2406,25 +2936,43 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                               ),
                               validator: _validatorUserAdministrator,
                               value: user_administrator,
+                              icon: selectedHakAkses.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
                               onChanged: (String? newValue) {
                                 setState(() {
+                                  _userAdministratorController.text =
+                                      newValue ?? '';
                                   user_administratorDataValue = newValue ?? '';
-                                  print("$selectedValueUserAdministrator");
+                                  print(
+                                      'selectedValueStatus: $selectedValueUserAdministrator');
                                 });
                               },
-                              items: [
-                                DropdownMenuItem<String>(
-                                  value: '1',
-                                  child: Text('Iya'),
-                                ),
-                                DropdownMenuItem<String>(
-                                  value: '0',
-                                  child: Text('Tidak'),
-                                ),
-                              ],
+                              items: selectedHakAkses
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["id"].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: TitleWidget(
+                                      title: value["nama"] as String,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
                               decoration: InputDecoration(
-                                constraints:
-                                    BoxConstraints(maxHeight: _maxHeightAtasan),
+                                constraints: BoxConstraints(
+                                    maxHeight: maxHeightValidator),
                                 labelStyle: TextStyle(fontSize: textMedium),
                                 focusedBorder: const UnderlineInputBorder(
                                   borderSide: BorderSide(
@@ -2744,21 +3292,246 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                       DataCell(Text('$index')),
                       DataCell(Text(data['id'].toString())),
                       DataCell(Text(data['role'] ?? '')),
-                      DataCell(Text(data['form_online'] ?? '')),
-                      DataCell(Text(data['approval_list'] ?? '')),
-                      DataCell(Text(data['assignment_interviewer'] ?? '')),
-                      DataCell(Text(data['document_company'] ?? '')),
-                      DataCell(Text(data['employee'] ?? '')),
-                      DataCell(Text(data['detail_plafon'] ?? '')),
-                      DataCell(Text(data['application'] ?? '')),
-                      DataCell(Text(data['announcement'] ?? '')),
-                      DataCell(Text(data['user_administrator'] ?? '')),
-                      DataCell(Text(data['performance_management'] ?? '')),
-                      DataCell(Text(data['data_profile'] ?? '')),
-                      DataCell(Text(data['change_password'] ?? '')),
-                      DataCell(Text(data['dashboard_admin'] ?? '')),
-                      DataCell(Text(data['dashboard_user'] ?? '')),
-                      DataCell(Text(data['notification'] ?? '')),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['form_online'] == "1"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['approval_list'] == "1"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['assignment_interviewer'] == "0"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['document_company'] == "1"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['employee'] == "1"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['detail_plafon'] == "1"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['application'] == "1"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['announcement'] == "1"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['user_administrator'] == "1"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['performance_management'] == "1"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['data_profile'] == "1"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['change_password'] == "1"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['dashboard_admin'] == "1"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['dashboard_user'] == "1"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        TableCell(
+                          verticalAlignment: TableCellVerticalAlignment.middle,
+                          child: Center(
+                            child: data['notification'] == "1"
+                                ? const Icon(
+                                    Icons.check_circle,
+                                    color: Colors.green,
+                                  )
+                                : const Icon(
+                                    Icons.cancel,
+                                    color: Colors.red,
+                                  ),
+                          ),
+                        ),
+                      ),
                       DataCell(
                         Row(
                           children: [
