@@ -170,11 +170,11 @@ class _RawatJalanState extends State<RawatJalan> {
       "data": [
         {
           "id": "0",
-          "nama": "Aktif"
+          "nama": "Tidak Aktif"
         },
         {
           "id": "1",
-          "nama": "Tidak Aktif"
+          "nama": "Aktif"
         }
       ]
     }
@@ -445,7 +445,7 @@ class _RawatJalanState extends State<RawatJalan> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
                             child: TitleWidget(
-                              title: 'Md pangkat *',
+                              title: 'Pangkat *',
                               fontWeight: FontWeight.w300,
                               fontSize: textMedium,
                             ),
@@ -464,7 +464,7 @@ class _RawatJalanState extends State<RawatJalan> {
                               ),
                               child: DropdownButtonFormField<String>(
                                 hint: Text(
-                                  "Pilih md pangkat",
+                                  "Pilih Pangkat",
                                   style: TextStyle(
                                     fontWeight: FontWeight.w300,
                                     fontSize: textMedium,
@@ -531,7 +531,7 @@ class _RawatJalanState extends State<RawatJalan> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
                             child: TitleWidget(
-                              title: 'Md nikah *',
+                              title: 'Nikah *',
                               fontWeight: FontWeight.w300,
                               fontSize: textMedium,
                             ),
@@ -551,7 +551,7 @@ class _RawatJalanState extends State<RawatJalan> {
                               ),
                               child: DropdownButtonFormField<String>(
                                 hint: Text(
-                                  "Pilih md nikah",
+                                  "Pilih Nikah",
                                   style: TextStyle(
                                     fontWeight: FontWeight.w300,
                                     fontSize: textMedium,
@@ -833,7 +833,7 @@ class _RawatJalanState extends State<RawatJalan> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
                             child: TitleWidget(
-                              title: 'Tanggal mulai *',
+                              title: 'Tanggal Mulai *',
                               fontWeight: FontWeight.w300,
                               fontSize: textMedium,
                             ),
@@ -1260,7 +1260,7 @@ class _RawatJalanState extends State<RawatJalan> {
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
                           child: TitleWidget(
-                            title: 'Md pangkat *',
+                            title: 'Pangkat *',
                             fontWeight: FontWeight.w300,
                             fontSize: textMedium,
                           ),
@@ -1279,7 +1279,7 @@ class _RawatJalanState extends State<RawatJalan> {
                             ),
                             child: DropdownButtonFormField<String>(
                               hint: Text(
-                                "Pilih md pangkat",
+                                "Pilih Pangkat",
                                 style: TextStyle(
                                   fontWeight: FontWeight.w300,
                                   fontSize: textMedium,
@@ -1346,7 +1346,7 @@ class _RawatJalanState extends State<RawatJalan> {
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
                           child: TitleWidget(
-                            title: 'Md nikah *',
+                            title: 'Nikah *',
                             fontWeight: FontWeight.w300,
                             fontSize: textMedium,
                           ),
@@ -1366,7 +1366,7 @@ class _RawatJalanState extends State<RawatJalan> {
                             ),
                             child: DropdownButtonFormField<String>(
                               hint: Text(
-                                "Pilih md nikah",
+                                "Pilih Nikah",
                                 style: TextStyle(
                                   fontWeight: FontWeight.w300,
                                   fontSize: textMedium,
@@ -1686,7 +1686,7 @@ class _RawatJalanState extends State<RawatJalan> {
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
                           child: TitleWidget(
-                            title: 'Tanggal mulai *',
+                            title: 'Tanggal Mulai *',
                             fontWeight: FontWeight.w300,
                             fontSize: textMedium,
                           ),
@@ -1908,17 +1908,12 @@ class _RawatJalanState extends State<RawatJalan> {
                   DataColumn(label: Text('No')),
                   DataColumn(
                     label: Text(
-                      "ID",
+                      "Kategori",
                     ),
                   ),
                   DataColumn(
                     label: Text(
-                      "Kode Nikah",
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      "Kode Pangkat",
+                      "Pangkat",
                     ),
                   ),
                   DataColumn(
@@ -1948,16 +1943,6 @@ class _RawatJalanState extends State<RawatJalan> {
                   ),
                   DataColumn(
                     label: Text(
-                      "Kategori",
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      "Pangkat",
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
                       "Aksi",
                       style:
                           TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
@@ -1970,27 +1955,21 @@ class _RawatJalanState extends State<RawatJalan> {
                   return DataRow(
                     cells: <DataCell>[
                       DataCell(Text('$index')),
-                      DataCell(Text(data['id'].toString())),
-                      DataCell(Text(data['kode_nikah'] ?? '')),
-                      DataCell(Text(data['kode_pangkat'] ?? '')),
+                      DataCell(Text(data['kategori'] ?? '')),
+                      DataCell(Text(data['pangkat'] ?? '')),
                       DataCell(
-                        TableCell(
-                          verticalAlignment: TableCellVerticalAlignment.middle,
-                          child: Center(
-                            child: data['kurs'].toString() == "1"
-                                ? Text("USD")
-                                : Text("Rupiah"),
-                          ),
+                        Center(
+                          child: data['kurs'].toString() == "1"
+                              ? Text("USD")
+                              : Text("Rupiah"),
                         ),
                       ),
                       DataCell(Text(data['nominal'].toString() ?? '')),
                       DataCell(Text(data['tgl_mulai'] ?? '')),
                       DataCell(Text(data['tgl_berakhir'] ?? '')),
-                      DataCell(Text(data['status'].toString() == "0"
+                      DataCell(Text(data['status'].toString() == "1"
                           ? 'Aktif'
                           : 'Tidak Aktif')),
-                      DataCell(Text(data['kategori'] ?? '')),
-                      DataCell(Text(data['pangkat'] ?? '')),
                       DataCell(
                         Row(
                           children: [
