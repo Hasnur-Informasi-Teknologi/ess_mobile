@@ -276,7 +276,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
         if (responseData['status'] == 'success') {
           Get.offAllNamed('/user/main');
 
-          Get.snackbar('Infomation', 'Sukses Diapprove',
+          Get.snackbar('Infomation', 'Approved',
               snackPosition: SnackPosition.TOP,
               backgroundColor: Colors.amber,
               icon: const Icon(
@@ -285,7 +285,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
               ),
               shouldIconPulse: false);
         } else {
-          Get.snackbar('Infomation', 'Gagal Diapprove',
+          Get.snackbar('Infomation', 'Gagal',
               snackPosition: SnackPosition.TOP,
               backgroundColor: Colors.amber,
               icon: const Icon(
@@ -327,7 +327,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
         final responseData = jsonDecode(response.body);
         if (responseData['status'] == 'success') {
           Get.offAllNamed('/user/main');
-          Get.snackbar('Infomation', 'Sukses Direject',
+          Get.snackbar('Infomation', 'Rejected',
               snackPosition: SnackPosition.TOP,
               backgroundColor: Colors.amber,
               icon: const Icon(
@@ -336,7 +336,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
               ),
               shouldIconPulse: false);
         } else {
-          Get.snackbar('Infomation', 'Gagal Direject',
+          Get.snackbar('Infomation', 'Gagal',
               snackPosition: SnackPosition.TOP,
               backgroundColor: Colors.amber,
               icon: const Icon(
@@ -1136,7 +1136,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
                                   children: [
-                                    Icon(Icons.details_sharp),
+                                    // Icon(Icons.details_sharp),
                                     Text(
                                       'Detail',
                                       style: TextStyle(
@@ -1168,7 +1168,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                               height: size.height * 0.04,
                               padding: EdgeInsets.all(padding5),
                               decoration: BoxDecoration(
-                                color: Colors.red[400],
+                                color: Colors.red,
                                 borderRadius: BorderRadius.circular(5.0),
                               ),
                               child: Center(
@@ -1176,11 +1176,11 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
                                   children: [
-                                    Icon(Icons.delete),
+                                    // Icon(Icons.delete),
                                     Text(
                                       'Reject',
                                       style: TextStyle(
-                                        color: Color(primaryBlack),
+                                        color: Colors.white,
                                         fontSize: textMedium,
                                         fontFamily: 'Poppins',
                                         fontWeight: FontWeight.w500,
@@ -1212,11 +1212,11 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
                                   children: [
-                                    Icon(Icons.approval),
+                                    // Icon(Icons.approval),
                                     Text(
                                       'Approve',
                                       style: TextStyle(
-                                        color: Color(primaryBlack),
+                                        color: Colors.white,
                                         fontSize: textMedium,
                                         fontFamily: 'Poppins',
                                         fontWeight: FontWeight.w500,

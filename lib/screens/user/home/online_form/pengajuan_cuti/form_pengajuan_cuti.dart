@@ -109,8 +109,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
 
   void updateTotalCuti() {
     if (_isDiBayar == true && _isTidakDiBayar == false) {
-      if (_cutiDibayarController.text.isNotEmpty &&
-          isNumeric(_cutiDibayarController.text)) {
+      if (_cutiDibayarController.text.isNotEmpty) {
         if (int.tryParse(_cutiDibayarController.text)! < 0) {
           _cutiDibayarController.text = '0';
         }
@@ -124,13 +123,24 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
 
     if (_isDiBayar == true && _isTidakDiBayar == true) {
       if (_cutiDibayarController.text.isNotEmpty &&
-          isNumeric(_cutiDibayarController.text) &&
-          _cutiTidakDibayarController.text.isNotEmpty &&
-          isNumeric(_cutiTidakDibayarController.text)) {
+          _cutiTidakDibayarController.text.isNotEmpty) {
         setState(() {
           cutiDibayarTambahCutiTidakDibayar =
               int.parse(_cutiDibayarController.text) +
                   int.parse(_cutiTidakDibayarController.text);
+          totalCutiYangDiambil = cutiDibayarTambahCutiTidakDibayar + totalLama;
+        });
+      }
+    }
+
+    if (_isDiBayar == false && _isTidakDiBayar == true) {
+      if (_cutiTidakDibayarController.text.isNotEmpty) {
+        if (int.tryParse(_cutiTidakDibayarController.text)! < 0) {
+          _cutiTidakDibayarController.text = '0';
+        }
+        setState(() {
+          cutiDibayarTambahCutiTidakDibayar =
+              int.parse(_cutiTidakDibayarController.text);
           totalCutiYangDiambil = cutiDibayarTambahCutiTidakDibayar + totalLama;
         });
       }
@@ -453,59 +463,59 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     String kepLainnya =
         dataCutiLainnya.map((item) => item['jenis'].toString()).join(', ');
 
-    // try {
-    //   final response = await http.post(Uri.parse('$_apiUrl/pengajuan-cuti/add'),
-    //       headers: <String, String>{
-    //         'Content-Type': 'application/json; charset=UTF-8',
-    //         'Authorization': 'Bearer $token'
-    //       },
-    //       body: jsonEncode({
-    //         'tgl_mulai': tanggalMulai != null
-    //             ? tanggalMulai.toString()
-    //             : DateTime.now().toString(),
-    //         'tgl_berakhir': tanggalBerakhir != null
-    //             ? tanggalBerakhir.toString()
-    //             : DateTime.now().toString(),
-    //         'tgl_kembali_kerja': tanggalKembaliKerja != null
-    //             ? tanggalKembaliKerja.toString()
-    //             : DateTime.now().toString(),
-    //         'dibayar': _isDiBayar,
-    //         'tdk_dibayar': _isTidakDiBayar,
-    //         'lainnya': _isIzinLainnya,
-    //         'kep_lainnya': kepLainnya,
-    //         'jml_cuti_tahunan': int.tryParse(_cutiDibayarController.text) ?? 0,
-    //         'jml_cuti_tdkdibayar':
-    //             int.tryParse(_cutiTidakDibayarController.text) ?? 0,
-    //         'jml_cuti_lainnya': totalLama,
-    //         'sisa_ext': 0,
-    //         'entitas_atasan': selectedValueEntitas.toString(),
-    //         'nrp_atasan': selectedValueAtasan.toString(),
-    //         'entitas_pengganti': selectedValueEntitasPengganti.toString(),
-    //         'nrp_pengganti': selectedValuePengganti.toString(),
-    //         'jml_cuti': totalCutiYangDiambil,
-    //         'keperluan': keperluanCuti.toString(),
-    //         'alamat_cuti': alamatCuti.toString(),
-    //         'no_telp': noTelepon.toString()
-    //       }));
+    try {
+      final response = await http.post(Uri.parse('$_apiUrl/pengajuan-cuti/add'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token'
+          },
+          body: jsonEncode({
+            'tgl_mulai': tanggalMulai != null
+                ? tanggalMulai.toString()
+                : DateTime.now().toString(),
+            'tgl_berakhir': tanggalBerakhir != null
+                ? tanggalBerakhir.toString()
+                : DateTime.now().toString(),
+            'tgl_kembali_kerja': tanggalKembaliKerja != null
+                ? tanggalKembaliKerja.toString()
+                : DateTime.now().toString(),
+            'dibayar': _isDiBayar,
+            'tdk_dibayar': _isTidakDiBayar,
+            'lainnya': _isIzinLainnya,
+            'kep_lainnya': kepLainnya,
+            'jml_cuti_tahunan': int.tryParse(_cutiDibayarController.text) ?? 0,
+            'jml_cuti_tdkdibayar':
+                int.tryParse(_cutiTidakDibayarController.text) ?? 0,
+            'jml_cuti_lainnya': totalLama,
+            'sisa_ext': 0,
+            'entitas_atasan': selectedValueEntitas.toString(),
+            'nrp_atasan': selectedValueAtasan.toString(),
+            'entitas_pengganti': selectedValueEntitasPengganti.toString(),
+            'nrp_pengganti': selectedValuePengganti.toString(),
+            'jml_cuti': totalCutiYangDiambil,
+            'keperluan': keperluanCuti.toString(),
+            'alamat_cuti': alamatCuti.toString(),
+            'no_telp': noTelepon.toString()
+          }));
 
-    //   final responseData = jsonDecode(response.body);
-    //   Get.snackbar('Infomation', responseData['message'],
-    //       snackPosition: SnackPosition.TOP,
-    //       backgroundColor: Colors.amber,
-    //       icon: const Icon(
-    //         Icons.info,
-    //         color: Colors.white,
-    //       ),
-    //       shouldIconPulse: false);
-    //   print(responseData);
+      final responseData = jsonDecode(response.body);
+      Get.snackbar('Infomation', responseData['message'],
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.amber,
+          icon: const Icon(
+            Icons.info,
+            color: Colors.white,
+          ),
+          shouldIconPulse: false);
+      print(responseData);
 
-    //   if (responseData['status'] == 'success') {
-    //     Get.offAllNamed('/user/main');
-    //   }
-    // } catch (e) {
-    //   print(e);
-    //   throw e;
-    // }
+      if (responseData['status'] == 'success') {
+        Get.offAllNamed('/user/main');
+      }
+    } catch (e) {
+      print(e);
+      throw e;
+    }
 
     setState(() {
       _isLoading = false;
@@ -1262,7 +1272,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                         padding: EdgeInsets.symmetric(
                                             horizontal:
                                                 paddingHorizontalNarrow),
-                                        child: TextFormFieldWidget(
+                                        child: TextFormFieldNumberWidget(
                                           controller:
                                               _cutiTidakDibayarController,
                                           // maxHeightConstraints:
