@@ -106,9 +106,8 @@ class _WFOLocationScreenState extends State<WFOLocationScreen> {
     var clockIn = DateFormat('yyyy-MM-dd HH:mm:ss')
         .format(DateTime.fromMillisecondsSinceEpoch(stimestamp));
 
-    var karyawan=jsonDecode(prefs.getString('userData').toString())['data'];
+    var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
     final userId = karyawan['pernr'];
-
 
     Map<String, Object> clockInData = {
       'pernr': userId.toString(),
@@ -275,7 +274,7 @@ class _WFOLocationScreenState extends State<WFOLocationScreen> {
                                       'Button Proses Absen',
                                       style: TextStyle(
                                           fontSize: 16,
-                                          fontWeight: FontWeight.w700),
+                                          fontWeight: FontWeight.w500),
                                     ).tr(namedArgs: {'check': 'Check-In'}),
                                   ),
                                   onPressed: clockInProcess,
@@ -295,7 +294,7 @@ class _WFOLocationScreenState extends State<WFOLocationScreen> {
                                             'Position',
                                             style: TextStyle(
                                                 fontSize: 20,
-                                                fontWeight: FontWeight.w700),
+                                                fontWeight: FontWeight.w500),
                                           ).tr(
                                               namedArgs: {'check': 'Check-In'}),
                                           const SizedBox(height: 20),
@@ -312,7 +311,7 @@ class _WFOLocationScreenState extends State<WFOLocationScreen> {
                                                   style: const TextStyle(
                                                       fontSize: 14,
                                                       fontWeight:
-                                                          FontWeight.w700,
+                                                          FontWeight.w500,
                                                       color: Colors.black38),
                                                 ),
                                               ),

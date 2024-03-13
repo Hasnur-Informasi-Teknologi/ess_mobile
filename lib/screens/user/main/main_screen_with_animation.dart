@@ -140,7 +140,7 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
                       title: const Text(
                         'Absensi',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                        style: TextStyle(fontWeight: FontWeight.w500),
                       ),
                       actions: <Widget>[
                         Column(children: <Widget>[
@@ -160,7 +160,7 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
                                               Text('WFH',
                                                   style: TextStyle(
                                                       fontWeight:
-                                                          FontWeight.w700,
+                                                          FontWeight.w500,
                                                       color:
                                                           Color(primaryBlack))),
                                             ],
@@ -195,7 +195,7 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
                                               Text('WFO',
                                                   style: TextStyle(
                                                       fontWeight:
-                                                          FontWeight.w700,
+                                                          FontWeight.w500,
                                                       color:
                                                           Color(primaryBlack))),
                                             ],
@@ -226,7 +226,7 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
                                               Text('Bussiness Trip',
                                                   style: TextStyle(
                                                       fontWeight:
-                                                          FontWeight.w700,
+                                                          FontWeight.w500,
                                                       color:
                                                           Color(primaryBlack))),
                                             ],
@@ -265,7 +265,7 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
                                               Text('Absen Pulang',
                                                   style: TextStyle(
                                                       fontWeight:
-                                                          FontWeight.w700,
+                                                          FontWeight.w500,
                                                       color:
                                                           Color(primaryBlack))),
                                             ],

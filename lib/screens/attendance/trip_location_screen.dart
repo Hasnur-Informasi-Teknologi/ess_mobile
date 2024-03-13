@@ -85,9 +85,8 @@ class _TripLocationScreenState extends State<TripLocationScreen> {
     print('----------------- time ---------------------');
     print(clockIn);
 
-    var karyawan=jsonDecode(prefs.getString('userData').toString())['data'];
+    var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
     final userId = karyawan['pernr'];
-
 
     Map<String, Object> clockInData = {
       'pernr': userId.toString(),
@@ -112,8 +111,10 @@ class _TripLocationScreenState extends State<TripLocationScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () {
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const MainScreenWithAnimation()));
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const MainScreenWithAnimation()));
         return Future.value(true);
       },
       child: Scaffold(
@@ -127,7 +128,8 @@ class _TripLocationScreenState extends State<TripLocationScreen> {
                   Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => const MainScreenWithAnimation()));
+                          builder: (context) =>
+                              const MainScreenWithAnimation()));
                 },
               )),
           body: _isLoading
@@ -200,7 +202,7 @@ class _TripLocationScreenState extends State<TripLocationScreen> {
                                         'Button Proses Absen',
                                         style: TextStyle(
                                             fontSize: 16,
-                                            fontWeight: FontWeight.w700),
+                                            fontWeight: FontWeight.w500),
                                       ).tr(namedArgs: {
                                         'check': widget.attendanceType
                                       }),
@@ -221,7 +223,7 @@ class _TripLocationScreenState extends State<TripLocationScreen> {
                                               'Position',
                                               style: TextStyle(
                                                   fontSize: 20,
-                                                  fontWeight: FontWeight.w700),
+                                                  fontWeight: FontWeight.w500),
                                             ).tr(namedArgs: {
                                               'check': widget.attendanceType
                                             }),
@@ -239,7 +241,7 @@ class _TripLocationScreenState extends State<TripLocationScreen> {
                                                     style: const TextStyle(
                                                         fontSize: 14,
                                                         fontWeight:
-                                                            FontWeight.w700,
+                                                            FontWeight.w500,
                                                         color: Colors.black38),
                                                   ),
                                                 ),

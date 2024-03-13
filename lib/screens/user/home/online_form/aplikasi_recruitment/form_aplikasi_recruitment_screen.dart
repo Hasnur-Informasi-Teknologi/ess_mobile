@@ -76,7 +76,7 @@ class _FormAplikasiRecruitmentScreenState
                         horizontal: paddingHorizontalNarrow),
                     child: TitleWidget(
                       title: 'Prioritas',
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       fontSize: textMedium,
                     ),
                   ),
@@ -99,7 +99,7 @@ class _FormAplikasiRecruitmentScreenState
                         horizontal: paddingHorizontalNarrow),
                     child: TitleWidget(
                       title: 'Nomor',
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       fontSize: textMedium,
                     ),
                   ),
@@ -123,7 +123,7 @@ class _FormAplikasiRecruitmentScreenState
                         horizontal: paddingHorizontalNarrow),
                     child: TitleWidget(
                       title: 'Tangal Pengajuan',
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w500,
                       fontSize: textMedium,
                     ),
                   ),
@@ -231,7 +231,7 @@ class _FormAplikasiRecruitmentScreenState
                                         ),
                                         TitleWidget(
                                           title: 'Diajukan Oleh',
-                                          fontWeight: FontWeight.w700,
+                                          fontWeight: FontWeight.w500,
                                           fontSize: textLarge,
                                         ),
                                         SizedBox(
@@ -320,7 +320,7 @@ class _FormAplikasiRecruitmentScreenState
                                         TitleWidget(
                                           title:
                                               'Permintaan Rekrutmen Karyawan Untuk',
-                                          fontWeight: FontWeight.w700,
+                                          fontWeight: FontWeight.w500,
                                           fontSize: textLarge,
                                         ),
                                         SizedBox(
@@ -537,7 +537,7 @@ class _FormAplikasiRecruitmentScreenState
                                         ),
                                         TitleWidget(
                                           title: 'Kualifikasi yang Dibutuhkan',
-                                          fontWeight: FontWeight.w700,
+                                          fontWeight: FontWeight.w500,
                                           fontSize: textLarge,
                                         ),
                                         SizedBox(

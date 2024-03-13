@@ -141,7 +141,7 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                       title: Text(
                         'Absensi',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                        style: TextStyle(fontWeight: FontWeight.w500),
                       ),
                       actions: <Widget>[
                         Column(children: <Widget>[
@@ -161,7 +161,7 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                                               Text('WFH',
                                                   style: TextStyle(
                                                       fontWeight:
-                                                          FontWeight.w700,
+                                                          FontWeight.w500,
                                                       color:
                                                           Color(primaryBlack))),
                                             ],
@@ -196,7 +196,7 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                                               Text('WFO',
                                                   style: TextStyle(
                                                       fontWeight:
-                                                          FontWeight.w700,
+                                                          FontWeight.w500,
                                                       color:
                                                           Color(primaryBlack))),
                                             ],
@@ -227,7 +227,7 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                                               Text('Bussiness Trip',
                                                   style: TextStyle(
                                                       fontWeight:
-                                                          FontWeight.w700,
+                                                          FontWeight.w500,
                                                       color:
                                                           Color(primaryBlack))),
                                             ],
@@ -266,7 +266,7 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                                               Text('Absen Pulang',
                                                   style: TextStyle(
                                                       fontWeight:
-                                                          FontWeight.w700,
+                                                          FontWeight.w500,
                                                       color:
                                                           Color(primaryBlack))),
                                             ],

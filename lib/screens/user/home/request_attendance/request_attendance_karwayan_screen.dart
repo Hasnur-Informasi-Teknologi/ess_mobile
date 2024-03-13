@@ -68,7 +68,7 @@ class _RequestAttendanceKaryawanScreenState
                           fontSize: textMedium,
                           fontFamily: 'Poppins',
                           letterSpacing: 0.9,
-                          fontWeight: FontWeight.w700),
+                          fontWeight: FontWeight.w500),
                     ),
                   ),
                 ),

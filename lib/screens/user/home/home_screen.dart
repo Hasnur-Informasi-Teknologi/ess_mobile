@@ -119,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Container(
             // height: size.height * 0.43,
-            height: size.height * 0.43,
+            height: size.height * 0.55,
 
             width: size.width,
             decoration: const BoxDecoration(color: Colors.white),
@@ -134,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     )),
                 Container(
                   // height: size.height * 0.23,
-                  height: size.height * 0.14,
+                  height: size.height * 0.15,
                   width: size.width * 0.9,
                   decoration: BoxDecoration(
                     color: Colors.grey[100],
@@ -152,8 +152,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   height: padding10,
                 ),
                 Container(
-                  // height: size.height * 0.23,
-                  height: size.height * 0.11,
+                  height: size.height * 0.23,
+                  // height: size.height * 0.11,
                   width: size.width * 0.9,
                   decoration: BoxDecoration(
                     color: Colors.grey[100],
