@@ -22,7 +22,7 @@ class TitleWidget extends StatelessWidget {
           fontSize: fontSize ?? textLarge,
           fontFamily: 'Poppins',
           letterSpacing: 0.6,
-          fontWeight: fontWeight ?? FontWeight.w700),
+          fontWeight: fontWeight ?? FontWeight.w500),
     );
   }
 }

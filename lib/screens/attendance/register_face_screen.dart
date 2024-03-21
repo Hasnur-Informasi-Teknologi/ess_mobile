@@ -55,7 +55,7 @@ class _RegisterFaceScreenState extends State<RegisterFaceScreen> {
     setState(() => _isLoading = true);
     var force = _isDuplicate ? 'true' : 'false';
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var karyawan=jsonDecode(prefs.getString('userData').toString())['data'];
+    var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
     final userId = karyawan['pernr'];
 
     final entity = prefs.getString('entity');
@@ -274,7 +274,7 @@ class _RegisterFaceScreenState extends State<RegisterFaceScreen> {
                                         'Kembali ke Dashboard',
                                         style: TextStyle(
                                             fontSize: 16,
-                                            fontWeight: FontWeight.w700,
+                                            fontWeight: FontWeight.w500,
                                             color: Color(primaryBlack)),
                                       ),
                                       onPressed: () async {
@@ -305,7 +305,7 @@ class _RegisterFaceScreenState extends State<RegisterFaceScreen> {
                                             'Tetap Daftarkan Wajah di user ini?',
                                             style: TextStyle(
                                                 fontSize: 16,
-                                                fontWeight: FontWeight.w700,
+                                                fontWeight: FontWeight.w500,
                                                 color: Color(primaryBlack)),
                                           ),
                                           onPressed: () async {
@@ -330,7 +330,7 @@ class _RegisterFaceScreenState extends State<RegisterFaceScreen> {
                                             'Daftarkan Wajah',
                                             style: TextStyle(
                                                 fontSize: 16,
-                                                fontWeight: FontWeight.w700,
+                                                fontWeight: FontWeight.w500,
                                                 color: Color(primaryBlack)),
                                           ),
                                           onPressed: () async {

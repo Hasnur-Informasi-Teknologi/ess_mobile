@@ -109,8 +109,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
 
   void updateTotalCuti() {
     if (_isDiBayar == true && _isTidakDiBayar == false) {
-      if (_cutiDibayarController.text.isNotEmpty &&
-          isNumeric(_cutiDibayarController.text)) {
+      if (_cutiDibayarController.text.isNotEmpty) {
         if (int.tryParse(_cutiDibayarController.text)! < 0) {
           _cutiDibayarController.text = '0';
         }
@@ -124,13 +123,24 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
 
     if (_isDiBayar == true && _isTidakDiBayar == true) {
       if (_cutiDibayarController.text.isNotEmpty &&
-          isNumeric(_cutiDibayarController.text) &&
-          _cutiTidakDibayarController.text.isNotEmpty &&
-          isNumeric(_cutiTidakDibayarController.text)) {
+          _cutiTidakDibayarController.text.isNotEmpty) {
         setState(() {
           cutiDibayarTambahCutiTidakDibayar =
               int.parse(_cutiDibayarController.text) +
                   int.parse(_cutiTidakDibayarController.text);
+          totalCutiYangDiambil = cutiDibayarTambahCutiTidakDibayar + totalLama;
+        });
+      }
+    }
+
+    if (_isDiBayar == false && _isTidakDiBayar == true) {
+      if (_cutiTidakDibayarController.text.isNotEmpty) {
+        if (int.tryParse(_cutiTidakDibayarController.text)! < 0) {
+          _cutiTidakDibayarController.text = '0';
+        }
+        setState(() {
+          cutiDibayarTambahCutiTidakDibayar =
+              int.parse(_cutiTidakDibayarController.text);
           totalCutiYangDiambil = cutiDibayarTambahCutiTidakDibayar + totalLama;
         });
       }
@@ -418,6 +428,24 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
       return;
     }
 
+    if (tanggalKembaliKerja!.isBefore(tanggalMulai!) ||
+        tanggalKembaliKerja!.isAtSameMomentAs(tanggalMulai!) ||
+        tanggalKembaliKerja!.isBefore(tanggalBerakhir!) ||
+        tanggalKembaliKerja!.isAtSameMomentAs(tanggalBerakhir!)) {
+      Get.snackbar('Infomation', 'Tanggal Kembali tidak Valid',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.amber,
+          icon: const Icon(
+            Icons.info,
+            color: Colors.white,
+          ),
+          shouldIconPulse: false);
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
     if (_formKey.currentState!.validate() == false) {
       setState(() {
         _isLoading = false;
@@ -664,7 +692,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                     fontSize: textLarge,
                     fontFamily: 'Poppins',
                     letterSpacing: 0.6,
-                    fontWeight: FontWeight.w700),
+                    fontWeight: FontWeight.w500),
               ),
             ),
             body: ListView(
@@ -680,10 +708,24 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
-                        child: TitleWidget(
-                          title: 'Pilih Entitas : ',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Pilih Entitas : ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       Padding(
@@ -751,10 +793,24 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
-                        child: TitleWidget(
-                          title: 'Pilih Atasan :',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Pilih Atasan : ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       Padding(
@@ -892,7 +948,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                             horizontal: paddingHorizontalWide),
                         child: TitleWidget(
                           title: 'Karyawan Pengganti ',
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                           fontSize: textMedium,
                         ),
                       ),
@@ -910,10 +966,24 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
-                        child: TitleWidget(
-                          title: 'Pilih Entitas : ',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Pilih Entitas : ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       Padding(
@@ -980,10 +1050,24 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
-                        child: TitleWidget(
-                          title: 'Pilih Pengganti : ',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Pilih Pengganti : ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       Padding(
@@ -1049,10 +1133,24 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
-                        child: TitleWidget(
-                          title: 'Keterangan Cuti',
-                          fontWeight: FontWeight.w700,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Keterangan Cuti ',
+                              fontWeight: FontWeight.w500,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       SizedBox(
@@ -1108,8 +1206,8 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                                 paddingHorizontalNarrow),
                                         child: TextFormFieldNumberWidget(
                                           controller: _cutiDibayarController,
-                                          maxHeightConstraints:
-                                              maxHeightCutiTahunanDibayar,
+                                          // maxHeightConstraints:
+                                          //     maxHeightCutiTahunanDibayar,
                                           hintText: 'Cuti Tahunan Dibayar',
                                         ),
                                       ),
@@ -1174,11 +1272,11 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                         padding: EdgeInsets.symmetric(
                                             horizontal:
                                                 paddingHorizontalNarrow),
-                                        child: TextFormFieldWidget(
+                                        child: TextFormFieldNumberWidget(
                                           controller:
                                               _cutiTidakDibayarController,
-                                          maxHeightConstraints:
-                                              maxHeightCutiTahunanTidakDibayar,
+                                          // maxHeightConstraints:
+                                          //     maxHeightCutiTahunanTidakDibayar,
                                           hintText:
                                               'Cuti Tahunan Tidak Dibayar',
                                         ),
@@ -1375,7 +1473,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                                     fontFamily: 'Poppins',
                                                     letterSpacing: 0.9,
                                                     fontWeight:
-                                                        FontWeight.w700),
+                                                        FontWeight.w500),
                                               ),
                                             ),
                                           )
@@ -1512,7 +1610,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                                                         fontFamily:
                                                                             'Poppins',
                                                                         fontWeight:
-                                                                            FontWeight.w700,
+                                                                            FontWeight.w500,
                                                                       ),
                                                                     ),
                                                                   ),
@@ -1542,10 +1640,24 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
-                        child: TitleWidget(
-                          title: 'Keperluan Cuti',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Keperluan Cuti ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       SizedBox(
@@ -1572,7 +1684,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                             horizontal: paddingHorizontalWide),
                         child: TitleWidget(
                           title: 'Catatan Cuti',
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                           fontSize: textMedium,
                         ),
                       ),
@@ -1713,10 +1825,24 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
-                        child: TitleWidget(
-                          title: 'Tanggal Pengajuan Cuti',
-                          fontWeight: FontWeight.w700,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Tanggal Pengajuan Cuti ',
+                              fontWeight: FontWeight.w500,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       SizedBox(
@@ -1765,10 +1891,12 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                           color: Colors.grey,
                                         ),
                                         Text(
-                                          DateFormat('dd-MM-yyyy').format(
-                                              _tanggalMulaiController
-                                                      .selectedDate ??
-                                                  DateTime.now()),
+                                          tanggalMulai != null
+                                              ? DateFormat('dd-MM-yyyy').format(
+                                                  _tanggalMulaiController
+                                                          .selectedDate ??
+                                                      DateTime.now())
+                                              : 'dd/mm/yyyy',
                                           style: TextStyle(
                                             color: Colors.grey,
                                             fontSize: textMedium,
@@ -1849,10 +1977,12 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                           color: Colors.grey,
                                         ),
                                         Text(
-                                          DateFormat('dd-MM-yyyy').format(
-                                              _tanggalBerakhirController
-                                                      .selectedDate ??
-                                                  DateTime.now()),
+                                          tanggalBerakhir != null
+                                              ? DateFormat('dd-MM-yyyy').format(
+                                                  _tanggalBerakhirController
+                                                          .selectedDate ??
+                                                      DateTime.now())
+                                              : 'dd/mm/yyyy',
                                           style: TextStyle(
                                             color: Colors.grey,
                                             fontSize: textMedium,
@@ -1934,10 +2064,12 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                   color: Colors.grey,
                                 ),
                                 Text(
-                                  DateFormat('dd-MM-yyyy').format(
-                                      _tanggalKembaliKerjaController
-                                              .selectedDate ??
-                                          DateTime.now()),
+                                  tanggalKembaliKerja != null
+                                      ? DateFormat('dd-MM-yyyy').format(
+                                          _tanggalKembaliKerjaController
+                                                  .selectedDate ??
+                                              DateTime.now())
+                                      : 'dd/mm/yyyy',
                                   style: TextStyle(
                                     color: Colors.grey,
                                     fontSize: textMedium,
@@ -1985,10 +2117,24 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
-                        child: TitleWidget(
-                          title: 'Alamat Cuti',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Alamat Cuti ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       SizedBox(
@@ -2010,10 +2156,24 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
-                        child: TitleWidget(
-                          title: 'No Telepon',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'No Telepon ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       SizedBox(
@@ -2055,7 +2215,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                   fontSize: textMedium,
                                   fontFamily: 'Poppins',
                                   letterSpacing: 0.9,
-                                  fontWeight: FontWeight.w700),
+                                  fontWeight: FontWeight.w500),
                             ),
                           ),
                         ),
@@ -2094,7 +2254,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                     color: const Color(primaryBlack),
                     fontSize: textLarge,
                     fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
               ),
@@ -2136,7 +2296,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           color: Color(primaryBlack),
                           fontSize: textMedium,
                           fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
@@ -2165,7 +2325,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           color: Color(primaryBlack),
                           fontSize: textMedium,
                           fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),

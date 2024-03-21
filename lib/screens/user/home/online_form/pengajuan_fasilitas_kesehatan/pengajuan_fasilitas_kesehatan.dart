@@ -33,7 +33,7 @@ class PengajuanFasilitasKesehatan extends StatelessWidget {
               fontSize: textLarge,
               fontFamily: 'Poppins',
               letterSpacing: 0.6,
-              fontWeight: FontWeight.w700),
+              fontWeight: FontWeight.w500),
         ),
       ),
       body: Center(

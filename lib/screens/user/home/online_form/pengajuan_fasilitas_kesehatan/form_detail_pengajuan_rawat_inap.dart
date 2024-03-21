@@ -229,7 +229,7 @@ class _FormDetailPengajuanRawatInapState
               fontSize: textLarge,
               fontFamily: 'Poppins',
               letterSpacing: 0.6,
-              fontWeight: FontWeight.w700),
+              fontWeight: FontWeight.w500),
         ),
       ),
       body: ListView(
@@ -530,7 +530,7 @@ class _FormDetailPengajuanRawatInapState
                         'File Kosong',
                         style: TextStyle(
                             color: Colors.red,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                             fontSize: textMedium),
                       ))
                     : const Text(''),
@@ -557,7 +557,7 @@ class _FormDetailPengajuanRawatInapState
                             fontSize: textMedium,
                             fontFamily: 'Poppins',
                             letterSpacing: 0.9,
-                            fontWeight: FontWeight.w700),
+                            fontWeight: FontWeight.w500),
                       ),
                     ),
                   ),

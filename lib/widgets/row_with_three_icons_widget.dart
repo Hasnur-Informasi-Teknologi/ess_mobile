@@ -31,7 +31,7 @@ class RowWithThreeIconsWidget extends StatelessWidget {
                 color: const Color(primaryBlack),
                 fontSize: textMedium,
                 fontFamily: 'Poppins',
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w500,
               ),
             ),
             Row(

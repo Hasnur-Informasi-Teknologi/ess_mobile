@@ -192,7 +192,7 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
                                       fontSize: textLarge,
                                       fontFamily: 'Poppins',
                                       letterSpacing: 0.9,
-                                      fontWeight: FontWeight.w700),
+                                      fontWeight: FontWeight.w500),
                                 ),
                                 Column(
                                   children: List.generate(4, (index) {
@@ -221,7 +221,7 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
                                       fontSize: textLarge,
                                       fontFamily: 'Poppins',
                                       letterSpacing: 0.9,
-                                      fontWeight: FontWeight.w700),
+                                      fontWeight: FontWeight.w500),
                                 ),
                                 Column(
                                   children: List.generate(4, (index) {
@@ -250,7 +250,7 @@ class _SubmitionScreenState extends State<SubmitionScreen> {
                                       fontSize: textLarge,
                                       fontFamily: 'Poppins',
                                       letterSpacing: 0.9,
-                                      fontWeight: FontWeight.w700),
+                                      fontWeight: FontWeight.w500),
                                 ),
                                 Column(
                                   children: List.generate(4, (index) {
