@@ -9,6 +9,9 @@ import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
+import 'package:multi_select_flutter/dialog/multi_select_dialog_field.dart';
+import 'package:multi_select_flutter/util/multi_select_item.dart';
+import 'package:multi_select_flutter/util/multi_select_list_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
@@ -23,25 +26,42 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
   final String apiUrl = API_URL;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController _searchcontroller = TextEditingController();
-  TextEditingController _kodeController = TextEditingController();
-  TextEditingController _namaController = TextEditingController();
-
+  TextEditingController _mdJPController = TextEditingController();
+  List _mdPangkatController = [];
+  TextEditingController _nominalController = TextEditingController();
+  TextEditingController _statusController = TextEditingController();
+  List<Map<String, dynamic>> selectedJP = [];
+  List<Map<String, dynamic>> selectedPangkat = [];
+  List<Map<String, dynamic>> selectedStatus = [];
+  String? selectedValueJP, selectedValuePangkat, selectedValueStatus;
+  final DateRangePickerController _tanggalMulaiController =
+      DateRangePickerController();
+  DateTime? tanggalMulai;
+  final DateRangePickerController _tanggalBerakhirController =
+      DateRangePickerController();
+  DateTime? tanggalBerakhir;
   int _rowsPerPage = 5;
   int _pageIndex = 1;
   int _totalRecords = 0;
-  String searchQuery = '';
+  String _searchQuery = '';
   List<dynamic> _data = [];
   List<dynamic> _subData = [];
+
   bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     fetchData();
+    getDataMdPangkat();
+    getDataMdJP();
+    getDataStatus();
   }
 
   Future<void> fetchData({
     int? pageIndex,
+    int? rowPerPage,
+    String? searchQuery,
   }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -53,7 +73,7 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
     try {
       final response = await http.get(
         Uri.parse(
-            '$apiUrl/master/makan-dalam/get?page=${pageIndex ?? _pageIndex}&perPage=$_rowsPerPage&search=$searchQuery'),
+            '$apiUrl/master/makan-dalam/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
         headers: <String, String>{
           "Content-Type": "application/json;charset=UTF-8",
           "Authorization": "Bearer $token",
@@ -64,7 +84,6 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
         final Map<String, dynamic> responseData = json.decode(response.body);
         final List<dynamic> data = responseData['dataku'];
         final List<dynamic> subData = responseData['child'];
-        print(data);
 
         final total = responseData["totalPage"];
 
@@ -90,8 +109,101 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
     }
   }
 
+  Future<void> getDataMdPangkat() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? token = prefs.getString('token');
+
+    if (token != null) {
+      try {
+        final response = await http
+            .get(Uri.parse("$apiUrl/master/pangkat"), headers: <String, String>{
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Authorization': 'Bearer $token'
+        });
+        final responseData = jsonDecode(response.body);
+        final dataMdPangkatApi = responseData['data'];
+
+        print("$dataMdPangkatApi");
+
+        setState(
+          () {
+            selectedPangkat = List<Map<String, dynamic>>.from(dataMdPangkatApi);
+          },
+        );
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
+  Future<void> getDataMdJP() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? token = prefs.getString('token');
+
+    if (token != null) {
+      try {
+        final response = await http.get(
+            Uri.parse("$apiUrl/master/makan-dalam/jp"),
+            headers: <String, String>{
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Authorization': 'Bearer $token'
+            });
+        final responseData = jsonDecode(response.body);
+        final dataMdJPApi = responseData['data'];
+
+        print("$dataMdJPApi");
+
+        setState(
+          () {
+            selectedJP = List<Map<String, dynamic>>.from(dataMdJPApi);
+          },
+        );
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
+  Future<void> getDataStatus() async {
+    String jsonString = '''
+    {
+      "data": [
+        {
+          "id": "1",
+          "nama": "Aktif"
+        },
+        {
+          "id": "0",
+          "nama": "Tidak Aktif"
+        }
+      ]
+    }
+    ''';
+
+    try {
+      final responseData = jsonDecode(jsonString);
+      final dataStatusApi = responseData['data'];
+      print('dataStatusApi: $dataStatusApi');
+      setState(() {
+        selectedStatus = List<Map<String, dynamic>>.from(dataStatusApi);
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
   void _filterData(String query) {
-    setState(() {});
+    if (query.isNotEmpty) {
+      setState(() {
+        fetchData(pageIndex: 1, rowPerPage: _totalRecords, searchQuery: query);
+      });
+    } else {
+      setState(() {
+        fetchData(pageIndex: 1);
+      });
+    }
   }
 
   void nextPage() {
@@ -126,13 +238,15 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double textMedium = size.width * 0.0329;
     double maxHeightValidator = 60.0;
+    double _maxHeightAtasan = 60.0;
+    double padding5 = size.width * 0.0115;
 
-    String? _validatorKode(dynamic value) {
+    String? validateField(String? value, String fieldName) {
       if (value == null || value.isEmpty) {
         setState(() {
           maxHeightValidator = 80.0;
         });
-        return 'Field Nrp Kosong';
+        return 'Field $fieldName Kosong';
       }
 
       setState(() {
@@ -141,21 +255,7 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
       return null;
     }
 
-    String? _validatorNama(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field Nama Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    Future<void> _submit(void reset) async {
+    Future<void> _submit(List pangkat) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
 
@@ -172,21 +272,31 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
 
       _formKey.currentState!.save();
 
+      Map<String, dynamic> bodyData = {
+        'kode_jp': _mdJPController.text,
+        'kode_pangkat': pangkat,
+        'nominal': _nominalController.text,
+        'status': _statusController.text,
+        'tgl_mulai': tanggalMulai != null
+            ? tanggalMulai.toString()
+            : DateTime.now().toString(),
+        'tgl_berakhir': tanggalBerakhir != null
+            ? tanggalBerakhir.toString()
+            : DateTime.now().toString(),
+      };
       try {
         final response = await http.post(
-          Uri.parse('$apiUrl/master/entity/add'),
+          Uri.parse('$apiUrl/master/makan-dalam/add'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token'
           },
-          body: jsonEncode({
-            'kode': _kodeController.text,
-            'nama': _namaController.text,
-          }),
+          body: jsonEncode(bodyData),
         );
+        print(response.body);
 
         final responseData = jsonDecode(response.body);
-        Get.snackbar('Infomation', responseData['message'],
+        Get.snackbar('Infomation', responseData['Data telah ditambahkan'],
             snackPosition: SnackPosition.TOP,
             backgroundColor: Colors.amber,
             icon: const Icon(
@@ -201,7 +311,6 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
         }
       } catch (e) {
         print(e);
-        throw e;
       }
 
       setState(() {
@@ -218,115 +327,554 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
               top: 10, bottom: MediaQuery.of(context).viewInsets.bottom),
           child: Form(
             key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Kode *',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
-                  ),
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
-                    controller: _kodeController,
-                    validator: _validatorKode,
-                    decoration: InputDecoration(
-                      hintText: "Masukan Kode",
-                      hintStyle: TextStyle(
-                        fontWeight: FontWeight.w300,
-                        fontSize: textMedium,
-                      ),
-                      enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.grey,
-                          width: 1.0,
-                        ),
-                      ),
-                      contentPadding:
-                          const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Nama *',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
-                  ),
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
-                    controller: _namaController,
-                    validator: _validatorNama,
-                    decoration: InputDecoration(
-                      hintText: "Masukan Nama",
-                      hintStyle: TextStyle(
-                        fontWeight: FontWeight.w300,
-                        fontSize: textMedium,
-                      ),
-                      enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.grey,
-                          width: 1.0,
-                        ),
-                      ),
-                      contentPadding:
-                          const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                SizedBox(
-                  width: size.width,
-                  child: Padding(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Padding(
                     padding: EdgeInsets.symmetric(
-                        horizontal: paddingHorizontalNarrow, vertical: 10),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _submit(_formKey.currentState!.reset());
-                        fetchData(pageIndex: 1);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(primaryYellow),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Jenis Penggantian *',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: Container(
+                      height: 50,
+                      width: size.width,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: paddingHorizontalNarrow),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(color: Colors.grey),
                       ),
-                      child: Text(
-                        'Add',
-                        style: TextStyle(
-                            color: const Color(primaryBlack),
+                      child: DropdownButtonFormField<String>(
+                        hint: Text(
+                          "Pilih Jenis",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w300,
                             fontSize: textMedium,
-                            fontFamily: 'Poppins',
-                            letterSpacing: 0.9,
-                            fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        validator: (value) =>
+                            validateField(value, 'Pilih Jenis Pengganti'),
+                        value: selectedValueJP,
+                        icon: selectedJP.isEmpty
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.blue),
+                                ),
+                              )
+                            : Icon(Icons.arrow_drop_down),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedValueJP = newValue;
+                            _mdJPController.text = newValue ?? '';
+                            print("'selectedValueJP: $selectedValueJP");
+                          });
+                        },
+                        items: selectedJP.map<DropdownMenuItem<String>>(
+                            (Map<String, dynamic> value) {
+                          return DropdownMenuItem<String>(
+                            value: value["id"].toString(),
+                            child: Padding(
+                              padding: const EdgeInsets.all(1.0),
+                              child: TitleWidget(
+                                title: value["nama"] as String,
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                          constraints:
+                              BoxConstraints(maxHeight: _maxHeightAtasan),
+                          labelStyle: TextStyle(fontSize: textMedium),
+                          focusedBorder: const UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.transparent,
+                              width: 1.0,
+                            ),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: selectedValueJP != null
+                                  ? Colors.transparent
+                                  : Colors.transparent,
+                              width: 1.0,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  selectedValueJP == '2'
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow),
+                              child: TitleWidget(
+                                title: 'Jenjang Kepangkatan *',
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow),
+                              child: MultiSelectDialogField(
+                                buttonIcon: Icon(
+                                  Icons.arrow_drop_down_sharp,
+                                  color: Colors.grey[700],
+                                ),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                    border: Border.all(color: Colors.grey)),
+                                items: selectedPangkat
+                                    .map((value) => MultiSelectItem<String>(
+                                        value['kode'].toString(),
+                                        value['nama']))
+                                    .toList(),
+                                listType: MultiSelectListType.CHIP,
+                                onConfirm: (List<String> value) {
+                                  selectedValuePangkat = value.toString();
+                                  _mdPangkatController = value;
+                                  print('kode_pangkat:$_mdPangkatController');
+                                },
+                              ),
+                            ),
+                          ],
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow),
+                              child: TitleWidget(
+                                title: 'Jenjang Kepangkatan *',
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow),
+                              child: Container(
+                                height: 50,
+                                width: size.width,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalNarrow),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                  border: Border.all(color: Colors.grey),
+                                ),
+                                child: DropdownButtonFormField<String>(
+                                  hint: Text(
+                                    "Pilih Pangkat",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                  validator: (value) =>
+                                      validateField(value, 'Pangkat'),
+                                  value: selectedValuePangkat,
+                                  icon: selectedPangkat.isEmpty
+                                      ? const SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    Colors.blue),
+                                          ),
+                                        )
+                                      : Icon(Icons.arrow_drop_down),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      selectedValuePangkat = newValue ?? '';
+                                      _mdPangkatController = [
+                                        newValue.toString()
+                                      ];
+                                      print(
+                                          "kode_pangkat: $_mdPangkatController");
+                                    });
+                                  },
+                                  items: selectedPangkat
+                                      .map<DropdownMenuItem<String>>(
+                                          (Map<String, dynamic> value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value["kode"] as String,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(1.0),
+                                        child: TitleWidget(
+                                          title: value["nama"] as String,
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                  decoration: InputDecoration(
+                                    constraints: BoxConstraints(
+                                        maxHeight: _maxHeightAtasan),
+                                    labelStyle: TextStyle(fontSize: textMedium),
+                                    focusedBorder: const UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Colors.transparent,
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                    enabledBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: selectedValuePangkat != null
+                                            ? Colors.transparent
+                                            : Colors.transparent,
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Jumlah *',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TextFormField(
+                      controller: _nominalController,
+                      validator: (value) => validateField(value, 'Jumlah'),
+                      decoration: InputDecoration(
+                        hintText: "Jumlah",
+                        hintStyle: TextStyle(
+                          fontWeight: FontWeight.w300,
+                          fontSize: textMedium,
+                        ),
+                        enabledBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.grey,
+                            width: 1.0,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.fromLTRB(
+                          20.0,
+                          10.0,
+                          20.0,
+                          10.0,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Status *',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: Container(
+                      height: 50,
+                      width: size.width,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(color: Colors.grey),
+                      ),
+                      child: DropdownButtonFormField<String>(
+                        hint: Text(
+                          'Pilih Status',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w300,
+                            fontSize: textMedium,
+                          ),
+                        ),
+                        validator: (value) => validateField(value, 'Status'),
+                        value: selectedValueStatus,
+                        icon: selectedStatus.isEmpty
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.blue),
+                                ),
+                              )
+                            : const Icon(Icons.arrow_drop_down),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedValueStatus = newValue ?? '';
+                            _statusController.text = newValue ?? '';
+                            print('selectedValueStatus: $selectedValueStatus');
+                          });
+                        },
+                        items: selectedStatus.map((Map<String, dynamic> value) {
+                          return DropdownMenuItem<String>(
+                            value: value["id"].toString(),
+                            child: Padding(
+                              padding: const EdgeInsets.all(1.0),
+                              child: TitleWidget(
+                                title: value["nama"] as String,
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                          constraints:
+                              BoxConstraints(maxHeight: maxHeightValidator),
+                          labelStyle: TextStyle(fontSize: textMedium),
+                          focusedBorder: const UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.transparent,
+                              width: 1.0,
+                            ),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: selectedValueStatus != null
+                                  ? Colors.transparent
+                                  : Colors.transparent,
+                              width: 1.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Tanggal Mulai *',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  CupertinoButton(
+                    child: Container(
+                      height: 50,
+                      width: size.width,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: paddingHorizontalNarrow,
+                          vertical: padding5),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          border: Border.all(color: Colors.grey)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Icon(
+                            Icons.calendar_month_outlined,
+                            color: Colors.grey,
+                          ),
+                          Text(
+                            DateFormat('dd-MM-yyyy').format(
+                                _tanggalMulaiController.selectedDate ??
+                                    DateTime.now()),
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: textMedium,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            content: SizedBox(
+                              height: 350,
+                              width: 350,
+                              child: SfDateRangePicker(
+                                controller: _tanggalMulaiController,
+                                onSelectionChanged:
+                                    (DateRangePickerSelectionChangedArgs args) {
+                                  setState(() {
+                                    tanggalMulai = args.value;
+                                  });
+                                },
+                                selectionMode:
+                                    DateRangePickerSelectionMode.single,
+                              ),
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Tanggal Berakhir *',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  CupertinoButton(
+                    child: Container(
+                      height: 50,
+                      width: size.width,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: paddingHorizontalNarrow,
+                          vertical: padding5),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          border: Border.all(color: Colors.grey)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Icon(
+                            Icons.calendar_month_outlined,
+                            color: Colors.grey,
+                          ),
+                          Text(
+                            DateFormat('dd-MM-yyyy').format(
+                                _tanggalBerakhirController.selectedDate ??
+                                    DateTime.now()),
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: textMedium,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            content: SizedBox(
+                              height: 350,
+                              width: 350,
+                              child: SfDateRangePicker(
+                                controller: _tanggalBerakhirController,
+                                onSelectionChanged:
+                                    (DateRangePickerSelectionChangedArgs args) {
+                                  setState(() {
+                                    tanggalBerakhir = args.value;
+                                  });
+                                },
+                                selectionMode:
+                                    DateRangePickerSelectionMode.single,
+                              ),
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  SizedBox(
+                    width: size.width,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: paddingHorizontalNarrow, vertical: 10),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (_mdJPController == '1') {
+                            String listString = _mdPangkatController.toString();
+                            print(listString);
+                            print("gagal");
+                          } else {
+                            List<String> listString = _mdPangkatController
+                                .map((e) => e.toString())
+                                .toList();
+                            print('listString : $listString');
+                            _submit(listString);
+                            Navigator.pop(context);
+                            fetchData(pageIndex: 1);
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(primaryYellow),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'Add',
+                          style: TextStyle(
+                              color: const Color(primaryBlack),
+                              fontSize: textMedium,
+                              fontFamily: 'Poppins',
+                              letterSpacing: 0.9,
+                              fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -419,20 +967,19 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
       );
     }
 
-    Future<void> deleteData(String kode) async {
+    Future<void> deleteData(int id) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
 
       String? token = prefs.getString('token');
-      print('ini token :  $token');
       if (token != null) {
         try {
           final response =
-              await http.post(Uri.parse("$apiUrl/master/entity/delete"),
+              await http.post(Uri.parse("$apiUrl/master/makan-dalam/delete"),
                   headers: <String, String>{
                     'Content-Type': 'application/json;charset=UTF-8',
                     'Authorization': 'Bearer $token'
                   },
-                  body: jsonEncode({'kode': kode}));
+                  body: jsonEncode({'id': id}));
           final responseData = jsonDecode(response.body);
           Get.snackbar('Infomation', responseData['message'],
               snackPosition: SnackPosition.TOP,
@@ -443,9 +990,8 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
               ),
               shouldIconPulse: false);
           if (response.statusCode == 200) {
-            print('Item with Kode $kode deleted successfully');
+            print('Item with Kode $id deleted successfully');
           } else {
-            print("response error request: ${response.request}");
             throw Exception('Failed to delete item');
           }
         } catch (e) {
@@ -455,8 +1001,13 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
     }
 
     Future<void> _submitUpdate(
-      String textFieldValueKode,
-      String textFieldValueNama,
+      valueId,
+      valueJP,
+      valuePangkat,
+      valueNominal,
+      valueStatus,
+      valueTglMulai,
+      valueTglBerakhir,
     ) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
@@ -474,17 +1025,23 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
 
       _formKey.currentState!.save();
 
+      Map<String, dynamic> bodyData = {
+        'id': valueId,
+        'kode_jp': valueJP,
+        'kode_pangkat': valuePangkat,
+        'nominal': valueNominal,
+        'status': valueStatus,
+        'tgl_mulai': valueTglMulai,
+        'tgl_berakhir': valueTglBerakhir
+      };
       try {
         final response = await http.post(
-          Uri.parse('$apiUrl/master/entity/update'),
+          Uri.parse('$apiUrl/master/makan-dalam/update'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token'
           },
-          body: jsonEncode({
-            'kode': textFieldValueKode,
-            'nama': textFieldValueNama,
-          }),
+          body: jsonEncode(bodyData),
         );
 
         final responseData = jsonDecode(response.body);
@@ -498,10 +1055,7 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
             shouldIconPulse: false);
 
         print(responseData);
-        if (responseData['status'] == 'Berhasil Update Data') {
-          Navigator.pop(context);
-          fetchData(pageIndex: 1);
-        }
+        if (responseData['status'] == 'Berhasil Update Data') {}
       } catch (e) {
         print(e);
         throw e;
@@ -512,7 +1066,16 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
       });
     }
 
-    Future<void> updateData(context, String kode, String nama) {
+    Future<void> updateData(
+      context,
+      String id,
+      String jp,
+      String mdPangkat,
+      String nominal,
+      String status,
+      String tgl_mulai,
+      String tgl_berakhir,
+    ) {
       Size size = MediaQuery.of(context).size;
       double textMedium = size.width * 0.0329;
       double paddingHorizontalNarrow = size.width * 0.035;
@@ -523,8 +1086,25 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
       double sizedBoxHeightTall = size.height * 0.0163;
       double paddingHorizontalWide = size.width * 0.0585;
       double _maxHeightAtasan = 60.0;
-      String textFieldValueKode = kode;
-      String textFieldValueNama = nama;
+      DateTime dateTimeMulai = DateFormat("yyyy-MM-dd").parse(tgl_mulai);
+      String formattedDateMulaiString =
+          DateFormat("yyyy-MM-dd").format(dateTimeMulai);
+      DateTime dateMulai =
+          DateFormat("yyyy-MM-dd").parse(formattedDateMulaiString);
+
+      DateTime dateTimeBerakhir = DateFormat("yyyy-MM-dd").parse(tgl_berakhir);
+      String formattedDateBerakhirString =
+          DateFormat("yyyy-MM-dd").format(dateTimeBerakhir);
+      DateTime dateBerakhir =
+          DateFormat("yyyy-MM-dd").parse(formattedDateBerakhirString);
+      String valueId = id.toString();
+      String valueJP = jp.toString();
+      String valuePangkat = mdPangkat.toString();
+      print('ini data get update: $valuePangkat');
+      String valueNominal = nominal.toString();
+      String valueStatus = status.toString();
+      String valueTglMulai = dateMulai.toString();
+      String valueTglBerakhir = dateBerakhir.toString();
       return showModalBottomSheet(
         context: context,
         isScrollControlled: true,
@@ -533,128 +1113,568 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
               top: 10, bottom: MediaQuery.of(context).viewInsets.bottom),
           child: Form(
             key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Kode *',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
-                  ),
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
-                    initialValue: kode,
-                    validator: _validatorKode,
-                    onChanged: (value) {
-                      setState(() {
-                        textFieldValueKode = value;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      hintText: "Masukan Kode",
-                      hintStyle: TextStyle(
-                        fontWeight: FontWeight.w300,
-                        fontSize: textMedium,
-                      ),
-                      enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.grey,
-                          width: 1.0,
-                        ),
-                      ),
-                      contentPadding:
-                          const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Nama *',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
-                  ),
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormField(
-                    initialValue: nama,
-                    onChanged: (value) {
-                      setState(() {
-                        textFieldValueNama = nama;
-                      });
-                    },
-                    validator: _validatorNama,
-                    decoration: InputDecoration(
-                      hintText: "Masukan Nama",
-                      hintStyle: TextStyle(
-                        fontWeight: FontWeight.w300,
-                        fontSize: textMedium,
-                      ),
-                      enabledBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.grey,
-                          width: 1.0,
-                        ),
-                      ),
-                      contentPadding:
-                          const EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 10.0),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                SizedBox(
-                  width: size.width,
-                  child: Padding(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Padding(
                     padding: EdgeInsets.symmetric(
-                        horizontal: paddingHorizontalNarrow, vertical: 10),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        _submitUpdate(
-                          textFieldValueKode,
-                          textFieldValueNama,
-                        );
-                        fetchData(pageIndex: 1);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(primaryYellow),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Jenis Penggantian *',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: Container(
+                      height: 50,
+                      width: size.width,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: paddingHorizontalNarrow),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(color: Colors.grey),
                       ),
-                      child: Text(
-                        'Update',
-                        style: TextStyle(
-                            color: const Color(primaryBlack),
+                      child: DropdownButtonFormField<String>(
+                        hint: Text(
+                          "Pilih Jenis",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w300,
                             fontSize: textMedium,
-                            fontFamily: 'Poppins',
-                            letterSpacing: 0.9,
-                            fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                        validator: (value) =>
+                            validateField(value, 'Pilih Jenis Pengganti'),
+                        value: jp,
+                        icon: selectedJP.isEmpty
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.blue),
+                                ),
+                              )
+                            : Icon(Icons.arrow_drop_down),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedValueJP = newValue;
+                            valueJP = newValue ?? '';
+                            print("'selectedValueJP: $valueJP");
+                          });
+                        },
+                        items: selectedJP.map<DropdownMenuItem<String>>(
+                            (Map<String, dynamic> value) {
+                          return DropdownMenuItem<String>(
+                            value: value["id"].toString(),
+                            child: Padding(
+                              padding: const EdgeInsets.all(1.0),
+                              child: TitleWidget(
+                                title: value["nama"] as String,
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                          constraints:
+                              BoxConstraints(maxHeight: _maxHeightAtasan),
+                          labelStyle: TextStyle(fontSize: textMedium),
+                          focusedBorder: const UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.transparent,
+                              width: 1.0,
+                            ),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: selectedValueJP != null
+                                  ? Colors.transparent
+                                  : Colors.transparent,
+                              width: 1.0,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  jp == '2'
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow),
+                              child: TitleWidget(
+                                title: 'Jenjang Kepangkatan *',
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow),
+                              child: MultiSelectDialogField(
+                                initialValue: [mdPangkat],
+                                buttonIcon: Icon(
+                                  Icons.arrow_drop_down_sharp,
+                                  color: Colors.grey[700],
+                                ),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                    border: Border.all(color: Colors.grey)),
+                                items: selectedPangkat
+                                    .map((value) => MultiSelectItem<String>(
+                                        value['kode'].toString(),
+                                        value['nama']))
+                                    .toList(),
+                                listType: MultiSelectListType.CHIP,
+                                onConfirm: (List<String> value) {
+                                  selectedValuePangkat = value.toString();
+                                  valuePangkat = value.toString();
+                                  print('valuePangkat:$mdPangkat');
+                                },
+                              ),
+                            ),
+                          ],
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow),
+                              child: TitleWidget(
+                                title: 'Jenjang Kepangkatan *',
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow),
+                              child: Container(
+                                height: 50,
+                                width: size.width,
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalNarrow),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                  border: Border.all(color: Colors.grey),
+                                ),
+                                child: DropdownButtonFormField<String>(
+                                  hint: Text(
+                                    "Pilih Pangkat",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                  validator: (value) =>
+                                      validateField(value, 'Pangkat'),
+                                  value: mdPangkat,
+                                  icon: selectedPangkat.isEmpty
+                                      ? const SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    Colors.blue),
+                                          ),
+                                        )
+                                      : Icon(Icons.arrow_drop_down),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      selectedValuePangkat = newValue ?? '';
+                                      valuePangkat = newValue ?? '';
+                                      print(
+                                          "kode_pangkat: $_mdPangkatController");
+                                    });
+                                  },
+                                  items: selectedPangkat
+                                      .map<DropdownMenuItem<String>>(
+                                          (Map<String, dynamic> value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value["kode"] as String,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(1.0),
+                                        child: TitleWidget(
+                                          title: value["nama"] as String,
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                  decoration: InputDecoration(
+                                    constraints: BoxConstraints(
+                                        maxHeight: _maxHeightAtasan),
+                                    labelStyle: TextStyle(fontSize: textMedium),
+                                    focusedBorder: const UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Colors.transparent,
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                    enabledBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: selectedValuePangkat != null
+                                            ? Colors.transparent
+                                            : Colors.transparent,
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Nominal *',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TextFormField(
+                      initialValue: nominal,
+                      validator: (value) => validateField(value, 'Nominal'),
+                      onChanged: (value) {
+                        setState(() {
+                          valueNominal = value;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        hintText: "Nominal",
+                        hintStyle: TextStyle(
+                          fontWeight: FontWeight.w300,
+                          fontSize: textMedium,
+                        ),
+                        enabledBorder: const OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.grey,
+                            width: 1.0,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.fromLTRB(
+                          20.0,
+                          10.0,
+                          20.0,
+                          10.0,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Status *',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: Container(
+                      height: 50,
+                      width: size.width,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(color: Colors.grey),
+                      ),
+                      child: DropdownButtonFormField<String>(
+                        hint: Text(
+                          'Pilih Status',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w300,
+                            fontSize: textMedium,
+                          ),
+                        ),
+                        validator: (value) => validateField(value, 'Status'),
+                        value: status,
+                        icon: selectedStatus.isEmpty
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.blue),
+                                ),
+                              )
+                            : const Icon(Icons.arrow_drop_down),
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedValueStatus = newValue ?? '';
+                            valueStatus = newValue ?? '';
+                            print('selectedValueStatus: $selectedValueStatus');
+                          });
+                        },
+                        items: selectedStatus.map((Map<String, dynamic> value) {
+                          return DropdownMenuItem<String>(
+                            value: value["id"].toString(),
+                            child: Padding(
+                              padding: const EdgeInsets.all(1.0),
+                              child: TitleWidget(
+                                title: value["nama"] as String,
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                          constraints:
+                              BoxConstraints(maxHeight: maxHeightValidator),
+                          labelStyle: TextStyle(fontSize: textMedium),
+                          focusedBorder: const UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.transparent,
+                              width: 1.0,
+                            ),
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                              color: selectedValueStatus != null
+                                  ? Colors.transparent
+                                  : Colors.transparent,
+                              width: 1.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Tanggal mulai *',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  CupertinoButton(
+                    child: Container(
+                      height: 50,
+                      width: size.width,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: paddingHorizontalNarrow,
+                          vertical: padding5),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          border: Border.all(color: Colors.grey)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Icon(
+                            Icons.calendar_month_outlined,
+                            color: Colors.grey,
+                          ),
+                          Text(
+                            DateFormat('yyyy-MM-dd')
+                                .format(dateMulai ?? DateTime.now()),
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: textMedium,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            content: Container(
+                              height: 350,
+                              width: 350,
+                              child: SfDateRangePicker(
+                                initialSelectedDate: dateMulai,
+                                onSelectionChanged:
+                                    (DateRangePickerSelectionChangedArgs args) {
+                                  setState(() {
+                                    dateMulai = args.value;
+                                  });
+                                },
+                                selectionMode:
+                                    DateRangePickerSelectionMode.single,
+                                initialDisplayDate: dateMulai,
+                              ),
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {});
+                                  valueTglMulai = dateMulai.toString();
+                                  print('Tanggal yang dipilih: $dateMulai');
+
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Tanggal Berakhir *',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  CupertinoButton(
+                    child: Container(
+                      height: 50,
+                      width: size.width,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: paddingHorizontalNarrow,
+                          vertical: padding5),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          border: Border.all(color: Colors.grey)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Icon(
+                            Icons.calendar_month_outlined,
+                            color: Colors.grey,
+                          ),
+                          Text(
+                            DateFormat('yyyy-MM-dd')
+                                .format(dateBerakhir ?? DateTime.now()),
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: textMedium,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w300,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            content: Container(
+                              height: 350,
+                              width: 350,
+                              child: SfDateRangePicker(
+                                initialSelectedDate: dateBerakhir,
+                                onSelectionChanged:
+                                    (DateRangePickerSelectionChangedArgs args) {
+                                  setState(() {
+                                    dateBerakhir = args.value;
+                                  });
+                                },
+                                selectionMode:
+                                    DateRangePickerSelectionMode.single,
+                                initialDisplayDate: dateBerakhir,
+                              ),
+                            ),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    valueTglBerakhir = dateBerakhir.toString();
+                                  });
+
+                                  print('Tanggal yang dipilih: $dateBerakhir');
+
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  SizedBox(
+                    width: size.width,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: paddingHorizontalNarrow, vertical: 10),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _submitUpdate(
+                            valueId,
+                            valueJP,
+                            valuePangkat,
+                            valueNominal,
+                            valueStatus,
+                            valueTglMulai,
+                            valueTglBerakhir,
+                          );
+                          Navigator.pop(context);
+                          fetchData(pageIndex: 1);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(primaryYellow),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'Update',
+                          style: TextStyle(
+                              color: const Color(primaryBlack),
+                              fontSize: textMedium,
+                              fontFamily: 'Poppins',
+                              letterSpacing: 0.9,
+                              fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -697,11 +1717,10 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
                       .toList();
                   Set<String> distinctDataChild = Set.from(dataChild
                       .map((subDataItem) => subDataItem['pangkat'].toString()));
-                  print(dataChild);
                   return DataRow(
                     cells: <DataCell>[
                       DataCell(Text('$index')),
-                      DataCell(Text(data['jenis'].toString() ?? '')),
+                      DataCell(Text(data['jenis'].toString())),
                       DataCell(
                         SingleChildScrollView(
                           scrollDirection: Axis.vertical,
@@ -726,7 +1745,7 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
                             .format(DateTime.parse(data['tgl_berakhir']))),
                       ),
                       DataCell(Text(
-                          data['status'] == "0" ? 'Aktif' : 'Tidak Aktif')),
+                          data['status'] == "1" ? 'Aktif' : 'Tidak Aktif')),
                       DataCell(
                         Row(
                           children: [
@@ -739,10 +1758,35 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
                               ),
                               child: GestureDetector(
                                   onTap: () {
-                                    String kode = data['kode'];
-                                    String nama = data['nama'];
-                                    updateData(context, kode, nama);
-                                    fetchData(pageIndex: 1);
+                                    String id = data['id'].toString();
+                                    String jp = data['kode_jp'].toString();
+                                    List<dynamic> dataChild = _subData
+                                        .where((item) =>
+                                            item['id_makan_pic'] == data['id'])
+                                        .toList();
+                                    Set<String> distinctDataChild = Set.from(
+                                        dataChild.map((subDataItem) =>
+                                            subDataItem['kode_pangkat']
+                                                .toString()));
+                                    List<String> pangkatList =
+                                        distinctDataChild.toList();
+                                    String pangkat = pangkatList.join(',');
+                                    String nominal = data['nominal'].toString();
+                                    String status = data['status'];
+                                    String tgl_mulai = data['tgl_mulai'];
+                                    String tgl_berakhir = data['tgl_berakhir'];
+                                    print(pangkat);
+                                    print(status);
+                                    updateData(
+                                      context,
+                                      id,
+                                      jp,
+                                      pangkat,
+                                      nominal,
+                                      status,
+                                      tgl_mulai,
+                                      tgl_berakhir,
+                                    );
                                   },
                                   child: const Icon(Icons.edit,
                                       color: Colors.white)),
@@ -775,10 +1819,10 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
                                           ),
                                           TextButton(
                                             onPressed: () async {
-                                              String kode = data['kode'];
-                                              await deleteData(kode);
-                                              fetchData(pageIndex: 1);
+                                              int id = data['id'];
+                                              await deleteData(id);
                                               Navigator.of(context).pop();
+                                              fetchData(pageIndex: 1);
                                             },
                                             child: Text("Hapus"),
                                           ),

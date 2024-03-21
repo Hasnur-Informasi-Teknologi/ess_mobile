@@ -25,7 +25,7 @@ class _EntitasState extends State<Entitas> {
   int _rowsPerPage = 5;
   int _pageIndex = 1;
   int _totalRecords = 0;
-  String searchQuery = '';
+  String _searchQuery = '';
   List<dynamic> _data = [];
   bool _isLoading = false;
 
@@ -37,6 +37,8 @@ class _EntitasState extends State<Entitas> {
 
   Future<void> fetchData({
     int? pageIndex,
+    int? rowPerPage,
+    String? searchQuery,
   }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -48,7 +50,7 @@ class _EntitasState extends State<Entitas> {
     try {
       final response = await http.get(
         Uri.parse(
-            '$apiUrl/master/entity/get?page=${pageIndex ?? _pageIndex}&perPage=$_rowsPerPage&search=$searchQuery'),
+            '$apiUrl/master/entity/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
         headers: <String, String>{
           "Content-Type": "application/json;charset=UTF-8",
           "Authorization": "Bearer $token",
@@ -82,7 +84,15 @@ class _EntitasState extends State<Entitas> {
   }
 
   void _filterData(String query) {
-    setState(() {});
+    if (query.isNotEmpty) {
+      setState(() {
+        fetchData(pageIndex: 1, rowPerPage: _totalRecords, searchQuery: query);
+      });
+    } else {
+      setState(() {
+        fetchData(pageIndex: 1);
+      });
+    }
   }
 
   void nextPage() {
@@ -708,7 +718,6 @@ class _EntitasState extends State<Entitas> {
                                     String kode = data['kode'];
                                     String nama = data['nama'];
                                     updateData(context, kode, nama);
-                                    fetchData(pageIndex: 1);
                                   },
                                   child: const Icon(Icons.edit,
                                       color: Colors.white)),

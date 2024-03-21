@@ -25,7 +25,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
   int _rowsPerPage = 5;
   int _pageIndex = 1;
   int _totalRecords = 0;
-  String searchQuery = '';
+  String _searchQuery = '';
   List<dynamic> _data = [];
   bool _isLoading = false;
   double maxHeightValidator = 60.0;
@@ -98,7 +98,11 @@ class _UserAuthorizationState extends State<UserAuthorization> {
     }
   }
 
-  Future<void> fetchData({int? pageIndex}) async {
+  Future<void> fetchData({
+    int? pageIndex,
+    int? rowPerPage,
+    String? searchQuery,
+  }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
@@ -109,7 +113,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
     try {
       final response = await http.get(
         Uri.parse(
-            '$apiUrl/user-autorization/get?page=${pageIndex ?? _pageIndex}&perPage=$_rowsPerPage&search=$searchQuery'),
+            '$apiUrl/user-autorization/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
         headers: <String, String>{
           "Content-Type": "application/json;charset=UTF-8",
           "Authorization": "Bearer $token",
@@ -143,7 +147,15 @@ class _UserAuthorizationState extends State<UserAuthorization> {
   }
 
   void _filterData(String query) {
-    setState(() {});
+    if (query.isNotEmpty) {
+      setState(() {
+        fetchData(pageIndex: 1, rowPerPage: _totalRecords, searchQuery: query);
+      });
+    } else {
+      setState(() {
+        fetchData(pageIndex: 1);
+      });
+    }
   }
 
   void nextPage() {
@@ -3193,11 +3205,6 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                   DataColumn(label: Text('No')),
                   DataColumn(
                     label: Text(
-                      "ID",
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
                       "Role",
                     ),
                   ),
@@ -3279,8 +3286,6 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                   DataColumn(
                     label: Text(
                       "Aksi",
-                      style:
-                          TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                     ),
                   ),
                 ],
@@ -3290,8 +3295,7 @@ class _UserAuthorizationState extends State<UserAuthorization> {
                   return DataRow(
                     cells: <DataCell>[
                       DataCell(Text('$index')),
-                      DataCell(Text(data['id'].toString())),
-                      DataCell(Text(data['role'] ?? '')),
+                      DataCell(Text(data['role'])),
                       DataCell(
                         Center(
                           child: data['form_online'] == "1"

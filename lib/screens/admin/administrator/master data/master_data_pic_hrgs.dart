@@ -38,7 +38,7 @@ class _PicHrgsState extends State<PicHrgs> {
   int _rowsPerPage = 5;
   int _pageIndex = 1;
   int _totalRecords = 0;
-  String searchQuery = '';
+  String _searchQuery = '';
   String? selectedValueNrp;
   final List<dynamic> _data = [];
   List<Item> _items = [];
@@ -68,7 +68,11 @@ class _PicHrgsState extends State<PicHrgs> {
     return null;
   }
 
-  Future<void> fetchData({int? pageIndex}) async {
+  Future<void> fetchData({
+    int? pageIndex,
+    int? rowPerPage,
+    String? searchQuery,
+  }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     List<Map<String, dynamic>> allData = [];
@@ -115,7 +119,7 @@ class _PicHrgsState extends State<PicHrgs> {
     try {
       final response = await http.get(
         Uri.parse(
-            '$apiUrl/master/hrgs/get?page=${pageIndex ?? _pageIndex}&perPage=$_rowsPerPage&search=$searchQuery'),
+            '$apiUrl/master/hrgs/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
         headers: <String, String>{
           'Content-Type': 'application/json;charset=UTF-8',
           'Authorization': 'Bearer $token',
@@ -257,7 +261,15 @@ class _PicHrgsState extends State<PicHrgs> {
   }
 
   void _filterData(String query) {
-    setState(() {});
+    if (query.isNotEmpty) {
+      setState(() {
+        fetchData(pageIndex: 1, rowPerPage: _totalRecords, searchQuery: query);
+      });
+    } else {
+      setState(() {
+        fetchData(pageIndex: 1);
+      });
+    }
   }
 
   void nextPage() {
@@ -311,7 +323,7 @@ class _PicHrgsState extends State<PicHrgs> {
                 horizontal: paddingHorizontalNarrow,
                 vertical: paddingHorizontalNarrow,
               ),
-              height: 650,
+              height: 700,
               width: double.infinity,
               child: Form(
                 key: _formKey,
@@ -638,7 +650,7 @@ class _PicHrgsState extends State<PicHrgs> {
                   horizontal: paddingHorizontalNarrow,
                   vertical: paddingHorizontalNarrow,
                 ),
-                height: 650,
+                height: 700,
                 width: double.infinity,
                 child: Form(
                   key: _formKey,
@@ -990,7 +1002,7 @@ class _PicHrgsState extends State<PicHrgs> {
                                   color: Colors.red,
                                   borderRadius: BorderRadius.circular(5),
                                 ),
-                                child: const Icon(Icons.delete_outline,
+                                child: const Icon(Icons.delete,
                                     color: Colors.white),
                               ),
                             ),

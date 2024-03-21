@@ -24,7 +24,7 @@ class _UserManagementState extends State<UserManagement> {
   int _rowsPerPage = 5;
   int _pageIndex = 1;
   int _totalRecords = 0;
-  String searchQuery = '';
+  String _searchQuery = '';
   bool _isLoading = false;
   List<dynamic> _data = [];
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -53,7 +53,11 @@ class _UserManagementState extends State<UserManagement> {
     getDataPangkat();
   }
 
-  Future<void> fetchData({int? pageIndex}) async {
+  Future<void> fetchData({
+    int? pageIndex,
+    int? rowPerPage,
+    String? searchQuery,
+  }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
@@ -64,7 +68,7 @@ class _UserManagementState extends State<UserManagement> {
     try {
       final response = await http.get(
         Uri.parse(
-            '$apiUrl/user-management/get?page=${pageIndex ?? _pageIndex}&perPage=$_rowsPerPage&search=$searchQuery'),
+            '$apiUrl/user-management/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
         headers: <String, String>{
           "Content-Type": "application/json;charset=UTF-8",
           "Authorization": "Bearer $token",
@@ -72,7 +76,7 @@ class _UserManagementState extends State<UserManagement> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseData = json.decode(response.body);
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
         final List<dynamic> data = responseData['dataku'];
         final total = responseData["totalPage"];
 
@@ -152,7 +156,15 @@ class _UserManagementState extends State<UserManagement> {
   }
 
   void _filterData(String query) {
-    setState(() {});
+    if (query.isNotEmpty) {
+      setState(() {
+        fetchData(pageIndex: 1, rowPerPage: _totalRecords, searchQuery: query);
+      });
+    } else {
+      setState(() {
+        fetchData(pageIndex: 1);
+      });
+    }
   }
 
   void nextPage() {
@@ -1613,7 +1625,8 @@ class _UserManagementState extends State<UserManagement> {
                         ),
                       ),
                       DataCell(Text(data['cocd'] ?? '')),
-                      DataCell(Text(data['tgl_masuk'] ?? '')),
+                      DataCell(Text(DateFormat('dd-MM-yyyy')
+                          .format(DateTime.parse(data['tgl_masuk'] ?? '')))),
                       DataCell(Text(data['role'] ?? '')),
                       DataCell(
                         Container(

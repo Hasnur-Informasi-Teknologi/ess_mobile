@@ -45,7 +45,7 @@ class _RawatInapState extends State<RawatInap> {
   int _rowsPerPage = 5;
   int _pageIndex = 1;
   int _totalRecords = 0;
-  String searchQuery = '';
+  String _searchQuery = '';
   List<dynamic> _data = [];
   bool _isLoading = false;
 
@@ -62,6 +62,8 @@ class _RawatInapState extends State<RawatInap> {
 
   Future<void> fetchData({
     int? pageIndex,
+    int? rowPerPage,
+    String? searchQuery,
   }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -73,7 +75,7 @@ class _RawatInapState extends State<RawatInap> {
     try {
       final response = await http.get(
         Uri.parse(
-            '$apiUrl/master/rawat-inap/get?page=${pageIndex ?? _pageIndex}&perPage=$_rowsPerPage&search=$searchQuery'),
+            '$apiUrl/master/rawat-inap/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
         headers: <String, String>{
           "Content-Type": "application/json;charset=UTF-8",
           "Authorization": "Bearer $token",
@@ -258,7 +260,15 @@ class _RawatInapState extends State<RawatInap> {
   }
 
   void _filterData(String query) {
-    setState(() {});
+    if (query.isNotEmpty) {
+      setState(() {
+        fetchData(pageIndex: 1, rowPerPage: _totalRecords, searchQuery: query);
+      });
+    } else {
+      setState(() {
+        fetchData(pageIndex: 1);
+      });
+    }
   }
 
   void nextPage() {
@@ -2165,7 +2175,8 @@ class _RawatInapState extends State<RawatInap> {
                       DataCell(Text(data['nominal'].toString())),
                       DataCell(Text(
                           data['status'] == "0" ? 'Tidak Aktif' : 'Aktif')),
-                      DataCell(Text(data['tgl_mulai'] ?? '')),
+                      DataCell(Text(DateFormat('dd-MM-yyyy')
+                          .format(DateTime.parse(data['tgl_mulai'] ?? '')))),
                       DataCell(Text(data['tgl_berakhir'] ?? '')),
                       DataCell(
                         Row(

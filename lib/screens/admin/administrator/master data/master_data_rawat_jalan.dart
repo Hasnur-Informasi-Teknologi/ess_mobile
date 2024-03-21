@@ -47,7 +47,7 @@ class _RawatJalanState extends State<RawatJalan> {
   int _rowsPerPage = 5;
   int _pageIndex = 1;
   int _totalRecords = 0;
-  String searchQuery = '';
+  String _searchQuery = '';
   List<dynamic> _data = [];
   bool _isLoading = false;
 
@@ -63,6 +63,8 @@ class _RawatJalanState extends State<RawatJalan> {
 
   Future<void> fetchData({
     int? pageIndex,
+    int? rowPerPage,
+    String? searchQuery,
   }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -74,7 +76,7 @@ class _RawatJalanState extends State<RawatJalan> {
     try {
       final response = await http.get(
         Uri.parse(
-            '$apiUrl/master/rawat-jalan/get?page=${pageIndex ?? _pageIndex}&perPage=$_rowsPerPage&search=$searchQuery'),
+            '$apiUrl/master/rawat-jalan/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
         headers: <String, String>{
           "Content-Type": "application/json;charset=UTF-8",
           "Authorization": "Bearer $token",
@@ -221,7 +223,15 @@ class _RawatJalanState extends State<RawatJalan> {
   }
 
   void _filterData(String query) {
-    setState(() {});
+    if (query.isNotEmpty) {
+      setState(() {
+        fetchData(pageIndex: 1, rowPerPage: _totalRecords, searchQuery: query);
+      });
+    } else {
+      setState(() {
+        fetchData(pageIndex: 1);
+      });
+    }
   }
 
   void nextPage() {
@@ -1437,41 +1447,6 @@ class _RawatJalanState extends State<RawatJalan> {
                             fontSize: textMedium,
                           ),
                         ),
-                        // Padding(
-                        //   padding: EdgeInsets.symmetric(
-                        //       horizontal: paddingHorizontalNarrow),
-                        //   child: TextFormField(
-                        //     validator: _validatorKurs,
-                        //     initialValue: kurs,
-                        //     onChanged: (value) {
-                        //       setState(() {
-                        //         valueKurs = value;
-                        //       });
-                        //     },
-                        //     decoration: InputDecoration(
-                        //       hintText: "Masukan kurs",
-                        //       hintStyle: TextStyle(
-                        //         fontWeight: FontWeight.w300,
-                        //         fontSize: textMedium,
-                        //       ),
-                        //       enabledBorder: const OutlineInputBorder(
-                        //         borderSide: BorderSide(
-                        //           color: Colors.grey,
-                        //           width: 1.0,
-                        //         ),
-                        //       ),
-                        //       contentPadding: const EdgeInsets.fromLTRB(
-                        //         20.0,
-                        //         10.0,
-                        //         20.0,
-                        //         10.0,
-                        //       ),
-                        //       border: OutlineInputBorder(
-                        //         borderRadius: BorderRadius.circular(5),
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
@@ -1509,8 +1484,6 @@ class _RawatJalanState extends State<RawatJalan> {
                               onChanged: (String? newValue) {
                                 setState(() {
                                   valueKurs = newValue ?? '';
-                                  print(
-                                      'selectedValueStatus: $selectedValueKurs');
                                 });
                               },
                               items: selectedKurs
@@ -1965,8 +1938,10 @@ class _RawatJalanState extends State<RawatJalan> {
                         ),
                       ),
                       DataCell(Text(data['nominal'].toString() ?? '')),
-                      DataCell(Text(data['tgl_mulai'] ?? '')),
-                      DataCell(Text(data['tgl_berakhir'] ?? '')),
+                      DataCell(Text(DateFormat('dd-MM-yyyy')
+                          .format(DateTime.parse(data['tgl_mulai'])))),
+                      DataCell(Text(DateFormat('dd-MM-yyyy')
+                          .format(DateTime.parse(data['tgl_berakhir'])))),
                       DataCell(Text(data['status'].toString() == "1"
                           ? 'Aktif'
                           : 'Tidak Aktif')),
