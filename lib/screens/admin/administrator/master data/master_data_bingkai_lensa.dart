@@ -39,7 +39,7 @@ class _BingkaiLensaState extends State<BingkaiLensa> {
   int _rowsPerPage = 5;
   int _pageIndex = 1;
   int _totalRecords = 0;
-  String searchQuery = '';
+  String _searchQuery = '';
   List<dynamic> _data = [];
   List<Map<String, dynamic>> selectedStatus = [];
   bool _isLoading = false;
@@ -54,6 +54,8 @@ class _BingkaiLensaState extends State<BingkaiLensa> {
 
   Future<void> fetchData({
     int? pageIndex,
+    int? rowPerPage,
+    String? searchQuery,
   }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -65,7 +67,7 @@ class _BingkaiLensaState extends State<BingkaiLensa> {
     try {
       final response = await http.get(
         Uri.parse(
-            '$apiUrl/master/bingkai-lensa/get?page=${pageIndex ?? _pageIndex}&perPage=$_rowsPerPage&search=$searchQuery'),
+            '$apiUrl/master/bingkai-lensa/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
         headers: <String, String>{
           "Content-Type": "application/json;charset=UTF-8",
           "Authorization": "Bearer $token",
@@ -132,11 +134,11 @@ class _BingkaiLensaState extends State<BingkaiLensa> {
     {
       "data": [
         {
-          "id": "0",
+          "id": "1",
           "nama": "Aktif"
         },
         {
-          "id": "1",
+          "id": "0",
           "nama": "Tidak Aktif"
         }
       ]
@@ -156,7 +158,15 @@ class _BingkaiLensaState extends State<BingkaiLensa> {
   }
 
   void _filterData(String query) {
-    setState(() {});
+    if (query.isNotEmpty) {
+      setState(() {
+        fetchData(pageIndex: 1, rowPerPage: _totalRecords, searchQuery: query);
+      });
+    } else {
+      setState(() {
+        fetchData(pageIndex: 1);
+      });
+    }
   }
 
   void nextPage() {
@@ -196,11 +206,9 @@ class _BingkaiLensaState extends State<BingkaiLensa> {
     double sizedBoxHeightTall = size.height * 0.0163;
 
     Future<void> deleteData(String id) async {
-      print('tombol delet bekerja dengan id :  $id');
       SharedPreferences prefs = await SharedPreferences.getInstance();
 
       String? token = prefs.getString('token');
-      print('ini token :  $token');
       if (token != null) {
         try {
           final response =
@@ -365,7 +373,7 @@ class _BingkaiLensaState extends State<BingkaiLensa> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
                             child: TitleWidget(
-                              title: 'Md pangkat *',
+                              title: 'Pangkat *',
                               fontWeight: FontWeight.w300,
                               fontSize: textMedium,
                             ),
@@ -384,7 +392,7 @@ class _BingkaiLensaState extends State<BingkaiLensa> {
                               ),
                               child: DropdownButtonFormField<String>(
                                 hint: Text(
-                                  "Pilih md pangkat",
+                                  "Pilih Pangkat",
                                   style: TextStyle(
                                     fontWeight: FontWeight.w300,
                                     fontSize: textMedium,
@@ -977,11 +985,6 @@ class _BingkaiLensaState extends State<BingkaiLensa> {
       double textMedium = size.width * 0.0329;
       double paddingHorizontalNarrow = size.width * 0.035;
       double padding5 = size.width * 0.0115;
-      double padding7 = size.width * 0.018;
-      double sizedBoxHeightShort = size.height * 0.0086;
-      final double _maxHeightNrp = 40.0;
-      double sizedBoxHeightTall = size.height * 0.0163;
-      double paddingHorizontalWide = size.width * 0.0585;
       double _maxHeightAtasan = 60.0;
 
       DateTime dateTimeMulai = DateFormat("yyyy-MM-dd").parse(tgl_mulai);
@@ -1028,7 +1031,7 @@ class _BingkaiLensaState extends State<BingkaiLensa> {
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
                           child: TitleWidget(
-                            title: 'Md pangkat *',
+                            title: 'Pangkat *',
                             fontWeight: FontWeight.w300,
                             fontSize: textMedium,
                           ),
@@ -1552,12 +1555,14 @@ class _BingkaiLensaState extends State<BingkaiLensa> {
                     cells: <DataCell>[
                       DataCell(Text('$index')),
                       DataCell(Text(data['pangkat'])),
-                      DataCell(Text(data['bingkai'].toString())),
-                      DataCell(Text(data['lensa'].toString())),
-                      DataCell(Text(data['tgl_mulai'])),
-                      DataCell(Text(data['tgl_berakhir'])),
+                      DataCell(Center(child: Text(data['bingkai'].toString()))),
+                      DataCell(Center(child: Text(data['lensa'].toString()))),
+                      DataCell(Text(DateFormat('dd-MM-yyyy')
+                          .format(DateTime.parse(data['tgl_mulai'])))),
+                      DataCell(Text(DateFormat('dd-MM-yyyy')
+                          .format(DateTime.parse(data['tgl_berakhir'])))),
                       DataCell(Text(
-                          data['status'] == "0" ? 'Aktif' : 'Tidak Aktif')),
+                          data['status'] == "1" ? 'Aktif' : 'Tidak Aktif')),
                       DataCell(
                         Row(
                           children: [

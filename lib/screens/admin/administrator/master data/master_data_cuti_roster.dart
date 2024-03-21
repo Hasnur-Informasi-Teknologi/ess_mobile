@@ -23,18 +23,18 @@ class _CutiRosterState extends State<CutiRoster> {
   final String apiUrl = API_URL;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<Map<String, dynamic>> selectedStatus = [];
-  final TextEditingController _nrpController = TextEditingController();
-  final TextEditingController _namaController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _cocdController = TextEditingController();
+  List<Map<String, dynamic>> selectedPotongCuti = [];
+  List<Map<String, dynamic>> nrpCollection = [];
   final TextEditingController _searchcontroller = TextEditingController();
-
   final TextEditingController _jumlahRosterController = TextEditingController();
-  final TextEditingController _entitasController = TextEditingController();
-  final TextEditingController _potongCutiBersamaController =
-      TextEditingController();
+  String? entitas;
+
   final TextEditingController _statusController = TextEditingController();
-  String? selectedValueSatuan, selectedValueStatus, selectedValueEntitas;
+  String? selectedValueSatuan,
+      selectedValueStatus,
+      selectedValuePotongCuti,
+      selectedValueEntitas,
+      selectedValueNrp;
   final DateRangePickerController _tglMulaiController =
       DateRangePickerController();
   DateTime? tanggalMulai;
@@ -42,10 +42,6 @@ class _CutiRosterState extends State<CutiRoster> {
   final DateRangePickerController _tglBerakhirController =
       DateRangePickerController();
   DateTime? tanggalBerakhir;
-
-  final DateRangePickerController _tanggalJoinController =
-      DateRangePickerController();
-  DateTime? tanggalJoin;
 
   int? parseToInt(String value) {
     final int? intValue = int.tryParse(value);
@@ -58,7 +54,7 @@ class _CutiRosterState extends State<CutiRoster> {
   int _rowsPerPage = 5;
   int _pageIndex = 1;
   int _totalRecords = 0;
-  String searchQuery = '';
+  String _searchQuery = '';
   List<dynamic> _data = [];
   bool _isLoading = false;
 
@@ -67,10 +63,14 @@ class _CutiRosterState extends State<CutiRoster> {
     super.initState();
     fetchData();
     getDataStatus();
+    getDataCuti();
+    getDataUser();
   }
 
   Future<void> fetchData({
     int? pageIndex,
+    int? rowPerPage,
+    String? searchQuery,
   }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -82,7 +82,7 @@ class _CutiRosterState extends State<CutiRoster> {
     try {
       final response = await http.get(
         Uri.parse(
-            '$apiUrl/master/cuti-roster/get?page=${pageIndex ?? _pageIndex}&perPage=$_rowsPerPage&search=$searchQuery'),
+            '$apiUrl/master/cuti-roster/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
         headers: <String, String>{
           "Content-Type": "application/json;charset=UTF-8",
           "Authorization": "Bearer $token",
@@ -120,11 +120,11 @@ class _CutiRosterState extends State<CutiRoster> {
     {
       "data": [
         {
-          "id": "0",
+          "id": "1",
           "nama": "Aktif"
         },
         {
-          "id": "1",
+          "id": "0",
           "nama": "Tidak Aktif"
         }
       ]
@@ -143,8 +143,89 @@ class _CutiRosterState extends State<CutiRoster> {
     }
   }
 
+  Future<void> getDataCuti() async {
+    String jsonString = '''
+    {
+      "data": [
+        {
+          "id": "1",
+          "nama": "Ya"
+        },
+        {
+          "id": "0",
+          "nama": "Tidak"
+        }
+      ]
+    }
+    ''';
+
+    try {
+      final responseData = jsonDecode(jsonString);
+      final dataStatusApi = responseData['data'];
+      print('dataStatusApi: $dataStatusApi');
+      setState(() {
+        selectedPotongCuti = List<Map<String, dynamic>>.from(dataStatusApi);
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> getDataUser({
+    int? rowPerPageUser,
+  }) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    List<Map<String, dynamic>> allData = [];
+    int _totalRecordUsers = 0;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+            '$apiUrl/user-management/get?page=1&perPage=9999999&search=$_searchQuery'),
+        headers: <String, String>{
+          "Content-Type": "application/json;charset=UTF-8",
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body)['dataku'];
+        print(responseData);
+        final List<Map<String, dynamic>> fetchedData =
+            List<Map<String, dynamic>>.from(responseData);
+        final totalDataUser = jsonDecode(response.body)['totalPage'];
+
+        setState(() {
+          _totalRecordUsers = totalDataUser['total_records'] ?? 0;
+          fetchedData.removeWhere((item) => item['nama'] == null);
+          allData.addAll(fetchedData);
+          nrpCollection = allData;
+
+          _isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load data from API Data User');
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   void _filterData(String query) {
-    setState(() {});
+    if (query.isNotEmpty) {
+      setState(() {
+        fetchData(pageIndex: 1, rowPerPage: _totalRecords, searchQuery: query);
+      });
+    } else {
+      setState(() {
+        fetchData(pageIndex: 1);
+      });
+    }
   }
 
   void nextPage() {
@@ -293,62 +374,6 @@ class _CutiRosterState extends State<CutiRoster> {
       return null;
     }
 
-    String? _validatorEmail(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field Email Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorCocd(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field Cocd Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorRole(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field Role Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorPangkat(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field Pangkat Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
     Future<void> _submit() async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
@@ -370,8 +395,8 @@ class _CutiRosterState extends State<CutiRoster> {
         final body = jsonEncode({
           'entitas': selectedValueEntitas.toString(),
           'jml_roster': _jumlahRosterController.text,
-          'nrp': _nrpController.text,
-          'potong_cuti_bersama': _potongCutiBersamaController.text,
+          'nrp': selectedValueNrp.toString(),
+          'potong_cuti_bersama': selectedValuePotongCuti.toString(),
           'status': selectedValueStatus.toString(),
           'tgl_mulai': tanggalMulai != null
               ? tanggalMulai.toString()
@@ -449,11 +474,106 @@ class _CutiRosterState extends State<CutiRoster> {
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
+                          child: Container(
+                            height: 50,
+                            width: size.width,
+                            padding: EdgeInsets.only(
+                              left: paddingHorizontalNarrow,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: Colors.grey),
+                            ),
+                            child: Center(
+                              child: DropdownButtonFormField<String>(
+                                decoration: InputDecoration(
+                                  constraints: BoxConstraints(
+                                      maxHeight: maxHeightValidator),
+                                  labelStyle: TextStyle(fontSize: textMedium),
+                                  focusedBorder: const UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.transparent,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  enabledBorder: const UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.transparent,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                ),
+                                hint: Text(
+                                  'Pilih NRP',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: textMedium,
+                                  ),
+                                ),
+                                validator: _validatorNrp,
+                                value: selectedValueNrp,
+                                icon: nrpCollection.isEmpty
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.blue),
+                                        ),
+                                      )
+                                    : const Icon(Icons.arrow_drop_down),
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    selectedValueNrp = newValue ?? '';
+                                    entitas = nrpCollection.firstWhere(
+                                        (dataUser) =>
+                                            dataUser['nrp'] ==
+                                            selectedValueNrp)['entitas'];
+                                    print(entitas);
+
+                                    print(
+                                        'selectedValueNrp: $selectedValueNrp');
+                                  });
+                                },
+                                items: nrpCollection
+                                    .map((Map<String, dynamic> dataUser) {
+                                  return DropdownMenuItem<String>(
+                                    value: dataUser['nrp'],
+                                    child: Text(
+                                      (dataUser['nrp'] ?? 'null') +
+                                          ' - ' +
+                                          (dataUser['nama'] ?? 'null'),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium * 0.9,
+                                          overflow: TextOverflow.ellipsis),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow),
+                          child: TitleWidget(
+                            title: 'Entitas *',
+                            fontWeight: FontWeight.w300,
+                            fontSize: textMedium,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow),
                           child: TextFormField(
-                            controller: _nrpController,
-                            validator: _validatorNrp,
+                            initialValue: entitas,
+                            readOnly: true,
                             decoration: InputDecoration(
-                              hintText: "Masukan NRP",
                               hintStyle: TextStyle(
                                 fontWeight: FontWeight.w300,
                                 fontSize: textMedium,
@@ -515,47 +635,10 @@ class _CutiRosterState extends State<CutiRoster> {
                         ),
                         Padding(
                           padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
+                            horizontal: paddingHorizontalNarrow,
+                          ),
                           child: TitleWidget(
                             title: 'Potong Cuti Bersama *',
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TextFormField(
-                            controller: _potongCutiBersamaController,
-                            validator: _validator_potong_cuti_bersama,
-                            decoration: InputDecoration(
-                              hintText: "Masukan Potong Cuti Bersama",
-                              hintStyle: TextStyle(
-                                fontWeight: FontWeight.w300,
-                                fontSize: textMedium,
-                              ),
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.grey,
-                                  width: 1.0,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.fromLTRB(
-                                  20.0, 10.0, 20.0, 10.0),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: TitleWidget(
-                            title: 'Status *',
                             fontWeight: FontWeight.w300,
                             fontSize: textMedium,
                           ),
@@ -566,8 +649,99 @@ class _CutiRosterState extends State<CutiRoster> {
                           child: Container(
                             height: 50,
                             width: size.width,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow,
+                            padding: EdgeInsets.only(
+                              left: paddingHorizontalNarrow,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: Colors.grey),
+                            ),
+                            child: DropdownButtonFormField<String>(
+                              hint: Text(
+                                'Pilih Status',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                              ),
+                              validator: _validator_potong_cuti_bersama,
+                              value: selectedValuePotongCuti,
+                              icon: selectedPotongCuti.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  selectedValuePotongCuti = newValue ?? '';
+                                  print(
+                                      'selectedValuePotongCuti: $selectedValuePotongCuti');
+                                });
+                              },
+                              items: selectedPotongCuti
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["id"].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: TitleWidget(
+                                      title: value["nama"] as String,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              decoration: InputDecoration(
+                                constraints: BoxConstraints(
+                                    maxHeight: maxHeightValidator),
+                                labelStyle: TextStyle(fontSize: textMedium),
+                                focusedBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: selectedValuePotongCuti != null
+                                        ? Colors.transparent
+                                        : Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalNarrow,
+                          ),
+                          child: TitleWidget(
+                            title: 'Status *',
+                            fontWeight: FontWeight.w300,
+                            fontSize: textMedium,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalNarrow,
+                          ),
+                          child: Container(
+                            height: 50,
+                            width: size.width,
+                            padding: EdgeInsets.only(
+                              left: paddingHorizontalNarrow,
                             ),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(5),
@@ -1022,6 +1196,7 @@ class _CutiRosterState extends State<CutiRoster> {
         context,
         String id,
         String nrp,
+        String entitasNrp,
         String jml_roster,
         String potong_cuti_bersama,
         String status,
@@ -1031,12 +1206,6 @@ class _CutiRosterState extends State<CutiRoster> {
       double textMedium = size.width * 0.0329;
       double paddingHorizontalNarrow = size.width * 0.035;
       double padding5 = size.width * 0.0115;
-      double padding7 = size.width * 0.018;
-      double sizedBoxHeightShort = size.height * 0.0086;
-      const double maxHeightNrp = 40.0;
-      double sizedBoxHeightTall = size.height * 0.0163;
-      double paddingHorizontalWide = size.width * 0.0585;
-      double maxHeightAtasan = 60.0;
 
       DateTime dateTimeMulai = DateFormat("yyyy-MM-dd").parse(tglMulai);
       String formattedDateStringMulai =
@@ -1052,6 +1221,7 @@ class _CutiRosterState extends State<CutiRoster> {
 
       String textFieldValueId = id.toString();
       String textFieldValuenNrp = nrp.toString();
+      String textFieldValuenEntitasNrp = entitasNrp.toString();
       String textFieldValueJmlRoster = jml_roster.toString();
       String textFieldValuePotongCutiBersama = potong_cuti_bersama.toString();
       String textFieldValuestatus = status.toString();
@@ -1068,7 +1238,7 @@ class _CutiRosterState extends State<CutiRoster> {
                 horizontal: paddingHorizontalNarrow,
                 vertical: paddingHorizontalNarrow,
               ),
-              height: 650,
+              height: 600,
               width: double.infinity,
               child: ListView(
                 children: [
@@ -1090,16 +1260,106 @@ class _CutiRosterState extends State<CutiRoster> {
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
+                          child: Container(
+                            height: 50,
+                            width: size.width,
+                            padding: EdgeInsets.only(
+                              left: paddingHorizontalNarrow,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: Colors.grey),
+                            ),
+                            child: Center(
+                              child: DropdownButtonFormField<String>(
+                                decoration: InputDecoration(
+                                  constraints: BoxConstraints(
+                                      maxHeight: maxHeightValidator),
+                                  labelStyle: TextStyle(fontSize: textMedium),
+                                  focusedBorder: const UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.transparent,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  enabledBorder: const UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.transparent,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                ),
+                                hint: Text(
+                                  'Pilih NRP',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: textMedium,
+                                  ),
+                                ),
+                                validator: _validatorNrp,
+                                value: nrp,
+                                icon: nrpCollection.isEmpty
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.blue),
+                                        ),
+                                      )
+                                    : const Icon(Icons.arrow_drop_down),
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    textFieldValuenNrp = newValue ?? '';
+                                    textFieldValuenEntitasNrp =
+                                        nrpCollection.firstWhere((dataUser) =>
+                                            dataUser['nrp'] ==
+                                            selectedValueNrp)['entitas'];
+                                    print(entitas);
+
+                                    print(
+                                        'selectedValueNrp: $selectedValueNrp');
+                                  });
+                                },
+                                items: nrpCollection
+                                    .map((Map<String, dynamic> dataUser) {
+                                  return DropdownMenuItem<String>(
+                                    value: dataUser['nrp'],
+                                    child: Text(
+                                      (dataUser['nrp'] ?? 'null') +
+                                          ' - ' +
+                                          (dataUser['nama'] ?? 'null'),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w300,
+                                          fontSize: textMedium * 0.9,
+                                          overflow: TextOverflow.ellipsis),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow),
+                          child: TitleWidget(
+                            title: 'Entitas *',
+                            fontWeight: FontWeight.w300,
+                            fontSize: textMedium,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow),
                           child: TextFormField(
-                            validator: _validatorNrp,
-                            initialValue: nrp,
-                            onChanged: (value) {
-                              setState(() {
-                                textFieldValuenNrp = value;
-                              });
-                            },
+                            initialValue: textFieldValuenEntitasNrp,
+                            readOnly: true,
                             decoration: InputDecoration(
-                              hintText: "Masukan NRP",
                               hintStyle: TextStyle(
                                 fontWeight: FontWeight.w300,
                                 fontSize: textMedium,
@@ -1176,30 +1436,77 @@ class _CutiRosterState extends State<CutiRoster> {
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
-                          child: TextFormField(
-                            validator: _validator_potong_cuti_bersama,
-                            initialValue: potong_cuti_bersama,
-                            onChanged: (value) {
-                              setState(() {
-                                textFieldValuePotongCutiBersama = value;
-                              });
-                            },
-                            decoration: InputDecoration(
-                              hintText: "Masukan Potong Cuti Bersama",
-                              hintStyle: TextStyle(
-                                fontWeight: FontWeight.w300,
-                                fontSize: textMedium,
-                              ),
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.grey,
-                                  width: 1.0,
+                          child: Container(
+                            height: 50,
+                            width: size.width,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: Colors.grey),
+                            ),
+                            child: DropdownButtonFormField<String>(
+                              hint: Text(
+                                'Pilih Status',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
                                 ),
                               ),
-                              contentPadding: const EdgeInsets.fromLTRB(
-                                  20.0, 10.0, 20.0, 10.0),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
+                              validator: _validator_potong_cuti_bersama,
+                              value: potong_cuti_bersama,
+                              icon: selectedPotongCuti.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  textFieldValuePotongCutiBersama =
+                                      newValue ?? '';
+                                  print(
+                                      'selectedValuePotongCuti: $selectedValuePotongCuti');
+                                });
+                              },
+                              items: selectedPotongCuti
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["id"].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: TitleWidget(
+                                      title: value["nama"] as String,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              decoration: InputDecoration(
+                                constraints: BoxConstraints(
+                                    maxHeight: maxHeightValidator),
+                                labelStyle: TextStyle(fontSize: textMedium),
+                                focusedBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: selectedValuePotongCuti != null
+                                        ? Colors.transparent
+                                        : Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -1363,7 +1670,6 @@ class _CutiRosterState extends State<CutiRoster> {
                                         setState(() {});
                                         textFieldValueTglMulai =
                                             tanggalMulai.toString();
-                                        print('tanggalMulai: $tanggalMulai');
                                         Navigator.pop(context);
                                       },
                                       child: const Text('OK'),
@@ -1456,9 +1762,6 @@ class _CutiRosterState extends State<CutiRoster> {
                             );
                           },
                         ),
-                        const SizedBox(
-                          height: 10,
-                        ),
                         SizedBox(
                           width: size.width,
                           child: Padding(
@@ -1529,6 +1832,16 @@ class _CutiRosterState extends State<CutiRoster> {
                   ),
                   DataColumn(
                     label: Text(
+                      "Nama",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Entitas",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
                       "Jumlah Roster",
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
@@ -1539,15 +1852,11 @@ class _CutiRosterState extends State<CutiRoster> {
                   DataColumn(
                     label: Text(
                       "Potong Cuti Bersama",
-                      style:
-                          TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                     ),
                   ),
                   DataColumn(
                     label: Text(
                       "Tanggal Mulai",
-                      style:
-                          TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                     ),
                   ),
                   DataColumn(
@@ -1562,14 +1871,7 @@ class _CutiRosterState extends State<CutiRoster> {
                   ),
                   DataColumn(
                     label: Text(
-                      "Created By",
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
                       "Aksi",
-                      style:
-                          TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
                     ),
                   ),
                 ],
@@ -1580,13 +1882,32 @@ class _CutiRosterState extends State<CutiRoster> {
                     cells: <DataCell>[
                       DataCell(Text('$index')),
                       DataCell(Text(data['nrp'])),
-                      DataCell(Text(data['jml_roster'].toString())),
+                      DataCell(Container(
+                        width: 150,
+                        child: Text(
+                          data['nama'] ?? '',
+                          overflow: TextOverflow.clip,
+                        ),
+                      )),
+                      DataCell(Container(
+                          width: 150,
+                          child: Text(
+                            data['entitas'].toString(),
+                            overflow: TextOverflow.clip,
+                          ))),
                       DataCell(
-                          Center(child: Text(data['potong_cuti_bersama']))),
-                      DataCell(Text(data['tgl_mulai'])),
-                      DataCell(Text(data['tgl_berakhir'])),
-                      DataCell(Text(data['status'].toString())),
-                      DataCell(Text(data['created_by'])),
+                          Center(child: Text(data['jml_roster'].toString()))),
+                      DataCell(Center(
+                          child: Text(data['potong_cuti_bersama'] == "1"
+                              ? 'Ya'
+                              : 'Tidak'))),
+                      DataCell(Text(DateFormat('dd-MM-yyyy')
+                          .format(DateTime.parse(data['tgl_mulai'])))),
+                      DataCell(Text(DateFormat('dd-MM-yyyy')
+                          .format(DateTime.parse(data['tgl_berakhir'])))),
+                      DataCell(Text(data['status'] == "1"
+                          ? 'Aktif'
+                          : 'Tidak Aktif'.toString())),
                       DataCell(
                         Row(
                           children: [
@@ -1601,24 +1922,26 @@ class _CutiRosterState extends State<CutiRoster> {
                                   onTap: () {
                                     String id = data['id'].toString();
                                     String nrp = data['nrp'].toString();
+                                    String entitasNrp =
+                                        data['entitas'].toString();
                                     String jml_roster =
                                         data['jml_roster'].toString();
                                     String potong_cuti_bersama =
                                         data['potong_cuti_bersama'].toString();
-                                    String created_by = data['created_by'];
-                                    String created_at = data['created_at'];
                                     String status = data['status'].toString();
                                     String tglMulai = data['tgl_mulai'];
                                     String tglBerakhir = data['tgl_berakhir'];
                                     updateData(
-                                        context,
-                                        id,
-                                        nrp,
-                                        jml_roster,
-                                        potong_cuti_bersama,
-                                        status,
-                                        tglBerakhir,
-                                        tglMulai);
+                                      context,
+                                      id,
+                                      nrp,
+                                      entitasNrp,
+                                      jml_roster,
+                                      potong_cuti_bersama,
+                                      status,
+                                      tglBerakhir,
+                                      tglMulai,
+                                    );
                                   },
                                   child: const Icon(Icons.edit,
                                       color: Colors.white)),

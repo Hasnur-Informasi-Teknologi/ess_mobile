@@ -7,8 +7,9 @@ import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data
 import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_pic_hrgs.dart';
 import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_rawat_inap.dart';
 import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_rawat_jalan.dart';
-import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_uang_makan.dart';
-import 'package:mobile_ess/screens/admin/administrator/master%20data/tab%20rawat%20jalan/tabs.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_uang_makan_dalam_negeri.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/tab%20rawat%20jalan/tabsRawatJalan.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/tab%20uang%20makan/TabsUangMakan.dart';
 import 'package:mobile_ess/screens/admin/administrator/user%20management/user_management_list.dart';
 import 'package:mobile_ess/screens/admin/administrator/user_authorization/user_authorization_list.dart';
 import 'package:mobile_ess/screens/admin/main/dashboard.dart';
@@ -138,13 +139,11 @@ Map<String, Widget Function(BuildContext)> routers() {
     '/admin/administrator/master_data/cuti_roster': (context) =>
         const CutiRoster(),
     '/admin/administrator/master_data/tab_rawat_jalan': (context) =>
-        const Tabs(),
-    '/admin/administrator/master_data/rawat_jalan': (context) =>
-        const RawatJalan(),
+        const TabsRawatJalan(),
+    '/admin/administrator/master_data/tab_uang_makan': (context) =>
+        const TabsUangMakan(),
     '/admin/administrator/master_data/rawat_inap': (context) =>
         const RawatInap(),
-    '/admin/administrator/master_data/uang_makan': (context) =>
-        const UangMakan(),
     '/admin/administrator/master_data/kamar_hotel': (context) =>
         const KamarHotel(),
     '/admin/administrator/master_data/pic_hrgs': (context) => const PicHrgs()

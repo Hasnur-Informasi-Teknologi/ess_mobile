@@ -35,7 +35,7 @@ class _CutiBersamaState extends State<CutiBersama> {
   int _rowsPerPage = 5;
   int _pageIndex = 1;
   int _totalRecords = 0;
-  String searchQuery = '';
+  String _searchQuery = '';
   List<dynamic> _data = [];
   bool _isLoading = false;
 
@@ -47,6 +47,8 @@ class _CutiBersamaState extends State<CutiBersama> {
 
   Future<void> fetchData({
     int? pageIndex,
+    int? rowPerPage,
+    String? searchQuery,
   }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -58,7 +60,7 @@ class _CutiBersamaState extends State<CutiBersama> {
     try {
       final response = await http.get(
         Uri.parse(
-            '$apiUrl/master/cuti-bersama/get?page=${pageIndex ?? _pageIndex}&perPage=$_rowsPerPage&search=$searchQuery'),
+            '$apiUrl/master/cuti-bersama/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
         headers: <String, String>{
           "Content-Type": "application/json;charset=UTF-8",
           "Authorization": "Bearer $token",
@@ -92,7 +94,15 @@ class _CutiBersamaState extends State<CutiBersama> {
   }
 
   void _filterData(String query) {
-    setState(() {});
+    if (query.isNotEmpty) {
+      setState(() {
+        fetchData(pageIndex: 1, rowPerPage: _totalRecords, searchQuery: query);
+      });
+    } else {
+      setState(() {
+        fetchData(pageIndex: 1);
+      });
+    }
   }
 
   void nextPage() {
@@ -656,6 +666,7 @@ class _CutiBersamaState extends State<CutiBersama> {
       return showModalBottomSheet(
         context: context,
         isScrollControlled: true,
+        useSafeArea: true,
         builder: (context) => Padding(
           padding: EdgeInsets.only(
               top: 10, bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -1086,9 +1097,12 @@ class _CutiBersamaState extends State<CutiBersama> {
                     cells: <DataCell>[
                       DataCell(Text('$index')),
                       DataCell(Text(data['deskripsi'] ?? 'null')),
-                      DataCell(Text(data['jml_hari'].toString())),
-                      DataCell(Text(data['tgl_mulai'] ?? 'null')),
-                      DataCell(Text(data['tgl_berakhir'] ?? 'null')),
+                      DataCell(
+                          Center(child: Text(data['jml_hari'].toString()))),
+                      DataCell(Text(DateFormat('dd-MM-yyyy').format(
+                          DateTime.parse(data['tgl_mulai'] ?? 'null')))),
+                      DataCell(Text(DateFormat('dd-MM-yyyy').format(
+                          DateTime.parse(data['tgl_berakhir'] ?? 'null')))),
                       DataCell(
                         Row(
                           children: [
