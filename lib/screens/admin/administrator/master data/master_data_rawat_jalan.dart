@@ -24,26 +24,18 @@ class _RawatJalanState extends State<RawatJalan> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   List<Map<String, dynamic>> selectedMdNikah = [];
   List<Map<String, dynamic>> selectedMdPangkat = [];
+  List<Map<String, dynamic>> selectedStatus = [];
+  List<Map<String, dynamic>> selectedKurs = [];
   TextEditingController _searchcontroller = TextEditingController();
   TextEditingController _mdPangkatController = TextEditingController();
   TextEditingController _mdNikahController = TextEditingController();
   TextEditingController _kursController = TextEditingController();
   TextEditingController _nominalController = TextEditingController();
   TextEditingController _statusController = TextEditingController();
-  String? selectedValueAnnouncement,
-      selectedValueApplication,
-      selectedValueApprovalList,
-      selectedValueAssignmentInterviewer,
-      selectedValueDashboardAdmin,
-      selectedValueDataProfile,
-      selectedValueDetailPlafon,
-      selectedValueDocumentCompany,
-      selectedValueEmployee,
-      selectedValueFormOnline,
-      selectedValuePerformanceManagement,
-      selectedValueUserAdministrator,
+  String? selectedValueStatus,
       selectedValueMdPangkat,
-      selectedValueMdNikah;
+      selectedValueMdNikah,
+      selectedValueKurs;
 
   final DateRangePickerController _tanggalMulaiController =
       DateRangePickerController();
@@ -55,7 +47,7 @@ class _RawatJalanState extends State<RawatJalan> {
   int _rowsPerPage = 5;
   int _pageIndex = 1;
   int _totalRecords = 0;
-  String searchQuery = '';
+  String _searchQuery = '';
   List<dynamic> _data = [];
   bool _isLoading = false;
 
@@ -65,10 +57,14 @@ class _RawatJalanState extends State<RawatJalan> {
     fetchData();
     getDataMdPangkat();
     getDataMdNikah();
+    getDataStatus();
+    getDatakurs();
   }
 
   Future<void> fetchData({
     int? pageIndex,
+    int? rowPerPage,
+    String? searchQuery,
   }) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -80,7 +76,7 @@ class _RawatJalanState extends State<RawatJalan> {
     try {
       final response = await http.get(
         Uri.parse(
-            '$apiUrl/master/rawat-jalan/get?page=${pageIndex ?? _pageIndex}&perPage=$_rowsPerPage&search=$searchQuery'),
+            '$apiUrl/master/rawat-jalan/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
         headers: <String, String>{
           "Content-Type": "application/json;charset=UTF-8",
           "Authorization": "Bearer $token",
@@ -162,7 +158,6 @@ class _RawatJalanState extends State<RawatJalan> {
         setState(
           () {
             selectedMdNikah = List<Map<String, dynamic>>.from(dataMdNikah);
-            // selectedEntitasPengganti =
           },
         );
       } catch (e) {
@@ -171,8 +166,72 @@ class _RawatJalanState extends State<RawatJalan> {
     }
   }
 
+  Future<void> getDataStatus() async {
+    String jsonString = '''
+    {
+      "data": [
+        {
+          "id": "0",
+          "nama": "Tidak Aktif"
+        },
+        {
+          "id": "1",
+          "nama": "Aktif"
+        }
+      ]
+    }
+    ''';
+
+    try {
+      final responseData = jsonDecode(jsonString);
+      final dataStatusApi = responseData['data'];
+      print('dataStatusApi: $dataStatusApi');
+      setState(() {
+        selectedStatus = List<Map<String, dynamic>>.from(dataStatusApi);
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> getDatakurs() async {
+    String jsonString = '''
+    {
+      "data": [
+        {
+          "id": "0",
+          "nama": "Rupiah"
+        },
+        {
+          "id": "1",
+          "nama": "USD"
+        }
+      ]
+    }
+    ''';
+
+    try {
+      final responseData = jsonDecode(jsonString);
+      final dataKursApi = responseData['data'];
+      print('dataKursApi: $dataKursApi');
+      setState(() {
+        selectedKurs = List<Map<String, dynamic>>.from(dataKursApi);
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
   void _filterData(String query) {
-    setState(() {});
+    if (query.isNotEmpty) {
+      setState(() {
+        fetchData(pageIndex: 1, rowPerPage: _totalRecords, searchQuery: query);
+      });
+    } else {
+      setState(() {
+        fetchData(pageIndex: 1);
+      });
+    }
   }
 
   void nextPage() {
@@ -236,188 +295,6 @@ class _RawatJalanState extends State<RawatJalan> {
           print(e);
         }
       }
-    }
-
-    String? _validatorAnnouncement(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field announcement Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorApplication(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field application Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorApprovalList(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field approval_list Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorAssignmentInterviewer(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field assignment_interviewer Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorDashboardAdmin(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field dashboard_admin Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorDataProfile(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field data_profile Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorDetailPlafon(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field detail_plafon Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorDocumentCompany(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field document_company Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorEmployee(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field employee Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorFormOnline(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field form_online Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorPerformanceManagement(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field performance_management Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorUserAdministrator(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field user_administrator Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
-    }
-
-    String? _validatorRole(dynamic value) {
-      if (value == null || value.isEmpty) {
-        setState(() {
-          maxHeightValidator = 80.0;
-        });
-        return 'Field Role Kosong';
-      }
-
-      setState(() {
-        maxHeightValidator = 60.0;
-      });
-      return null;
     }
 
     String? _validatorMdPangkat(dynamic value) {
@@ -506,26 +383,6 @@ class _RawatJalanState extends State<RawatJalan> {
       }
 
       _formKey.currentState!.save();
-      // print(_roleController.text);
-      // print("ini announce : " + _announcementController.text);
-      // print("ini applicatin : " + _applicationController.text);
-      // print("ini approval : " + _approvalListController.text);
-      // print("ini assignmen : " + _assignmentInterviewerController.text);
-      // print("ini dashboard : " + _dashboardAdminController.text);
-      // print("ini datprof : " + _dataProfileController.text);
-      // print("ini detplaf : " + _detailPlafonController.text);
-      // print("ini doc : " + _documentCompanyController.text);
-      // print("ini employ : " + _employeeController.text);
-      // print("ini formonli : " + _formOnlineController.text);
-      // print("ini pertform : " + _performanceManagementController.text);
-      // print("ini user : " + _userAdministratorController.text);
-      print("ini md pangkat : " + _mdPangkatController.text);
-      print("ini md nikah : " + _mdNikahController.text);
-      print("ini kurs : " + _kursController.text);
-      print("ini nominal : " + _nominalController.text);
-      print("ini status : " + _statusController.text);
-      print("ini tgl mulai : " + tanggalMulai.toString());
-      print("ini tgl berakhir : " + tanggalBerakhir.toString());
       try {
         final response = await http.post(
           Uri.parse('$apiUrl/master/rawat-jalan/add'),
@@ -598,7 +455,7 @@ class _RawatJalanState extends State<RawatJalan> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
                             child: TitleWidget(
-                              title: 'Md pangkat *',
+                              title: 'Pangkat *',
                               fontWeight: FontWeight.w300,
                               fontSize: textMedium,
                             ),
@@ -617,7 +474,7 @@ class _RawatJalanState extends State<RawatJalan> {
                               ),
                               child: DropdownButtonFormField<String>(
                                 hint: Text(
-                                  "Pilih md pangkat",
+                                  "Pilih Pangkat",
                                   style: TextStyle(
                                     fontWeight: FontWeight.w300,
                                     fontSize: textMedium,
@@ -639,8 +496,7 @@ class _RawatJalanState extends State<RawatJalan> {
                                 onChanged: (String? newValue) {
                                   setState(() {
                                     selectedValueMdPangkat = newValue;
-                                    _mdPangkatController.text = newValue ??
-                                        ''; // Update the TextEditingController value
+                                    _mdPangkatController.text = newValue ?? '';
                                     print("$selectedValueMdPangkat");
                                   });
                                 },
@@ -685,7 +541,7 @@ class _RawatJalanState extends State<RawatJalan> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
                             child: TitleWidget(
-                              title: 'Md nikah *',
+                              title: 'Nikah *',
                               fontWeight: FontWeight.w300,
                               fontSize: textMedium,
                             ),
@@ -705,7 +561,7 @@ class _RawatJalanState extends State<RawatJalan> {
                               ),
                               child: DropdownButtonFormField<String>(
                                 hint: Text(
-                                  "Pilih md nikah",
+                                  "Pilih Nikah",
                                   style: TextStyle(
                                     fontWeight: FontWeight.w300,
                                     fontSize: textMedium,
@@ -779,29 +635,77 @@ class _RawatJalanState extends State<RawatJalan> {
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
-                            child: TextFormField(
-                              controller: _kursController,
-                              validator: _validatorKurs,
-                              decoration: InputDecoration(
-                                hintText: "Masukan kurs",
-                                hintStyle: TextStyle(
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                                enabledBorder: const OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.grey,
-                                    width: 1.0,
+                            child: Container(
+                              height: 50,
+                              width: size.width,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                border: Border.all(color: Colors.grey),
+                              ),
+                              child: DropdownButtonFormField<String>(
+                                hint: Text(
+                                  'Pilih Kurs',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: textMedium,
                                   ),
                                 ),
-                                contentPadding: const EdgeInsets.fromLTRB(
-                                  20.0,
-                                  10.0,
-                                  20.0,
-                                  10.0,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5),
+                                validator: _validatorStatus,
+                                value: selectedValueKurs,
+                                icon: selectedKurs.isEmpty
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.blue),
+                                        ),
+                                      )
+                                    : const Icon(Icons.arrow_drop_down),
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    _kursController.text = newValue ?? '';
+                                    selectedValueKurs = newValue ?? '';
+                                    print(
+                                        'selectedValueKurs: $selectedValueKurs');
+                                  });
+                                },
+                                items: selectedKurs
+                                    .map((Map<String, dynamic> value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value["id"].toString(),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(1.0),
+                                      child: TitleWidget(
+                                        title: value["nama"] as String,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                decoration: InputDecoration(
+                                  constraints: BoxConstraints(
+                                      maxHeight: maxHeightValidator),
+                                  labelStyle: TextStyle(fontSize: textMedium),
+                                  focusedBorder: const UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.transparent,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: selectedValueKurs != null
+                                          ? Colors.transparent
+                                          : Colors.transparent,
+                                      width: 1.0,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -859,29 +763,77 @@ class _RawatJalanState extends State<RawatJalan> {
                           Padding(
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
-                            child: TextFormField(
-                              controller: _statusController,
-                              validator: _validatorStatus,
-                              decoration: InputDecoration(
-                                hintText: "Masukan Status",
-                                hintStyle: TextStyle(
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                                enabledBorder: const OutlineInputBorder(
-                                  borderSide: BorderSide(
-                                    color: Colors.grey,
-                                    width: 1.0,
+                            child: Container(
+                              height: 50,
+                              width: size.width,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                border: Border.all(color: Colors.grey),
+                              ),
+                              child: DropdownButtonFormField<String>(
+                                hint: Text(
+                                  'Pilih Status',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w300,
+                                    fontSize: textMedium,
                                   ),
                                 ),
-                                contentPadding: const EdgeInsets.fromLTRB(
-                                  20.0,
-                                  10.0,
-                                  20.0,
-                                  10.0,
-                                ),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(5),
+                                validator: _validatorStatus,
+                                value: selectedValueStatus,
+                                icon: selectedStatus.isEmpty
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.blue),
+                                        ),
+                                      )
+                                    : const Icon(Icons.arrow_drop_down),
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    selectedValueStatus = newValue ?? '';
+                                    _statusController.text = newValue ?? '';
+                                    print(
+                                        'selectedValueStatus: $selectedValueStatus');
+                                  });
+                                },
+                                items: selectedStatus
+                                    .map((Map<String, dynamic> value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value["id"].toString(),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(1.0),
+                                      child: TitleWidget(
+                                        title: value["nama"] as String,
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium,
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                decoration: InputDecoration(
+                                  constraints: BoxConstraints(
+                                      maxHeight: maxHeightValidator),
+                                  labelStyle: TextStyle(fontSize: textMedium),
+                                  focusedBorder: const UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: Colors.transparent,
+                                      width: 1.0,
+                                    ),
+                                  ),
+                                  enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                      color: selectedValueStatus != null
+                                          ? Colors.transparent
+                                          : Colors.transparent,
+                                      width: 1.0,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -891,7 +843,7 @@ class _RawatJalanState extends State<RawatJalan> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
                             child: TitleWidget(
-                              title: 'Tanggal mulai *',
+                              title: 'Tanggal Mulai *',
                               fontWeight: FontWeight.w300,
                               fontSize: textMedium,
                             ),
@@ -1086,31 +1038,58 @@ class _RawatJalanState extends State<RawatJalan> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
+            Align(
+              alignment: Alignment.topLeft,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(primaryYellow),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: TextButton(
+                  onPressed: _handleButtonAdd,
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.add,
+                        color: Colors.black,
+                      ),
+                      SizedBox(),
+                      Text(
+                        'Add Data',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Container(
-                  decoration: BoxDecoration(
-                    color: const Color(primaryYellow),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: TextButton(
-                    onPressed: _handleButtonAdd,
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.add,
-                          color: Colors.black,
-                        ),
-                        SizedBox(),
-                        Text(
-                          'Add Data',
-                          style: TextStyle(color: Colors.black),
-                        ),
-                      ],
+                  height: 50,
+                  width: 200,
+                  child: TextField(
+                    controller: _searchcontroller,
+                    decoration: const InputDecoration(
+                      labelText: "Search",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search,
+                        size: 17,
+                      ),
                     ),
+                    onChanged: _filterData,
                   ),
+                ),
+                const SizedBox(
+                  width: 5,
                 ),
                 Container(
                   decoration: BoxDecoration(
@@ -1136,27 +1115,6 @@ class _RawatJalanState extends State<RawatJalan> {
                   ),
                 ),
               ],
-            ),
-            const SizedBox(
-              height: 10,
-            ),
-            Container(
-              height: 50,
-              width: 200,
-              child: TextField(
-                controller: _searchcontroller,
-                decoration: const InputDecoration(
-                  labelText: "Search",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
-                  ),
-                  prefixIcon: Icon(
-                    Icons.search,
-                    size: 17,
-                  ),
-                ),
-                onChanged: _filterData,
-              ),
             ),
             const SizedBox(
               height: 10,
@@ -1312,7 +1270,7 @@ class _RawatJalanState extends State<RawatJalan> {
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
                           child: TitleWidget(
-                            title: 'Md pangkat *',
+                            title: 'Pangkat *',
                             fontWeight: FontWeight.w300,
                             fontSize: textMedium,
                           ),
@@ -1331,7 +1289,7 @@ class _RawatJalanState extends State<RawatJalan> {
                             ),
                             child: DropdownButtonFormField<String>(
                               hint: Text(
-                                "Pilih md pangkat",
+                                "Pilih Pangkat",
                                 style: TextStyle(
                                   fontWeight: FontWeight.w300,
                                   fontSize: textMedium,
@@ -1398,7 +1356,7 @@ class _RawatJalanState extends State<RawatJalan> {
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
                           child: TitleWidget(
-                            title: 'Md nikah *',
+                            title: 'Nikah *',
                             fontWeight: FontWeight.w300,
                             fontSize: textMedium,
                           ),
@@ -1418,7 +1376,7 @@ class _RawatJalanState extends State<RawatJalan> {
                             ),
                             child: DropdownButtonFormField<String>(
                               hint: Text(
-                                "Pilih md nikah",
+                                "Pilih Nikah",
                                 style: TextStyle(
                                   fontWeight: FontWeight.w300,
                                   fontSize: textMedium,
@@ -1492,34 +1450,74 @@ class _RawatJalanState extends State<RawatJalan> {
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
-                          child: TextFormField(
-                            validator: _validatorKurs,
-                            initialValue: kurs,
-                            onChanged: (value) {
-                              setState(() {
-                                valueKurs = value;
-                              });
-                            },
-                            decoration: InputDecoration(
-                              hintText: "Masukan kurs",
-                              hintStyle: TextStyle(
-                                fontWeight: FontWeight.w300,
-                                fontSize: textMedium,
-                              ),
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.grey,
-                                  width: 1.0,
+                          child: Container(
+                            height: 50,
+                            width: size.width,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: Colors.grey),
+                            ),
+                            child: DropdownButtonFormField<String>(
+                              hint: Text(
+                                'Pilih Kurs',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
                                 ),
                               ),
-                              contentPadding: const EdgeInsets.fromLTRB(
-                                20.0,
-                                10.0,
-                                20.0,
-                                10.0,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
+                              validator: _validatorKurs,
+                              value: kurs,
+                              icon: selectedKurs.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  valueKurs = newValue ?? '';
+                                });
+                              },
+                              items: selectedKurs
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["id"].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: TitleWidget(
+                                      title: value["nama"] as String,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              decoration: InputDecoration(
+                                constraints: BoxConstraints(
+                                    maxHeight: maxHeightValidator),
+                                labelStyle: TextStyle(fontSize: textMedium),
+                                focusedBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: selectedValueKurs != null
+                                        ? Colors.transparent
+                                        : Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -1582,34 +1580,76 @@ class _RawatJalanState extends State<RawatJalan> {
                         Padding(
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
-                          child: TextFormField(
-                            initialValue: status,
-                            validator: _validatorStatus,
-                            onChanged: (value) {
-                              setState(() {
-                                valueStatus = value;
-                              });
-                            },
-                            decoration: InputDecoration(
-                              hintText: "Masukan Status",
-                              hintStyle: TextStyle(
-                                fontWeight: FontWeight.w300,
-                                fontSize: textMedium,
-                              ),
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.grey,
-                                  width: 1.0,
+                          child: Container(
+                            height: 50,
+                            width: size.width,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(color: Colors.grey),
+                            ),
+                            child: DropdownButtonFormField<String>(
+                              hint: Text(
+                                'Pilih Status',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
                                 ),
                               ),
-                              contentPadding: const EdgeInsets.fromLTRB(
-                                20.0,
-                                10.0,
-                                20.0,
-                                10.0,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(5),
+                              validator: _validatorStatus,
+                              value: status,
+                              icon: selectedKurs.isEmpty
+                                  ? const SizedBox(
+                                      height: 20,
+                                      width: 20,
+                                      child: CircularProgressIndicator(
+                                        valueColor:
+                                            AlwaysStoppedAnimation<Color>(
+                                                Colors.blue),
+                                      ),
+                                    )
+                                  : const Icon(Icons.arrow_drop_down),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  valueStatus = newValue ?? '';
+                                  print(
+                                      'selectedValueStatus: $selectedValueStatus');
+                                });
+                              },
+                              items: selectedStatus
+                                  .map((Map<String, dynamic> value) {
+                                return DropdownMenuItem<String>(
+                                  value: value["id"].toString(),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(1.0),
+                                    child: TitleWidget(
+                                      title: value["nama"] as String,
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              decoration: InputDecoration(
+                                constraints: BoxConstraints(
+                                    maxHeight: maxHeightValidator),
+                                labelStyle: TextStyle(fontSize: textMedium),
+                                focusedBorder: const UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: selectedValueStatus != null
+                                        ? Colors.transparent
+                                        : Colors.transparent,
+                                    width: 1.0,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -1619,7 +1659,7 @@ class _RawatJalanState extends State<RawatJalan> {
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
                           child: TitleWidget(
-                            title: 'Tanggal mulai *',
+                            title: 'Tanggal Mulai *',
                             fontWeight: FontWeight.w300,
                             fontSize: textMedium,
                           ),
@@ -1841,17 +1881,12 @@ class _RawatJalanState extends State<RawatJalan> {
                   DataColumn(label: Text('No')),
                   DataColumn(
                     label: Text(
-                      "ID",
+                      "Kategori",
                     ),
                   ),
                   DataColumn(
                     label: Text(
-                      "Kode Nikah",
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      "Kode Pangkat",
+                      "Pangkat",
                     ),
                   ),
                   DataColumn(
@@ -1881,16 +1916,6 @@ class _RawatJalanState extends State<RawatJalan> {
                   ),
                   DataColumn(
                     label: Text(
-                      "Kategori",
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      "Pangkat",
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
                       "Aksi",
                       style:
                           TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
@@ -1903,16 +1928,23 @@ class _RawatJalanState extends State<RawatJalan> {
                   return DataRow(
                     cells: <DataCell>[
                       DataCell(Text('$index')),
-                      DataCell(Text(data['id'].toString())),
-                      DataCell(Text(data['kode_nikah'] ?? '')),
-                      DataCell(Text(data['kode_pangkat'] ?? '')),
-                      DataCell(Text(data['kurs'] ?? '')),
-                      DataCell(Text(data['nominal'].toString() ?? '')),
-                      DataCell(Text(data['tgl_mulai'] ?? '')),
-                      DataCell(Text(data['tgl_berakhir'] ?? '')),
-                      DataCell(Text(data['status'] ?? '')),
                       DataCell(Text(data['kategori'] ?? '')),
                       DataCell(Text(data['pangkat'] ?? '')),
+                      DataCell(
+                        Center(
+                          child: data['kurs'].toString() == "1"
+                              ? Text("USD")
+                              : Text("Rupiah"),
+                        ),
+                      ),
+                      DataCell(Text(data['nominal'].toString() ?? '')),
+                      DataCell(Text(DateFormat('dd-MM-yyyy')
+                          .format(DateTime.parse(data['tgl_mulai'])))),
+                      DataCell(Text(DateFormat('dd-MM-yyyy')
+                          .format(DateTime.parse(data['tgl_berakhir'])))),
+                      DataCell(Text(data['status'].toString() == "1"
+                          ? 'Aktif'
+                          : 'Tidak Aktif')),
                       DataCell(
                         Row(
                           children: [
@@ -2012,17 +2044,11 @@ class _RawatJalanState extends State<RawatJalan> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(190),
+        preferredSize: const Size.fromHeight(100),
         child: Container(
           color: Colors.white,
           child: Column(
             children: [
-              AppBar(
-                surfaceTintColor: Colors.white,
-                elevation: 0,
-                backgroundColor: Colors.white,
-                title: const Text('Master Data - Rawat Jalan'),
-              ),
               content(),
             ],
           ),

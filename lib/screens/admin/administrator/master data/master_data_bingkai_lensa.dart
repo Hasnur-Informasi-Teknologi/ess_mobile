@@ -1,5 +1,5 @@
+import 'package:flutter/material.dart';
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -7,28 +7,27 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
-import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
-class KamarHotel extends StatefulWidget {
-  const KamarHotel({super.key});
+class BingkaiLensa extends StatefulWidget {
+  const BingkaiLensa({super.key});
 
   @override
-  State<KamarHotel> createState() => _KamarHotelState();
+  State<BingkaiLensa> createState() => _BingkaiLensaState();
 }
 
-class _KamarHotelState extends State<KamarHotel> {
+class _BingkaiLensaState extends State<BingkaiLensa> {
   final String apiUrl = API_URL;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  List<Map<String, dynamic>> selectedPangkat = [];
-  List<Map<String, dynamic>> selectedStatus = [];
+  List<Map<String, dynamic>> selectedMdPangkat = [];
   TextEditingController _searchcontroller = TextEditingController();
-  TextEditingController _pangkatController = TextEditingController();
-  TextEditingController _nominalController = TextEditingController();
+  TextEditingController _mdPangkatController = TextEditingController();
+  TextEditingController _bingkaiController = TextEditingController();
+  TextEditingController _lensaController = TextEditingController();
   TextEditingController _statusController = TextEditingController();
-  String? selectedValueStatus, selectedValuePangkat;
+  String? selectedValueMdPangkat, selectedValueStatus;
 
   final DateRangePickerController _tanggalMulaiController =
       DateRangePickerController();
@@ -42,6 +41,7 @@ class _KamarHotelState extends State<KamarHotel> {
   int _totalRecords = 0;
   String _searchQuery = '';
   List<dynamic> _data = [];
+  List<Map<String, dynamic>> selectedStatus = [];
   bool _isLoading = false;
 
   @override
@@ -67,7 +67,7 @@ class _KamarHotelState extends State<KamarHotel> {
     try {
       final response = await http.get(
         Uri.parse(
-            '$apiUrl/master/kamar-hotel/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
+            '$apiUrl/master/bingkai-lensa/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
         headers: <String, String>{
           "Content-Type": "application/json;charset=UTF-8",
           "Authorization": "Bearer $token",
@@ -119,7 +119,8 @@ class _KamarHotelState extends State<KamarHotel> {
 
         setState(
           () {
-            selectedPangkat = List<Map<String, dynamic>>.from(dataMdPangkatApi);
+            selectedMdPangkat =
+                List<Map<String, dynamic>>.from(dataMdPangkatApi);
           },
         );
       } catch (e) {
@@ -133,12 +134,12 @@ class _KamarHotelState extends State<KamarHotel> {
     {
       "data": [
         {
-          "id": "0",
-          "nama": "Tidak Aktif"
-        },
-        {
           "id": "1",
           "nama": "Aktif"
+        },
+        {
+          "id": "0",
+          "nama": "Tidak Aktif"
         }
       ]
     }
@@ -205,31 +206,19 @@ class _KamarHotelState extends State<KamarHotel> {
     double sizedBoxHeightTall = size.height * 0.0163;
 
     Future<void> deleteData(String id) async {
-      print('tombol delet bekerja dengan id :  $id');
       SharedPreferences prefs = await SharedPreferences.getInstance();
 
       String? token = prefs.getString('token');
-      print('ini token :  $token');
       if (token != null) {
         try {
           final response =
-              await http.post(Uri.parse("$apiUrl/master/kamar-hotel/delete"),
+              await http.post(Uri.parse("$apiUrl/master/bingkai-lensa/delete"),
                   headers: <String, String>{
                     'Content-Type': 'application/json;charset=UTF-8',
                     'Authorization': 'Bearer $token'
                   },
                   body: jsonEncode({'id': id}));
-          final responseData = jsonDecode(response.body);
-          Get.snackbar('Infomation', responseData['success'],
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: Colors.amber,
-              icon: const Icon(
-                Icons.info,
-                color: Colors.white,
-              ),
-              shouldIconPulse: false);
           if (response.statusCode == 200) {
-            Navigator.pop(context);
             print('Item with id $id deleted successfully');
           } else {
             print("response error request: ${response.request}");
@@ -239,6 +228,20 @@ class _KamarHotelState extends State<KamarHotel> {
           print(e);
         }
       }
+    }
+
+    String? _validatorStatus(dynamic value) {
+      if (value == null || value.isEmpty) {
+        setState(() {
+          maxHeightValidator = 80.0;
+        });
+        return 'Field Status Kosong';
+      }
+
+      setState(() {
+        maxHeightValidator = 60.0;
+      });
+      return null;
     }
 
     String? _validatorMdPangkat(dynamic value) {
@@ -255,12 +258,12 @@ class _KamarHotelState extends State<KamarHotel> {
       return null;
     }
 
-    String? _validatorNominal(dynamic value) {
+    String? _validatorBingkai(dynamic value) {
       if (value == null || value.isEmpty) {
         setState(() {
           maxHeightValidator = 80.0;
         });
-        return 'Field Role Kosong';
+        return 'Field Harga Kosong';
       }
 
       setState(() {
@@ -269,12 +272,12 @@ class _KamarHotelState extends State<KamarHotel> {
       return null;
     }
 
-    String? _validatorStatus(dynamic value) {
+    String? _validatorLensa(dynamic value) {
       if (value == null || value.isEmpty) {
         setState(() {
           maxHeightValidator = 80.0;
         });
-        return 'Field Role Kosong';
+        return 'Field Harga Kosong';
       }
 
       setState(() {
@@ -283,7 +286,7 @@ class _KamarHotelState extends State<KamarHotel> {
       return null;
     }
 
-    Future<void> _submit() async {
+    Future<void> _submit(void reset) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
 
@@ -301,15 +304,16 @@ class _KamarHotelState extends State<KamarHotel> {
       _formKey.currentState!.save();
       try {
         final response = await http.post(
-          Uri.parse('$apiUrl/master/kamar-hotel/add'),
+          Uri.parse('$apiUrl/master/bingkai-lensa/add'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token'
           },
           body: jsonEncode({
-            'kode_pangkat': _pangkatController.text,
-            'nominal': _nominalController.text,
-            'status': _statusController.text,
+            'kode_pangkat': _mdPangkatController.text,
+            'bingkai': _bingkaiController.text,
+            'lensa': _lensaController.text,
+            'status': selectedValueStatus.toString(),
             'tgl_berakhir': tanggalBerakhir != null
                 ? tanggalBerakhir.toString()
                 : DateTime.now().toString(),
@@ -356,7 +360,8 @@ class _KamarHotelState extends State<KamarHotel> {
                   horizontal: paddingHorizontalNarrow,
                   vertical: paddingHorizontalNarrow,
                 ),
-                height: 550,
+                height: 570,
+                width: double.infinity,
                 child: ListView(
                   children: [
                     Form(
@@ -394,8 +399,8 @@ class _KamarHotelState extends State<KamarHotel> {
                                   ),
                                 ),
                                 validator: _validatorMdPangkat,
-                                value: selectedValuePangkat,
-                                icon: selectedPangkat.isEmpty
+                                value: selectedValueMdPangkat,
+                                icon: selectedMdPangkat.isEmpty
                                     ? const SizedBox(
                                         height: 20,
                                         width: 20,
@@ -408,14 +413,14 @@ class _KamarHotelState extends State<KamarHotel> {
                                     : Icon(Icons.arrow_drop_down),
                                 onChanged: (String? newValue) {
                                   setState(() {
-                                    selectedValuePangkat = newValue;
-                                    _pangkatController.text = newValue ?? '';
-                                    print("$selectedValuePangkat");
+                                    selectedValueMdPangkat = newValue;
+                                    _mdPangkatController.text = newValue ??
+                                        ''; // Update the TextEditingController value
+                                    print("$selectedValueMdPangkat");
                                   });
                                 },
-                                items: selectedPangkat
-                                    .map<DropdownMenuItem<String>>(
-                                        (Map<String, dynamic> value) {
+                                items: selectedMdPangkat
+                                    .map((Map<String, dynamic> value) {
                                   return DropdownMenuItem<String>(
                                     value: value["kode"] as String,
                                     child: Padding(
@@ -440,7 +445,7 @@ class _KamarHotelState extends State<KamarHotel> {
                                   ),
                                   enabledBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                      color: selectedValuePangkat != null
+                                      color: selectedValueMdPangkat != null
                                           ? Colors.transparent
                                           : Colors.transparent,
                                       width: 1.0,
@@ -455,7 +460,7 @@ class _KamarHotelState extends State<KamarHotel> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
                             child: TitleWidget(
-                              title: 'Nominal *',
+                              title: 'Plafon Bingkai (IDR) *',
                               fontWeight: FontWeight.w300,
                               fontSize: textMedium,
                             ),
@@ -464,10 +469,50 @@ class _KamarHotelState extends State<KamarHotel> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
                             child: TextFormField(
-                              controller: _nominalController,
-                              validator: _validatorNominal,
+                              controller: _bingkaiController,
+                              validator: _validatorBingkai,
                               decoration: InputDecoration(
-                                hintText: "Masukan Nominal",
+                                hintText: "Plafon Bingkai (IDR)",
+                                hintStyle: TextStyle(
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                                enabledBorder: const OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                    color: Colors.grey,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                contentPadding: const EdgeInsets.fromLTRB(
+                                  20.0,
+                                  10.0,
+                                  20.0,
+                                  10.0,
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow),
+                            child: TitleWidget(
+                              title: 'Plafon Lensa (IDR) *',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow),
+                            child: TextFormField(
+                              controller: _lensaController,
+                              validator: _validatorLensa,
+                              decoration: InputDecoration(
+                                hintText: "Plafon Lensa (IDR)",
                                 hintStyle: TextStyle(
                                   fontWeight: FontWeight.w300,
                                   fontSize: textMedium,
@@ -537,7 +582,6 @@ class _KamarHotelState extends State<KamarHotel> {
                                 onChanged: (String? newValue) {
                                   setState(() {
                                     selectedValueStatus = newValue ?? '';
-                                    _statusController.text = newValue ?? '';
                                     print(
                                         'selectedValueStatus: $selectedValueStatus');
                                   });
@@ -583,7 +627,7 @@ class _KamarHotelState extends State<KamarHotel> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: paddingHorizontalNarrow),
                             child: TitleWidget(
-                              title: 'Tanggal Mulai *',
+                              title: 'Tanggal mulai *',
                               fontWeight: FontWeight.w300,
                               fontSize: textMedium,
                             ),
@@ -728,16 +772,13 @@ class _KamarHotelState extends State<KamarHotel> {
                             },
                           ),
                           SizedBox(
-                            height: sizedBoxHeightTall,
-                          ),
-                          SizedBox(
                             width: size.width,
                             child: Padding(
                               padding: EdgeInsets.symmetric(
                                   horizontal: paddingHorizontalNarrow),
                               child: ElevatedButton(
                                 onPressed: () {
-                                  _submit();
+                                  _submit(_formKey.currentState!.reset());
                                   Navigator.pop(context);
                                   fetchData(pageIndex: 1);
                                 },
@@ -759,7 +800,6 @@ class _KamarHotelState extends State<KamarHotel> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 10),
                         ],
                       ),
                     ),
@@ -867,9 +907,10 @@ class _KamarHotelState extends State<KamarHotel> {
     Future<void> _submitUpdate(
         String valueTglBerakhir,
         String valueTglMulai,
-        String valueNominal,
+        String valueLensa,
         String valueStatus,
-        String valuePangkat,
+        String valueBingkai,
+        String valueMdPangkat,
         String id) async {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
@@ -889,15 +930,16 @@ class _KamarHotelState extends State<KamarHotel> {
 
       try {
         final response = await http.post(
-          Uri.parse('$apiUrl/master/kamar-hotel/update'),
+          Uri.parse('$apiUrl/master/bingkai-lensa/update'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
             'Authorization': 'Bearer $token'
           },
           body: jsonEncode({
             "id": id,
-            "kode_pangkat": valuePangkat,
-            "nominal": valueNominal,
+            "kode_pangkat": valueMdPangkat,
+            "bingkai": valueBingkai,
+            "lensa": valueLensa,
             "status": valueStatus,
             "tgl_berakhir": valueTglBerakhir != null
                 ? valueTglBerakhir.toString()
@@ -931,19 +973,18 @@ class _KamarHotelState extends State<KamarHotel> {
     }
 
     Future<void> updateData(
-      context,
-      String id,
-      String pangkat,
-      String nominal,
-      String status,
-      String tgl_mulai,
-      String tgl_berakhir,
-    ) async {
+        context,
+        String id,
+        String mdPangkat,
+        String bingkai,
+        String lensa,
+        String status,
+        String tgl_mulai,
+        String tgl_berakhir) async {
       Size size = MediaQuery.of(context).size;
       double textMedium = size.width * 0.0329;
       double paddingHorizontalNarrow = size.width * 0.035;
       double padding5 = size.width * 0.0115;
-      double sizedBoxHeightTall = size.height * 0.0163;
       double _maxHeightAtasan = 60.0;
 
       DateTime dateTimeMulai = DateFormat("yyyy-MM-dd").parse(tgl_mulai);
@@ -958,11 +999,14 @@ class _KamarHotelState extends State<KamarHotel> {
       DateTime dateBerakhir =
           DateFormat("yyyy-MM-dd").parse(formattedDateBerakhirString);
 
-      String valuePangkat = pangkat;
-      String valueNominal = nominal;
+      String valueMdPangkat = mdPangkat;
+      String valueBingkai = bingkai;
+      String valueLensa = lensa;
       String valueStatus = status.toString();
       String valueTglMulai = dateMulai.toString();
       String valueTglBerakhir = dateBerakhir.toString();
+
+      print(mdPangkat);
 
       return showModalBottomSheet(
           context: context,
@@ -974,7 +1018,8 @@ class _KamarHotelState extends State<KamarHotel> {
                 horizontal: paddingHorizontalNarrow,
                 vertical: paddingHorizontalNarrow,
               ),
-              height: 550,
+              height: 570,
+              width: double.infinity,
               child: ListView(
                 children: [
                   Form(
@@ -1005,15 +1050,15 @@ class _KamarHotelState extends State<KamarHotel> {
                             ),
                             child: DropdownButtonFormField<String>(
                               hint: Text(
-                                "Pilih Pangkat",
+                                "Pilih md pangkat",
                                 style: TextStyle(
                                   fontWeight: FontWeight.w300,
                                   fontSize: textMedium,
                                 ),
                               ),
                               validator: _validatorMdPangkat,
-                              value: pangkat,
-                              icon: selectedPangkat.isEmpty
+                              value: mdPangkat,
+                              icon: selectedMdPangkat.isEmpty
                                   ? const SizedBox(
                                       height: 20,
                                       width: 20,
@@ -1026,12 +1071,12 @@ class _KamarHotelState extends State<KamarHotel> {
                                   : Icon(Icons.arrow_drop_down),
                               onChanged: (String? newValue) {
                                 setState(() {
-                                  selectedValuePangkat = newValue;
-                                  valuePangkat = newValue ?? '';
-                                  print("$selectedValuePangkat");
+                                  selectedValueMdPangkat = newValue;
+                                  valueMdPangkat = newValue ?? '';
+                                  print("$selectedValueMdPangkat");
                                 });
                               },
-                              items: selectedPangkat
+                              items: selectedMdPangkat
                                   .map((Map<String, dynamic> value) {
                                 return DropdownMenuItem<String>(
                                   value: value["kode"] as String,
@@ -1057,7 +1102,7 @@ class _KamarHotelState extends State<KamarHotel> {
                                 ),
                                 enabledBorder: UnderlineInputBorder(
                                   borderSide: BorderSide(
-                                    color: selectedValuePangkat != null
+                                    color: selectedValueMdPangkat != null
                                         ? Colors.transparent
                                         : Colors.transparent,
                                     width: 1.0,
@@ -1072,7 +1117,7 @@ class _KamarHotelState extends State<KamarHotel> {
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
                           child: TitleWidget(
-                            title: 'Nominal *',
+                            title: 'Plafon Bingkai (IDR) *',
                             fontWeight: FontWeight.w300,
                             fontSize: textMedium,
                           ),
@@ -1081,15 +1126,60 @@ class _KamarHotelState extends State<KamarHotel> {
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
                           child: TextFormField(
-                            initialValue: nominal,
-                            validator: _validatorNominal,
+                            validator: _validatorBingkai,
+                            initialValue: bingkai,
                             onChanged: (value) {
                               setState(() {
-                                valueNominal = value;
+                                valueBingkai = value;
                               });
                             },
                             decoration: InputDecoration(
-                              hintText: "Masukan Nominal",
+                              hintText: "Plafon Bingkai (IDR)",
+                              hintStyle: TextStyle(
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              ),
+                              enabledBorder: const OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Colors.grey,
+                                  width: 1.0,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.fromLTRB(
+                                20.0,
+                                10.0,
+                                20.0,
+                                10.0,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow),
+                          child: TitleWidget(
+                            title: 'Plafon Lensa (IDR)* *',
+                            fontWeight: FontWeight.w300,
+                            fontSize: textMedium,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow),
+                          child: TextFormField(
+                            initialValue: lensa,
+                            validator: _validatorLensa,
+                            onChanged: (value) {
+                              setState(() {
+                                valueLensa = value;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              hintText: "Plafon Lensa (IDR)*",
                               hintStyle: TextStyle(
                                 fontWeight: FontWeight.w300,
                                 fontSize: textMedium,
@@ -1204,7 +1294,7 @@ class _KamarHotelState extends State<KamarHotel> {
                           padding: EdgeInsets.symmetric(
                               horizontal: paddingHorizontalNarrow),
                           child: TitleWidget(
-                            title: 'Tanggal Mulai *',
+                            title: 'Tanggal mulai *',
                             fontWeight: FontWeight.w300,
                             fontSize: textMedium,
                           ),
@@ -1362,9 +1452,6 @@ class _KamarHotelState extends State<KamarHotel> {
                           },
                         ),
                         SizedBox(
-                          height: sizedBoxHeightTall,
-                        ),
-                        SizedBox(
                           width: size.width,
                           child: Padding(
                             padding: EdgeInsets.symmetric(
@@ -1374,9 +1461,10 @@ class _KamarHotelState extends State<KamarHotel> {
                                 _submitUpdate(
                                     valueTglBerakhir,
                                     valueTglMulai,
-                                    valueNominal,
+                                    valueLensa,
                                     valueStatus,
-                                    valuePangkat,
+                                    valueBingkai,
+                                    valueMdPangkat,
                                     id);
                                 Navigator.pop(context);
                                 fetchData(pageIndex: 1);
@@ -1410,9 +1498,9 @@ class _KamarHotelState extends State<KamarHotel> {
 
     Widget data() {
       List<dynamic> filteredData = _data.where((data) {
-        String kodePangkat = data['pangkat'].toString().toLowerCase();
+        String kodeNikah = data['kode_nikah'].toString().toLowerCase();
         String searchLower = _searchcontroller.text.toLowerCase();
-        return kodePangkat.contains(searchLower);
+        return kodeNikah.contains(searchLower);
       }).toList();
       return SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -1422,13 +1510,42 @@ class _KamarHotelState extends State<KamarHotel> {
               DataTable(
                 columns: const <DataColumn>[
                   DataColumn(label: Text('No')),
-                  DataColumn(label: Text('Pangkat')),
-                  DataColumn(label: Text('Nominal')),
-                  DataColumn(label: Text('Tanggal Mulai')),
-                  DataColumn(label: Text('Tanggal Berakhir')),
-                  DataColumn(label: Text('Status')),
                   DataColumn(
-                    label: Text("Aksi"),
+                    label: Text(
+                      "Pangkat",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Plafon Bingkai (IDR)",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      " Plafon Lensa (IDR) ",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Tanggal Mulai",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Tanggal Berakhir",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Status",
+                    ),
+                  ),
+                  DataColumn(
+                    label: Text(
+                      "Aksi",
+                      style:
+                          TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                    ),
                   ),
                 ],
                 columnSpacing: 20,
@@ -1437,49 +1554,46 @@ class _KamarHotelState extends State<KamarHotel> {
                   return DataRow(
                     cells: <DataCell>[
                       DataCell(Text('$index')),
-                      DataCell(Text(data['pangkat'].toString())),
-                      DataCell(Text(data['nominal'].toString())),
-                      DataCell(Text(DateFormat('dd-MM-yyyy').format(
-                          DateTime.parse(data['tgl_mulai'].toString())))),
-                      DataCell(Text(DateFormat('dd-MM-yyyy').format(
-                          DateTime.parse(data['tgl_berakhir'].toString())))),
+                      DataCell(Text(data['pangkat'])),
+                      DataCell(Center(child: Text(data['bingkai'].toString()))),
+                      DataCell(Center(child: Text(data['lensa'].toString()))),
+                      DataCell(Text(DateFormat('dd-MM-yyyy')
+                          .format(DateTime.parse(data['tgl_mulai'])))),
+                      DataCell(Text(DateFormat('dd-MM-yyyy')
+                          .format(DateTime.parse(data['tgl_berakhir'])))),
                       DataCell(Text(
                           data['status'] == "1" ? 'Aktif' : 'Tidak Aktif')),
                       DataCell(
                         Row(
                           children: [
-                            Container(
-                              height: 30,
-                              width: 30,
-                              decoration: BoxDecoration(
-                                color: Colors.green,
-                                borderRadius: BorderRadius.circular(5),
-                              ),
+                            Expanded(
                               child: GestureDetector(
-                                  onTap: () {
-                                    String id = data['id'].toString();
-                                    String pangkat =
-                                        data['kode_pangkat'].toString();
-                                    String nominal = data['nominal'].toString();
-                                    String status = data['status'];
-                                    String tgl_mulai = data['tgl_mulai'];
-                                    String tgl_berakhir = data['tgl_berakhir'];
-                                    updateData(context, id, pangkat, nominal,
-                                        status, tgl_mulai, tgl_berakhir);
-                                  },
+                                onTap: () {
+                                  String id = data['id'].toString();
+                                  String mdPangkat = data['kode_pangkat'];
+                                  String bingkai = data['bingkai'].toString();
+                                  String lensa = data['lensa'].toString();
+                                  String status = data['status'];
+                                  String tgl_mulai = data['tgl_mulai'];
+                                  String tgl_berakhir = data['tgl_berakhir'];
+
+                                  updateData(context, id, mdPangkat, bingkai,
+                                      lensa, status, tgl_mulai, tgl_berakhir);
+                                },
+                                child: Container(
+                                  height: 30,
+                                  width: 30,
+                                  decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
                                   child: const Icon(Icons.edit,
-                                      color: Colors.white)),
-                            ),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                            Container(
-                              height: 30,
-                              width: 30,
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                borderRadius: BorderRadius.circular(5),
+                                      color: Colors.white),
+                                ),
                               ),
+                            ),
+                            const SizedBox(width: 5),
+                            Expanded(
                               child: GestureDetector(
                                 onTap: () {
                                   showDialog(
@@ -1488,7 +1602,7 @@ class _KamarHotelState extends State<KamarHotel> {
                                       return AlertDialog(
                                         title: Text("Konfirmasi"),
                                         content: Text(
-                                            "Apakah Anda yakin ingin menghapus ${data['pangkat']} ini?"),
+                                            "Apakah Anda yakin ingin menghapus data ini?"),
                                         actions: [
                                           TextButton(
                                             onPressed: () {
@@ -1500,6 +1614,7 @@ class _KamarHotelState extends State<KamarHotel> {
                                             onPressed: () async {
                                               String id = data['id'].toString();
                                               await deleteData(id);
+                                              Navigator.of(context).pop();
                                               fetchData(pageIndex: 1);
                                             },
                                             child: Text("Hapus"),
@@ -1509,7 +1624,16 @@ class _KamarHotelState extends State<KamarHotel> {
                                     },
                                   );
                                 },
-                                child: Icon(Icons.delete, color: Colors.white),
+                                child: Container(
+                                  height: 30,
+                                  width: 30,
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: const Icon(Icons.delete,
+                                      color: Colors.white),
+                                ),
                               ),
                             ),
                           ],
@@ -1529,20 +1653,10 @@ class _KamarHotelState extends State<KamarHotel> {
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(190),
+        preferredSize: const Size.fromHeight(100),
         child: Container(
           color: Colors.white,
-          child: Column(
-            children: [
-              AppBar(
-                surfaceTintColor: Colors.white,
-                elevation: 0,
-                backgroundColor: Colors.white,
-                title: const Text('Master Data - Kamar Hotel'),
-              ),
-              content(),
-            ],
-          ),
+          child: content(),
         ),
       ),
       body: _isLoading
