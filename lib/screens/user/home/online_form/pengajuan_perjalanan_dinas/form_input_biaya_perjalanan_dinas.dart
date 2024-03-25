@@ -1,8 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
+import 'package:mobile_ess/themes/colors.dart';
+import 'package:mobile_scanner/mobile_scanner_web.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class FormInputBiayaPerjalananDinas extends StatefulWidget {
   const FormInputBiayaPerjalananDinas({super.key});
@@ -14,9 +19,31 @@ class FormInputBiayaPerjalananDinas extends StatefulWidget {
 
 class _FormInputBiayaPerjalananDinasState
     extends State<FormInputBiayaPerjalananDinas> {
+  final String apiUrl = API_URL;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _namaController = TextEditingController();
   final double _maxHeightNama = 40.0;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    try {
+      final response = await http.get(
+          Uri.parse('$apiUrl/rencana-perdin/master_data'),
+          headers: <String, String>{
+            "Authorization": "Bearer $token",
+            "Content-Type": "application/json;charset=UTF-8",
+          });
+      print(response);
+    } catch (e) {}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -274,6 +301,36 @@ class _FormInputBiayaPerjalananDinasState
                     controller: _namaController,
                     maxHeightConstraints: _maxHeightNama,
                     hintText: 'Rp 3.500.000',
+                  ),
+                ),
+                SizedBox(
+                  height: sizedBoxHeightTall,
+                ),
+                SizedBox(
+                  width: size.width,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // showSubmitModal(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(primaryYellow),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        'Submit',
+                        style: TextStyle(
+                            color: Color(primaryBlack),
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.9,
+                            fontWeight: FontWeight.w500),
+                      ),
+                    ),
                   ),
                 ),
               ],

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
 import 'package:mobile_ess/widgets/row_with_button_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
@@ -586,7 +587,41 @@ class _FormRencanaBiayaPerjalananDinasState
                       ],
                     ),
                   ),
-                )
+                ),
+                SizedBox(
+                  height: sizedBoxHeightTall,
+                ),
+                SizedBox(
+                  width: size.width,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: paddingHorizontalNarrow,
+                    ),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // showSubmitModal(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(primaryYellow),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        'Submit',
+                        style: TextStyle(
+                            color: const Color(primaryBlack),
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.9,
+                            fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
               ],
             ),
           ),
