@@ -37,9 +37,11 @@ class _FormPengajuanPerpanjanganCutiState
   final DateRangePickerController _tanggalMasaPerpanjanganEndController =
       DateRangePickerController();
   DateTime? tanggalMasaPerpanjanganEnd;
-  final DateRangePickerController _tanggalBergabungController =
+  DateRangePickerController _tanggalBergabungController =
       DateRangePickerController();
   DateTime? tanggalBergabung;
+
+  final _hireDateController = TextEditingController();
 
   final _nrpController = TextEditingController();
   final _namaController = TextEditingController();
@@ -91,6 +93,7 @@ class _FormPengajuanPerpanjanganCutiState
           _nrpController.text = masterDataApi['nrp'] ?? '';
           _namaController.text = masterDataApi['nama'] ?? '';
           _entitasController.text = masterDataApi['nama_entitas'] ?? '';
+          _hireDateController.text = masterDataApi['tgl_masuk'] ?? '';
         });
       } catch (e) {
         print(e);
@@ -151,6 +154,19 @@ class _FormPengajuanPerpanjanganCutiState
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
+    if (tanggalMasaPerpanjanganStart == null ||
+        tanggalMasaPerpanjanganEnd == null) {
+      Get.snackbar('Infomation', 'Tanggal Wajib Diisi',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.amber,
+          icon: const Icon(
+            Icons.info,
+            color: Colors.white,
+          ),
+          shouldIconPulse: false);
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
@@ -186,9 +202,7 @@ class _FormPengajuanPerpanjanganCutiState
           'nama_user': _namaController.text,
           'entitas_user': _entitasController.text,
           'entitas_kode': _entitasController.text,
-          'tgl_masuk': tanggalBergabung != null
-              ? tanggalBergabung.toString()
-              : DateTime.now().toString(),
+          'tgl_masuk': _hireDateController.text,
           'jth_extend': _sisaCutiController.text,
           'total_sisa_cuti': _sisaCutiController.text,
           'alasan': _alasanController.text,
@@ -337,37 +351,108 @@ class _FormPengajuanPerpanjanganCutiState
                           ),
                         ),
                         onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                content: Container(
-                                  height: 350,
-                                  width: 350,
-                                  child: SfDateRangePicker(
-                                    controller: _tanggalPengajuanController,
-                                    onSelectionChanged:
-                                        (DateRangePickerSelectionChangedArgs
-                                            args) {
-                                      setState(() {
-                                        tanggalPengajuan = args.value;
-                                      });
-                                    },
-                                    selectionMode:
-                                        DateRangePickerSelectionMode.single,
-                                  ),
-                                ),
-                                actions: <Widget>[
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: Text('OK'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
+                          // showDialog(
+                          //   context: context,
+                          //   builder: (BuildContext context) {
+                          //     return AlertDialog(
+                          //       content: Container(
+                          //         height: 350,
+                          //         width: 350,
+                          //         child: SfDateRangePicker(
+                          //           controller: _tanggalPengajuanController,
+                          //           onSelectionChanged:
+                          //               (DateRangePickerSelectionChangedArgs
+                          //                   args) {
+                          //             setState(() {
+                          //               tanggalPengajuan = args.value;
+                          //             });
+                          //           },
+                          //           selectionMode:
+                          //               DateRangePickerSelectionMode.single,
+                          //         ),
+                          //       ),
+                          //       actions: <Widget>[
+                          //         TextButton(
+                          //           onPressed: () => Navigator.pop(context),
+                          //           child: Text('OK'),
+                          //         ),
+                          //       ],
+                          //     );
+                          //   },
+                          // );
                         },
                       ),
+                      // Padding(
+                      //   padding: EdgeInsets.symmetric(
+                      //       horizontal: paddingHorizontalNarrow),
+                      //   child: TitleWidget(
+                      //     title: 'Tanggal Bergabung',
+                      //     fontWeight: FontWeight.w300,
+                      //     fontSize: textMedium,
+                      //   ),
+                      // ),
+                      // CupertinoButton(
+                      //   child: Container(
+                      //     width: size.width,
+                      //     padding: EdgeInsets.symmetric(
+                      //         horizontal: paddingHorizontalNarrow,
+                      //         vertical: padding5),
+                      //     decoration: BoxDecoration(
+                      //         borderRadius: BorderRadius.circular(5),
+                      //         border: Border.all(color: Colors.grey)),
+                      //     child: Row(
+                      //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //       children: [
+                      //         const Icon(
+                      //           Icons.calendar_month_outlined,
+                      //           color: Colors.grey,
+                      //         ),
+                      //         Text(
+                      //           DateFormat('dd-MM-yyyy').format(
+                      //               _tanggalBergabungController.selectedDate ??
+                      //                   DateTime.now()),
+                      //           style: TextStyle(
+                      //             color: Colors.grey,
+                      //             fontSize: textMedium,
+                      //             fontFamily: 'Poppins',
+                      //             fontWeight: FontWeight.w300,
+                      //           ),
+                      //         ),
+                      //       ],
+                      //     ),
+                      //   ),
+                      //   onPressed: () {
+                      //     showDialog(
+                      //       context: context,
+                      //       builder: (BuildContext context) {
+                      //         return AlertDialog(
+                      //           content: Container(
+                      //             height: 350,
+                      //             width: 350,
+                      //             child: SfDateRangePicker(
+                      //               controller: _tanggalBergabungController,
+                      //               onSelectionChanged:
+                      //                   (DateRangePickerSelectionChangedArgs
+                      //                       args) {
+                      //                 setState(() {
+                      //                   tanggalBergabung = args.value;
+                      //                 });
+                      //               },
+                      //               selectionMode:
+                      //                   DateRangePickerSelectionMode.single,
+                      //             ),
+                      //           ),
+                      //           actions: <Widget>[
+                      //             TextButton(
+                      //               onPressed: () => Navigator.pop(context),
+                      //               child: Text('OK'),
+                      //             ),
+                      //           ],
+                      //         );
+                      //       },
+                      //     );
+                      //   },
+                      // ),
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
@@ -440,10 +525,24 @@ class _FormPengajuanPerpanjanganCutiState
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Atasan *',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Atasan ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       Padding(
@@ -504,77 +603,6 @@ class _FormPengajuanPerpanjanganCutiState
                       ),
                       SizedBox(
                         height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Tanggal Bergabung',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      CupertinoButton(
-                        child: Container(
-                          width: size.width,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow,
-                              vertical: padding5),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(color: Colors.grey)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Icon(
-                                Icons.calendar_month_outlined,
-                                color: Colors.grey,
-                              ),
-                              Text(
-                                DateFormat('dd-MM-yyyy').format(
-                                    _tanggalBergabungController.selectedDate ??
-                                        DateTime.now()),
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                content: Container(
-                                  height: 350,
-                                  width: 350,
-                                  child: SfDateRangePicker(
-                                    controller: _tanggalBergabungController,
-                                    onSelectionChanged:
-                                        (DateRangePickerSelectionChangedArgs
-                                            args) {
-                                      setState(() {
-                                        tanggalBergabung = args.value;
-                                      });
-                                    },
-                                    selectionMode:
-                                        DateRangePickerSelectionMode.single,
-                                  ),
-                                ),
-                                actions: <Widget>[
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: Text('OK'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(
@@ -645,10 +673,12 @@ class _FormPengajuanPerpanjanganCutiState
                                           color: Colors.grey,
                                         ),
                                         Text(
-                                          DateFormat('dd-MM-yyyy').format(
-                                              _tanggalMasaPerpanjanganStartController
-                                                      .selectedDate ??
-                                                  DateTime.now()),
+                                          tanggalMasaPerpanjanganStart != null
+                                              ? DateFormat('dd-MM-yyyy').format(
+                                                  _tanggalMasaPerpanjanganStartController
+                                                          .selectedDate ??
+                                                      DateTime.now())
+                                              : 'dd/mm/yyyy',
                                           style: TextStyle(
                                             color: Colors.grey,
                                             fontSize: textMedium,
@@ -698,7 +728,7 @@ class _FormPengajuanPerpanjanganCutiState
                               ],
                             ),
                           ),
-                          Expanded(child: Text('s/d')),
+                          const Expanded(child: Text('s/d')),
                           SizedBox(
                             width: size.width * 0.46,
                             child: Column(
@@ -722,10 +752,12 @@ class _FormPengajuanPerpanjanganCutiState
                                           color: Colors.grey,
                                         ),
                                         Text(
-                                          DateFormat('dd-MM-yyyy').format(
-                                              _tanggalMasaPerpanjanganEndController
-                                                      .selectedDate ??
-                                                  DateTime.now()),
+                                          tanggalMasaPerpanjanganEnd != null
+                                              ? DateFormat('dd-MM-yyyy').format(
+                                                  _tanggalMasaPerpanjanganEndController
+                                                          .selectedDate ??
+                                                      DateTime.now())
+                                              : 'dd/mm/yyyy',
                                           style: TextStyle(
                                             color: Colors.grey,
                                             fontSize: textMedium,
@@ -783,10 +815,24 @@ class _FormPengajuanPerpanjanganCutiState
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Alasan Cuti Tidak Digunakan *',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Alasan Cuti Tidak Digunakan ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       SizedBox(

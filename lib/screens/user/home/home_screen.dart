@@ -120,7 +120,6 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             // height: size.height * 0.43,
             height: size.height * 0.55,
-
             width: size.width,
             decoration: const BoxDecoration(color: Colors.white),
             child: Column(

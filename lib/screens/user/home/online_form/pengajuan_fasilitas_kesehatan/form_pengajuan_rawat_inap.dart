@@ -36,6 +36,7 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
   final _lokasiKerjaController = TextEditingController();
   final _pangkatController = TextEditingController();
   final _namaPasienController = TextEditingController();
+  final _tanggalPengajuanRawatJalanController = TextEditingController();
   double maxHeightKode = 40.0;
   double maxHeightNrp = 40.0;
   double maxHeightNama = 40.0;
@@ -111,6 +112,7 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
       _perusahaanController.text = responseData['abr_org_id'];
       _lokasiKerjaController.text = responseData['lokasi'];
       _pangkatController.text = responseData['pangkat'];
+      _tanggalPengajuanRawatJalanController.text = responseData['hire_date'];
     });
   }
 
@@ -245,6 +247,18 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
+    if (tanggalMulai == null || tanggalBerakhir == null) {
+      Get.snackbar('Infomation', 'Tanggal Wajib Diisi',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.amber,
+          icon: const Icon(
+            Icons.info,
+            color: Colors.white,
+          ),
+          shouldIconPulse: false);
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
@@ -268,10 +282,9 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
     request.fields['pt'] = _perusahaanController.text;
     request.fields['lokasi'] = _lokasiKerjaController.text;
     request.fields['pangkat'] = _pangkatController.text;
-    request.fields['hire_date'] = tanggalPengajuan != null
-        ? tanggalPengajuan.toString()
-        : DateTime.now().toString();
+    request.fields['hire_date'] = _tanggalPengajuanRawatJalanController.text;
     request.fields['entitas_atasan'] = selectedValueEntitas.toString();
+    request.fields['entitas_hrgs'] = selectedValueEntitasHrgs.toString();
     request.fields['prd_rawat_mulai'] = tanggalMulai != null
         ? tanggalMulai.toString()
         : DateTime.now().toString();
@@ -282,16 +295,15 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
         selectedValueHubunganDenganKarwayan.toString();
     request.fields['nm_pasien'] = _namaPasienController.text;
     request.fields['approved_by1'] = selectedValueAtasan.toString();
-    request.fields['entitas_hrgs'] = selectedValueEntitasHrgs.toString();
     request.fields['approved_by2'] = selectedValueHrgs.toString();
     request.fields['entitas_keuangan'] =
         selectedValueEntitasKeuangan.toString();
     request.fields['approved_by3'] = selectedValueKeuangan.toString();
 
-    print(allData);
-
     for (int i = 0; i < allData.length; i++) {
       request.fields['detail[$i][id]'] = allData[i]['id'].toString();
+      request.fields['detail[$i][benefit_type]'] = allData[i]['benefit_type'];
+      request.fields['detail[$i][id_diagnosa]'] = allData[i]['id_diagnosa'];
       request.fields['detail[$i][no_kuitansi]'] = allData[i]['no_kuitansi'];
       request.fields['detail[$i][tgl_kuitansi]'] = allData[i]['tgl_kuitansi'];
       request.fields['detail[$i][detail_penggantian]'] =
@@ -498,31 +510,6 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: TitleWidget(
-                          title: 'Kode',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFieldWidget(
-                          controller: _kodeController,
-                          maxHeightConstraints: maxHeightKode,
-                          hintText: 'Auto Generate',
-                          enable: false,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
                           title: 'Tanggal Pengajuan',
                           fontWeight: FontWeight.w300,
                           fontSize: textMedium,
@@ -559,35 +546,35 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                           ),
                         ),
                         onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                content: Container(
-                                  height: 350,
-                                  width: 350,
-                                  child: SfDateRangePicker(
-                                    controller: _tanggalPengajuanController,
-                                    onSelectionChanged:
-                                        (DateRangePickerSelectionChangedArgs
-                                            args) {
-                                      setState(() {
-                                        tanggalPengajuan = args.value;
-                                      });
-                                    },
-                                    selectionMode:
-                                        DateRangePickerSelectionMode.single,
-                                  ),
-                                ),
-                                actions: <Widget>[
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: Text('OK'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
+                          // showDialog(
+                          //   context: context,
+                          //   builder: (BuildContext context) {
+                          //     return AlertDialog(
+                          //       content: Container(
+                          //         height: 350,
+                          //         width: 350,
+                          //         child: SfDateRangePicker(
+                          //           controller: _tanggalPengajuanController,
+                          //           onSelectionChanged:
+                          //               (DateRangePickerSelectionChangedArgs
+                          //                   args) {
+                          //             setState(() {
+                          //               tanggalPengajuan = args.value;
+                          //             });
+                          //           },
+                          //           selectionMode:
+                          //               DateRangePickerSelectionMode.single,
+                          //         ),
+                          //       ),
+                          //       actions: <Widget>[
+                          //         TextButton(
+                          //           onPressed: () => Navigator.pop(context),
+                          //           child: Text('OK'),
+                          //         ),
+                          //       ],
+                          //     );
+                          //   },
+                          // );
                         },
                       ),
                       SizedBox(
@@ -742,10 +729,24 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                                 Padding(
                                   padding: EdgeInsets.symmetric(
                                       horizontal: paddingHorizontalNarrow),
-                                  child: TitleWidget(
-                                    title: 'Tanggal Mulai',
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: textMedium,
+                                  child: Row(
+                                    children: [
+                                      TitleWidget(
+                                        title: 'Tanggal Mulai ',
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium,
+                                      ),
+                                      Text(
+                                        '*',
+                                        textAlign: TextAlign.start,
+                                        style: TextStyle(
+                                            color: Colors.red,
+                                            fontSize: textMedium,
+                                            fontFamily: 'Poppins',
+                                            letterSpacing: 0.6,
+                                            fontWeight: FontWeight.w300),
+                                      )
+                                    ],
                                   ),
                                 ),
                                 CupertinoButton(
@@ -766,10 +767,12 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                                           color: Colors.grey,
                                         ),
                                         Text(
-                                          DateFormat('dd-MM-yyyy').format(
-                                              _tanggalMulaiController
-                                                      .selectedDate ??
-                                                  DateTime.now()),
+                                          tanggalMulai != null
+                                              ? DateFormat('dd-MM-yyyy').format(
+                                                  _tanggalMulaiController
+                                                          .selectedDate ??
+                                                      DateTime.now())
+                                              : 'dd/mm/yyyy',
                                           style: TextStyle(
                                             color: Colors.grey,
                                             fontSize: textMedium,
@@ -826,10 +829,24 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                                 Padding(
                                   padding: EdgeInsets.symmetric(
                                       horizontal: paddingHorizontalNarrow),
-                                  child: TitleWidget(
-                                    title: 'Tanggal Berakhir',
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: textMedium,
+                                  child: Row(
+                                    children: [
+                                      TitleWidget(
+                                        title: 'Tanggal Berakhir ',
+                                        fontWeight: FontWeight.w300,
+                                        fontSize: textMedium,
+                                      ),
+                                      Text(
+                                        '*',
+                                        textAlign: TextAlign.start,
+                                        style: TextStyle(
+                                            color: Colors.red,
+                                            fontSize: textMedium,
+                                            fontFamily: 'Poppins',
+                                            letterSpacing: 0.6,
+                                            fontWeight: FontWeight.w300),
+                                      )
+                                    ],
                                   ),
                                 ),
                                 CupertinoButton(
@@ -850,10 +867,12 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                                           color: Colors.grey,
                                         ),
                                         Text(
-                                          DateFormat('dd-MM-yyyy').format(
-                                              _tanggalBerakhirController
-                                                      .selectedDate ??
-                                                  DateTime.now()),
+                                          tanggalBerakhir != null
+                                              ? DateFormat('dd-MM-yyyy').format(
+                                                  _tanggalBerakhirController
+                                                          .selectedDate ??
+                                                      DateTime.now())
+                                              : 'dd/mm/yyyy',
                                           style: TextStyle(
                                             color: Colors.grey,
                                             fontSize: textMedium,
@@ -910,10 +929,24 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Hubungan Dengan Karyawan',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Hubungan Dengan Karyawan ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       SizedBox(
@@ -983,10 +1016,24 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Nama Pasien',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Nama Pasien ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       SizedBox(
@@ -1008,10 +1055,24 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Pilih Entitas : ',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Pilih Entitas : ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       Padding(
@@ -1078,10 +1139,24 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Pilih Atasan :',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Pilih Atasan : ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       Padding(
@@ -1320,10 +1395,24 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Pilih Entitas HRGS : ',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Pilih Entitas HRGS : ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       Padding(
@@ -1390,10 +1479,24 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'HRGS :',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'HRGS : ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       Padding(
@@ -1457,10 +1560,24 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Pilih Entitas Direktur Keuangan : ',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Pilih Entitas Direktur Keuangan : ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       Padding(
@@ -1527,10 +1644,24 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Pilih Direktur Keuangan :',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Pilih Direktur Keuangan : ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       Padding(

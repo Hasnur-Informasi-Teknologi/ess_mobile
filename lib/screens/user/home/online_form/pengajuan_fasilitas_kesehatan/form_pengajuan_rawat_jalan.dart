@@ -245,8 +245,6 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
-    print(_tanggalPengajuanRawatJalanController.text);
-
     if (periodeRawat == null) {
       Get.snackbar('Infomation', 'Tanggal Wajib Diisi',
           snackPosition: SnackPosition.TOP,
@@ -487,31 +485,6 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // SizedBox(
-                      //   height: sizedBoxHeightTall,
-                      // ),
-                      // Padding(
-                      //   padding: EdgeInsets.symmetric(
-                      //       horizontal: paddingHorizontalNarrow),
-                      //   child: TitleWidget(
-                      //     title: 'Nomor',
-                      //     fontWeight: FontWeight.w300,
-                      //     fontSize: textMedium,
-                      //   ),
-                      // ),
-                      // SizedBox(
-                      //   height: sizedBoxHeightShort,
-                      // ),
-                      // Padding(
-                      //   padding: EdgeInsets.symmetric(
-                      //       horizontal: paddingHorizontalNarrow),
-                      //   child: TextFormFieldWidget(
-                      //     controller: _kodeController,
-                      //     maxHeightConstraints: maxHeightKode,
-                      //     hintText: 'Auto Generate',
-                      //     enable: false,
-                      //   ),
-                      // ),
                       SizedBox(
                         height: sizedBoxHeightTall,
                       ),
@@ -707,10 +680,24 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Periode Rawat',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Periode Rawat ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       CupertinoButton(
@@ -783,10 +770,24 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
-                        child: TitleWidget(
-                          title: 'Pilih Entitas : ',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Pilih Entitas : ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       Padding(
@@ -853,10 +854,24 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
-                        child: TitleWidget(
-                          title: 'Pilih Atasan :',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Pilih Atasan : ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       Padding(
@@ -1134,10 +1149,24 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
-                        child: TitleWidget(
-                          title: 'Pilih Entitas HRGS : ',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Pilih Entitas HRGS : ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       Padding(
@@ -1204,10 +1233,24 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
-                        child: TitleWidget(
-                          title: 'HRGS :',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'HRGS : ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       Padding(
@@ -1271,10 +1314,24 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
-                        child: TitleWidget(
-                          title: 'Pilih Entitas Direktur Keuangan : ',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Pilih Entitas Direktur Keuangan : ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       Padding(
@@ -1341,10 +1398,24 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
-                        child: TitleWidget(
-                          title: 'Pilih Direktur Keuangan :',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Pilih Direktur Keuangan : ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
                         ),
                       ),
                       Padding(

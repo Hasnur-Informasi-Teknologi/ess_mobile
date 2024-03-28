@@ -24,8 +24,6 @@ class _FormDetailPengajuanRawatJalanState
     extends State<FormDetailPengajuanRawatJalan> {
   final String _apiUrl = API_URL;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final _jenisPenggantiController = TextEditingController();
-  final _detailPenggantiController = TextEditingController();
   final _namaPasientController = TextEditingController();
   final _hubunganDenganKaryawanController = TextEditingController();
   final _noKwitansiController = TextEditingController();
@@ -347,10 +345,24 @@ class _FormDetailPengajuanRawatJalanState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Pilih Jenis Pengganti : ',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
+                  child: Row(
+                    children: [
+                      TitleWidget(
+                        title: 'Pilih Jenis Pengganti : ',
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      Text(
+                        '*',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.6,
+                            fontWeight: FontWeight.w300),
+                      )
+                    ],
                   ),
                 ),
                 Padding(
@@ -414,10 +426,24 @@ class _FormDetailPengajuanRawatJalanState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Pilih Detail Pengganti : ',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
+                  child: Row(
+                    children: [
+                      TitleWidget(
+                        title: 'Pilih Detail Pengganti : ',
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      Text(
+                        '*',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.6,
+                            fontWeight: FontWeight.w300),
+                      )
+                    ],
                   ),
                 ),
                 Padding(
@@ -482,10 +508,24 @@ class _FormDetailPengajuanRawatJalanState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Pilih Hubungan Dengan Karyawan : ',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
+                  child: Row(
+                    children: [
+                      TitleWidget(
+                        title: 'Pilih Hubungan Dengan Karyawan : ',
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      Text(
+                        '*',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.6,
+                            fontWeight: FontWeight.w300),
+                      )
+                    ],
                   ),
                 ),
                 SizedBox(
@@ -553,10 +593,24 @@ class _FormDetailPengajuanRawatJalanState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Nama Pasien',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
+                  child: Row(
+                    children: [
+                      TitleWidget(
+                        title: 'Nama Pasien ',
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      Text(
+                        '*',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.6,
+                            fontWeight: FontWeight.w300),
+                      )
+                    ],
                   ),
                 ),
                 SizedBox(
@@ -578,10 +632,24 @@ class _FormDetailPengajuanRawatJalanState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'No Kwitansi',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
+                  child: Row(
+                    children: [
+                      TitleWidget(
+                        title: 'No Kwitansi ',
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      Text(
+                        '*',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.6,
+                            fontWeight: FontWeight.w300),
+                      )
+                    ],
                   ),
                 ),
                 SizedBox(
@@ -603,10 +671,24 @@ class _FormDetailPengajuanRawatJalanState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Tanggal Kuitansi',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
+                  child: Row(
+                    children: [
+                      TitleWidget(
+                        title: 'Tanggal Kuitansi ',
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      Text(
+                        '*',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.6,
+                            fontWeight: FontWeight.w300),
+                      )
+                    ],
                   ),
                 ),
                 CupertinoButton(
@@ -678,10 +760,24 @@ class _FormDetailPengajuanRawatJalanState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Jumlah',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
+                  child: Row(
+                    children: [
+                      TitleWidget(
+                        title: 'Jumlah ',
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      Text(
+                        '*',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.6,
+                            fontWeight: FontWeight.w300),
+                      )
+                    ],
                   ),
                 ),
                 SizedBox(
@@ -703,10 +799,24 @@ class _FormDetailPengajuanRawatJalanState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Pilih Diagnosa : ',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
+                  child: Row(
+                    children: [
+                      TitleWidget(
+                        title: 'Pilih Diagnosa : ',
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      Text(
+                        '*',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.6,
+                            fontWeight: FontWeight.w300),
+                      )
+                    ],
                   ),
                 ),
                 Padding(
@@ -769,10 +879,24 @@ class _FormDetailPengajuanRawatJalanState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Keterangan/Diagnosa',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
+                  child: Row(
+                    children: [
+                      TitleWidget(
+                        title: 'Keterangan/Diagnosa ',
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      Text(
+                        '*',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.6,
+                            fontWeight: FontWeight.w300),
+                      )
+                    ],
                   ),
                 ),
                 SizedBox(
