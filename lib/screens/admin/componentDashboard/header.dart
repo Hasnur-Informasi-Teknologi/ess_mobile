@@ -71,7 +71,7 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
 
   Widget _buildComponent() {
     return AnimatedSwitcher(
-      duration: Duration(milliseconds: 300),
+      duration: Duration(milliseconds: 10),
       child: _getComponentByKey(selectionValue.toString()),
       transitionBuilder: (child, animation) {
         return FadeTransition(

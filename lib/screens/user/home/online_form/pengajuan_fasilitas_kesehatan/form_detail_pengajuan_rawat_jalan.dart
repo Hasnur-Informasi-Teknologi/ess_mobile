@@ -37,6 +37,7 @@ class _FormDetailPengajuanRawatJalanState
   double maxNoKwitansi = 40.0;
   double maxJumlah = 40.0;
   double maxKeterangan = 40.0;
+  final Function? onClose = Get.arguments['onClose'];
 
   String? jenisPengganti,
       idMdJpRawatJalan,
@@ -179,8 +180,10 @@ class _FormDetailPengajuanRawatJalanState
         dataDetailPengajuanRawatJalanController = Get.find();
     dataDetailPengajuanRawatJalanController.tambahData(newData);
 
-    Get.offAllNamed(
-        '/user/main/home/online_form/pengajuan_fasilitas_kesehatan/pengajuan_rawat_jalan');
+    // Get.offAllNamed(
+    //     '/user/main/home/online_form/pengajuan_fasilitas_kesehatan/pengajuan_rawat_jalan');
+    onClose?.call();
+    Get.back();
   }
 
   String? _validatorJenisPengganti(dynamic value) {
@@ -369,6 +372,7 @@ class _FormDetailPengajuanRawatJalanState
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: DropdownButtonFormField<String>(
+                    menuMaxHeight: size.height * 0.5,
                     value: selectedValueJenisPengganti,
                     validator: _validatorJenisPengganti,
                     icon: selectedJenisPengganti.isEmpty
@@ -450,6 +454,7 @@ class _FormDetailPengajuanRawatJalanState
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: DropdownButtonFormField<String>(
+                    menuMaxHeight: size.height * 0.5,
                     validator: _validatorDetailPengganti,
                     value: selectedValueDetailPengganti,
                     icon: selectedDetailPengganti.isEmpty
@@ -535,6 +540,7 @@ class _FormDetailPengajuanRawatJalanState
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: DropdownButtonFormField<String>(
+                    menuMaxHeight: size.height * 0.5,
                     validator: _validatorHubunganDenganKaryawan,
                     value: selectedValueHubunganDenganKarwayan,
                     icon: selectedHubunganDenganKarwayan.isEmpty
@@ -823,6 +829,7 @@ class _FormDetailPengajuanRawatJalanState
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: DropdownButtonFormField<String>(
+                    menuMaxHeight: size.height * 0.5,
                     validator: _validatorDiagnosa,
                     value: selectedValueDiagnosa,
                     icon: selectedDiagnosa.isEmpty
@@ -940,6 +947,9 @@ class _FormDetailPengajuanRawatJalanState
                     ),
                   ),
                 ),
+                SizedBox(
+                  height: sizedBoxHeightTall,
+                )
               ],
             ),
           ),

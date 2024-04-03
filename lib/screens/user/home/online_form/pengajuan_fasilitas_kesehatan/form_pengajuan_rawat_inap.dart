@@ -956,6 +956,7 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: DropdownButtonFormField<String>(
+                          menuMaxHeight: size.height * 0.5,
                           validator: _validatorHubunganDenganKaryawan,
                           value: selectedValueHubunganDenganKarwayan,
                           icon: selectedHubunganDenganKarwayan.isEmpty
@@ -1079,6 +1080,7 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: DropdownButtonFormField<String>(
+                          menuMaxHeight: size.height * 0.5,
                           validator: _validatorEntitas,
                           value: selectedValueEntitas,
                           icon: selectedEntitas.isEmpty
@@ -1163,6 +1165,7 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: DropdownButtonFormField<String>(
+                          menuMaxHeight: size.height * 0.5,
                           validator: _validatorAtasan,
                           value: selectedValueAtasan,
                           icon: selectedAtasan.isEmpty
@@ -1228,8 +1231,16 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                           fontSizeLeft: textMedium,
                           fontSizeRight: textSmall,
                           onTab: () {
-                            Get.toNamed(
-                                '/user/main/home/online_form/pengajuan_fasilitas_kesehatan/pengajuan_rawat_inap/detail_pengajuan_rawat_inap');
+                            // Get.toNamed(
+                            //     '/user/main/home/online_form/pengajuan_fasilitas_kesehatan/pengajuan_rawat_inap/detail_pengajuan_rawat_inap');
+                            Get.to(
+                              () => const FormDetailPengajuanRawatInap(),
+                              arguments: {
+                                'onClose': () {
+                                  getDetailPenganjuanRawatInap();
+                                },
+                              },
+                            );
                           },
                         ),
                       ),
@@ -1419,6 +1430,7 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: DropdownButtonFormField<String>(
+                          menuMaxHeight: size.height * 0.5,
                           validator: _validatorEntitasHrgs,
                           value: selectedValueEntitasHrgs,
                           icon: selectedEntitasHrgs.isEmpty
@@ -1503,6 +1515,7 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: DropdownButtonFormField<String>(
+                          menuMaxHeight: size.height * 0.5,
                           validator: _validatorHrgs,
                           value: selectedValueHrgs,
                           icon: selectedHrgs.isEmpty
@@ -1584,6 +1597,7 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: DropdownButtonFormField<String>(
+                          menuMaxHeight: size.height * 0.5,
                           validator: _validatorEntitasKeuangan,
                           value: selectedValueEntitasKeuangan,
                           icon: selectedEntitasKeuangan.isEmpty
@@ -1668,6 +1682,7 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: DropdownButtonFormField<String>(
+                          menuMaxHeight: size.height * 0.5,
                           validator: _validatorKeuangan,
                           value: selectedValueKeuangan,
                           icon: selectedKeuangan.isEmpty
@@ -1750,6 +1765,9 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                           ),
                         ),
                       ),
+                      SizedBox(
+                        height: sizedBoxHeightTall,
+                      )
                     ],
                   ),
                 ),

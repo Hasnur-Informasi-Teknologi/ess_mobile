@@ -794,6 +794,7 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
                         child: DropdownButtonFormField<String>(
+                          menuMaxHeight: size.height * 0.5,
                           validator: _validatorEntitas,
                           value: selectedValueEntitas,
                           icon: selectedEntitas.isEmpty
@@ -878,6 +879,7 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
                         child: DropdownButtonFormField<String>(
+                          menuMaxHeight: size.height * 0.5,
                           validator: _validatorAtasan,
                           value: selectedValueAtasan,
                           icon: selectedAtasan.isEmpty
@@ -946,8 +948,16 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                           fontSizeLeft: textMedium,
                           fontSizeRight: textSmall,
                           onTab: () {
-                            Get.toNamed(
-                                '/user/main/home/online_form/pengajuan_fasilitas_kesehatan/pengajuan_rawat_jalan/detail_pengajuan_rawat_jalan');
+                            // Get.toNamed(
+                            //     '/user/main/home/online_form/pengajuan_fasilitas_kesehatan/pengajuan_rawat_jalan/detail_pengajuan_rawat_jalan');
+                            Get.to(
+                              () => const FormDetailPengajuanRawatJalan(),
+                              arguments: {
+                                'onClose': () {
+                                  getDetailPenganjuanRawatJalan();
+                                },
+                              },
+                            );
                           },
                         ),
                       ),
@@ -1173,6 +1183,7 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
                         child: DropdownButtonFormField<String>(
+                          menuMaxHeight: size.height * 0.5,
                           validator: _validatorEntitasHrgs,
                           value: selectedValueEntitasHrgs,
                           icon: selectedEntitasHrgs.isEmpty
@@ -1257,6 +1268,7 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
                         child: DropdownButtonFormField<String>(
+                          menuMaxHeight: size.height * 0.5,
                           validator: _validatorHrgs,
                           value: selectedValueHrgs,
                           icon: selectedHrgs.isEmpty
@@ -1338,6 +1350,7 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
                         child: DropdownButtonFormField<String>(
+                          menuMaxHeight: size.height * 0.5,
                           validator: _validatorEntitasDirekturKeuangan,
                           value: selectedValueEntitasKeuangan,
                           icon: selectedEntitasKeuangan.isEmpty
@@ -1422,6 +1435,7 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
                         child: DropdownButtonFormField<String>(
+                          menuMaxHeight: size.height * 0.5,
                           validator: _validatorDirekturKeuangan,
                           value: selectedValueKeuangan,
                           icon: selectedKeuangan.isEmpty
@@ -1504,6 +1518,9 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                           ),
                         ),
                       ),
+                      SizedBox(
+                        height: sizedBoxHeightTall,
+                      )
                     ],
                   ),
                 ),

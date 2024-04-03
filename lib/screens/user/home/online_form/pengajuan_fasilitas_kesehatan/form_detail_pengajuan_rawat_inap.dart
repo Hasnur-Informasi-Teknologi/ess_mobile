@@ -38,6 +38,7 @@ class _FormDetailPengajuanRawatInapState
   final DateRangePickerController _tanggalKwitansiController =
       DateRangePickerController();
   DateTime? tanggalKwitansi;
+  final Function? onClose = Get.arguments['onClose'];
 
   String? id,
       jenisPengganti,
@@ -188,8 +189,10 @@ class _FormDetailPengajuanRawatInapState
 
     dataDetailPengajuanRawatInapController.tambahData(newData);
 
-    Get.offAllNamed(
-        '/user/main/home/online_form/pengajuan_fasilitas_kesehatan/pengajuan_rawat_inap');
+    // Get.offAllNamed(
+    //     '/user/main/home/online_form/pengajuan_fasilitas_kesehatan/pengajuan_rawat_inap');
+    onClose?.call();
+    Get.back();
   }
 
   String? _validatorJenisPengganti(dynamic value) {
@@ -347,6 +350,7 @@ class _FormDetailPengajuanRawatInapState
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: DropdownButtonFormField<String>(
+                    menuMaxHeight: size.height * 0.5,
                     value: selectedValueJenisPengganti,
                     validator: _validatorJenisPengganti,
                     icon: selectedJenisPengganti.isEmpty
@@ -432,6 +436,7 @@ class _FormDetailPengajuanRawatInapState
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: DropdownButtonFormField<String>(
+                    menuMaxHeight: size.height * 0.5,
                     validator: _validatorDetailPengganti,
                     value: selectedValueDetailPengganti,
                     icon: selectedDetailPengganti.isEmpty
@@ -681,6 +686,7 @@ class _FormDetailPengajuanRawatInapState
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: DropdownButtonFormField<String>(
+                    menuMaxHeight: size.height * 0.5,
                     validator: _validatorDiagnosa,
                     value: selectedValueDiagnosa,
                     icon: selectedDiagnosa.isEmpty
@@ -863,6 +869,9 @@ class _FormDetailPengajuanRawatInapState
                     ),
                   ),
                 ),
+                SizedBox(
+                  height: sizedBoxHeightTall,
+                )
               ],
             ),
           ),

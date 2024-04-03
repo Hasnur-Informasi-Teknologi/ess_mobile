@@ -528,7 +528,7 @@ class _FormPengajuanPerpanjanganCutiState
                         child: Row(
                           children: [
                             TitleWidget(
-                              title: 'Atasan ',
+                              title: 'Pilih Atasan : ',
                               fontWeight: FontWeight.w300,
                               fontSize: textMedium,
                             ),
@@ -549,6 +549,7 @@ class _FormPengajuanPerpanjanganCutiState
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
                         child: DropdownButtonFormField<String>(
+                          menuMaxHeight: size.height * 0.5,
                           validator: _validatorAtasan,
                           value: selectedValueAtasan,
                           icon: selectedAtasan.isEmpty
@@ -878,6 +879,9 @@ class _FormPengajuanPerpanjanganCutiState
                           ),
                         ),
                       ),
+                      SizedBox(
+                        height: sizedBoxHeightTall,
+                      )
                     ],
                   ),
                 ),
