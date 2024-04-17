@@ -53,10 +53,15 @@ class _SignInScreenState extends State<SignInScreen> {
     try {
       await Provider.of<AuthProvider>(context, listen: false)
           .signIn(userNrp!, userPass!)
-          .then((_) => Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (ctx) => const HomeScreen())));
+          .then((auth) {
+        if (auth == 1) {
+          Get.offAllNamed('/admin/main');
+        } else if (auth == 4) {
+          Get.offAllNamed('/user/main');
+        }
+      });
 
-      // Get.offAllNamed('/user/main');
+      // ;
     } on HttpException catch (e) {
       String errorMessage = '';
 
@@ -75,6 +80,8 @@ class _SignInScreenState extends State<SignInScreen> {
       //         MaterialPageRoute(builder: (ctx) => const HomeScreen())));
     } catch (e) {
       print(e);
+
+      _showErrorDialog("Username atau Password Salah!");
       print('Gagal Fetching Data');
       // Get.offAllNamed('/user/main');
 
@@ -165,7 +172,7 @@ class _SignInScreenState extends State<SignInScreen> {
           toolbarHeight: 0,
         ),
         body: _isLoading
-            ? const CircularProgressIndicator()
+            ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: padding40),
@@ -181,7 +188,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             'Employee Self Service Login',
                             style: TextStyle(
                               fontSize: textExtraLarge,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500,
                               fontFamily: 'Poppins',
                             ),
                           ),
@@ -193,6 +200,12 @@ class _SignInScreenState extends State<SignInScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(10.0),
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Colors.grey.withOpacity(0.3),
+                                  offset: const Offset(1.1, 1.1),
+                                  blurRadius: 10.0),
+                            ],
                           ),
                           child: Padding(
                             padding: EdgeInsets.symmetric(
@@ -206,7 +219,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                     GestureDetector(
                                       onTap: () {
                                         // on doubletap, drag
-                                        Get.toNamed('/admin/main');
+                                        Get.toNamed('/test');
                                       },
                                       child: Text(
                                         'SELAMAT DATANG',
@@ -341,7 +354,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                                     fontFamily: 'Poppins',
                                                     letterSpacing: 0.9,
                                                     fontWeight:
-                                                        FontWeight.w700),
+                                                        FontWeight.w500),
                                               ),
                                             ),
                                           )

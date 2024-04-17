@@ -1,7 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:mobile_ess/screens/admin/componentDashboard/ProbationKaryawan.dart';
+import 'package:mobile_ess/screens/admin/componentDashboard/TaskMenuDashboard.dart';
 import 'package:mobile_ess/screens/admin/componentDashboard/demografiAttendance.dart';
 import 'package:mobile_ess/screens/admin/componentDashboard/employeeMonitoring.dart';
 import 'package:mobile_ess/screens/admin/componentDashboard/ijinCutiKaryawan.dart';
@@ -11,6 +13,16 @@ import 'package:mobile_ess/screens/admin/componentDashboard/kontrakKaryawan.dart
 import 'package:mobile_ess/widgets/header_profile_widget.dart';
 import 'package:mobile_ess/screens/user/home/icons_container_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class AdminController extends GetxController {
+  var karyawan = {}.obs;
+  var role_id = 1.obs;
+  Map<String, String> selectionDashboards = {
+    '1': 'Admin',
+    '2': 'User',
+  }.obs;
+}
 
 class AdminHeaderScreen extends StatefulWidget {
   const AdminHeaderScreen({super.key});
@@ -21,14 +33,38 @@ class AdminHeaderScreen extends StatefulWidget {
 
 class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
   var vdata = {};
+  AdminController x = Get.put(AdminController());
+
+  @override
+  void initState() {
+    getDataKaryawan();
+    super.initState();
+  }
+
+  Future<void> getDataKaryawan() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    x.role_id.value = prefs.getInt('role_id')!.toInt();
+    if (x.role_id == 1) {
+      x.selectionDashboards = {
+        '1': 'Admin',
+        '2': 'User',
+      };
+    } else {
+      x.selectionDashboards = {
+        '2': 'User',
+      };
+    }
+    String? token = prefs.getString('token');
+    x.karyawan.value =
+        jsonDecode(prefs.getString('userData').toString())['data'];
+  }
+
+  String? selectionDashboard = '1'; // Default value
+
   Map<String, String> selectionValues = {
     '1': 'Demografi & Attendance',
     '2': 'Employee Monitoring',
-    '3': 'Ijin Karyawan',
-    '4': 'Ijin Cuti',
-    '5': 'Tanpa Keterangan',
     '6': 'Kontrak Karyawan',
-    '7': 'Probation Karyawan',
     '8': 'Task',
   };
   String? selectionValue = '1'; // Default value
@@ -52,18 +88,10 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
         return DemografiAttendanceScreen();
       case '2':
         return DashboardEmployeeMonitoringScreen();
-      case '3':
-        return KehadiranKaryawanTable();
-      case '4':
-        return IjinCutiKaryawan();
-      case '5':
-        return KehadiranTanpaKeterangan();
       case '6':
         return KontrakKaryawan();
-      case '7':
-        return ProbationKaryawan();
       case '8':
-      // return TaskMenuDashboard();
+        return TaskMenuDashboardScreen();
       default:
         return SizedBox.shrink();
     }
@@ -87,19 +115,19 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'PT Hasnur Informasi Teknologi',
-                // userLogin.get('user')['entitas'],
-                style: TextStyle(
-                    fontSize: textMedium,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: 'Quicksand'),
+              Obx(
+                () => Text(
+                  x.karyawan['pt'] ?? 'PT Hasnur Informasi Teknologi',
+                  style: TextStyle(
+                      fontSize: textMedium,
+                      fontWeight: FontWeight.w500,
+                      fontFamily: 'Quicksand'),
+                ),
               ),
               IconButton(
                 icon: const Icon(Icons.notifications),
                 onPressed: () {
                   Get.toNamed('/admin/announcement');
-                  // Aksi ketika ikon lonceng di tekan
                 },
               ),
             ],
@@ -109,21 +137,21 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
       body: ListView(
         children: [
           Container(
-            height: size.height * 0.33,
+            height: size.height * 0.28,
             width: size.width,
             decoration: const BoxDecoration(color: Colors.white),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                HeaderProfileWidget(
-                  userName: 'M. Abdullah Sani',
-                  posision: 'Programmer',
-                  imageUrl: '',
-                  // userName: userLogin.get('user')['full_name'],
-                  // posision: userLogin.get('user')['jabatan'],
-                  // imageUrl: userLogin.get('user')['gambar'],
-                  webUrl: '',
-                ),
+                Obx(() => HeaderProfileWidget(
+                      userName: x.karyawan['nama'] ?? 'Admin',
+                      posision: x.karyawan['pernr'] ?? '7822000',
+                      imageUrl: '',
+                      // userName: userLogin.get('user')['full_name'],
+                      // posision: userLogin.get('user')['jabatan'],
+                      // imageUrl: userLogin.get('user')['gambar'],
+                      webUrl: '',
+                    )),
                 Container(
                   height: size.height * 0.13,
                   width: size.width * 0.9,
@@ -136,9 +164,71 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
               ],
             ),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-            child: const TitleWidget(title: 'Dashboard'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Padding(
+                padding:
+                    EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+                child: const TitleWidget(title: 'Dashboard'),
+              ),
+              // ================
+              Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: paddingHorizontalWide, vertical: padding10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Container(
+                      height: 40,
+                      padding: EdgeInsets.all(4),
+                      margin: EdgeInsets.only(left: 10),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Color.fromARGB(
+                              102, 158, 158, 158), // Set border color
+                          width: 1, // Set border width
+                        ),
+                        borderRadius: BorderRadius.circular(
+                            6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 5, right: 5),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors
+                                  .black, // Set the font size for the dropdown items
+                            ),
+                            value: selectionDashboard,
+                            iconSize: 24,
+                            elevation: 16,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                if (newValue == '1') {
+                                  Get.toNamed('/admin/main');
+                                } else {
+                                  Get.toNamed('/user/main');
+                                }
+                                selectionDashboard = newValue;
+                              });
+                            },
+                            items: x.selectionDashboards.keys
+                                .map<DropdownMenuItem<String>>((String id) {
+                              return DropdownMenuItem<String>(
+                                value: id,
+                                child: Text(x.selectionDashboards[id]!),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
           ),
           Padding(
             padding: EdgeInsets.symmetric(
@@ -162,27 +252,29 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
                   ),
                   child: Padding(
                     padding: EdgeInsets.only(left: 5, right: 5),
-                    child: DropdownButton<String>(
-                      style: TextStyle(
-                        fontSize: 10,
-                        color: Colors
-                            .black, // Set the font size for the dropdown items
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors
+                              .black, // Set the font size for the dropdown items
+                        ),
+                        value: selectionValue,
+                        iconSize: 24,
+                        elevation: 16,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectionValue = newValue;
+                          });
+                        },
+                        items: selectionValues.keys
+                            .map<DropdownMenuItem<String>>((String id) {
+                          return DropdownMenuItem<String>(
+                            value: id,
+                            child: Text(selectionValues[id]!),
+                          );
+                        }).toList(),
                       ),
-                      value: selectionValue,
-                      iconSize: 24,
-                      elevation: 16,
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          selectionValue = newValue;
-                        });
-                      },
-                      items: selectionValues.keys
-                          .map<DropdownMenuItem<String>>((String id) {
-                        return DropdownMenuItem<String>(
-                          value: id,
-                          child: Text(selectionValues[id]!),
-                        );
-                      }).toList(),
                     ),
                   ),
                 )
@@ -192,33 +284,6 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
           _buildComponent(),
         ],
       ),
-    );
-  }
-}
-
-class ComponentType1 extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('This is Component Type 1'),
-    );
-  }
-}
-
-class ComponentType2 extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('This is Component Type 2'),
-    );
-  }
-}
-
-class ComponentType3 extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('This is Component Type 3'),
     );
   }
 }

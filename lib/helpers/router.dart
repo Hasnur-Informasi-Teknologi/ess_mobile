@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_cuti_bersama.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_cuti_roster.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_entitas.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_kamar_hotel.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_screen.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_pic_hrgs.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_rawat_inap.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_rawat_jalan.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_uang_makan_dalam_negeri.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/tab%20rawat%20jalan/tabsRawatJalan.dart';
+import 'package:mobile_ess/screens/admin/administrator/master%20data/tab%20uang%20makan/TabsUangMakan.dart';
+import 'package:mobile_ess/screens/admin/administrator/user%20management/user_management_list.dart';
 import 'package:mobile_ess/screens/admin/administrator/user_authorization/user_authorization_list.dart';
-import 'package:mobile_ess/screens/admin/administrator/user management/user_management_list.dart';
 import 'package:mobile_ess/screens/admin/main/dashboard.dart';
+import 'package:mobile_ess/screens/admin/main/karyawan/list_karyawan.dart';
 import 'package:mobile_ess/screens/authentication/signin_screen.dart';
 import 'package:mobile_ess/screens/test.dart';
 import 'package:mobile_ess/screens/user/home/documents/documents_screen.dart';
@@ -34,18 +46,25 @@ import 'package:mobile_ess/screens/user/home/request_attendance/request_attendan
 import 'package:mobile_ess/screens/user/home/request_attendance/ubah_data_kehadiran_screen.dart';
 import 'package:mobile_ess/screens/user/home/transactions/transactions_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen.dart';
+import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
+import 'package:mobile_ess/screens/user/profile/profile_edit_screen.dart';
+import 'package:mobile_ess/screens/user/profile/profile_screen.dart';
 
 import 'package:mobile_ess/screens/user/submition/detail_form_pengajuan_lembur.dart';
 
 import 'package:mobile_ess/splash_screen.dart';
+import 'package:path/path.dart';
 
-import '../screens/admin/administrator/user management/user_management_list.dart';
+import '../screens/admin/administrator/master data/master_data_pic_hrgs.dart';
 
 Map<String, Widget Function(BuildContext)> routers() {
   return {
     '/': (context) => const SignInScreen(),
     '/splash': (context) => const SplashScreen(),
-    '/user/main': (context) => const MainScreen(),
+    '/user/main': (context) => const MainScreenWithAnimation(),
+    '/user/profile': (context) => const ProfileScreen(),
+    '/user/profile/edit': (context) => const ProfileEditScreen(),
+    // '/user/main_new': (context) => const MainScreenWithAnimation(),
     '/user/main/home/online_form': (context) => const OnlineFormScreen(),
     '/user/main/home/online_form/aplikasi_training': (context) =>
         const FormAplikasiTrainingScreen(),
@@ -104,6 +123,7 @@ Map<String, Widget Function(BuildContext)> routers() {
     '/user/main/home/documents': (context) => const DocomentsScreen(),
     // =================== ADMIN ====================
     '/admin/main': (context) => const AdminMainScreen(),
+    '/admin/karyawan': (context) => const ListKaryawan(),
     '/test': (context) => TestScreen(),
     '/admin/administrator/administrator_screen': (contex) =>
         const Administrator(),
@@ -111,5 +131,21 @@ Map<String, Widget Function(BuildContext)> routers() {
         const UserManagement(),
     '/admin/administrator/user_authorization/user_authorization': (contex) =>
         const UserAuthorization(),
+    '/admin/administrator/master_data/master_data_screen': (context) =>
+        const MasterDataScreen(),
+    '/admin/administrator/master_data/entitas': (context) => const Entitas(),
+    '/admin/administrator/master_data/cuti_bersama': (context) =>
+        const CutiBersama(),
+    '/admin/administrator/master_data/cuti_roster': (context) =>
+        const CutiRoster(),
+    '/admin/administrator/master_data/tab_rawat_jalan': (context) =>
+        const TabsRawatJalan(),
+    '/admin/administrator/master_data/tab_uang_makan': (context) =>
+        const TabsUangMakan(),
+    '/admin/administrator/master_data/rawat_inap': (context) =>
+        const RawatInap(),
+    '/admin/administrator/master_data/kamar_hotel': (context) =>
+        const KamarHotel(),
+    '/admin/administrator/master_data/pic_hrgs': (context) => const PicHrgs()
   };
 }

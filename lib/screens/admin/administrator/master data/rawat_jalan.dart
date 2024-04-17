@@ -6,11 +6,13 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
-import 'package:mobile_ess/themes/colors.dart';
-import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
+// import 'package:mobile_ess/themes/colors.dart';
+// import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+
+import '../../../../themes/constant.dart';
 
 class RawatJalan extends StatefulWidget {
   const RawatJalan({super.key});
@@ -309,7 +311,7 @@ class _RawatJalanState extends State<RawatJalan> {
                           fontSize: textMedium,
                           fontFamily: 'Poppins',
                           letterSpacing: 0.9,
-                          fontWeight: FontWeight.w700),
+                          fontWeight: FontWeight.w500),
                     ),
                   ),
                 ),
@@ -663,7 +665,7 @@ class _RawatJalanState extends State<RawatJalan> {
                             fontSize: textMedium,
                             fontFamily: 'Poppins',
                             letterSpacing: 0.9,
-                            fontWeight: FontWeight.w700),
+                            fontWeight: FontWeight.w500),
                       ),
                     ),
                   ),
@@ -1118,7 +1120,7 @@ class _RawatJalanState extends State<RawatJalan> {
                                     fontSize: textMedium,
                                     fontFamily: 'Poppins',
                                     letterSpacing: 0.9,
-                                    fontWeight: FontWeight.w700),
+                                    fontWeight: FontWeight.w500),
                               ),
                             ),
                           ),

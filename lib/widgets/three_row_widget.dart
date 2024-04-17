@@ -29,7 +29,7 @@ class ThreeRowWidget extends StatelessWidget {
             color: const Color(primaryBlack),
             fontSize: textMedium,
             fontFamily: 'Poppins',
-            fontWeight: fontWeightLeft ?? FontWeight.w700,
+            fontWeight: fontWeightLeft ?? FontWeight.w500,
           ),
         ),
         Text(
@@ -38,7 +38,7 @@ class ThreeRowWidget extends StatelessWidget {
             color: const Color(primaryBlack),
             fontSize: textMedium,
             fontFamily: 'Poppins',
-            fontWeight: fontWeightCenter ?? FontWeight.w700,
+            fontWeight: fontWeightCenter ?? FontWeight.w500,
           ),
         ),
         Text(
@@ -47,7 +47,7 @@ class ThreeRowWidget extends StatelessWidget {
             color: const Color(primaryBlack),
             fontSize: textMedium,
             fontFamily: 'Poppins',
-            fontWeight: fontWeightRight ?? FontWeight.w700,
+            fontWeight: fontWeightRight ?? FontWeight.w500,
           ),
         ),
       ],

@@ -7,10 +7,12 @@ class TextFormFieldWidget extends StatefulWidget {
   final Function? validator;
   final String hintText;
   final double maxHeightConstraints;
+  final bool? enable;
   const TextFormFieldWidget(
       {super.key,
       required this.controller,
       this.validator,
+      this.enable,
       required this.hintText,
       this.maxHeightConstraints = 60.0});
 
@@ -32,6 +34,7 @@ class _TextFormFieldWidgetState extends State<TextFormFieldWidget> {
         }
         return null;
       },
+      enabled: widget.enable ?? true,
       decoration: InputDecoration(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(5),
@@ -47,7 +50,7 @@ class _TextFormFieldWidgetState extends State<TextFormFieldWidget> {
             borderRadius: BorderRadius.circular(5),
             borderSide: const BorderSide(color: Colors.grey, width: 0)),
         constraints: BoxConstraints(maxHeight: widget.maxHeightConstraints),
-        filled: true,
+        filled: widget.enable ?? true,
         fillColor: Colors.white,
         hintText: widget.hintText,
         hintStyle: TextStyle(

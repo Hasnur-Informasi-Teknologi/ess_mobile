@@ -42,7 +42,7 @@ class DetailPengumumanScreen extends StatelessWidget {
               textRight: ' Semua Karwayan Hasnur Group',
               fontSizeLeft: textMedium,
               fontSizeRight: textMedium,
-              fontWeightLeft: FontWeight.w700,
+              fontWeightLeft: FontWeight.w500,
               fontWeightRight: FontWeight.w300,
             ),
             SizedBox(
@@ -53,7 +53,7 @@ class DetailPengumumanScreen extends StatelessWidget {
               textRight: ' Semua Karwayan Hasnur Group',
               fontSizeLeft: textMedium,
               fontSizeRight: textMedium,
-              fontWeightLeft: FontWeight.w700,
+              fontWeightLeft: FontWeight.w500,
               fontWeightRight: FontWeight.w300,
             ),
             SizedBox(
@@ -64,7 +64,7 @@ class DetailPengumumanScreen extends StatelessWidget {
               textRight: ' Announcement General',
               fontSizeLeft: textMedium,
               fontSizeRight: textMedium,
-              fontWeightLeft: FontWeight.w700,
+              fontWeightLeft: FontWeight.w500,
               fontWeightRight: FontWeight.w300,
             ),
           ],

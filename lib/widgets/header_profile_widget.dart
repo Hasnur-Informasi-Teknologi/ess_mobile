@@ -1,6 +1,7 @@
 // ignore_for_file: unused_field, must_be_immutable
 import 'package:flutter/material.dart';
 import 'package:mobile_ess/themes/constant.dart';
+import 'package:mobile_ess/helpers/url_helper.dart';
 
 class HeaderProfileWidget extends StatelessWidget {
   final String? _userName;
@@ -22,6 +23,7 @@ class HeaderProfileWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String _apiUrl = API_URL;
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double textLarge = size.width * 0.04;
@@ -44,7 +46,7 @@ class HeaderProfileWidget extends StatelessWidget {
                       fontSize: textLarge,
                       fontFamily: 'Poppins',
                       letterSpacing: 0.9,
-                      fontWeight: FontWeight.w700),
+                      fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 5),
                 Text(
@@ -69,7 +71,7 @@ class HeaderProfileWidget extends StatelessWidget {
                     ? const AssetImage('assets/images/user-profile-default.png')
                         as ImageProvider
                     : NetworkImage(
-                        '$_webUrl/employee-photos/$_imageUrl',
+                        '$_apiUrl/get_photo2?nrp=$_imageUrl',
                       )),
           )
         ],
