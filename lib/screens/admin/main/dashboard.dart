@@ -188,30 +188,30 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                                       height: 45,
                                       margin: const EdgeInsets.only(bottom: 10),
                                       child: OutlinedButton(
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Icon(Icons.work),
-                                              Text('WFO',
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color:
-                                                          Color(primaryBlack))),
-                                            ],
-                                          ),
-                                          style: OutlinedButton.styleFrom(
-                                              side: const BorderSide(
-                                                  color: Color(primaryYellow))),
-                                          onPressed: () {
-                                            Navigator.pushAndRemoveUntil(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (ctx) =>
-                                                        const QRCodeScannerScreen()),
-                                                (route) => false);
-                                          }),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Icon(Icons.work),
+                                            Text('WFO',
+                                                style: TextStyle(
+                                                    fontWeight: FontWeight.w500,
+                                                    color:
+                                                        Color(primaryBlack))),
+                                          ],
+                                        ),
+                                        style: OutlinedButton.styleFrom(
+                                            side: const BorderSide(
+                                                color: Color(primaryYellow))),
+                                        onPressed: () {
+                                          // Navigator.pushAndRemoveUntil(
+                                          //     context,
+                                          //     MaterialPageRoute(
+                                          //         builder: (ctx) =>
+                                          //             const QRCodeScannerScreen()),
+                                          //     (route) => false);
+                                        },
+                                      ),
                                     ),
                                     const SizedBox(width: 10),
                                     Container(

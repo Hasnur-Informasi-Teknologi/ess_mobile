@@ -204,12 +204,12 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
                                               side: const BorderSide(
                                                   color: Color(primaryYellow))),
                                           onPressed: () {
-                                            Navigator.pushAndRemoveUntil(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (ctx) =>
-                                                        const QRCodeScannerScreen()),
-                                                (route) => false);
+                                            // Navigator.pushAndRemoveUntil(
+                                            //     context,
+                                            //     MaterialPageRoute(
+                                            //         builder: (ctx) =>
+                                            //             const QRCodeScannerScreen()),
+                                            //     (route) => false);
                                           }),
                                     ),
                                     const SizedBox(width: 10),

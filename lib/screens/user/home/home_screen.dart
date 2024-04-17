@@ -54,6 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
         );
 
         final responseData = jsonDecode(response.body);
+        print(responseData);
       } catch (e) {}
     } else {
       print('tidak ada token home');
