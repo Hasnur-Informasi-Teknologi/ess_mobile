@@ -19,6 +19,7 @@ import 'package:mobile_ess/screens/test.dart';
 import 'package:mobile_ess/screens/user/home/documents/documents_screen.dart';
 import 'package:mobile_ess/screens/admin/administrator/administrator_screen.dart';
 import 'package:mobile_ess/screens/user/home/online_form/aplikasi_recruitment/form_aplikasi_recruitment_screen.dart';
+import 'package:mobile_ess/screens/user/home/online_form/pengajuan_bantuan_komunikasi/form_pengajuan_bantuan_komunikasi.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_cuti/form_pengajuan_cuti.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_cuti/form_pengajuan_perpanjangan_cuti.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_cuti/pengajuan_cuti.dart';
@@ -49,6 +50,8 @@ import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
 import 'package:mobile_ess/screens/user/profile/profile_edit_screen.dart';
 import 'package:mobile_ess/screens/user/profile/profile_screen.dart';
+import 'package:mobile_ess/screens/user/submition/detail_aplikasi_training.dart';
+import 'package:mobile_ess/screens/user/submition/detail_bantuan_komunikasi.dart';
 
 import 'package:mobile_ess/screens/user/submition/detail_form_pengajuan_lembur.dart';
 
@@ -98,6 +101,8 @@ Map<String, Widget Function(BuildContext)> routers() {
         (context) => const FormSuratIzinKeluar(),
     '/user/main/home/online_form/pengajuan_izin/form_pengajuan_lembur':
         (context) => const FormPengajuanLembur(),
+    '/user/main/home/online_form/pengajuan_bantuan_komunikasi/form_pengajuan_bantuan_komunikasi':
+        (context) => const FormPengajuanBantuanKomunikasi(),
     '/user/main/home/online_form/pengajuan_hardware_software': (context) =>
         const FormPermintaanHardwareSoftware(),
     '/user/main/home/online_form/pengajuan_surat_keterangan': (context) =>
@@ -115,10 +120,12 @@ Map<String, Widget Function(BuildContext)> routers() {
     '/user/main/home/pengumuman': (context) => const PengumumanScreen(),
     '/user/main/home/pengumuman/detail_pengumuman': (context) =>
         const DetailPengumumanScreen(),
-    // '/user/main/submition/aplikasi_training/detail_aplikasi_training':
-    //     (context) => const DetailAplikasiTraining(),
     '/user/main/submition/aplikasi_training/detail_aplikasi_training':
-        (context) => const DetailFormPengajuanLembur(),
+        (context) => const DetailAplikasiTraining(),
+    '/user/main/daftar_permintaan/detail_bantuan_komunikasi': (context) =>
+        const DetailBantuanKomunikasi(),
+    // '/user/main/submition/aplikasi_training/detail_aplikasi_training':
+    //     (context) => const DetailFormPengajuanLembur(),
     '/user/main/home/transactions': (context) => const TransactionsScreen(),
     '/user/main/home/documents': (context) => const DocomentsScreen(),
     // =================== ADMIN ====================

@@ -71,7 +71,7 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
 
   Widget _buildComponent() {
     return AnimatedSwitcher(
-      duration: Duration(milliseconds: 300),
+      duration: Duration(milliseconds: 10),
       child: _getComponentByKey(selectionValue.toString()),
       transitionBuilder: (child, animation) {
         return FadeTransition(
@@ -137,7 +137,8 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
       body: ListView(
         children: [
           Container(
-            height: size.height * 0.28,
+            // height: size.height * 0.28,
+            height: size.height * 0.38,
             width: size.width,
             decoration: const BoxDecoration(color: Colors.white),
             child: Column(
@@ -153,7 +154,8 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
                       webUrl: '',
                     )),
                 Container(
-                  height: size.height * 0.13,
+                  // height: size.height * 0.13,
+                  height: size.height * 0.23,
                   width: size.width * 0.9,
                   decoration: BoxDecoration(
                     color: Colors.grey[100],
