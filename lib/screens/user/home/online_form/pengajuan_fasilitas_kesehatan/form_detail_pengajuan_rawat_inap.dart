@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/constant.dart';
+import 'package:mobile_ess/widgets/text_form_field_number_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -649,11 +650,11 @@ class _FormDetailPengajuanRawatInapState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormFieldWidget(
+                  child: TextFormFieldNumberWidget(
                     validator: _validatorJumlah,
                     controller: _jumlahController,
                     maxHeightConstraints: maxHeightJumlah,
-                    hintText: 'Rp 700.000',
+                    hintText: 'masukkan nominal',
                   ),
                 ),
                 SizedBox(

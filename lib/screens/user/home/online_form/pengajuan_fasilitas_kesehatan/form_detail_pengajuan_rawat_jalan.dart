@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/constant.dart';
+import 'package:mobile_ess/widgets/text_form_field_number_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:http/http.dart' as http;
@@ -62,13 +63,10 @@ class _FormDetailPengajuanRawatJalanState
 
   List<Map<String, dynamic>> selectedDetailPengganti = [];
   List<Map<String, dynamic>> selectedDiagnosa = [];
+  dynamic dataEmployee;
 
   List<Map<String, dynamic>> selectedHubunganDenganKarwayan = [
     {'opsi': 'Diri Sendiri'},
-    {'opsi': 'Anak 1'},
-    {'opsi': 'Anak 2'},
-    {'opsi': 'Anak 3'},
-    {'opsi': 'Pasangan'},
   ];
 
   final DateRangePickerController _tanggalKuitansiController =
@@ -128,8 +126,18 @@ class _FormDetailPengajuanRawatJalanState
   @override
   void initState() {
     super.initState();
+    getData();
     getJenisPengganti();
     getDiagnosa();
+  }
+
+  Future<void> getData() async {
+    final prefs = await SharedPreferences.getInstance();
+    var userData = prefs.getString('userData');
+    final responseData = jsonDecode(userData.toString())['data'];
+    setState(() {
+      dataEmployee = responseData;
+    });
   }
 
   Future<void> _tambah() async {
@@ -556,6 +564,10 @@ class _FormDetailPengajuanRawatJalanState
                     onChanged: (String? newValue) {
                       setState(() {
                         selectedValueHubunganDenganKarwayan = newValue ?? '';
+                        if (selectedValueHubunganDenganKarwayan ==
+                            'Diri Sendiri') {
+                          _namaPasientController.text = dataEmployee['nama'];
+                        }
                       });
                     },
                     items: selectedHubunganDenganKarwayan
@@ -792,11 +804,11 @@ class _FormDetailPengajuanRawatJalanState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormFieldWidget(
-                    validator: _validatorJumlah,
+                  child: TextFormFieldNumberWidget(
                     controller: _jumlahController,
+                    validator: _validatorJumlah,
                     maxHeightConstraints: maxJumlah,
-                    hintText: 'Rp 700.000',
+                    hintText: 'masukkan nominal',
                   ),
                 ),
                 SizedBox(

@@ -88,7 +88,6 @@ class _FormPengajuanPerpanjanganCutiState
         getDataAtasan();
 
         setState(() {
-          // masterData = Map<String, dynamic>.from(masterDataApi);
           cocd = masterDataApi['cocd'] ?? '';
           _nrpController.text = masterDataApi['nrp'] ?? '';
           _namaController.text = masterDataApi['nama'] ?? '';
@@ -382,77 +381,6 @@ class _FormPengajuanPerpanjanganCutiState
                           // );
                         },
                       ),
-                      // Padding(
-                      //   padding: EdgeInsets.symmetric(
-                      //       horizontal: paddingHorizontalNarrow),
-                      //   child: TitleWidget(
-                      //     title: 'Tanggal Bergabung',
-                      //     fontWeight: FontWeight.w300,
-                      //     fontSize: textMedium,
-                      //   ),
-                      // ),
-                      // CupertinoButton(
-                      //   child: Container(
-                      //     width: size.width,
-                      //     padding: EdgeInsets.symmetric(
-                      //         horizontal: paddingHorizontalNarrow,
-                      //         vertical: padding5),
-                      //     decoration: BoxDecoration(
-                      //         borderRadius: BorderRadius.circular(5),
-                      //         border: Border.all(color: Colors.grey)),
-                      //     child: Row(
-                      //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //       children: [
-                      //         const Icon(
-                      //           Icons.calendar_month_outlined,
-                      //           color: Colors.grey,
-                      //         ),
-                      //         Text(
-                      //           DateFormat('dd-MM-yyyy').format(
-                      //               _tanggalBergabungController.selectedDate ??
-                      //                   DateTime.now()),
-                      //           style: TextStyle(
-                      //             color: Colors.grey,
-                      //             fontSize: textMedium,
-                      //             fontFamily: 'Poppins',
-                      //             fontWeight: FontWeight.w300,
-                      //           ),
-                      //         ),
-                      //       ],
-                      //     ),
-                      //   ),
-                      //   onPressed: () {
-                      //     showDialog(
-                      //       context: context,
-                      //       builder: (BuildContext context) {
-                      //         return AlertDialog(
-                      //           content: Container(
-                      //             height: 350,
-                      //             width: 350,
-                      //             child: SfDateRangePicker(
-                      //               controller: _tanggalBergabungController,
-                      //               onSelectionChanged:
-                      //                   (DateRangePickerSelectionChangedArgs
-                      //                       args) {
-                      //                 setState(() {
-                      //                   tanggalBergabung = args.value;
-                      //                 });
-                      //               },
-                      //               selectionMode:
-                      //                   DateRangePickerSelectionMode.single,
-                      //             ),
-                      //           ),
-                      //           actions: <Widget>[
-                      //             TextButton(
-                      //               onPressed: () => Navigator.pop(context),
-                      //               child: Text('OK'),
-                      //             ),
-                      //           ],
-                      //         );
-                      //       },
-                      //     );
-                      //   },
-                      // ),
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),

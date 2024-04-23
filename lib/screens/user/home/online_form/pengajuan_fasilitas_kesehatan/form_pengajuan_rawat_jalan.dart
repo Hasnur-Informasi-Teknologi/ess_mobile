@@ -130,7 +130,22 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
       final jumlah = int.tryParse(data['jumlah']) ?? 0;
       total += jumlah;
     }
-    jumlahTotal = total.toString();
+    jumlahTotal = NumberFormat.decimalPattern('id-ID').format(total);
+    // jumlahTotal = total.toString();
+    ;
+  }
+
+  String _formatAmount(dynamic amount) {
+    if (amount is String) {
+      double parsedAmount = double.tryParse(amount) ?? 0.0;
+      String formattedAmount =
+          NumberFormat.decimalPattern('id-ID').format(parsedAmount);
+      if (parsedAmount < 0) {
+        formattedAmount = '(${formattedAmount.substring(1)})';
+      }
+      return formattedAmount;
+    }
+    return '0';
   }
 
   Future<void> getDataEntitas() async {
@@ -400,13 +415,13 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
   String? _validatorHrgs(dynamic value) {
     if (value == null || value.isEmpty) {
       setState(() {
-        maxHeightHrgs = 60.0;
+        maxHeightHrgs = 80.0;
       });
       return 'Field HRGS Kosong';
     }
 
     setState(() {
-      maxHeightHrgs = 40.0;
+      maxHeightHrgs = 60.0;
     });
     return null;
   }
@@ -428,13 +443,13 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
   String? _validatorDirekturKeuangan(dynamic value) {
     if (value == null || value.isEmpty) {
       setState(() {
-        maxHeightDirekturKeuangan = 60.0;
+        maxHeightDirekturKeuangan = 80.0;
       });
       return 'Field Direktur Keuangan Kosong';
     }
 
     setState(() {
-      maxHeightDirekturKeuangan = 40.0;
+      maxHeightDirekturKeuangan = 60.0;
     });
     return null;
   }
@@ -466,6 +481,10 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                 onPressed: () {
                   Get.offAllNamed(
                       '/user/main/home/online_form/pengajuan_fasilitas_kesehatan');
+                  allData.clear();
+                  setState(() {
+                    dataDetail = [];
+                  });
                 },
               ),
               title: Text(
@@ -1016,9 +1035,11 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                                                 height: sizedBoxHeightShort),
                                             TitleCenterWidget(
                                               textLeft: 'Jumlah',
-                                              textRight: ': ${data['jumlah']}',
+                                              textRight:
+                                                  ': Rp ${_formatAmount(data['jumlah'])}',
                                               fontSizeLeft: textMedium,
                                               fontSizeRight: textMedium,
+                                              // NumberFormat.decimalPattern('id-ID').format()
                                             ),
                                             SizedBox(
                                               height: sizedBoxHeightExtraTall,
@@ -1094,6 +1115,32 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                               ),
                             )
                           : const Text(''),
+                      SizedBox(
+                        height: sizedBoxHeightTall,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalWide),
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Lampiran Dokumen : ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
+                        ),
+                      ),
                       SizedBox(
                         height: sizedBoxHeightTall,
                       ),

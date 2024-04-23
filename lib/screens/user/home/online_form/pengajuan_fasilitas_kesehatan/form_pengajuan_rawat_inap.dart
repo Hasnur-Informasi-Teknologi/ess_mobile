@@ -78,11 +78,9 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
 
   List<Map<String, dynamic>> selectedHubunganDenganKarwayan = [
     {'opsi': 'Diri Sendiri'},
-    {'opsi': 'Anak 1'},
-    {'opsi': 'Anak 2'},
-    {'opsi': 'Anak 3'},
-    {'opsi': 'Pasangan'},
   ];
+
+  dynamic dataEmployee;
 
   List<Map<String, dynamic>> selectedEntitas = [];
   List<Map<String, dynamic>> selectedEntitasHrgs = [];
@@ -113,6 +111,7 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
       _lokasiKerjaController.text = responseData['lokasi'];
       _pangkatController.text = responseData['pangkat'];
       _tanggalPengajuanRawatJalanController.text = responseData['hire_date'];
+      dataEmployee = responseData;
     });
   }
 
@@ -132,7 +131,21 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
       total += jumlah;
     }
     // Set jumlahTotal dengan total
-    jumlahTotal = total.toString();
+    // jumlahTotal = total.toString();
+    jumlahTotal = NumberFormat.decimalPattern('id-ID').format(total);
+  }
+
+  String _formatAmount(dynamic amount) {
+    if (amount is String) {
+      double parsedAmount = double.tryParse(amount) ?? 0.0;
+      String formattedAmount =
+          NumberFormat.decimalPattern('id-ID').format(parsedAmount);
+      if (parsedAmount < 0) {
+        formattedAmount = '(${formattedAmount.substring(1)})';
+      }
+      return formattedAmount;
+    }
+    return '0';
   }
 
   Future<void> getDataEntitas() async {
@@ -484,6 +497,10 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                 onPressed: () {
                   Get.offAllNamed(
                       '/user/main/home/online_form/pengajuan_fasilitas_kesehatan');
+                  allData.clear();
+                  setState(() {
+                    dataDetail = [];
+                  });
                 },
               ),
               title: Text(
@@ -973,6 +990,11 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                             setState(() {
                               selectedValueHubunganDenganKarwayan =
                                   newValue ?? '';
+                              if (selectedValueHubunganDenganKarwayan ==
+                                  'Diri Sendiri') {
+                                _namaPasienController.text =
+                                    dataEmployee['nama'];
+                              }
                             });
                           },
                           items: selectedHubunganDenganKarwayan
@@ -1299,7 +1321,8 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
                                                 height: sizedBoxHeightShort),
                                             TitleCenterWidget(
                                               textLeft: 'Jumlah',
-                                              textRight: ': ${data['jumlah']}',
+                                              textRight:
+                                                  ': Rp ${_formatAmount(data['jumlah'])}',
                                               fontSizeLeft: textMedium,
                                               fontSizeRight: textMedium,
                                             ),

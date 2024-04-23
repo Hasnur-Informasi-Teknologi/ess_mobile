@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile_ess/helpers/url_helper.dart';
+import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/three_row_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'dart:convert';
@@ -42,6 +43,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // TODO: implement initState
     super.initState();
     getData();
+  }
+
+  Future<void> _logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove('token');
+    prefs.remove('nrp');
+    Get.offAllNamed('/');
   }
 
   @override
@@ -549,7 +557,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             onPrimary: Colors.black87,
                             elevation: 5,
                             primary: Color.fromARGB(255, 17, 209, 27),
-                            padding: EdgeInsets.symmetric(horizontal: 16),
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
                             shape: const RoundedRectangleBorder(
                               borderRadius:
                                   BorderRadius.all(Radius.circular(8)),
@@ -558,7 +566,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           onPressed: () {
                             Get.toNamed('/user/profile/edit');
                           },
-                          child: Row(
+                          child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.edit),
@@ -566,7 +574,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ]),
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 30,
                       ),
                       Flexible(
@@ -581,21 +589,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   BorderRadius.all(Radius.circular(8)),
                             ),
                           ),
-                          onPressed: () async {
-                            SharedPreferences prefs =
-                                await SharedPreferences.getInstance();
-                            prefs.remove('token');
-                            prefs.remove('nrp');
-                            Get.offAllNamed('/');
+                          // onPressed: () async {
+                          //   SharedPreferences prefs =
+                          //       await SharedPreferences.getInstance();
+                          //   prefs.remove('token');
+                          //   prefs.remove('nrp');
+                          //   Get.offAllNamed('/');
+                          // },
+                          onPressed: () {
+                            showModal(context);
                           },
-                          child: Row(
+                          child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [Icon(Icons.logout), Text('Logout')]),
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 300,
                   ),
                   // =====================================================================================
@@ -604,6 +615,117 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
         ));
+  }
+
+  void showModal(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
+    double sizedBoxHeightTall = size.height * 0.015;
+    double sizedBoxHeightExtraTall = size.height * 0.02;
+    double padding5 = size.width * 0.0115;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Center(child: Icon(Icons.info)),
+              SizedBox(
+                height: sizedBoxHeightTall,
+              ),
+              Center(
+                child: Text(
+                  'Konfirmasi Logout',
+                  style: TextStyle(
+                    color: const Color(primaryBlack),
+                    fontSize: textLarge,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: sizedBoxHeightExtraTall,
+              ),
+              Center(
+                child: Text(
+                  'Apakah Anda Yakin ?',
+                  style: TextStyle(
+                    color: const Color(primaryBlack),
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            Row(
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: size.width * 0.3,
+                    height: size.height * 0.04,
+                    padding: EdgeInsets.all(padding5),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Cancel',
+                        style: TextStyle(
+                          color: Color(primaryBlack),
+                          fontSize: textMedium,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: padding5,
+                ),
+                InkWell(
+                  onTap: () {
+                    _logout();
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: size.width * 0.3,
+                    height: size.height * 0.04,
+                    padding: EdgeInsets.all(padding5),
+                    decoration: BoxDecoration(
+                      color: const Color(primaryYellow),
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Logout',
+                        style: TextStyle(
+                          color: Color(primaryBlack),
+                          fontSize: textMedium,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
