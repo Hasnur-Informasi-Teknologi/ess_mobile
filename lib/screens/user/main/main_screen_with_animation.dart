@@ -48,7 +48,7 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
     });
     tabIconsList[0].isSelected = true;
     animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 500));
+        vsync: this, duration: const Duration(milliseconds: 10));
     tabBody = const HomeScreen();
     // _checkFaceData();
     // getDataAbsenKaryawan();

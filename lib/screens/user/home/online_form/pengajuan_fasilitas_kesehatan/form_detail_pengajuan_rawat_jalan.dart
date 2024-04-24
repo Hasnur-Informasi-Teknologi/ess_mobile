@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/constant.dart';
+import 'package:mobile_ess/widgets/text_form_field_number_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:http/http.dart' as http;
@@ -24,24 +25,25 @@ class _FormDetailPengajuanRawatJalanState
     extends State<FormDetailPengajuanRawatJalan> {
   final String _apiUrl = API_URL;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final _jenisPenggantiController = TextEditingController();
-  final _detailPenggantiController = TextEditingController();
   final _namaPasientController = TextEditingController();
   final _hubunganDenganKaryawanController = TextEditingController();
   final _noKwitansiController = TextEditingController();
   final _jumlahController = TextEditingController();
   final _keteranganController = TextEditingController();
-  double maxJenisPengganti = 40.0;
-  double maxDetailPengganti = 40.0;
+  double maxJenisPengganti = 60.0;
+  double maxDetailPengganti = 60.0;
+  double maxHubunganDenganKaryawan = 60.0;
+  double maxDiagnosa = 60.0;
   double maxNamaPasien = 40.0;
-  double maxHubunganDenganKaryawan = 40.0;
-  double maxHeightJenisPengganti = 60.0;
   double maxNoKwitansi = 40.0;
   double maxJumlah = 40.0;
   double maxKeterangan = 40.0;
+  final Function? onClose = Get.arguments['onClose'];
 
   String? jenisPengganti,
+      idMdJpRawatJalan,
       detailPengganti,
+      idDiagnosa,
       namaPasient,
       hubunganDenganKaryawan,
       noKwitansi,
@@ -50,28 +52,26 @@ class _FormDetailPengajuanRawatJalanState
 
   String? selectedValueJenisPengganti,
       selectedValueDetailPengganti,
-      selectedValueHubunganDenganKarwayan;
+      selectedValueHubunganDenganKarwayan,
+      selectedValueDiagnosa;
 
-  List<Map<String, dynamic>> selectedJenisPengganti = [];
-  List<Map<String, dynamic>> selectedDetailPengganti = [
-    {'opsi': 'Frame'},
-    {'opsi': 'Lensa'},
-    {'opsi': 'Frame + Lensa'},
+  List<Map<String, dynamic>> selectedJenisPengganti = [
+    {'id': '1000', 'jenis': 'Rawat Jalan'},
+    {'id': '2000', 'jenis': 'Lensa'},
+    {'id': '3000', 'jenis': 'Frame'},
   ];
+
+  List<Map<String, dynamic>> selectedDetailPengganti = [];
+  List<Map<String, dynamic>> selectedDiagnosa = [];
+  dynamic dataEmployee;
 
   List<Map<String, dynamic>> selectedHubunganDenganKarwayan = [
     {'opsi': 'Diri Sendiri'},
-    {'opsi': 'Anak 1'},
-    {'opsi': 'Anak 2'},
-    {'opsi': 'Anak 3'},
-    {'opsi': 'Pasangan'},
   ];
 
-  final DateRangePickerController _tanggalKwitansiController =
+  final DateRangePickerController _tanggalKuitansiController =
       DateRangePickerController();
-  DateTime? tanggalKwitansi;
-
-  DateTime tanggalPengajuan = DateTime.now();
+  DateTime? tanggalKuitansi;
 
   Future<void> getJenisPengganti() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -87,11 +87,35 @@ class _FormDetailPengajuanRawatJalanState
               'Authorization': 'Bearer $token'
             });
         final responseData = jsonDecode(response.body);
-        final dataEntitasApi = responseData['data'];
+        final dataDetailPenggantiApi = responseData['data'];
 
         setState(() {
-          selectedJenisPengganti =
-              List<Map<String, dynamic>>.from(dataEntitasApi);
+          selectedDetailPengganti =
+              List<Map<String, dynamic>>.from(dataDetailPenggantiApi);
+        });
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
+  Future<void> getDiagnosa() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? token = prefs.getString('token');
+
+    if (token != null) {
+      try {
+        final response = await http.get(Uri.parse("$_apiUrl/master/diagnosa"),
+            headers: <String, String>{
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Authorization': 'Bearer $token'
+            });
+        final responseData = jsonDecode(response.body);
+        final dataDiagnosaApi = responseData['data'];
+
+        setState(() {
+          selectedDiagnosa = List<Map<String, dynamic>>.from(dataDiagnosaApi);
         });
       } catch (e) {
         print(e);
@@ -102,19 +126,43 @@ class _FormDetailPengajuanRawatJalanState
   @override
   void initState() {
     super.initState();
+    getData();
     getJenisPengganti();
+    getDiagnosa();
+  }
+
+  Future<void> getData() async {
+    final prefs = await SharedPreferences.getInstance();
+    var userData = prefs.getString('userData');
+    final responseData = jsonDecode(userData.toString())['data'];
+    setState(() {
+      dataEmployee = responseData;
+    });
   }
 
   Future<void> _tambah() async {
+    if (tanggalKuitansi == null) {
+      Get.snackbar('Infomation', 'Tanggal Wajib Diisi',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.amber,
+          icon: const Icon(
+            Icons.info,
+            color: Colors.white,
+          ),
+          shouldIconPulse: false);
+      return;
+    }
+
     if (_formKey.currentState!.validate() == false) {
       return;
     }
     _formKey.currentState!.save();
 
     jenisPengganti = selectedValueJenisPengganti;
-    detailPengganti = selectedValueJenisPengganti == '9'
-        ? selectedValueDetailPengganti
-        : _detailPenggantiController.text;
+    List<String> separatedValues = selectedValueDetailPengganti!.split(',');
+    idMdJpRawatJalan = separatedValues[0].trim();
+    detailPengganti = separatedValues[1].trim();
+    idDiagnosa = selectedValueDiagnosa;
     namaPasient = _namaPasientController.text;
     hubunganDenganKaryawan = _hubunganDenganKaryawanController.text;
     noKwitansi = _noKwitansiController.text;
@@ -122,11 +170,13 @@ class _FormDetailPengajuanRawatJalanState
     keterangan = _keteranganController.text;
 
     Map<String, dynamic> newData = {
-      "id_md_jp_rawat_jalan": jenisPengganti ?? '',
+      "id_md_jp_rawat_jalan": idMdJpRawatJalan ?? '',
+      "benefit_type": jenisPengganti ?? '',
       "detail_penggantian": detailPengganti ?? '',
+      "id_diagnosa": idDiagnosa ?? '',
       "no_kuitansi": noKwitansi ?? '',
-      "tgl_kuitansi": tanggalKwitansi != null
-          ? tanggalKwitansi.toString()
+      "tgl_kuitansi": tanggalKuitansi != null
+          ? tanggalKuitansi.toString()
           : DateTime.now().toString(),
       "nm_pasien": namaPasient ?? '',
       "hub_karyawan": selectedValueHubunganDenganKarwayan ?? '',
@@ -138,20 +188,22 @@ class _FormDetailPengajuanRawatJalanState
         dataDetailPengajuanRawatJalanController = Get.find();
     dataDetailPengajuanRawatJalanController.tambahData(newData);
 
-    Get.offAllNamed(
-        '/user/main/home/online_form/pengajuan_fasilitas_kesehatan/pengajuan_rawat_jalan');
+    // Get.offAllNamed(
+    //     '/user/main/home/online_form/pengajuan_fasilitas_kesehatan/pengajuan_rawat_jalan');
+    onClose?.call();
+    Get.back();
   }
 
   String? _validatorJenisPengganti(dynamic value) {
     if (value == null || value.isEmpty) {
       setState(() {
-        maxJenisPengganti = 60.0;
+        maxJenisPengganti = 80.0;
       });
       return 'Field Jenis Pengganti Kosong';
     }
 
     setState(() {
-      maxJenisPengganti = 40.0;
+      maxJenisPengganti = 60.0;
     });
     return null;
   }
@@ -159,13 +211,13 @@ class _FormDetailPengajuanRawatJalanState
   String? _validatorDetailPengganti(dynamic value) {
     if (value == null || value.isEmpty) {
       setState(() {
-        maxDetailPengganti = 60.0;
+        maxDetailPengganti = 80.0;
       });
       return 'Field Detail Pengganti Kosong';
     }
 
     setState(() {
-      maxDetailPengganti = 40.0;
+      maxDetailPengganti = 60.0;
     });
     return null;
   }
@@ -187,13 +239,27 @@ class _FormDetailPengajuanRawatJalanState
   String? _validatorHubunganDenganKaryawan(dynamic value) {
     if (value == null || value.isEmpty) {
       setState(() {
-        maxHubunganDenganKaryawan = 60.0;
+        maxHubunganDenganKaryawan = 80.0;
       });
       return 'Field Hubungan Dengan Karyawan Kosong';
     }
 
     setState(() {
-      maxHubunganDenganKaryawan = 40.0;
+      maxHubunganDenganKaryawan = 60.0;
+    });
+    return null;
+  }
+
+  String? _validatorDiagnosa(dynamic value) {
+    if (value == null || value.isEmpty) {
+      setState(() {
+        maxDiagnosa = 80.0;
+      });
+      return 'Field Diagnosa Kosong';
+    }
+
+    setState(() {
+      maxDiagnosa = 60.0;
     });
     return null;
   }
@@ -290,18 +356,33 @@ class _FormDetailPengajuanRawatJalanState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Pilih Jenis Pengganti : ',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
+                  child: Row(
+                    children: [
+                      TitleWidget(
+                        title: 'Pilih Jenis Pengganti : ',
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      Text(
+                        '*',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.6,
+                            fontWeight: FontWeight.w300),
+                      )
+                    ],
                   ),
                 ),
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                   child: DropdownButtonFormField<String>(
-                    // validator: _validatorEntitas,
+                    menuMaxHeight: size.height * 0.5,
                     value: selectedValueJenisPengganti,
+                    validator: _validatorJenisPengganti,
                     icon: selectedJenisPengganti.isEmpty
                         ? const SizedBox(
                             height: 20,
@@ -320,11 +401,11 @@ class _FormDetailPengajuanRawatJalanState
                     items: selectedJenisPengganti
                         .map((Map<String, dynamic> value) {
                       return DropdownMenuItem<String>(
-                        value: value["id_md_jp_rawat_jalan"].toString(),
+                        value: value["id"].toString(),
                         child: Padding(
                           padding: const EdgeInsets.all(1.0),
                           child: TitleWidget(
-                            title: value["jp_rawat_jalan"] as String,
+                            title: '${value["id"]} - ${value["jenis"]}',
                             fontWeight: FontWeight.w300,
                             fontSize: textMedium,
                           ),
@@ -332,161 +413,7 @@ class _FormDetailPengajuanRawatJalanState
                       );
                     }).toList(),
                     decoration: InputDecoration(
-                      constraints:
-                          BoxConstraints(maxHeight: maxHeightJenisPengganti),
-                      labelStyle: TextStyle(fontSize: textMedium),
-                      focusedBorder: const UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.black,
-                          width: 1.0,
-                        ),
-                      ),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: selectedValueJenisPengganti != null
-                              ? Colors.black54
-                              : Colors.grey,
-                          width: 1.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightExtraTall,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: selectedValueJenisPengganti == '9'
-                        ? 'Pilih Detail Penggantian : '
-                        : 'Detail Penggantian',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                selectedValueJenisPengganti == '9'
-                    ? Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: DropdownButtonFormField<String>(
-                          value: selectedValueDetailPengganti,
-                          icon: selectedJenisPengganti.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueDetailPengganti = newValue ?? '';
-                            });
-                          },
-                          items: selectedDetailPengganti
-                              .map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["opsi"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: value["opsi"] as String,
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            constraints: BoxConstraints(
-                                maxHeight: maxHeightJenisPengganti),
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValueJenisPengganti != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                    : Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFieldWidget(
-                          validator: _validatorDetailPengganti,
-                          controller: _detailPenggantiController,
-                          maxHeightConstraints: maxDetailPengganti,
-                          hintText: 'Detail Penggantian',
-                        ),
-                      ),
-                SizedBox(
-                  height: sizedBoxHeightExtraTall,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Pilih Hubungan Dengan Karyawan : ',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: DropdownButtonFormField<String>(
-                    value: selectedValueHubunganDenganKarwayan,
-                    icon: selectedHubunganDenganKarwayan.isEmpty
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.blue),
-                            ),
-                          )
-                        : const Icon(Icons.arrow_drop_down),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedValueHubunganDenganKarwayan = newValue ?? '';
-                      });
-                    },
-                    items: selectedHubunganDenganKarwayan
-                        .map((Map<String, dynamic> value) {
-                      return DropdownMenuItem<String>(
-                        value: value["opsi"].toString(),
-                        child: Padding(
-                          padding: const EdgeInsets.all(1.0),
-                          child: TitleWidget(
-                            title: value["opsi"] as String,
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                    decoration: InputDecoration(
-                      constraints:
-                          BoxConstraints(maxHeight: maxHeightJenisPengganti),
+                      constraints: BoxConstraints(maxHeight: maxJenisPengganti),
                       labelStyle: TextStyle(fontSize: textMedium),
                       focusedBorder: const UnderlineInputBorder(
                         borderSide: BorderSide(
@@ -511,10 +438,197 @@ class _FormDetailPengajuanRawatJalanState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Nama Pasien',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
+                  child: Row(
+                    children: [
+                      TitleWidget(
+                        title: 'Pilih Detail Pengganti : ',
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      Text(
+                        '*',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.6,
+                            fontWeight: FontWeight.w300),
+                      )
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+                  child: DropdownButtonFormField<String>(
+                    menuMaxHeight: size.height * 0.5,
+                    validator: _validatorDetailPengganti,
+                    value: selectedValueDetailPengganti,
+                    icon: selectedDetailPengganti.isEmpty
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.blue),
+                            ),
+                          )
+                        : const Icon(Icons.arrow_drop_down),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedValueDetailPengganti = newValue ?? '';
+                      });
+                    },
+                    items: selectedDetailPengganti
+                        .map((Map<String, dynamic> value) {
+                      return DropdownMenuItem<String>(
+                        value: '${value["id"]},${value["nama"]}',
+                        child: Padding(
+                          padding: const EdgeInsets.all(1.0),
+                          child: TitleWidget(
+                            title: value["nama"] as String,
+                            fontWeight: FontWeight.w300,
+                            fontSize: textMedium,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    decoration: InputDecoration(
+                      constraints:
+                          BoxConstraints(maxHeight: maxDetailPengganti),
+                      labelStyle: TextStyle(fontSize: textMedium),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: selectedValueDetailPengganti != null
+                              ? Colors.black54
+                              : Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: sizedBoxHeightExtraTall,
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+                  child: Row(
+                    children: [
+                      TitleWidget(
+                        title: 'Pilih Hubungan Dengan Karyawan : ',
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      Text(
+                        '*',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.6,
+                            fontWeight: FontWeight.w300),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: sizedBoxHeightShort,
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+                  child: DropdownButtonFormField<String>(
+                    menuMaxHeight: size.height * 0.5,
+                    validator: _validatorHubunganDenganKaryawan,
+                    value: selectedValueHubunganDenganKarwayan,
+                    icon: selectedHubunganDenganKarwayan.isEmpty
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.blue),
+                            ),
+                          )
+                        : const Icon(Icons.arrow_drop_down),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedValueHubunganDenganKarwayan = newValue ?? '';
+                        if (selectedValueHubunganDenganKarwayan ==
+                            'Diri Sendiri') {
+                          _namaPasientController.text = dataEmployee['nama'];
+                        }
+                      });
+                    },
+                    items: selectedHubunganDenganKarwayan
+                        .map((Map<String, dynamic> value) {
+                      return DropdownMenuItem<String>(
+                        value: value["opsi"].toString(),
+                        child: Padding(
+                          padding: const EdgeInsets.all(1.0),
+                          child: TitleWidget(
+                            title: value["opsi"] as String,
+                            fontWeight: FontWeight.w300,
+                            fontSize: textMedium,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    decoration: InputDecoration(
+                      constraints:
+                          BoxConstraints(maxHeight: maxHubunganDenganKaryawan),
+                      labelStyle: TextStyle(fontSize: textMedium),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: selectedValueJenisPengganti != null
+                              ? Colors.black54
+                              : Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: sizedBoxHeightTall,
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+                  child: Row(
+                    children: [
+                      TitleWidget(
+                        title: 'Nama Pasien ',
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      Text(
+                        '*',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.6,
+                            fontWeight: FontWeight.w300),
+                      )
+                    ],
                   ),
                 ),
                 SizedBox(
@@ -536,10 +650,24 @@ class _FormDetailPengajuanRawatJalanState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'No Kwitansi',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
+                  child: Row(
+                    children: [
+                      TitleWidget(
+                        title: 'No Kwitansi ',
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      Text(
+                        '*',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.6,
+                            fontWeight: FontWeight.w300),
+                      )
+                    ],
                   ),
                 ),
                 SizedBox(
@@ -561,10 +689,24 @@ class _FormDetailPengajuanRawatJalanState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Tanggal Pengajuan',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
+                  child: Row(
+                    children: [
+                      TitleWidget(
+                        title: 'Tanggal Kuitansi ',
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      Text(
+                        '*',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.6,
+                            fontWeight: FontWeight.w300),
+                      )
+                    ],
                   ),
                 ),
                 CupertinoButton(
@@ -584,9 +726,11 @@ class _FormDetailPengajuanRawatJalanState
                           color: Colors.grey,
                         ),
                         Text(
-                          DateFormat('dd-MM-yyyy').format(
-                              _tanggalKwitansiController.selectedDate ??
-                                  DateTime.now()),
+                          tanggalKuitansi != null
+                              ? DateFormat('dd-MM-yyyy').format(
+                                  _tanggalKuitansiController.selectedDate ??
+                                      DateTime.now())
+                              : 'dd/mm/yyyy',
                           style: TextStyle(
                             color: Colors.grey,
                             fontSize: textMedium,
@@ -606,11 +750,11 @@ class _FormDetailPengajuanRawatJalanState
                             height: 350,
                             width: 350,
                             child: SfDateRangePicker(
-                              controller: _tanggalKwitansiController,
+                              controller: _tanggalKuitansiController,
                               onSelectionChanged:
                                   (DateRangePickerSelectionChangedArgs args) {
                                 setState(() {
-                                  tanggalKwitansi = args.value;
+                                  tanggalKuitansi = args.value;
                                 });
                               },
                               selectionMode:
@@ -634,10 +778,24 @@ class _FormDetailPengajuanRawatJalanState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Jumlah',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
+                  child: Row(
+                    children: [
+                      TitleWidget(
+                        title: 'Jumlah ',
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      Text(
+                        '*',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.6,
+                            fontWeight: FontWeight.w300),
+                      )
+                    ],
                   ),
                 ),
                 SizedBox(
@@ -646,11 +804,11 @@ class _FormDetailPengajuanRawatJalanState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormFieldWidget(
-                    validator: _validatorJumlah,
+                  child: TextFormFieldNumberWidget(
                     controller: _jumlahController,
+                    validator: _validatorJumlah,
                     maxHeightConstraints: maxJumlah,
-                    hintText: 'Rp 700.000',
+                    hintText: 'masukkan nominal',
                   ),
                 ),
                 SizedBox(
@@ -659,10 +817,105 @@ class _FormDetailPengajuanRawatJalanState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TitleWidget(
-                    title: 'Keterangan/Diagnosa',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
+                  child: Row(
+                    children: [
+                      TitleWidget(
+                        title: 'Pilih Diagnosa : ',
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      Text(
+                        '*',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.6,
+                            fontWeight: FontWeight.w300),
+                      )
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+                  child: DropdownButtonFormField<String>(
+                    menuMaxHeight: size.height * 0.5,
+                    validator: _validatorDiagnosa,
+                    value: selectedValueDiagnosa,
+                    icon: selectedDiagnosa.isEmpty
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.blue),
+                            ),
+                          )
+                        : const Icon(Icons.arrow_drop_down),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedValueDiagnosa = newValue ?? '';
+                      });
+                    },
+                    items: selectedDiagnosa.map((Map<String, dynamic> value) {
+                      return DropdownMenuItem<String>(
+                        value: value["id"].toString(),
+                        child: Padding(
+                          padding: const EdgeInsets.all(1.0),
+                          child: TitleWidget(
+                            title: value["nama"].toString(),
+                            fontWeight: FontWeight.w300,
+                            fontSize: textMedium,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    decoration: InputDecoration(
+                      constraints: BoxConstraints(maxHeight: maxDiagnosa),
+                      labelStyle: TextStyle(fontSize: textMedium),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: selectedValueDiagnosa != null
+                              ? Colors.black54
+                              : Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: sizedBoxHeightTall,
+                ),
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+                  child: Row(
+                    children: [
+                      TitleWidget(
+                        title: 'Keterangan/Diagnosa ',
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      Text(
+                        '*',
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                            color: Colors.red,
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.6,
+                            fontWeight: FontWeight.w300),
+                      )
+                    ],
                   ),
                 ),
                 SizedBox(
@@ -706,6 +959,9 @@ class _FormDetailPengajuanRawatJalanState
                     ),
                   ),
                 ),
+                SizedBox(
+                  height: sizedBoxHeightTall,
+                )
               ],
             ),
           ),
