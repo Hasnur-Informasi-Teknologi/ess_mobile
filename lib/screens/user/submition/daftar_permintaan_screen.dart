@@ -67,6 +67,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
   void initState() {
     super.initState();
     getMasterDataCuti();
+    // getDataPengajuanCuti(statusFilter);
   }
 
   Future<void> getDataPengajuanCuti(String? statusFilter) async {
@@ -92,6 +93,38 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
         setState(() {
           masterDataPermintaan =
               List<Map<String, dynamic>>.from(dataMasterCutiApi);
+          _isLoading = false;
+        });
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
+  Future<void> getDataBantuanKomunikasi(String? statusFilter) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? token = prefs.getString('token');
+    setState(() {
+      _isLoading = true;
+    });
+
+    if (token != null) {
+      try {
+        final response = await http.get(
+            Uri.parse(
+                "$_apiUrl/bantuan-komunikasi/get?page=$page&perPage=$perPage&search=$search&status=$statusFilter&type=$type"),
+            headers: <String, String>{
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Authorization': 'Bearer $token'
+            });
+        final responseData = jsonDecode(response.body);
+        final dataMasterBantuanKomunikasiApi = responseData['dkomunikasi'];
+
+        setState(() {
+          masterDataPermintaan =
+              List<Map<String, dynamic>>.from(dataMasterBantuanKomunikasiApi);
+          // print(masterDataPermintaan);
           _isLoading = false;
         });
       } catch (e) {
@@ -328,7 +361,9 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                       onChanged: (String? newValue) {
                         setState(() {
                           selectedValueDaftarPermintaan = newValue ?? '';
-                          if (selectedValueDaftarPermintaan == '5') {
+                          if (selectedValueDaftarPermintaan == '2') {
+                            getDataBantuanKomunikasi(statusFilter);
+                          } else if (selectedValueDaftarPermintaan == '5') {
                             getDataPengajuanCuti(statusFilter);
                           } else if (selectedValueDaftarPermintaan == '8') {
                             getDataPerpanjanganCuti(statusFilter);
@@ -514,6 +549,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                             ),
                           ],
                           onTap: (index) {
+                            // await Future.delayed(Duration(seconds: 2));
                             setState(() {
                               current = index;
                               if (index == 0) {
@@ -530,7 +566,10 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                                 statusFilterRawatInapJalan = 'REJECTED';
                               }
                             });
-                            if (selectedValueDaftarPermintaan == '5') {
+
+                            if (selectedValueDaftarPermintaan == '2') {
+                              getDataBantuanKomunikasi(statusFilter);
+                            } else if (selectedValueDaftarPermintaan == '5') {
                               getDataPengajuanCuti(statusFilter);
                             } else if (selectedValueDaftarPermintaan == '8') {
                               getDataPerpanjanganCuti(statusFilter);
@@ -543,6 +582,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                                 masterDataPermintaan = [];
                               });
                             }
+                            print(masterDataPermintaan);
                           },
                         ),
                         //Main Body
@@ -570,26 +610,33 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                                               horizontal:
                                                   paddingHorizontalNarrow,
                                             ),
+                                            // buildBantuanKomunikasi
                                             child: selectedValueDaftarPermintaan ==
-                                                    '5'
-                                                ? buildCuti(
+                                                    '2'
+                                                ? buildBantuanKomunikasi(
                                                     masterDataPermintaan[index])
                                                 : selectedValueDaftarPermintaan ==
-                                                        '8'
-                                                    ? buildPerpanjanganCuti(
+                                                        '5'
+                                                    ? buildCuti(
                                                         masterDataPermintaan[
                                                             index])
                                                     : selectedValueDaftarPermintaan ==
-                                                            '9'
-                                                        ? buildRawatInap(
+                                                            '8'
+                                                        ? buildPerpanjanganCuti(
                                                             masterDataPermintaan[
                                                                 index])
                                                         : selectedValueDaftarPermintaan ==
-                                                                '10'
-                                                            ? buildRawatJalan(
+                                                                '9'
+                                                            ? buildRawatInap(
                                                                 masterDataPermintaan[
                                                                     index])
-                                                            : Text('Kosong'),
+                                                            : selectedValueDaftarPermintaan ==
+                                                                    '10'
+                                                                ? buildRawatJalan(
+                                                                    masterDataPermintaan[
+                                                                        index])
+                                                                : Text(
+                                                                    'Kosong'),
                                           );
                                         },
                                       ),
@@ -615,25 +662,31 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                                                   paddingHorizontalNarrow,
                                             ),
                                             child: selectedValueDaftarPermintaan ==
-                                                    '5'
-                                                ? buildCuti(
+                                                    '2'
+                                                ? buildBantuanKomunikasi(
                                                     masterDataPermintaan[index])
                                                 : selectedValueDaftarPermintaan ==
-                                                        '8'
-                                                    ? buildPerpanjanganCuti(
+                                                        '5'
+                                                    ? buildCuti(
                                                         masterDataPermintaan[
                                                             index])
                                                     : selectedValueDaftarPermintaan ==
-                                                            '9'
-                                                        ? buildRawatInap(
+                                                            '8'
+                                                        ? buildPerpanjanganCuti(
                                                             masterDataPermintaan[
                                                                 index])
                                                         : selectedValueDaftarPermintaan ==
-                                                                '10'
-                                                            ? buildRawatJalan(
+                                                                '9'
+                                                            ? buildRawatInap(
                                                                 masterDataPermintaan[
                                                                     index])
-                                                            : Text('Kosong'),
+                                                            : selectedValueDaftarPermintaan ==
+                                                                    '10'
+                                                                ? buildRawatJalan(
+                                                                    masterDataPermintaan[
+                                                                        index])
+                                                                : Text(
+                                                                    'Kosong'),
                                           );
                                         },
                                       ),
@@ -659,25 +712,31 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                                                   paddingHorizontalNarrow,
                                             ),
                                             child: selectedValueDaftarPermintaan ==
-                                                    '5'
-                                                ? buildCuti(
+                                                    '2'
+                                                ? buildBantuanKomunikasi(
                                                     masterDataPermintaan[index])
                                                 : selectedValueDaftarPermintaan ==
-                                                        '8'
-                                                    ? buildPerpanjanganCuti(
+                                                        '5'
+                                                    ? buildCuti(
                                                         masterDataPermintaan[
                                                             index])
                                                     : selectedValueDaftarPermintaan ==
-                                                            '9'
-                                                        ? buildRawatInap(
+                                                            '8'
+                                                        ? buildPerpanjanganCuti(
                                                             masterDataPermintaan[
                                                                 index])
                                                         : selectedValueDaftarPermintaan ==
-                                                                '10'
-                                                            ? buildRawatJalan(
+                                                                '9'
+                                                            ? buildRawatInap(
                                                                 masterDataPermintaan[
                                                                     index])
-                                                            : Text('Kosong'),
+                                                            : selectedValueDaftarPermintaan ==
+                                                                    '10'
+                                                                ? buildRawatJalan(
+                                                                    masterDataPermintaan[
+                                                                        index])
+                                                                : Text(
+                                                                    'Kosong'),
                                           );
                                         },
                                       ),
@@ -703,25 +762,31 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                                                   paddingHorizontalNarrow,
                                             ),
                                             child: selectedValueDaftarPermintaan ==
-                                                    '5'
-                                                ? buildCuti(
+                                                    '2'
+                                                ? buildBantuanKomunikasi(
                                                     masterDataPermintaan[index])
                                                 : selectedValueDaftarPermintaan ==
-                                                        '8'
-                                                    ? buildPerpanjanganCuti(
+                                                        '5'
+                                                    ? buildCuti(
                                                         masterDataPermintaan[
                                                             index])
                                                     : selectedValueDaftarPermintaan ==
-                                                            '9'
-                                                        ? buildRawatInap(
+                                                            '8'
+                                                        ? buildPerpanjanganCuti(
                                                             masterDataPermintaan[
                                                                 index])
                                                         : selectedValueDaftarPermintaan ==
-                                                                '10'
-                                                            ? buildRawatJalan(
+                                                                '9'
+                                                            ? buildRawatInap(
                                                                 masterDataPermintaan[
                                                                     index])
-                                                            : Text('Kosong'),
+                                                            : selectedValueDaftarPermintaan ==
+                                                                    '10'
+                                                                ? buildRawatJalan(
+                                                                    masterDataPermintaan[
+                                                                        index])
+                                                                : Text(
+                                                                    'Kosong'),
                                           );
                                         },
                                       ),
@@ -738,6 +803,195 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget buildBantuanKomunikasi(Map<String, dynamic> data) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double padding5 = size.width * 0.0188;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(vertical: sizedBoxHeightExtraTall),
+          height: size.height * 0.3,
+          width: size.width * 0.9,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(paddingHorizontalNarrow),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                RowWidget(
+                  textLeft: 'Diajukan Oleh',
+                  textRight: '${data['nrp_user']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: '',
+                  textRight: '${data['nama_user']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Diberikan Kepada (penerima)',
+                  textRight: '${data['nrp_penerima']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: '',
+                  textRight: '${data['nama_penerima']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Jabatan (penerima)',
+                  textRight: '${data['pangkat_penerima']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Entitas (penerima)',
+                  textRight: '${data['entitas_penerima']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Jenis Fasilitas',
+                  textRight: data['id_jenis_fasilitas'] == 1
+                      ? 'Mobile Phone'
+                      : data['id_jenis_fasilitas'] == 2
+                          ? 'Biaya Pulsa'
+                          : 'Kouta Internet',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Prioritas',
+                  textRight: data['prioritas'] == '0'
+                      ? 'Rendah'
+                      : data['prioritas'] == '1'
+                          ? 'Sedang'
+                          : 'Tinggi',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Tanggal Pengajuan',
+                  textRight: '${data['tgl_pengajuan']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                TitleCenterWithBadgeWidget(
+                  textLeft: 'Status',
+                  textRight: data['full_approve'] == 'V'
+                      ? 'Disetujui'
+                      : data['full_approve'] == 'X'
+                          ? 'Ditolak'
+                          : 'Proses',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                  color: data['full_approve'] == 'V'
+                      ? Colors.green
+                      : data['full_approve'] == 'X'
+                          ? Colors.red[600]
+                          : Colors.grey,
+                ),
+                SizedBox(
+                  height: sizedBoxHeightShort,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        Get.toNamed(
+                          '/user/main/daftar_permintaan/detail_bantuan_komunikasi',
+                          arguments: {'id': data['id']},
+                        );
+                      },
+                      child: Container(
+                        width: size.width * 0.38,
+                        height: size.height * 0.04,
+                        padding: EdgeInsets.all(padding5),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Icon(Icons.details_sharp),
+                              Text(
+                                'Detail',
+                                style: TextStyle(
+                                  color: Color(primaryBlack),
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Get.snackbar('Infomation', 'Coming Soon',
+                            snackPosition: SnackPosition.TOP,
+                            backgroundColor: Colors.amber,
+                            icon: const Icon(
+                              Icons.info,
+                              color: Colors.white,
+                            ),
+                            shouldIconPulse: false);
+                      },
+                      child: Container(
+                        width: size.width * 0.38,
+                        height: size.height * 0.04,
+                        padding: EdgeInsets.all(padding5),
+                        decoration: BoxDecoration(
+                          color: const Color(primaryYellow),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Icon(Icons.download_rounded),
+                              Text(
+                                'Unduhan',
+                                style: TextStyle(
+                                  color: Color(primaryBlack),
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        )
+      ],
     );
   }
 

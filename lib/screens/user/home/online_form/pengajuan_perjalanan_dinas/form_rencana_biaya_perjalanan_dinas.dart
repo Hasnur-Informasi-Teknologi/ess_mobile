@@ -34,6 +34,7 @@ class _FormRencanaBiayaPerjalananDinasState
   final _departemenController = TextEditingController();
   final _tempatTujuanController = TextEditingController();
   final _nilaiController = TextEditingController();
+  final _keteranganController = TextEditingController();
   final _jabatanHCGSController = TextEditingController();
   final _jabatanAtasanController = TextEditingController();
   final double _maxHeightNama = 40.0;
@@ -298,14 +299,16 @@ class _FormRencanaBiayaPerjalananDinasState
     try {
       List<Map<String, dynamic>> jsonDataList = formDataList.map((formData) {
         return {
-          'kategori': formData.kategori,
-          'akomodasi': formData.akomodasi,
-          'tglMulai': formData.tglMulai.toIso8601String(),
-          'tglSelesai': formData.tglSelesai.toIso8601String(),
-          'tipe': formData.tipe,
+          'id_kategori': formData.kategori.toString(),
+          'id_akomodasi': formData.akomodasi.toString(),
+          'tgl_mulai': formData.tglMulai.toIso8601String(),
+          'tgl_selesai': formData.tglSelesai.toIso8601String(),
+          'id_tipe': formData.tipe.toString(),
           'nilai': formData.nilai,
+          'keteranagan': formData.keterangan,
         };
       }).toList();
+      print(jsonDataList);
 
       final response = await http.post(
         Uri.parse('$apiUrl/rencana-perdin/add'),
@@ -355,7 +358,7 @@ class _FormRencanaBiayaPerjalananDinasState
           shouldIconPulse: false);
       print(responseData);
       if (responseData['status'] == 'success') {
-        Get.offAllNamed('/user/main');
+        // Get.offAllNamed('/user/main');
       }
     } catch (e) {
       print(e);
@@ -375,6 +378,7 @@ class _FormRencanaBiayaPerjalananDinasState
         tglSelesai: DateTime.now(),
         tipe: '',
         nilai: '',
+        keterangan: '',
       ));
     });
   }
@@ -772,7 +776,7 @@ class _FormRencanaBiayaPerjalananDinasState
           hint: Padding(
             padding: const EdgeInsets.only(left: 10),
             child: Text(
-              'Pilih Entitas HCGS',
+              'Pilih Entitas Atasan',
               style: TextStyle(fontSize: 12),
             ),
           ),
@@ -1161,6 +1165,22 @@ class _FormRencanaBiayaPerjalananDinasState
                               padding: EdgeInsets.only(right: 15, left: 70),
                               child: TextFormFieldWidget(
                                 controller: _nilaiController,
+                                maxHeightConstraints: _maxHeightNama,
+                                hintText: '',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: sizedBoxHeightShort),
+                      Row(
+                        children: [
+                          Text('Keterangan'),
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.only(right: 15, left: 25),
+                              child: TextFormFieldWidget(
+                                controller: _keteranganController,
                                 maxHeightConstraints: _maxHeightNama,
                                 hintText: '',
                               ),

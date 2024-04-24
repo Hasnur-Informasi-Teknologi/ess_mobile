@@ -48,11 +48,11 @@ class _AdminMainScreenState extends State<AdminMainScreen>
     });
     tabIconsList[0].isSelected = true;
     animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 500));
+        vsync: this, duration: const Duration(milliseconds: 10));
     tabBody = const AdminHeaderScreen();
     // tabBody = const HomeScreen();
-    _checkFaceData();
-    getDataAbsenKaryawan();
+    // _checkFaceData();
+    // getDataAbsenKaryawan();
     super.initState();
   }
 

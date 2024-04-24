@@ -446,6 +446,24 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
       return;
     }
 
+    int sisaCutiTahunan = sisaCutiMaster ?? 0;
+    int jmlCutiTahunan = int.tryParse(_cutiDibayarController.text) ?? 0;
+
+    if (jmlCutiTahunan > sisaCutiTahunan) {
+      Get.snackbar('Infomation', 'Cuti Tahunan Dibayar Melebihi Batas',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.amber,
+          icon: const Icon(
+            Icons.info,
+            color: Colors.white,
+          ),
+          shouldIconPulse: false);
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
     if (_formKey.currentState!.validate() == false) {
       setState(() {
         _isLoading = false;
@@ -483,7 +501,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
             'tdk_dibayar': _isTidakDiBayar,
             'lainnya': _isIzinLainnya,
             'kep_lainnya': kepLainnya,
-            'jml_cuti_tahunan': int.tryParse(_cutiDibayarController.text) ?? 0,
+            'jml_cuti_tahunan': jmlCutiTahunan,
             'jml_cuti_tdkdibayar':
                 int.tryParse(_cutiTidakDibayarController.text) ?? 0,
             'jml_cuti_lainnya': totalLama,
@@ -732,6 +750,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
                         child: DropdownButtonFormField<String>(
+                          menuMaxHeight: size.height * 0.5,
                           validator: _validatorEntitas,
                           value: selectedValueEntitas,
                           icon: selectedEntitas.isEmpty
@@ -817,6 +836,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
                         child: DropdownButtonFormField<String>(
+                          menuMaxHeight: size.height * 0.5,
                           validator: _validatorAtasan,
                           value: selectedValueAtasan,
                           icon: selectedAtasan.isEmpty
@@ -886,6 +906,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                             horizontal: paddingHorizontalWide),
                         child: DropdownButtonFormField<String>(
                           // validator: _validatorAtasanDariAtasan,
+                          menuMaxHeight: size.height * 0.5,
                           value: selectedValueAtasanDariAtasan,
                           icon: selectedAtasanDariAtasan.isEmpty
                               ? const SizedBox(
@@ -990,6 +1011,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
                         child: DropdownButtonFormField<String>(
+                          menuMaxHeight: size.height * 0.5,
                           validator: _validatorEntitasKaryawanPengganti,
                           value: selectedValueEntitasPengganti,
                           icon: selectedEntitasPengganti.isEmpty
@@ -1074,6 +1096,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalWide),
                         child: DropdownButtonFormField<String>(
+                          menuMaxHeight: size.height * 0.5,
                           validator: _validatorKaryawanPengganti,
                           value: selectedValuePengganti,
                           icon: selectedPengganti.isEmpty
@@ -1331,6 +1354,8 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                                   child:
                                                       DropdownButtonFormField<
                                                           String>(
+                                                    menuMaxHeight:
+                                                        size.height * 0.5,
                                                     value:
                                                         selectedValueCutiLainnya,
                                                     icon: selectedCutiLainnya
@@ -2220,6 +2245,9 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           ),
                         ),
                       ),
+                      SizedBox(
+                        height: sizedBoxHeightTall,
+                      )
                     ],
                   ),
                 ),

@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
+import 'package:mobile_ess/screens/admin/main/dashboard.dart';
 import 'package:mobile_ess/screens/user/home/icons_profile_container_widget.dart';
 import 'package:mobile_ess/screens/user/home/pengumuman/pengumuman_screen.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
 import 'package:mobile_ess/widgets/header_profile_widget.dart';
 import 'package:mobile_ess/screens/user/home/icons_container_widget.dart';
 import 'package:mobile_ess/widgets/jadwal_kerja_card_widget.dart';
@@ -71,6 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.remove('token');
     prefs.remove('nrp');
+    prefs.remove('role_id');
     Get.offAllNamed('/');
   }
 
@@ -121,7 +124,6 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             // height: size.height * 0.43,
             height: size.height * 0.55,
-
             width: size.width,
             decoration: const BoxDecoration(color: Colors.white),
             child: Column(
@@ -218,6 +220,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                           Get.toNamed('/admin/main');
                                         } else {
                                           Get.toNamed('/user/main');
+                                          // Navigator.pushReplacement(
+                                          //     context,
+                                          //     MaterialPageRoute(
+                                          //         builder: (context) =>
+                                          //             const MainScreenWithAnimation()));
                                         }
                                         selectionDashboard = newValue;
                                       });

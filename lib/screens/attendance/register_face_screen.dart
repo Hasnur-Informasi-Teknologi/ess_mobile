@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
@@ -200,6 +201,12 @@ class _RegisterFaceScreenState extends State<RegisterFaceScreen> {
         title: const Text('Daftar Wajah'),
         centerTitle: true,
         backgroundColor: const Color(primaryYellow),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Get.offAllNamed('/user/main');
+          },
+        ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
