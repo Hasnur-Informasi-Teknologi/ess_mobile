@@ -50,8 +50,8 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 500));
     tabBody = const HomeScreen();
-    _checkFaceData();
-    getDataAbsenKaryawan();
+    // _checkFaceData();
+    // getDataAbsenKaryawan();
     super.initState();
   }
 

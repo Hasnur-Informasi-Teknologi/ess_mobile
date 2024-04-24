@@ -5,6 +5,7 @@ class FormDataBiaya {
   DateTime tglSelesai;
   String tipe;
   String nilai;
+  String keterangan;
 
   FormDataBiaya({
     required this.kategori,
@@ -13,5 +14,6 @@ class FormDataBiaya {
     required this.tglSelesai,
     required this.tipe,
     required this.nilai,
+    required this.keterangan,
   });
 }
