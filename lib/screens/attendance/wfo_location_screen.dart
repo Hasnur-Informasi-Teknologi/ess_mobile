@@ -14,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile_ess/services/location_service.dart';
 import 'package:trust_location/trust_location.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_timezone/flutter_timezone.dart';
 
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/error_dialog.dart';
@@ -97,7 +98,17 @@ class _WFOLocationScreenState extends State<WFOLocationScreen> {
     int stimestamp = sdate.millisecondsSinceEpoch;
     print(sdate);
     print(stimestamp);
-    final timeZone = prefs.getString('timeZone');
+    var timeZone = prefs.getString('timeZone');
+    var timezone = await FlutterTimezone.getLocalTimezone();
+    if (timezone == 'Asia/Jakarta') {
+      timeZone='WIB'; // Western Indonesia Time
+    } else if (timezone == 'Asia/Makassar') {
+      timeZone='WITA'; // Central Indonesia Time
+    } else if (timezone == 'Asia/Jayapura') {
+      timeZone='WIT'; // Eastern Indonesia Time
+    } else {
+      timeZone='Unknown'; // Unknown or not applicable
+    }
     if (timeZone == 'WITA') {
       stimestamp = stimestamp + (1 * 60 * 60 * 1000);
     } else if (timeZone == 'WIT') {
