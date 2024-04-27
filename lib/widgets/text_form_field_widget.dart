@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mobile_ess/themes/constant.dart';
 
 class TextFormFieldWidget extends StatefulWidget {
@@ -8,13 +8,21 @@ class TextFormFieldWidget extends StatefulWidget {
   final String hintText;
   final double maxHeightConstraints;
   final bool? enable;
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
+  // onChanged
+  final Function(String)? onChanged;
+
   const TextFormFieldWidget(
       {super.key,
       required this.controller,
       this.validator,
-      this.enable,
       required this.hintText,
-      this.maxHeightConstraints = 60.0});
+      this.maxHeightConstraints = 60.0,
+      this.enable,
+      this.keyboardType,
+      this.inputFormatters,
+      this.onChanged});
 
   @override
   State<TextFormFieldWidget> createState() => _TextFormFieldWidgetState();
@@ -34,6 +42,9 @@ class _TextFormFieldWidgetState extends State<TextFormFieldWidget> {
         }
         return null;
       },
+      keyboardType: widget.keyboardType ?? TextInputType.text,
+      onChanged: widget.onChanged,
+      inputFormatters: widget.inputFormatters,
       enabled: widget.enable ?? true,
       decoration: InputDecoration(
         border: OutlineInputBorder(
