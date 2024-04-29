@@ -1785,6 +1785,173 @@ class _FormPengajuanBantuanKomunikasiState
                         child: Row(
                           children: [
                             TitleWidget(
+                              title: 'Pilih Entitas HCGS : ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalNarrow),
+                        child: DropdownButtonFormField<String>(
+                          menuMaxHeight: size.height * 0.5,
+                          validator: _validatorEntitasHcgs,
+                          value: selectedValueEntitasHcgs,
+                          icon: selectedEntitasHcgs.isEmpty
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue),
+                                  ),
+                                )
+                              : const Icon(Icons.arrow_drop_down),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedValueEntitasHcgs = newValue ?? '';
+                              selectedValueHcgs = null;
+                              getDataHcgs();
+                            });
+                          },
+                          items: selectedEntitasHcgs
+                              .map((Map<String, dynamic> value) {
+                            return DropdownMenuItem<String>(
+                              value: value["kode"].toString(),
+                              child: Padding(
+                                padding: const EdgeInsets.all(1.0),
+                                child: TitleWidget(
+                                  title: value["nama"] as String,
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          decoration: InputDecoration(
+                            constraints:
+                                BoxConstraints(maxHeight: maxHeightEntitasHcgs),
+                            labelStyle: TextStyle(fontSize: textMedium),
+                            focusedBorder: const UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 1.0,
+                              ),
+                            ),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: selectedValueEntitasHcgs != null
+                                    ? Colors.black54
+                                    : Colors.grey,
+                                width: 1.0,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: sizedBoxHeightExtraTall,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalNarrow),
+                        child: Row(
+                          children: [
+                            TitleWidget(
+                              title: 'Pilih HCGS : ',
+                              fontWeight: FontWeight.w300,
+                              fontSize: textMedium,
+                            ),
+                            Text(
+                              '*',
+                              textAlign: TextAlign.start,
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  letterSpacing: 0.6,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalNarrow),
+                        child: DropdownButtonFormField<String>(
+                          menuMaxHeight: size.height * 0.5,
+                          validator: _validatorHcgs,
+                          value: selectedValueHcgs,
+                          icon: selectedHcgs.isEmpty
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue),
+                                  ),
+                                )
+                              : const Icon(Icons.arrow_drop_down),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedValueHcgs = newValue ?? '';
+                            });
+                          },
+                          items: selectedHcgs.map((Map<String, dynamic> value) {
+                            return DropdownMenuItem<String>(
+                              value: value["pernr"].toString(),
+                              child: Padding(
+                                padding: const EdgeInsets.all(1.0),
+                                child: TitleWidget(
+                                  title: '${value["nama"]} - ${value["pernr"]}',
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          decoration: InputDecoration(
+                            labelStyle: TextStyle(fontSize: textMedium),
+                            constraints:
+                                BoxConstraints(maxHeight: maxHeightHcgs),
+                            focusedBorder: const UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 1.0,
+                              ),
+                            ),
+                            enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                color: selectedValueHcgs != null
+                                    ? Colors.black54
+                                    : Colors.grey,
+                                width: 1.0,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: sizedBoxHeightExtraTall,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalNarrow),
+                        child: Row(
+                          children: [
+                            TitleWidget(
                               title: 'Pilih Entitas Direktur : ',
                               fontWeight: FontWeight.w300,
                               fontSize: textMedium,
@@ -1936,173 +2103,6 @@ class _FormPengajuanBantuanKomunikasiState
                             enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
                                 color: selectedValueDirektur != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih Entitas HCGS : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorEntitasHcgs,
-                          value: selectedValueEntitasHcgs,
-                          icon: selectedEntitasHcgs.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueEntitasHcgs = newValue ?? '';
-                              selectedValueHcgs = null;
-                              getDataHcgs();
-                            });
-                          },
-                          items: selectedEntitasHcgs
-                              .map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["kode"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: value["nama"] as String,
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            constraints:
-                                BoxConstraints(maxHeight: maxHeightEntitasHcgs),
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValueEntitasHcgs != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih HCGS : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorHcgs,
-                          value: selectedValueHcgs,
-                          icon: selectedHcgs.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueHcgs = newValue ?? '';
-                            });
-                          },
-                          items: selectedHcgs.map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["pernr"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: '${value["nama"]} - ${value["pernr"]}',
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            constraints:
-                                BoxConstraints(maxHeight: maxHeightHcgs),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValueHcgs != null
                                     ? Colors.black54
                                     : Colors.grey,
                                 width: 1.0,
