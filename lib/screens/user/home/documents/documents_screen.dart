@@ -63,37 +63,6 @@ class _DocomentsScreenState extends State<DocomentsScreen> {
                   const SizedBox(
                     height: 5,
                   ),
-                  Row(
-                    children: [
-                      Container(
-                        width: 150,
-                        decoration: BoxDecoration(
-                          color: const Color(primaryYellow),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: TextButton(
-                          onPressed: () {},
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.create_new_folder_sharp,
-                                color: Colors.black,
-                              ),
-                              SizedBox(
-                                width: 5,
-                              ),
-                              Text(
-                                'Upload',
-                                style: TextStyle(
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
