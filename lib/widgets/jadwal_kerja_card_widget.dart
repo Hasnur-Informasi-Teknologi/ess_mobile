@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/row_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -28,6 +29,7 @@ class JadwalKerjaCardWidget extends StatefulWidget {
 
 class _JadwalKerjaCardWidgetState extends State<JadwalKerjaCardWidget> {
   JadwalKerjaController x = Get.put(JadwalKerjaController());
+  final String _apiUrl = API_URL;
 
    Future<void> getDataKaryawan() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -36,12 +38,13 @@ class _JadwalKerjaCardWidgetState extends State<JadwalKerjaCardWidget> {
     if (token != null) {
       try {
         final response = await http.get(
-          Uri.parse('http://hg-attendance.hasnurgroup.com/api/attendance_report/'+karyawan['pernr']),
+          Uri.parse('$_apiUrl/attendance_report/'+karyawan['pernr']),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
         );
         final responseData = jsonDecode(response.body);
+        
         x.date.value=responseData['data'];
         x.bulan.value = x.date[0]['attendance_month'].toString();
         x.jam_masuk.value=x.date[0]['clock_in_time'];
@@ -49,6 +52,9 @@ class _JadwalKerjaCardWidgetState extends State<JadwalKerjaCardWidget> {
         x.status.value=x.date[0]['clock_in_status'];
         x.sistem_kerja.value=x.date[0]['working_location_status'];
       } catch (e) {
+        print('===============ERROR================');
+        print('===============ERROR================');
+        print('===============ERROR================');
         print(e);
       }
     } else {
