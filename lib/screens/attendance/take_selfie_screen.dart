@@ -152,66 +152,83 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
           } else {
             // proses absen
             print('Proses absen id_user : $idUser');
+            _cameraController!.dispose();
             // =====================================================
-            if (widget.clockInType == 'In') {
-              var clockInTime = attendanceData['clock_in_time'];
-              var workingLocation = attendanceData['working_location'];
-              var obj = {
-                "nrp": nrp,
-                "lat": lat,
-                "long": long,
-                "clockInTime": clockInTime,
-                "workingLocation": workingLocation,
-                "address": alamat
-              };
-              var request = http.MultipartRequest(
-                  'POST',
-                  Uri.parse(
-                      'http://ess.hasnurgroup.com/api/attendance/clock_in'))
-                ..headers.addAll(headers)
-                ..fields['nrp'] = nrp
-                ..fields['lat'] = lat
-                ..fields['long'] = long
-                ..fields['hari'] = hari + 'in'
-                ..fields['clock_in_time'] = clockInTime
-                ..fields['working_location'] = workingLocation
-                ..fields['address'] = alamat.toString()
-                ..files.add(http.MultipartFile.fromBytes(
-                    'image', imageFile.readAsBytesSync(),
-                    filename: imageFile.path.split('/').last));
-              var response = await request.send();
+            // if (widget.clockInType == 'In') {
+            var clockInTime = attendanceData['clock_in_time'];
+            var workingLocation = attendanceData['working_location'];
+            var obj = {
+              "nrp": nrp,
+              "lat": lat,
+              "long": long,
+              "clockInTime": clockInTime,
+              "workingLocation": workingLocation,
+              "address": alamat
+            };
+            print("========================");
+            print(nrp);
+            print(lat);
+            print(long);
+            print(hari);
+            print(clockInTime);
+            print(workingLocation);
+            print('$_apiUrl/absen');
+            print(alamat);
+            var request = http.MultipartRequest(
+                'POST',
+                Uri.parse('$_apiUrl/absen'))
+              ..headers.addAll(headers)
+              ..fields['nrp'] = nrp
+              ..fields['lat'] = lat
+              ..fields['long'] = long
+              ..fields['hari'] = hari + 'in'
+              ..fields['clock_time'] = clockInTime
+              ..fields['working_location'] = workingLocation
+              ..fields['address'] = alamat.toString()
+              ..files.add(http.MultipartFile.fromBytes(
+                  'image', imageFile.readAsBytesSync(),
+                  filename: imageFile.path.split('/').last));
+            var response = await request.send();
+            
+            final responseData = await response.stream.bytesToString();
+            print("=================response IN=============");
+            print("=================response IN=============");
+            print("=================response IN=============");
+            print(responseData);
+            print('Response clock in: $responseData');
+            // } else if (widget.clockInType == 'Out') {
+            //   var clockOutTime = attendanceData['clock_out_time'];
+            //   var obj = {
+            //     "nrp": nrp,
+            //     "lat": lat,
+            //     "long": long,
+            //     "clockInTime": clockOutTime,
+            //     "address": alamat
+            //   };
+            //   var request = http.MultipartRequest(
+            //       'POST',
+            //       Uri.parse(
+            //           '$_apiUrl/clock_out'))
+            //     ..headers.addAll(headers)
+            //     ..fields['nrp'] = nrp
+            //     ..fields['lat'] = lat
+            //     ..fields['shift'] = widget.shift
+            //     ..fields['long'] = long
+            //     ..fields['hari'] = hari + 'out'
+            //     ..fields['clock_out_time'] = clockOutTime
+            //     ..fields['address'] = alamat.toString()
+            //     ..files.add(http.MultipartFile.fromBytes(
+            //         'image', imageFile.readAsBytesSync(),
+            //         filename: imageFile.path.split('/').last));
+            //   var response = await request.send();
 
-              final responseData = await response.stream.bytesToString();
-              print('Response clock in: $responseData');
-            } else if (widget.clockInType == 'Out') {
-              var clockOutTime = attendanceData['clock_out_time'];
-              var obj = {
-                "nrp": nrp,
-                "lat": lat,
-                "long": long,
-                "clockInTime": clockOutTime,
-                "address": alamat
-              };
-              var request = http.MultipartRequest(
-                  'POST',
-                  Uri.parse(
-                      'http://ess.hasnurgroup.com/api/attendance/clock_out'))
-                ..headers.addAll(headers)
-                ..fields['nrp'] = nrp
-                ..fields['lat'] = lat
-                ..fields['shift'] = widget.shift
-                ..fields['long'] = long
-                ..fields['hari'] = hari + 'out'
-                ..fields['clock_out_time'] = clockOutTime
-                ..fields['address'] = alamat.toString()
-                ..files.add(http.MultipartFile.fromBytes(
-                    'image', imageFile.readAsBytesSync(),
-                    filename: imageFile.path.split('/').last));
-              var response = await request.send();
-
-              final responseData = await response.stream.bytesToString();
-              print('Response clock out: $responseData');
-            }
+            //   final responseData = await response.stream.bytesToString();
+            //   print("=================response OUT=============");
+            //   print("=================response OUT=============");
+            //   print("=================response OUT=============");
+            //   print(responseData);
+            //   print('Response clock out: $responseData');
+            // }
             _cameraController!.dispose();
             Navigator.pushReplacement(
                 context,
