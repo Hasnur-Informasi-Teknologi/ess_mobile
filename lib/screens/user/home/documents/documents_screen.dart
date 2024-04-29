@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/row_with_three_icons_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 
@@ -49,19 +50,21 @@ class _DocomentsScreenState extends State<DocomentsScreen> {
             height: sizedBoxHeightTall,
           ),
           Form(
-            child: Column(
-              key: _formKey,
-              children: [
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                  child: TextFormFieldWidget(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+              child: Column(
+                key: _formKey,
+                children: [
+                  TextFormFieldWidget(
                     controller: _searchController,
                     maxHeightConstraints: _maxHeightSearch,
                     hintText: 'Search',
                   ),
-                ),
-              ],
+                  const SizedBox(
+                    height: 5,
+                  ),
+                ],
+              ),
             ),
           ),
           SizedBox(
@@ -75,7 +78,6 @@ class _DocomentsScreenState extends State<DocomentsScreen> {
                 child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    RowWithThreeIconsWidget(),
                     RowWithThreeIconsWidget(),
                   ],
                 ),

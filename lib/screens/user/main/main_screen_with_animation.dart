@@ -50,8 +50,8 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
     animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 10));
     tabBody = const HomeScreen();
-    _checkFaceData();
-    getDataAbsenKaryawan();
+    // _checkFaceData();
+    // getDataAbsenKaryawan();
     super.initState();
   }
 
@@ -204,12 +204,12 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
                                               side: const BorderSide(
                                                   color: Color(primaryYellow))),
                                           onPressed: () {
-                                            Navigator.pushAndRemoveUntil(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (ctx) =>
-                                                        const QRCodeScannerScreen()),
-                                                (route) => false);
+                                            // Navigator.pushAndRemoveUntil(
+                                            //     context,
+                                            //     MaterialPageRoute(
+                                            //         builder: (ctx) =>
+                                            //             const QRCodeScannerScreen()),
+                                            //     (route) => false);
                                           }),
                                     ),
                                     const SizedBox(width: 10),

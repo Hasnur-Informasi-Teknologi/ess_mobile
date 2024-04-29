@@ -110,7 +110,7 @@ class _BingkaiLensaState extends State<BingkaiLensa> {
         final response = await http
             .get(Uri.parse("$apiUrl/master/pangkat"), headers: <String, String>{
           'Content-Type': 'application/json;charset=UTF-8',
-          'Authorization': 'Bearer $token'
+          'Authorization': 'Bearer $token',
         });
         final responseData = jsonDecode(response.body);
         final dataMdPangkatApi = responseData['data'];
