@@ -204,12 +204,12 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                                             side: const BorderSide(
                                                 color: Color(primaryYellow))),
                                         onPressed: () {
-                                          // Navigator.pushAndRemoveUntil(
-                                          //     context,
-                                          //     MaterialPageRoute(
-                                          //         builder: (ctx) =>
-                                          //             const QRCodeScannerScreen()),
-                                          //     (route) => false);
+                                          Navigator.pushAndRemoveUntil(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (ctx) =>
+                                                      const QRCodeScannerScreen()),
+                                              (route) => false);
                                         },
                                       ),
                                     ),
