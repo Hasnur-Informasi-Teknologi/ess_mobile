@@ -51,8 +51,8 @@ class _AdminMainScreenState extends State<AdminMainScreen>
         vsync: this, duration: const Duration(milliseconds: 10));
     tabBody = const AdminHeaderScreen();
     // tabBody = const HomeScreen();
-    // _checkFaceData();
-    // getDataAbsenKaryawan();
+    _checkFaceData();
+    getDataAbsenKaryawan();
     super.initState();
   }
 

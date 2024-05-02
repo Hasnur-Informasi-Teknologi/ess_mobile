@@ -119,8 +119,84 @@ class _RowWithThreeIconsWidgetState extends State<RowWithThreeIconsWidget> {
     );
   }
 
-  Future _submit(void reset) async {
-    String apiUrl = API_URL;
+  // Future _submit(void reset) async {
+  //   String apiUrl = API_URL;
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String? token = prefs.getString('token');
+
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
+
+  //   if (_formKey.currentState!.validate() == false) {
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //     return;
+  //   }
+
+  //   _formKey.currentState!.save();
+  //   String? filePath;
+
+  //   if (_files != null) {
+  //     filePath = _files!.single.path;
+  //     setState(() {
+  //       _isFileNull = false;
+  //     });
+  //   } else {
+  //     setState(() {
+  //       _isFileNull = true;
+  //       _isLoading = false;
+  //     });
+  //     return;
+  //   }
+  //   File file = File(filePath!);
+  //   var request = http.MultipartRequest(
+  //     'POST',
+  //     Uri.parse('$apiUrl/dokumen-perusahaan/add'),
+  //   );
+
+  //   try {
+  //     final response = await http.post(
+  //       Uri.parse('$apiUrl/dokumen-perusahaan/add'),
+  //       headers: <String, String>{
+  //         'Content-Type': 'multipart/form-data',
+  //         'Authorization': 'Bearer $token'
+  //       },
+  //       body: jsonEncode({
+  //         'tipe_dokumen': selectedValueTipeDok,
+  //         'entitas': _entitasController.text,
+  //         'lampiran': request.files.add(http.MultipartFile.fromBytes(
+  //             'lampiran', file.readAsBytesSync(),
+  //             filename: file.path.split('/').last)),
+  //       }),
+  //     );
+
+  //     final responseData = jsonDecode(response.body);
+  //     Get.snackbar('Infomation', responseData['message'],
+  //         snackPosition: SnackPosition.TOP,
+  //         backgroundColor: Colors.amber,
+  //         icon: const Icon(
+  //           Icons.info,
+  //           color: Colors.white,
+  //         ),
+  //         shouldIconPulse: false);
+
+  //     print(responseData);
+  //     if (responseData['status'] == 'success') {
+  //       Navigator.pop(context);
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //     throw e;
+  //   }
+
+  //   setState(() {
+  //     _isLoading = false;
+  //   });
+  // }
+
+  Future<void> _submit() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
@@ -134,8 +210,8 @@ class _RowWithThreeIconsWidgetState extends State<RowWithThreeIconsWidget> {
       });
       return;
     }
-
     _formKey.currentState!.save();
+
     String? filePath;
 
     if (_files != null) {
@@ -150,50 +226,39 @@ class _RowWithThreeIconsWidgetState extends State<RowWithThreeIconsWidget> {
       });
       return;
     }
+
     File file = File(filePath!);
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('$apiUrl/dokumen-perusahaan/add'),
     );
 
-    try {
-      final response = await http.post(
-        Uri.parse('$apiUrl/dokumen-perusahaan/add'),
-        headers: <String, String>{
-          'Content-Type': 'multipart/form-data',
-          'Authorization': 'Bearer $token'
-        },
-        body: jsonEncode({
-          'tipe_dokumen': selectedValueTipeDok,
-          'entitas': _entitasController.text,
-          'lampiran': request.files.add(http.MultipartFile.fromBytes(
-              'lampiran', file.readAsBytesSync(),
-              filename: file.path.split('/').last)),
-        }),
-      );
+    request.headers['Content-Type'] = 'multipart/form-data';
+    request.headers['Authorization'] = 'Bearer $token';
+    // Add file lampiran
+    request.files.add(http.MultipartFile.fromBytes(
+        'lampiran', file.readAsBytesSync(),
+        filename: file.path.split('/').last));
+    // Add the JSON data as a field
+    request.fields['tipe_dokumen'] = selectedValueTipeDok.toString();
+    request.fields['entitas'] = _entitasController.text;
 
-      final responseData = jsonDecode(response.body);
-      Get.snackbar('Infomation', responseData['message'],
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.amber,
-          icon: const Icon(
-            Icons.info,
-            color: Colors.white,
-          ),
-          shouldIconPulse: false);
-
-      print(responseData);
-      if (responseData['status'] == 'success') {
-        Navigator.pop(context);
-      }
-    } catch (e) {
-      print(e);
-      throw e;
-    }
-
+    var response = await request.send();
+    final responseData = await response.stream.bytesToString();
+    final responseDataMessage = json.decode(responseData);
+    Get.snackbar('Infomation', responseDataMessage['message'],
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.amber,
+        icon: const Icon(
+          Icons.info,
+          color: Colors.white,
+        ),
+        shouldIconPulse: false);
     setState(() {
       _isLoading = false;
     });
+
+    print('Message $responseDataMessage');
   }
 
   @override
@@ -383,7 +448,8 @@ class _RowWithThreeIconsWidgetState extends State<RowWithThreeIconsWidget> {
                         horizontal: paddingHorizontalNarrow, vertical: 10),
                     child: ElevatedButton(
                       onPressed: () {
-                        _submit(_formKey.currentState!.reset());
+                        // _submit(_formKey.currentState!.reset());
+                        _submit;
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(primaryYellow),
