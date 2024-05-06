@@ -9,6 +9,8 @@ import 'package:mobile_ess/screens/attendance/qrcode_scanner_screen.dart';
 import 'package:mobile_ess/screens/attendance/register_face_screen.dart';
 import 'package:mobile_ess/screens/attendance/trip_location_screen.dart';
 import 'package:mobile_ess/screens/attendance/wfh_location_screen.dart';
+import 'package:mobile_ess/screens/attendance/wfo_location_new_screen.dart';
+import 'package:mobile_ess/screens/attendance/wfo_location_screen.dart';
 import 'package:mobile_ess/screens/user/history_approval/daftar_persetujuan_screen.dart';
 import 'package:mobile_ess/screens/user/history_approval/history_approval_screen.dart';
 import 'package:mobile_ess/screens/user/home/home_screen.dart';
@@ -36,6 +38,8 @@ class _AdminMainScreenState extends State<AdminMainScreen>
   AnimationController? animationController;
   List<TabIconData> tabIconsList = TabIconData.tabIconsList;
   AdminScreenController x = Get.put(AdminScreenController());
+  bool isLate = false;
+  bool isEmpty = true;
 
   Widget tabBody = Container(
     color: const Color(backgroundNew),
@@ -77,6 +81,26 @@ class _AdminMainScreenState extends State<AdminMainScreen>
           },
         );
         final responseData = jsonDecode(response.body);
+
+        DateTime today = DateTime.now();
+        String dateString = today.toString();
+        String dateOnly = dateString.substring(0, 10);
+
+        if (responseData['data'][0]['date'] == dateOnly) {
+          if (responseData['data'][0]['clock_in_status'] == 'LATE') {
+            print('Terlambat');
+            setState(() {
+              isLate = true;
+            });
+          } else {
+            setState(() {
+              isLate = false;
+            });
+            print('Normal');
+          }
+        }
+
+        print('Tanggal saja: $dateOnly');
         x.absenIn.value =
             responseData['date'] == responseData['data'][0]['date'];
       } catch (e) {
@@ -119,7 +143,11 @@ class _AdminMainScreenState extends State<AdminMainScreen>
       color: const Color(backgroundNew),
       child: Scaffold(
         body: Stack(
-          children: [tabBody, bottomBar()],
+          children: [
+            tabBody,
+            if (isLate == true && isEmpty == true) ModalDialog(),
+            bottomBar(),
+          ],
         ),
       ),
     );
@@ -138,7 +166,7 @@ class _AdminMainScreenState extends State<AdminMainScreen>
             showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                      title: Text(
+                      title: const Text(
                         'Absensi',
                         textAlign: TextAlign.center,
                         style: TextStyle(fontWeight: FontWeight.w500),
@@ -153,7 +181,23 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                                       height: 45,
                                       margin: const EdgeInsets.only(bottom: 10),
                                       child: OutlinedButton(
-                                          child: Row(
+                                          style: OutlinedButton.styleFrom(
+                                              side: const BorderSide(
+                                                  color: Color(primaryYellow))),
+                                          onPressed: () {
+                                            print('home');
+                                            Navigator.pushAndRemoveUntil(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (ctx) =>
+                                                        const WFHLocationScreen(
+                                                            workLocation:
+                                                                'Home',
+                                                            attendanceType:
+                                                                'Check-In')),
+                                                (route) => false);
+                                          },
+                                          child: const Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
@@ -165,22 +209,7 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                                                       color:
                                                           Color(primaryBlack))),
                                             ],
-                                          ),
-                                          style: OutlinedButton.styleFrom(
-                                              side: const BorderSide(
-                                                  color: Color(primaryYellow))),
-                                          onPressed: () {
-                                            Navigator.pushAndRemoveUntil(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (ctx) =>
-                                                        const WFHLocationScreen(
-                                                            workLocation:
-                                                                'Home',
-                                                            attendanceType:
-                                                                'Check-In')),
-                                                (route) => false);
-                                          }),
+                                          )),
                                     ),
                                     const SizedBox(width: 10),
                                     Container(
@@ -188,7 +217,20 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                                       height: 45,
                                       margin: const EdgeInsets.only(bottom: 10),
                                       child: OutlinedButton(
-                                        child: Row(
+                                        style: OutlinedButton.styleFrom(
+                                            side: const BorderSide(
+                                                color: Color(primaryYellow))),
+                                        onPressed: () {
+                                          Navigator.pushAndRemoveUntil(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (ctx) =>
+                                                      const WFOLocationNewScreen(
+                                                          workLocation:
+                                                              'Office')),
+                                              (route) => false);
+                                        },
+                                        child: const Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
@@ -200,17 +242,6 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                                                         Color(primaryBlack))),
                                           ],
                                         ),
-                                        style: OutlinedButton.styleFrom(
-                                            side: const BorderSide(
-                                                color: Color(primaryYellow))),
-                                        onPressed: () {
-                                          Navigator.pushAndRemoveUntil(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (ctx) =>
-                                                      const QRCodeScannerScreen()),
-                                              (route) => false);
-                                        },
                                       ),
                                     ),
                                     const SizedBox(width: 10),
@@ -219,19 +250,6 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                                       height: 45,
                                       margin: const EdgeInsets.only(bottom: 10),
                                       child: OutlinedButton(
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Icon(Icons.car_crash),
-                                              Text('Bussiness Trip',
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color:
-                                                          Color(primaryBlack))),
-                                            ],
-                                          ),
                                           style: OutlinedButton.styleFrom(
                                               side: const BorderSide(
                                                   color: Color(primaryYellow))),
@@ -246,7 +264,20 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                                                             attendanceType:
                                                                 'Check-In')),
                                                 (route) => false);
-                                          }),
+                                          },
+                                          child: const Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Icon(Icons.car_crash),
+                                              Text('Bussiness Trip',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color:
+                                                          Color(primaryBlack))),
+                                            ],
+                                          )),
                                     ),
                                     const SizedBox(width: 10),
                                   ],
@@ -333,6 +364,76 @@ class _AdminMainScreenState extends State<AdminMainScreen>
           },
         ),
       ],
+    );
+  }
+}
+
+class ModalDialog extends StatefulWidget {
+  @override
+  _ModalDialogState createState() => _ModalDialogState();
+}
+
+class _ModalDialogState extends State<ModalDialog> {
+  @override
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
+    double sizedBoxHeightTall = size.height * 0.015;
+    double sizedBoxHeightExtraTall = size.height * 0.02;
+    double padding5 = size.width * 0.0115;
+
+    return Scaffold(
+      backgroundColor: Colors.grey,
+      body: AlertDialog(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              height: sizedBoxHeightTall,
+            ),
+            Center(
+              child: Text(
+                'Anda Terlambat',
+                style: TextStyle(
+                  color: const Color(primaryBlack),
+                  fontSize: textLarge,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            SizedBox(
+              height: sizedBoxHeightExtraTall,
+            ),
+            InkWell(
+              onTap: () {
+                // Navigator.pop(context);
+                setState(() {});
+              },
+              child: Container(
+                height: size.height * 0.04,
+                padding: EdgeInsets.all(padding5),
+                decoration: BoxDecoration(
+                  color: const Color(primaryYellow),
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+                child: Center(
+                  child: Text(
+                    'Submit',
+                    style: TextStyle(
+                      color: Color(primaryBlack),
+                      fontSize: textMedium,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
