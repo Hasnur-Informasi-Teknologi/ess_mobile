@@ -77,7 +77,6 @@ class _SplashScreenState extends State<SplashScreen> {
         //       ),
         //     );
       } catch (e) {
-        print('belum ada token 1');
         Get.offAllNamed('/');
 
         // Future.delayed(
@@ -91,8 +90,6 @@ class _SplashScreenState extends State<SplashScreen> {
         // );
       }
     } else {
-      print('belum ada token 2');
-
       Future.delayed(const Duration(seconds: 2), () => {Get.offAllNamed('/')});
     }
   }

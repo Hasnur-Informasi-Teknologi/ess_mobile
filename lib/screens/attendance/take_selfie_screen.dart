@@ -1,10 +1,12 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, use_build_context_synchronously
 import 'dart:io';
 import 'dart:convert';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:get/get.dart';
+import 'package:mobile_ess/screens/attendance/late_modal_dialog.dart';
 import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
 import 'package:mobile_ess/themes/colors.dart';
@@ -40,30 +42,55 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
   CameraController? _cameraController;
   bool _isLoading = false;
   String? alamat;
+  String? clockInToleransi;
+
+  @override
+  void initState() {
+    super.initState();
+    getDataWorkSchedule();
+  }
+
+  Future<void> getDataWorkSchedule() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
+    if (token != null) {
+      try {
+        final response = await http.get(
+          Uri.parse('$_apiUrl/get_work_schedules/78220012'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+        );
+
+        final responseData = jsonDecode(response.body);
+        final responseDataApi = responseData["data"][0]["toleransiin"];
+
+        setState(() {
+          clockInToleransi = responseDataApi;
+        });
+      } catch (e) {
+        print(e);
+      }
+    } else {
+      print('tidak ada token home');
+    }
+  }
 
   Future<void> inizializza() async {
     final cameras = await availableCameras();
-
-    // Get a specific camera from the list of available cameras.
     final firstCamera = cameras.last;
-    // To display the current output from the Camera,
-    // create a CameraController.
     _cameraController = CameraController(firstCamera, ResolutionPreset.medium,
         enableAudio: false);
 
-    // Next, initialize the controller. This returns a Future.
     await _cameraController!.initialize();
   }
 
   Future initializeCamera() async {
     var cameras = await availableCameras();
-    print(cameras);
-    print(cameras[1]);
     _cameraController = CameraController(cameras[1], ResolutionPreset.medium,
         enableAudio: false);
-    print(_cameraController);
     await _cameraController!.initialize();
-    print('------all good----');
     return _cameraController;
   }
 
@@ -74,21 +101,12 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
     var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
     final userId = karyawan['pernr'];
 
-    // Directory root = await getTemporaryDirectory();
-    // String directoryPath = '${root.path}/hg_selfie';
-    // Directory(directoryPath).create(recursive: true);
-
     final image = await _cameraController!.takePicture();
     if (image != null && image.path != null) {
       // Note error ini cuma bug dari flutter, package exifrotation aman dipakai
       File rotatedImage =
           await FlutterExifRotation.rotateImage(path: image.path);
-      print(rotatedImage.path);
-      print('Capture Berhasil');
-
       File imageFile = File(rotatedImage.path);
-
-      print(imageFile);
 
       Map<String, String> headers = {'Content-Type': 'multipart/form-data'};
       Map<String, dynamic> attendanceData = widget.attendanceData;
@@ -98,12 +116,8 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
 
       List<Placemark> getAlamat =
           await placemarkFromCoordinates(double.parse(lat), double.parse(long));
-      // alamat = "";
       alamat = getAlamat[2].toString();
-      print('alamat:');
-      print(alamat);
-      // malik : Add Face Recognition
-      //========================================================================
+
       var request = http.MultipartRequest(
           'POST', Uri.parse('https://hitfaceapi.my.id/api/face/recognition'));
       request.fields['id_user'] = userId as String;
@@ -112,137 +126,111 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
           'file', imageFile.readAsBytesSync(),
           filename: imageFile.path.split('/').last));
       var res = await request.send();
-      print("Check disini 4");
       var respStr = await res.stream.bytesToString();
-      print("Check disini 5");
 
       final result = jsonDecode(respStr) as Map<dynamic, dynamic>;
-      print("Check disini 6");
       var status = result['status'] ?? '';
-      print(result);
       var message = result['message'] ?? '';
       var confidence = result['confidence'] ?? '0';
       var duplicate = result['duplicate'] ?? 'false';
       var idUser = result['id_user'] ?? '';
       DateTime date = DateTime.now();
-      print("Check disini 7A");
       String hari = DateFormat('EEEE').format(date).toLowerCase();
-      print(hari);
-      print("Check disini 7B");
-
-      // if (hari == 'minggu') {
-      //   return hari = 'sunday';
-      // }
 
       print(
           'status : $status , message : $message , confidence : $confidence , duplicate : $duplicate');
       if (status == false) {
-        // wajah gagal terdeteksi
         _showErrorDialog(message);
       } else {
-        // berhasil wajah detect
         if (idUser != userId) {
-          // wajah bukan milik userid terkait
           _showErrorDialog('Wajah terdetect bukan milik user ini !');
         } else {
-          // wajah milik user id
           if (confidence.round() < 55) {
-            // cek confidence data
             _showErrorDialog('Confidence Data Kurang dari 50%!');
           } else {
             // proses absen
             print('Proses absen id_user : $idUser');
             _cameraController!.dispose();
-            // =====================================================
-            // if (widget.clockInType == 'In') {
             var clockInTime = attendanceData['clock_in_time'];
             var workingLocation = attendanceData['working_location'];
-            var obj = {
-              "nrp": nrp,
-              "lat": lat,
-              "long": long,
-              "clockInTime": clockInTime,
-              "workingLocation": workingLocation,
-              "address": alamat
-            };
-            print("========================");
-            print(nrp);
-            print(lat);
-            print(long);
-            print(hari);
-            print(clockInTime);
-            print(workingLocation);
-            print('$_apiUrl/absen');
-            print(alamat);
-            var request = http.MultipartRequest(
-                'POST',
-                Uri.parse('$_apiUrl/absen'))
-              ..headers.addAll(headers)
-              ..fields['nrp'] = nrp
-              ..fields['lat'] = lat
-              ..fields['long'] = long
-              ..fields['hari'] = hari + 'in'
-              ..fields['clock_time'] = clockInTime
-              ..fields['working_location'] = workingLocation
-              ..fields['address'] = alamat.toString()
-              ..files.add(http.MultipartFile.fromBytes(
-                  'image', imageFile.readAsBytesSync(),
-                  filename: imageFile.path.split('/').last));
-            var response = await request.send();
-            
-            final responseData = await response.stream.bytesToString();
-            print("=================response IN=============");
-            print("=================response IN=============");
-            print("=================response IN=============");
-            print(responseData);
-            print('Response clock in: $responseData');
-            // } else if (widget.clockInType == 'Out') {
-            //   var clockOutTime = attendanceData['clock_out_time'];
-            //   var obj = {
-            //     "nrp": nrp,
-            //     "lat": lat,
-            //     "long": long,
-            //     "clockInTime": clockOutTime,
-            //     "address": alamat
-            //   };
-            //   var request = http.MultipartRequest(
-            //       'POST',
-            //       Uri.parse(
-            //           '$_apiUrl/clock_out'))
-            //     ..headers.addAll(headers)
-            //     ..fields['nrp'] = nrp
-            //     ..fields['lat'] = lat
-            //     ..fields['shift'] = widget.shift
-            //     ..fields['long'] = long
-            //     ..fields['hari'] = hari + 'out'
-            //     ..fields['clock_out_time'] = clockOutTime
-            //     ..fields['address'] = alamat.toString()
-            //     ..files.add(http.MultipartFile.fromBytes(
-            //         'image', imageFile.readAsBytesSync(),
-            //         filename: imageFile.path.split('/').last));
-            //   var response = await request.send();
 
-            //   final responseData = await response.stream.bytesToString();
-            //   print("=================response OUT=============");
-            //   print("=================response OUT=============");
-            //   print("=================response OUT=============");
-            //   print(responseData);
-            //   print('Response clock out: $responseData');
-            // }
-            _cameraController!.dispose();
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (ctx) => const MainScreenWithAnimation()));
-            setState(() {
-              _camera = false;
-            });
-            // =====================================================
+            //Mengambil jam only
+            String dateString = clockInTime.toString();
+            String clockInTimeOnly = dateString.substring(11, 19);
+            // Memisahkan waktu menjadi jam, menit, dan detik
+            List<String> timeParts = clockInTimeOnly.split(':');
+            List<String> clockInToleransiParts = clockInToleransi!.split(':');
+
+            // Mendapatkan nilai jam, menit, dan detik
+            int timeHour = int.parse(timeParts[0]);
+            int timeMinute = int.parse(timeParts[1]);
+            int timeSecond = int.parse(timeParts[2]);
+
+            int clockInToleransiHour = int.parse(clockInToleransiParts[0]);
+            int clockInToleransiMinute = int.parse(clockInToleransiParts[1]);
+            int clockInToleransiSecond = int.parse(clockInToleransiParts[2]);
+
+            // Membandingkan hanya jam, menit, dan detik
+            if (timeHour > clockInToleransiHour ||
+                (timeHour == clockInToleransiHour &&
+                    timeMinute > clockInToleransiMinute) ||
+                (timeHour == clockInToleransiHour &&
+                    timeMinute == clockInToleransiMinute &&
+                    timeSecond > clockInToleransiSecond)) {
+              // Kalau Terlambat
+
+              Map<String, dynamic> newData = {
+                "nrp": nrp,
+                "lat": lat,
+                "long": long,
+                "hari": hari + 'in',
+                "clock_time": clockInTime,
+                "working_location": workingLocation,
+                "address": alamat.toString(),
+                "image": imageFile,
+              };
+
+              print(newData);
+
+              _cameraController!.dispose();
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (ctx) => LateModalDialog(newData: newData)));
+              setState(() {
+                _camera = false;
+              });
+            } else {
+              // Kalau Ontime
+              var request =
+                  http.MultipartRequest('POST', Uri.parse('$_apiUrl/absen'))
+                    ..headers.addAll(headers)
+                    ..fields['nrp'] = nrp
+                    ..fields['lat'] = lat
+                    ..fields['long'] = long
+                    // ..fields['hari'] = hari + 'in'
+                    ..fields['clock_time'] = clockInTime
+                    ..fields['working_location'] = workingLocation
+                    ..fields['address'] = alamat.toString()
+                    ..files.add(http.MultipartFile.fromBytes(
+                        'image', imageFile.readAsBytesSync(),
+                        filename: imageFile.path.split('/').last));
+              var response = await request.send();
+
+              await response.stream.bytesToString();
+              _cameraController!.dispose();
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (ctx) => const MainScreenWithAnimation()));
+              setState(() {
+                _camera = false;
+              });
+            }
           }
         }
       }
     }
-    //========================================================================
 
     setState(() => _isLoading = false);
   }
@@ -284,22 +272,6 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            // Stack(
-                            //   children: [
-                            //     SizedBox(
-                            //       width: MediaQuery.of(context).size.width,
-                            //       height: MediaQuery.of(context).size.height /
-                            //           _cameraController!.value.aspectRatio,
-                            //       child: _camera
-                            //           ? CameraPreview(_cameraController!)
-                            //           : Text(''),
-                            //     ),
-                            //     Align(
-                            //       alignment: Alignment.center,
-                            //       child: Image.asset('assets/images/Box.png'),
-                            //     )
-                            //   ],
-                            // ),
                             SizedBox(
                                 width: MediaQuery.of(context).size.width,
                                 height: MediaQuery.of(context).size.height /
@@ -312,11 +284,6 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
                                           ? CameraPreview(_cameraController!)
                                           : Text(''),
                                     ),
-                                    // Align(
-                                    //   alignment: Alignment.center,
-                                    //   child:
-                                    //       Image.asset('assets/images/Box2.png'),
-                                    // )
                                   ],
                                 )),
                             SizedBox(
@@ -346,7 +313,8 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
                           ],
                         ),
                       ),
-                    )),
+                    ),
+            ),
     );
   }
 

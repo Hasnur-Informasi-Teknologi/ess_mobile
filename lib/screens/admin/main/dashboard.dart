@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/models/tabIcon_data.dart';
 import 'package:mobile_ess/screens/admin/componentDashboard/header.dart';
 import 'package:mobile_ess/screens/attendance/checkout_location_screen.dart';
@@ -24,6 +25,7 @@ import 'package:http/http.dart' as http;
 
 class AdminScreenController extends GetxController {
   var absenIn = false.obs;
+  var absenOut = false.obs;
 }
 
 class AdminMainScreen extends StatefulWidget {
@@ -40,6 +42,7 @@ class _AdminMainScreenState extends State<AdminMainScreen>
   AdminScreenController x = Get.put(AdminScreenController());
   bool isLate = false;
   bool isEmpty = true;
+  final String _apiUrl = API_URL;
 
   Widget tabBody = Container(
     color: const Color(backgroundNew),
@@ -70,39 +73,42 @@ class _AdminMainScreenState extends State<AdminMainScreen>
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
+    var nrp = karyawan['pernr'];
+    var entitas = karyawan['cocd'];
     if (token != null) {
       try {
         final response = await http.get(
           Uri.parse(
-              'http://hg-attendance.hasnurgroup.com/api/attendance_report/' +
-                  karyawan['pernr']),
+              '$_apiUrl/attendance/get_report_hg_attendance?page=1&perPage=5&search=$nrp&entitas=$entitas&lokasi=semua&tahun=2024&status=semua&pangkat=semua'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
         );
         final responseData = jsonDecode(response.body);
 
+        print(responseData);
+
         DateTime today = DateTime.now();
         String dateString = today.toString();
         String dateOnly = dateString.substring(0, 10);
 
-        if (responseData['data'][0]['date'] == dateOnly) {
-          if (responseData['data'][0]['clock_in_status'] == 'LATE') {
-            print('Terlambat');
-            setState(() {
-              isLate = true;
-            });
+        print(dateOnly);
+
+        if (responseData['dataku'][0]['in_date'] == dateOnly) {
+          if (responseData['dataku'][0]['out_time'] == null) {
+            x.absenIn.value = true;
+            x.absenOut.value = false;
           } else {
-            setState(() {
-              isLate = false;
-            });
-            print('Normal');
+            x.absenIn.value = true;
+            x.absenOut.value = true;
           }
+        } else {
+          x.absenIn.value = false;
+          x.absenOut.value = false;
         }
 
-        print('Tanggal saja: $dateOnly');
-        x.absenIn.value =
-            responseData['date'] == responseData['data'][0]['date'];
+        // x.absenIn.value =
+        //     responseData['date'] == responseData['data'][0]['date'];
       } catch (e) {
         print(e);
       }
@@ -145,7 +151,7 @@ class _AdminMainScreenState extends State<AdminMainScreen>
         body: Stack(
           children: [
             tabBody,
-            if (isLate == true && isEmpty == true) ModalDialog(),
+            // if (isLate == true && isEmpty == true) ModalDialog(),
             bottomBar(),
           ],
         ),
@@ -154,6 +160,13 @@ class _AdminMainScreenState extends State<AdminMainScreen>
   }
 
   Widget bottomBar() {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
+    double sizedBoxHeightTall = size.height * 0.015;
+    double sizedBoxHeightExtraTall = size.height * 0.02;
+    double padding5 = size.width * 0.0115;
+
     return Column(
       children: <Widget>[
         const Expanded(
@@ -173,7 +186,7 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                       ),
                       actions: <Widget>[
                         Column(children: <Widget>[
-                          x.absenIn == false
+                          x.absenIn == false && x.absenOut == false
                               ? Column(
                                   children: [
                                     Container(
@@ -282,42 +295,72 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                                     const SizedBox(width: 10),
                                   ],
                                 )
-                              : Column(
-                                  children: [
-                                    Container(
-                                      width: double.infinity,
-                                      height: 45,
-                                      margin: const EdgeInsets.only(bottom: 10),
-                                      child: OutlinedButton(
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Icon(Icons.outbound),
-                                              Text('Absen Pulang',
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color:
-                                                          Color(primaryBlack))),
-                                            ],
+                              : x.absenIn == true && x.absenOut == false
+                                  ? Column(
+                                      children: [
+                                        Container(
+                                          width: double.infinity,
+                                          height: 45,
+                                          margin:
+                                              const EdgeInsets.only(bottom: 10),
+                                          child: OutlinedButton(
+                                            style: OutlinedButton.styleFrom(
+                                                side: const BorderSide(
+                                                    color:
+                                                        Color(primaryYellow))),
+                                            onPressed: () {
+                                              Navigator.pushAndRemoveUntil(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (ctx) =>
+                                                          const CheckoutLocationScreen(
+                                                              attendanceType:
+                                                                  'Check-Out')),
+                                                  (route) => false);
+                                            },
+                                            child: const Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Icon(Icons.outbound),
+                                                Text('Absen Pulang',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color: Color(
+                                                            primaryBlack))),
+                                              ],
+                                            ),
                                           ),
-                                          style: OutlinedButton.styleFrom(
-                                              side: const BorderSide(
-                                                  color: Color(primaryYellow))),
-                                          onPressed: () {
-                                            Navigator.pushAndRemoveUntil(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (ctx) =>
-                                                        const CheckoutLocationScreen(
-                                                            attendanceType:
-                                                                'Check-Out')),
-                                                (route) => false);
-                                          }),
+                                        ),
+                                      ],
+                                    )
+                                  : Column(
+                                      children: [
+                                        Container(
+                                          height: size.height * 0.07,
+                                          padding: EdgeInsets.all(padding5),
+                                          decoration: BoxDecoration(
+                                            color: const Color(primaryYellow),
+                                            borderRadius:
+                                                BorderRadius.circular(5.0),
+                                          ),
+                                          child: const Center(
+                                            child: Text(
+                                              'Sudah Absen',
+                                              style: TextStyle(
+                                                color:
+                                                    const Color(primaryBlack),
+                                                fontSize: 20,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
                         ])
                       ],
                     ));

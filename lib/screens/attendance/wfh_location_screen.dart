@@ -48,7 +48,6 @@ class _WFHLocationScreenState extends State<WFHLocationScreen> {
     }
   }
 
-  
   void _showErrorDialog(String errorMessage) {
     showDialog(
         context: context,
@@ -78,13 +77,13 @@ class _WFHLocationScreenState extends State<WFHLocationScreen> {
     var timeZone = prefs.getString('timeZone');
     var timezone = await FlutterTimezone.getLocalTimezone();
     if (timezone == 'Asia/Jakarta') {
-      timeZone='WIB'; // Western Indonesia Time
+      timeZone = 'WIB'; // Western Indonesia Time
     } else if (timezone == 'Asia/Makassar') {
-      timeZone='WITA'; // Central Indonesia Time
+      timeZone = 'WITA'; // Central Indonesia Time
     } else if (timezone == 'Asia/Jayapura') {
-      timeZone='WIT'; // Eastern Indonesia Time
+      timeZone = 'WIT'; // Eastern Indonesia Time
     } else {
-      timeZone='Unknown'; // Unknown or not applicable
+      timeZone = 'Unknown'; // Unknown or not applicable
     }
     if (timeZone == 'WITA') {
       stimestamp = stimestamp + (1 * 60 * 60 * 1000);
@@ -104,9 +103,6 @@ class _WFHLocationScreenState extends State<WFHLocationScreen> {
       'clock_in_time': clockIn,
       'working_location': widget.workLocation,
     };
-    print('===================clockInData==================');
-    print(clockInData);
-    print('===================clockInData==================');
     Navigator.push(
         context,
         MaterialPageRoute(

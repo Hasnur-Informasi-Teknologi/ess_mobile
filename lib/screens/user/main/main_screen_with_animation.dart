@@ -77,7 +77,6 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
           },
         );
         final responseData = jsonDecode(response.body);
-        print(responseData);
         x.absenIn.value =
             responseData['date'] == responseData['data'][0]['date'];
       } catch (e) {
