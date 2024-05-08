@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_final_fields
+// ignore_for_file: prefer_final_fields, use_build_context_synchronously
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -55,11 +55,6 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
   }
 
   Future<void> clockInProcess() async {
-    // bool isMockLocation = await TrustLocation.isMockLocation;
-    // if(isMockLocation){
-    //   _showErrorDialog('Ayo nakal yaa, ketahuan mau fake GPS ya?');
-    //   return;
-    // }
     setState(() {
       _isLoading = true;
     });
@@ -69,7 +64,6 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
     final response = await http.get(
         Uri.parse('https://hitfaceapi.my.id/api/get/server_date'),
         headers: headers);
-    print('=======TIMESTAMP ======');
     DateTime sdate = DateTime.parse(response.body);
     int stimestamp = sdate.millisecondsSinceEpoch;
     var timeZone = prefs.getString('timeZone');
@@ -101,9 +95,6 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
       'clock_in_time': clockIn,
       'working_location': widget.workLocation,
     };
-    print('===================clockInData==================');
-    print(clockInData);
-    print('===================clockInData==================');
     Navigator.push(
         context,
         MaterialPageRoute(
@@ -173,7 +164,7 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
                                       TileLayer(
                                         urlTemplate:
                                             'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
-                                        subdomains: [
+                                        subdomains: const [
                                           'mt0',
                                           'mt1',
                                           'mt2',
@@ -206,6 +197,7 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                     ),
+                                    onPressed: clockInProcess,
                                     child: Padding(
                                       padding: const EdgeInsets.all(12),
                                       child: const Text(
@@ -215,7 +207,6 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
                                             fontWeight: FontWeight.w500),
                                       ).tr(namedArgs: {'check': 'Check-In'}),
                                     ),
-                                    onPressed: clockInProcess,
                                   ),
                                 ),
                                 SingleChildScrollView(

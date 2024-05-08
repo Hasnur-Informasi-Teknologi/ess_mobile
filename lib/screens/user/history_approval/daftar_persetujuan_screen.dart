@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +11,7 @@ import 'package:mobile_ess/widgets/row_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_center_with_badge_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -449,6 +451,29 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
           setState(() {
             _isLoadingScreen = false;
           });
+        }
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
+  Future<void> _download(int? id) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    if (token != null) {
+      try {
+        var url =
+            "http://192.168.89.21/online-form/approval-rawat-inap/$id/download";
+        var response = await http.get(Uri.parse(url));
+        if (response.statusCode == 200) {
+          var dir = await getApplicationDocumentsDirectory();
+          File file = File('${dir.path}/nama_file_yang_diinginkan.pdf');
+          await file.writeAsBytes(response.bodyBytes);
+          print('File berhasil diunduh ke: ${file.path}');
+        } else {
+          print('Gagal mengunduh file: ${response.reasonPhrase}');
         }
       } catch (e) {
         print(e);
@@ -2076,14 +2101,15 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                     ),
                     InkWell(
                       onTap: () {
-                        Get.snackbar('Infomation', 'Coming Soon',
-                            snackPosition: SnackPosition.TOP,
-                            backgroundColor: Colors.amber,
-                            icon: const Icon(
-                              Icons.info,
-                              color: Colors.white,
-                            ),
-                            shouldIconPulse: false);
+                        _download(data['id_rawat_inap']);
+                        // Get.snackbar('Infomation', 'Coming Soon',
+                        //     snackPosition: SnackPosition.TOP,
+                        //     backgroundColor: Colors.amber,
+                        //     icon: const Icon(
+                        //       Icons.info,
+                        //       color: Colors.white,
+                        //     ),
+                        //     shouldIconPulse: false);
                       },
                       child: Container(
                         width: size.width * 0.38,

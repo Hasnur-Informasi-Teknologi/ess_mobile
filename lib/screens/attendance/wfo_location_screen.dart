@@ -101,13 +101,13 @@ class _WFOLocationScreenState extends State<WFOLocationScreen> {
     var timeZone = prefs.getString('timeZone');
     var timezone = await FlutterTimezone.getLocalTimezone();
     if (timezone == 'Asia/Jakarta') {
-      timeZone='WIB'; // Western Indonesia Time
+      timeZone = 'WIB'; // Western Indonesia Time
     } else if (timezone == 'Asia/Makassar') {
-      timeZone='WITA'; // Central Indonesia Time
+      timeZone = 'WITA'; // Central Indonesia Time
     } else if (timezone == 'Asia/Jayapura') {
-      timeZone='WIT'; // Eastern Indonesia Time
+      timeZone = 'WIT'; // Eastern Indonesia Time
     } else {
-      timeZone='Unknown'; // Unknown or not applicable
+      timeZone = 'Unknown'; // Unknown or not applicable
     }
     if (timeZone == 'WITA') {
       stimestamp = stimestamp + (1 * 60 * 60 * 1000);
@@ -130,11 +130,7 @@ class _WFOLocationScreenState extends State<WFOLocationScreen> {
     var point = {"lat": latUser.toString(), "lng": longUser.toString()};
     var radiuspoint = {"lat": lat.toString(), "lng": long.toString()};
     var n = arePointsNear(point, radiuspoint, circleRadius / 1000);
-    print(n);
     if (n) {
-      print('===================clockInData==================');
-      print(clockInData);
-      print('===================clockInData==================');
       Navigator.push(
           context,
           MaterialPageRoute(
@@ -150,9 +146,6 @@ class _WFOLocationScreenState extends State<WFOLocationScreen> {
   arePointsNear(checkPoint, centerPoint, km) {
     var ky = 40000 / 360;
     const double pi = 3.1415926535897932;
-    print('center point');
-    print(centerPoint);
-    print(centerPoint['lat']);
     var kx = cos((pi * double.parse(centerPoint['lat'])) / 180.0) * ky;
     var dx =
         ((double.parse(centerPoint["lng"]) - double.parse(checkPoint["lng"])) *

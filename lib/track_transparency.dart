@@ -209,8 +209,6 @@ class _TrackTransparencyState extends State<TrackTransparency> {
                           //       MaterialPageRoute(
                           //           builder: (ctx) => const SignInScreen()));
                           // }
-
-                          // print(status.toString());
                         },
                         style: ElevatedButton.styleFrom(
                           primary: Colors.blue,
