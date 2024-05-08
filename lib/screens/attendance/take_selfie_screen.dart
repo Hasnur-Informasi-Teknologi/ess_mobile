@@ -151,8 +151,9 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
             // proses absen
             print('Proses absen id_user : $idUser');
             _cameraController!.dispose();
-            var clockInTime = attendanceData['clock_in_time'];
-            var workingLocation = attendanceData['working_location'];
+            var clockInTime = attendanceData['clock_in_time'] ?? '';
+            var clockOutTime = attendanceData['clock_out_time'] ?? '';
+            var workingLocation = attendanceData['working_location'] ?? '';
 
             //Mengambil jam only
             String dateString = clockInTime.toString();
@@ -170,48 +171,84 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
             int clockInToleransiMinute = int.parse(clockInToleransiParts[1]);
             int clockInToleransiSecond = int.parse(clockInToleransiParts[2]);
 
-            // Membandingkan hanya jam, menit, dan detik
-            if (timeHour > clockInToleransiHour ||
-                (timeHour == clockInToleransiHour &&
-                    timeMinute > clockInToleransiMinute) ||
-                (timeHour == clockInToleransiHour &&
-                    timeMinute == clockInToleransiMinute &&
-                    timeSecond > clockInToleransiSecond)) {
-              // Kalau Terlambat
+            if (widget.clockInType == 'In') {
+              // Membandingkan hanya jam, menit, dan detik
+              if (timeHour > clockInToleransiHour ||
+                  (timeHour == clockInToleransiHour &&
+                      timeMinute > clockInToleransiMinute) ||
+                  (timeHour == clockInToleransiHour &&
+                      timeMinute == clockInToleransiMinute &&
+                      timeSecond > clockInToleransiSecond)) {
+                // Kalau Terlambat
 
-              Map<String, dynamic> newData = {
-                "nrp": nrp,
-                "lat": lat,
-                "long": long,
-                "hari": hari + 'in',
-                "clock_time": clockInTime,
-                "working_location": workingLocation,
-                "address": alamat.toString(),
-                "image": imageFile,
-              };
+                Map<String, dynamic> newData = {
+                  "nrp": nrp,
+                  "lat": lat,
+                  "long": long,
+                  "hari": hari + 'in',
+                  "clock_time": clockInTime,
+                  "working_location": workingLocation,
+                  "address": alamat.toString(),
+                  "image": imageFile,
+                };
 
-              print(newData);
+                print(newData);
 
-              _cameraController!.dispose();
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (ctx) => LateModalDialog(newData: newData)));
-              setState(() {
-                _camera = false;
-              });
+                _cameraController!.dispose();
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (ctx) => LateModalDialog(newData: newData)));
+                setState(() {
+                  _camera = false;
+                });
+              } else {
+                // Kalau Ontime
+                var request =
+                    http.MultipartRequest('POST', Uri.parse('$_apiUrl/absen'))
+                      ..headers.addAll(headers)
+                      ..fields['nrp'] = nrp
+                      ..fields['lat'] = lat
+                      ..fields['long'] = long
+                      ..fields['hari'] = hari + 'in'
+                      ..fields['clock_time'] = clockInTime
+                      ..fields['working_location'] = workingLocation
+                      ..fields['address'] = alamat.toString()
+                      ..fields['late_reason'] = 'okee'
+                      ..files.add(http.MultipartFile.fromBytes(
+                          'late_attachment', imageFile.readAsBytesSync(),
+                          filename: imageFile.path.split('/').last))
+                      ..files.add(http.MultipartFile.fromBytes(
+                          'image', imageFile.readAsBytesSync(),
+                          filename: imageFile.path.split('/').last));
+                var response = await request.send();
+
+                await response.stream.bytesToString();
+                _cameraController!.dispose();
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (ctx) => const MainScreenWithAnimation()));
+                setState(() {
+                  _camera = false;
+                });
+              }
             } else {
-              // Kalau Ontime
+              print('out');
               var request =
                   http.MultipartRequest('POST', Uri.parse('$_apiUrl/absen'))
                     ..headers.addAll(headers)
                     ..fields['nrp'] = nrp
                     ..fields['lat'] = lat
                     ..fields['long'] = long
-                    // ..fields['hari'] = hari + 'in'
+                    ..fields['hari'] = hari + 'in'
                     ..fields['clock_time'] = clockInTime
                     ..fields['working_location'] = workingLocation
                     ..fields['address'] = alamat.toString()
+                    ..fields['late_reason'] = 'okee'
+                    ..files.add(http.MultipartFile.fromBytes(
+                        'late_attachment', imageFile.readAsBytesSync(),
+                        filename: imageFile.path.split('/').last))
                     ..files.add(http.MultipartFile.fromBytes(
                         'image', imageFile.readAsBytesSync(),
                         filename: imageFile.path.split('/').last));

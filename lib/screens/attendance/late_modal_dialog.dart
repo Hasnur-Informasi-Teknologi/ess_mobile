@@ -39,6 +39,10 @@ class _LateModalDialogState extends State<LateModalDialog> {
       ..fields['clock_time'] = widget.newData['clock_time']
       ..fields['working_location'] = widget.newData['working_location']
       ..fields['address'] = widget.newData['address']
+      ..fields['late_reason'] = 'okee'
+      ..files.add(http.MultipartFile.fromBytes(
+          'late_attachment', widget.newData['image'].readAsBytesSync(),
+          filename: widget.newData['image'].path.split('/').last))
       ..files.add(http.MultipartFile.fromBytes(
           'image', widget.newData['image'].readAsBytesSync(),
           filename: widget.newData['image'].path.split('/').last));

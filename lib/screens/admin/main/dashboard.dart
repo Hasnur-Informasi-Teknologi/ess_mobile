@@ -86,13 +86,9 @@ class _AdminMainScreenState extends State<AdminMainScreen>
         );
         final responseData = jsonDecode(response.body);
 
-        print(responseData);
-
         DateTime today = DateTime.now();
         String dateString = today.toString();
         String dateOnly = dateString.substring(0, 10);
-
-        print(dateOnly);
 
         if (responseData['dataku'][0]['in_date'] == dateOnly) {
           if (responseData['dataku'][0]['out_time'] == null) {
@@ -106,9 +102,6 @@ class _AdminMainScreenState extends State<AdminMainScreen>
           x.absenIn.value = false;
           x.absenOut.value = false;
         }
-
-        // x.absenIn.value =
-        //     responseData['date'] == responseData['data'][0]['date'];
       } catch (e) {
         print(e);
       }
@@ -161,10 +154,6 @@ class _AdminMainScreenState extends State<AdminMainScreen>
 
   Widget bottomBar() {
     Size size = MediaQuery.of(context).size;
-    double textMedium = size.width * 0.0329;
-    double textLarge = size.width * 0.04;
-    double sizedBoxHeightTall = size.height * 0.015;
-    double sizedBoxHeightExtraTall = size.height * 0.02;
     double padding5 = size.width * 0.0115;
 
     return Column(
