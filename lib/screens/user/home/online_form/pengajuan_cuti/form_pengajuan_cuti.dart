@@ -192,6 +192,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
             });
         final responseData = jsonDecode(response.body);
         final dataEntitasApi = responseData['data'];
+        print(dataEntitasApi);
 
         setState(() {
           selectedEntitas = List<Map<String, dynamic>>.from(dataEntitasApi);
