@@ -76,6 +76,7 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
   final String apiUrl = API_URL;
   bool _isFileNull = false;
   bool _isLoading = false;
+  bool _isLoadingTripNumber = true;
 
   Timer? _debounce;
 
@@ -200,9 +201,12 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
+    setState(() {
+      _isLoadingTripNumber = true;
+    });
+
     if (token != null) {
       try {
-        // Make a GET request to the API endpoint
         final response = await http.get(
           Uri.parse("$apiUrl/laporan-perdin/get_trip_number"),
           headers: <String, String>{
@@ -211,22 +215,24 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
           },
         );
 
-        // Log the response data
         debugPrint('API Response: ${response.body}');
-
-        // Decode the response data
         final responseData = jsonDecode(response.body);
 
-        // Update the state with the trip numbers
         setState(() {
-          selectedTripNumber = List<Map<String, dynamic>>.from(
-            responseData['data'],
-          );
+          selectedTripNumber =
+              List<Map<String, dynamic>>.from(responseData['data']);
+          _isLoadingTripNumber = false;
         });
       } catch (e) {
-        // Log any errors that occur
         debugPrint('Error in getTripNumber: $e');
+        setState(() {
+          _isLoadingTripNumber = false;
+        });
       }
+    } else {
+      setState(() {
+        _isLoadingTripNumber = false;
+      });
     }
   }
 
@@ -758,7 +764,7 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
             ),
           ),
           value: selectedValueTripNumber,
-          icon: selectedTripNumber.isEmpty
+          icon: _isLoadingTripNumber
               ? const SizedBox(
                   height: 15,
                   width: 15,
@@ -768,23 +774,38 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                 )
               : const Icon(Icons.arrow_drop_down),
           onChanged: (newValue) {
+            if (!_isLoadingTripNumber && selectedTripNumber.isEmpty) return;
             setState(() {
               selectedValueTripNumber = newValue!;
               getDataTripNumber(selectedValueTripNumber!);
             });
           },
-          items: selectedTripNumber.map((value) {
-            return DropdownMenuItem<String>(
-              value: value["trip_number"].toString(),
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: Text(
-                  value["trip_number"],
-                  style: const TextStyle(fontSize: 12),
-                ),
-              ),
-            );
-          }).toList(),
+          items: selectedTripNumber.isNotEmpty
+              ? selectedTripNumber.map((value) {
+                  return DropdownMenuItem<String>(
+                    value: value["trip_number"].toString(),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Text(
+                        value["trip_number"],
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  );
+                }).toList()
+              : [
+                  const DropdownMenuItem(
+                    value: "no-data",
+                    enabled: false,
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 10),
+                      child: Text(
+                        'No Data Available',
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  )
+                ],
           decoration: InputDecoration(
             labelStyle: const TextStyle(fontSize: 12),
             focusedBorder: const UnderlineInputBorder(
