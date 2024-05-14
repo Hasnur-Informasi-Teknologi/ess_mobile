@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
 import 'package:mobile_ess/widgets/row_with_semicolon_widget.dart';
@@ -12,30 +11,29 @@ import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
-class DetailBantuanKomunikasi extends StatefulWidget {
-  const DetailBantuanKomunikasi({super.key});
+class DetailPengajuanCutiDaftarPermintaan extends StatefulWidget {
+  const DetailPengajuanCutiDaftarPermintaan({super.key});
 
   @override
-  State<DetailBantuanKomunikasi> createState() =>
-      _DetailBantuanKomunikasiState();
+  State<DetailPengajuanCutiDaftarPermintaan> createState() =>
+      _DetailPengajuanCutiDaftarPermintaanState();
 }
 
-class _DetailBantuanKomunikasiState extends State<DetailBantuanKomunikasi> {
+class _DetailPengajuanCutiDaftarPermintaanState
+    extends State<DetailPengajuanCutiDaftarPermintaan> {
   final String _apiUrl = API_URL;
-  Map<String, dynamic> masterDataDetailBantuanKomunikasi = {};
-  String? nominalFormated;
+  Map<String, dynamic> masterDataDetailPengajuanCuti = {};
   final Map<String, dynamic> arguments = Get.arguments;
 
   @override
   void initState() {
     super.initState();
-    getDataDetailBantuanKomunikasi();
+    getDataDetailPengajuanCuti();
   }
 
-  Future<void> getDataDetailBantuanKomunikasi() async {
+  Future<void> getDataDetailPengajuanCuti() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    int? nominal;
     int id = arguments['id'];
 
     print(id);
@@ -43,20 +41,18 @@ class _DetailBantuanKomunikasiState extends State<DetailBantuanKomunikasi> {
     if (token != null) {
       try {
         final response = await http.get(
-            Uri.parse("$_apiUrl/bantuan-komunikasi/detail/$id"),
+            Uri.parse("$_apiUrl/pengajuan-cuti/detail/$id"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
             });
         final responseData = jsonDecode(response.body);
-        final dataDetailBantuanKomunikasiApi = responseData['dkomunikasi'];
+        final dataDetailPengajuanCutiApi = responseData['dcuti'];
+        print(dataDetailPengajuanCutiApi);
 
         setState(() {
-          masterDataDetailBantuanKomunikasi =
-              Map<String, dynamic>.from(dataDetailBantuanKomunikasiApi);
-          nominal = masterDataDetailBantuanKomunikasi['nominal'];
-          nominalFormated =
-              NumberFormat.decimalPattern('id-ID').format(nominal);
+          masterDataDetailPengajuanCuti =
+              Map<String, dynamic>.from(dataDetailPengajuanCutiApi);
         });
       } catch (e) {
         print(e);
@@ -90,7 +86,7 @@ class _DetailBantuanKomunikasiState extends State<DetailBantuanKomunikasi> {
           },
         ),
         title: Text(
-          'Detail Permintaan Bantuan Komunikasi',
+          'Detail Permintaan Pengajuan Cuti',
           style: TextStyle(
             color: Colors.black,
             fontSize: textLarge,
@@ -116,7 +112,7 @@ class _DetailBantuanKomunikasiState extends State<DetailBantuanKomunikasi> {
               ),
               RowWithSemicolonWidget(
                 textLeft: 'NRP',
-                textRight: '${masterDataDetailBantuanKomunikasi['nrp_user']}',
+                textRight: '${masterDataDetailPengajuanCuti['nrp_user']}',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -125,7 +121,7 @@ class _DetailBantuanKomunikasiState extends State<DetailBantuanKomunikasi> {
               ),
               RowWithSemicolonWidget(
                 textLeft: 'Nama',
-                textRight: '${masterDataDetailBantuanKomunikasi['nama_user']}',
+                textRight: '${masterDataDetailPengajuanCuti['nama_user']}',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -133,16 +129,33 @@ class _DetailBantuanKomunikasiState extends State<DetailBantuanKomunikasi> {
                 height: sizedBoxHeightShort,
               ),
               RowWithSemicolonWidget(
-                textLeft: 'Tanggal Pengajuan',
-                textRight:
-                    '${masterDataDetailBantuanKomunikasi['tgl_pengajuan']}',
+                textLeft: 'Perusahaan',
+                textRight: '${masterDataDetailPengajuanCuti['entitas_user']}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Jabatan',
+                textRight: '${masterDataDetailPengajuanCuti['posisi_user']}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Lokasi Kerja',
+                textRight: '${masterDataDetailPengajuanCuti['lokasi_user']}',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
               const SizedBox(
                 height: sizedBoxHeightExtraTall,
               ),
-              const TitleWidget(title: 'Diberikan Kepada'),
+              const TitleWidget(title: 'Tanggal Pengajuan Cuti'),
               const SizedBox(
                 height: sizedBoxHeightShort,
               ),
@@ -151,9 +164,8 @@ class _DetailBantuanKomunikasiState extends State<DetailBantuanKomunikasi> {
                 height: sizedBoxHeightTall,
               ),
               RowWithSemicolonWidget(
-                textLeft: 'NRP',
-                textRight:
-                    '${masterDataDetailBantuanKomunikasi['nrp_penerima']}',
+                textLeft: 'Tanggal Mulai',
+                textRight: '${masterDataDetailPengajuanCuti['tgl_mulai']}',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -161,9 +173,138 @@ class _DetailBantuanKomunikasiState extends State<DetailBantuanKomunikasi> {
                 height: sizedBoxHeightShort,
               ),
               RowWithSemicolonWidget(
-                textLeft: 'Nama',
+                textLeft: 'Tanggal Berakhir',
+                textRight: '${masterDataDetailPengajuanCuti['tgl_berakhir']}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Tanggal Kembali Kerja',
                 textRight:
-                    '${masterDataDetailBantuanKomunikasi['nama_penerima']}',
+                    '${masterDataDetailPengajuanCuti['tgl_kembali_kerja']}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Alamat',
+                textRight: '${masterDataDetailPengajuanCuti['alamat_cuti']}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'No Telpon',
+                textRight: '${masterDataDetailPengajuanCuti['no_telp']}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightExtraTall,
+              ),
+              const TitleWidget(title: 'Keterangan Cuti'),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              const LineWidget(),
+              const SizedBox(
+                height: sizedBoxHeightTall,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Jenis Cuti',
+                textRight: masterDataDetailPengajuanCuti['dibayar'] == 'X'
+                    ? 'Cuti Tahunan Dibayar'
+                    : masterDataDetailPengajuanCuti['tdk_dibayar'] == 'X'
+                        ? 'Cuti Tahunan Tidak Dibayar'
+                        : 'Cuti Lainnya',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightExtraTall,
+              ),
+              const TitleWidget(title: 'Atasan'),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              const LineWidget(),
+              const SizedBox(
+                height: sizedBoxHeightTall,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Atasan',
+                textRight: '${masterDataDetailPengajuanCuti['nama_atasan']}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Atasan Dari Atasan',
+                textRight:
+                    masterDataDetailPengajuanCuti['nama_direktur'] == 'null'
+                        ? masterDataDetailPengajuanCuti['nama_direktur']
+                        : '-',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightExtraTall,
+              ),
+              const TitleWidget(title: 'Catatan Cuti'),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              const LineWidget(),
+              const SizedBox(
+                height: sizedBoxHeightTall,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Nomor Dokumen',
+                textRight: '${masterDataDetailPengajuanCuti['no_doc']}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Keperluan Cuti',
+                textRight: '${masterDataDetailPengajuanCuti['keperluan']}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Total Cuti Yang Diambil',
+                textRight: '${masterDataDetailPengajuanCuti['jml_cuti']}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightExtraTall,
+              ),
+              const TitleWidget(title: 'Karyawan Pengganti'),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              const LineWidget(),
+              const SizedBox(
+                height: sizedBoxHeightTall,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Nama',
+                textRight: '${masterDataDetailPengajuanCuti['nama_pengganti']}',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -173,130 +314,7 @@ class _DetailBantuanKomunikasiState extends State<DetailBantuanKomunikasi> {
               RowWithSemicolonWidget(
                 textLeft: 'Jabatan',
                 textRight:
-                    '${masterDataDetailBantuanKomunikasi['jabatan_penerima']}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Entitas',
-                textRight:
-                    '${masterDataDetailBantuanKomunikasi['entitas_penerima']}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Pangkat',
-                textRight:
-                    '${masterDataDetailBantuanKomunikasi['pangkat_penerima']}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightExtraTall,
-              ),
-              const TitleWidget(title: 'Detail Fasilitas Komunikasi'),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              const LineWidget(),
-              const SizedBox(
-                height: sizedBoxHeightTall,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Kelompok Jabatan',
-                textRight:
-                    '${masterDataDetailBantuanKomunikasi['pangkat_komunikasi']}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Nominal (IDR)',
-                textRight: '${nominalFormated}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Jenis Fasilitas',
-                textRight:
-                    '${masterDataDetailBantuanKomunikasi['nama_fasilitas']}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Jenis Mobile Phone',
-                textRight:
-                    '${masterDataDetailBantuanKomunikasi['jenis_phone_name']}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              (masterDataDetailBantuanKomunikasi['merek_phone'] != null)
-                  ? RowWithSemicolonWidget(
-                      textLeft: 'Merek Mobile Phone',
-                      textRight:
-                          '${masterDataDetailBantuanKomunikasi['merek_phone']}',
-                      fontSizeLeft: textMedium,
-                      fontSizeRight: textMedium,
-                    )
-                  : const SizedBox(
-                      height: 0,
-                    ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Prioritas',
-                textRight: masterDataDetailBantuanKomunikasi['prioritas'] == '0'
-                    ? 'Rendah'
-                    : masterDataDetailBantuanKomunikasi['prioritas'] == '1'
-                        ? 'Sedang'
-                        : 'Tinggi',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Tujuan Komunikasi Internal',
-                textRight:
-                    '${masterDataDetailBantuanKomunikasi['tujuan_internal']}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Tujuan Komunikasi Eksternal',
-                textRight:
-                    '${masterDataDetailBantuanKomunikasi['tujuan_eksternal']}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Keterangan',
-                textRight: '${masterDataDetailBantuanKomunikasi['keterangan']}',
+                    '${masterDataDetailPengajuanCuti['posisi_pengganti']}',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -305,8 +323,7 @@ class _DetailBantuanKomunikasiState extends State<DetailBantuanKomunikasi> {
               ),
               TitleCenterWithLongBadgeWidget(
                 textLeft: 'Status Pengajuan',
-                textRight:
-                    '${masterDataDetailBantuanKomunikasi['status_approve']}',
+                textRight: '${masterDataDetailPengajuanCuti['status_approve']}',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
                 color: Colors.yellow,
@@ -316,8 +333,7 @@ class _DetailBantuanKomunikasiState extends State<DetailBantuanKomunikasi> {
               ),
               TitleCenterWidget(
                 textLeft: 'Pada',
-                textRight:
-                    ': ${masterDataDetailBantuanKomunikasi['created_at']}',
+                textRight: ': ${masterDataDetailPengajuanCuti['created_at']}',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),

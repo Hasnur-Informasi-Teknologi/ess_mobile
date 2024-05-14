@@ -168,13 +168,14 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
       try {
         final response = await http.get(
             Uri.parse(
-                "$_apiUrl/rawat/inap/all?page=$page&limit=$perPage&search=$search&status=$statusFilterRawatInapJalan&permintaan=1"),
+                "$_apiUrl/rawat/inap/all?page=$page&limit=$perPage&search=$search&status=$statusFilterRawatInapJalan&permintaan=0"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
             });
         final responseData = jsonDecode(response.body);
         final dataMasterInapApi = responseData['data']['data'];
+        print(dataMasterInapApi);
 
         setState(() {
           masterDataPersetujuan =
