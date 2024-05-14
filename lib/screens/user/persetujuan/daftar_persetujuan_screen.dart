@@ -16,6 +16,7 @@ import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_center_with_badge_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
@@ -493,14 +494,24 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
       request.headers.set('Authorization', 'Bearer $token');
       var response = await request.close();
       var bytes = await consolidateHttpClientResponseBytes(response);
-      var dir = await getApplicationDocumentsDirectory();
+      // var dir = await getApplicationDocumentsDirectory();
+      var dir = await getExternalStorageDirectory();
+
+      var downloadDir = Directory('${dir!.path}/Download');
+      if (!downloadDir.existsSync()) {
+        downloadDir.createSync(recursive: true);
+      }
+      print(dir);
+      print(dir.path);
       setState(() {
         _isLoadingContent = false;
       });
       File file = File("${dir.path}/$filename");
 
       await file.writeAsBytes(bytes, flush: true);
+      print('File berhasil diunduh ke: ${file.path}');
       completer.complete(file);
+
       if (rawatInapPDFpath.isNotEmpty) {
         Navigator.push(
           context,

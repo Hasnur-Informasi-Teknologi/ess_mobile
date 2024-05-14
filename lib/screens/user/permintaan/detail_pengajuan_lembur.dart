@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:mobile_ess/widgets/title_center_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 
-class DetailFormPengajuanLembur extends StatelessWidget {
-  const DetailFormPengajuanLembur({super.key});
+class DetailPengajuanLembur extends StatelessWidget {
+  const DetailPengajuanLembur({super.key});
 
   @override
   Widget build(BuildContext context) {

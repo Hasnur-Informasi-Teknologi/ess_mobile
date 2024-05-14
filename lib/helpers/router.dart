@@ -48,12 +48,13 @@ import 'package:mobile_ess/screens/user/home/request_attendance/ubah_data_kehadi
 import 'package:mobile_ess/screens/user/home/transactions/transactions_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
+import 'package:mobile_ess/screens/user/permintaan/detail_pengajuan_cuti.dart';
 import 'package:mobile_ess/screens/user/profile/profile_edit_screen.dart';
 import 'package:mobile_ess/screens/user/profile/profile_screen.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_aplikasi_training.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_bantuan_komunikasi.dart';
 
-import 'package:mobile_ess/screens/user/permintaan/detail_form_pengajuan_lembur.dart';
+import 'package:mobile_ess/screens/user/permintaan/detail_pengajuan_lembur.dart';
 
 import 'package:mobile_ess/splash_screen.dart';
 import 'package:path/path.dart';
@@ -124,6 +125,8 @@ Map<String, Widget Function(BuildContext)> routers() {
         (context) => const DetailAplikasiTraining(),
     '/user/main/daftar_permintaan/detail_bantuan_komunikasi': (context) =>
         const DetailBantuanKomunikasi(),
+    '/user/main/daftar_permintaan/detail_pengajuan_cuti': (context) =>
+        const DetailPengajuanCuti(),
     // '/user/main/submition/aplikasi_training/detail_aplikasi_training':
     //     (context) => const DetailFormPengajuanLembur(),
     '/user/main/home/transactions': (context) => const TransactionsScreen(),

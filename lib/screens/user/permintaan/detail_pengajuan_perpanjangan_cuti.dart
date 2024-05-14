@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'package:mobile_ess/widgets/title_center_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 
-class DetailFormPengajuanCuti extends StatelessWidget {
-  const DetailFormPengajuanCuti({super.key});
+class DetailPengajuanPerpanjanganCuti extends StatelessWidget {
+  const DetailPengajuanPerpanjanganCuti({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +31,7 @@ class DetailFormPengajuanCuti extends StatelessWidget {
           },
         ),
         title: Text(
-          'Persetujuan Pengajuan Cuti',
+          'Persetujuan Pengajuan Perpanjangan Cuti',
           style: TextStyle(
             color: Colors.black,
             fontSize: textLarge,
@@ -76,51 +76,15 @@ class DetailFormPengajuanCuti extends StatelessWidget {
                 fontSizeRight: textMedium,
               ),
               const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Jabatan',
-                textRight: 'System Analyst',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Atasan',
-                textRight: 'Nama Atasan',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Atasan dari Atasan',
-                textRight: 'Nama Atasan dari Atasan',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Nama Karyawan Pengganti',
-                textRight: 'Nama Karyawan Pengganti',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
                 height: sizedBoxHeightExtraTall,
               ),
-              const TitleWidget(title: 'Keterangan Cuti'),
+              const TitleWidget(title: 'Keterangan'),
               const SizedBox(
                 height: sizedBoxHeightTall,
               ),
               TitleCenterWidget(
-                textLeft: 'Jenis Cuti',
-                textRight: 'Cuti Tahunan Tidak Dibayar',
+                textLeft: 'Tanggal Bergabung',
+                textRight: 'dd/mm/yyyy',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -128,21 +92,8 @@ class DetailFormPengajuanCuti extends StatelessWidget {
                 height: sizedBoxHeightShort,
               ),
               TitleCenterWidget(
-                textLeft: 'Keperluan Cuti',
-                textRight: 'Libur Lebaran',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightExtraTall,
-              ),
-              const TitleWidget(title: 'Catatan Cuti'),
-              const SizedBox(
-                height: sizedBoxHeightTall,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Cuti Yang Akan Diambil',
-                textRight: '4 Hari',
+                textLeft: 'Tanggal Jatuh Tempo',
+                textRight: 'dd/mm/yyyy',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -151,20 +102,7 @@ class DetailFormPengajuanCuti extends StatelessWidget {
               ),
               TitleCenterWidget(
                 textLeft: 'Sisa Cuti',
-                textRight: '12 Hari',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightExtraTall,
-              ),
-              const TitleWidget(title: 'Tanggal Pengajuan Cuti'),
-              const SizedBox(
-                height: sizedBoxHeightTall,
-              ),
-              TitleCenterWidget(
-                textLeft: 'Tanggal Mulai',
-                textRight: 'dd/mm/yyyy',
+                textRight: '2 Minggu',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -172,8 +110,8 @@ class DetailFormPengajuanCuti extends StatelessWidget {
                 height: sizedBoxHeightShort,
               ),
               TitleCenterWidget(
-                textLeft: 'Tanggal berakhir',
-                textRight: 'dd/mm/yyyy',
+                textLeft: 'Masa Perpanjangan',
+                textRight: '1 Minggu',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -181,17 +119,8 @@ class DetailFormPengajuanCuti extends StatelessWidget {
                 height: sizedBoxHeightShort,
               ),
               TitleCenterWidget(
-                textLeft: 'Alamat Cuti',
-                textRight: 'Alamat Cuti',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              TitleCenterWidget(
-                textLeft: 'No Telepon',
-                textRight: '0000-0000-0000',
+                textLeft: 'Alasan Cuti Tidak Digunakan',
+                textRight: 'Karena Masih Ada Pekerjaan Yang Harus Diselesaikan',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
