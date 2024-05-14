@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
 import 'package:mobile_ess/widgets/row_with_semicolon_widget.dart';
@@ -11,27 +12,31 @@ import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
-class DetailPengajuanCuti extends StatefulWidget {
-  const DetailPengajuanCuti({super.key});
+class DetailBantuanKomunikasiDaftarPermintaan extends StatefulWidget {
+  const DetailBantuanKomunikasiDaftarPermintaan({super.key});
 
   @override
-  State<DetailPengajuanCuti> createState() => _DetailPengajuanCutiState();
+  State<DetailBantuanKomunikasiDaftarPermintaan> createState() =>
+      _DetailBantuanKomunikasiDaftarPermintaanState();
 }
 
-class _DetailPengajuanCutiState extends State<DetailPengajuanCuti> {
+class _DetailBantuanKomunikasiDaftarPermintaanState
+    extends State<DetailBantuanKomunikasiDaftarPermintaan> {
   final String _apiUrl = API_URL;
-  Map<String, dynamic> masterDataDetailPengajuanCuti = {};
+  Map<String, dynamic> masterDataDetailBantuanKomunikasi = {};
+  String? nominalFormated;
   final Map<String, dynamic> arguments = Get.arguments;
 
   @override
   void initState() {
     super.initState();
-    getDataDetailPengajuanCuti();
+    getDataDetailBantuanKomunikasi();
   }
 
-  Future<void> getDataDetailPengajuanCuti() async {
+  Future<void> getDataDetailBantuanKomunikasi() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
+    int? nominal;
     int id = arguments['id'];
 
     print(id);
@@ -39,18 +44,20 @@ class _DetailPengajuanCutiState extends State<DetailPengajuanCuti> {
     if (token != null) {
       try {
         final response = await http.get(
-            Uri.parse("$_apiUrl/pengajuan-cuti/detail/$id"),
+            Uri.parse("$_apiUrl/bantuan-komunikasi/detail/$id"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
             });
         final responseData = jsonDecode(response.body);
-        final dataDetailPengajuanCutiApi = responseData['dcuti'];
-        print(dataDetailPengajuanCutiApi);
+        final dataDetailBantuanKomunikasiApi = responseData['dkomunikasi'];
 
         setState(() {
-          masterDataDetailPengajuanCuti =
-              Map<String, dynamic>.from(dataDetailPengajuanCutiApi);
+          masterDataDetailBantuanKomunikasi =
+              Map<String, dynamic>.from(dataDetailBantuanKomunikasiApi);
+          nominal = masterDataDetailBantuanKomunikasi['nominal'];
+          nominalFormated =
+              NumberFormat.decimalPattern('id-ID').format(nominal);
         });
       } catch (e) {
         print(e);
@@ -84,7 +91,7 @@ class _DetailPengajuanCutiState extends State<DetailPengajuanCuti> {
           },
         ),
         title: Text(
-          'Detail Permintaan Pengajuan Cuti',
+          'Detail Permintaan Bantuan Komunikasi',
           style: TextStyle(
             color: Colors.black,
             fontSize: textLarge,
@@ -110,7 +117,7 @@ class _DetailPengajuanCutiState extends State<DetailPengajuanCuti> {
               ),
               RowWithSemicolonWidget(
                 textLeft: 'NRP',
-                textRight: '${masterDataDetailPengajuanCuti['nrp_user']}',
+                textRight: '${masterDataDetailBantuanKomunikasi['nrp_user']}',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -119,7 +126,7 @@ class _DetailPengajuanCutiState extends State<DetailPengajuanCuti> {
               ),
               RowWithSemicolonWidget(
                 textLeft: 'Nama',
-                textRight: '${masterDataDetailPengajuanCuti['nama_user']}',
+                textRight: '${masterDataDetailBantuanKomunikasi['nama_user']}',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -127,87 +134,16 @@ class _DetailPengajuanCutiState extends State<DetailPengajuanCuti> {
                 height: sizedBoxHeightShort,
               ),
               RowWithSemicolonWidget(
-                textLeft: 'Perusahaan',
-                textRight: '${masterDataDetailPengajuanCuti['entitas_user']}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Jabatan',
-                textRight: '${masterDataDetailPengajuanCuti['posisi_user']}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Lokasi Kerja',
-                textRight: '${masterDataDetailPengajuanCuti['lokasi_user']}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightExtraTall,
-              ),
-              const TitleWidget(title: 'Tanggal Pengajuan Cuti'),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              const LineWidget(),
-              const SizedBox(
-                height: sizedBoxHeightTall,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Tanggal Mulai',
-                textRight: '${masterDataDetailPengajuanCuti['tgl_mulai']}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Tanggal Berakhir',
-                textRight: '${masterDataDetailPengajuanCuti['tgl_berakhir']}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Tanggal Kembali Kerja',
+                textLeft: 'Tanggal Pengajuan',
                 textRight:
-                    '${masterDataDetailPengajuanCuti['tgl_kembali_kerja']}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Alamat',
-                textRight: '${masterDataDetailPengajuanCuti['alamat_cuti']}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'No Telpon',
-                textRight: '${masterDataDetailPengajuanCuti['no_telp']}',
+                    '${masterDataDetailBantuanKomunikasi['tgl_pengajuan']}',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
               const SizedBox(
                 height: sizedBoxHeightExtraTall,
               ),
-              const TitleWidget(title: 'Keterangan Cuti'),
+              const TitleWidget(title: 'Diberikan Kepada'),
               const SizedBox(
                 height: sizedBoxHeightShort,
               ),
@@ -216,93 +152,19 @@ class _DetailPengajuanCutiState extends State<DetailPengajuanCuti> {
                 height: sizedBoxHeightTall,
               ),
               RowWithSemicolonWidget(
-                textLeft: 'Jenis Cuti',
-                textRight: masterDataDetailPengajuanCuti['dibayar'] == 'X'
-                    ? 'Cuti Tahunan Dibayar'
-                    : masterDataDetailPengajuanCuti['tdk_dibayar'] == 'X'
-                        ? 'Cuti Tahunan Tidak Dibayar'
-                        : 'Cuti Lainnya',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightExtraTall,
-              ),
-              const TitleWidget(title: 'Atasan'),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              const LineWidget(),
-              const SizedBox(
-                height: sizedBoxHeightTall,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Atasan',
-                textRight: '${masterDataDetailPengajuanCuti['nama_atasan']}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Atasan Dari Atasan',
+                textLeft: 'NRP',
                 textRight:
-                    masterDataDetailPengajuanCuti['nama_direktur'] == 'null'
-                        ? masterDataDetailPengajuanCuti['nama_direktur']
-                        : '-',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightExtraTall,
-              ),
-              const TitleWidget(title: 'Catatan Cuti'),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              const LineWidget(),
-              const SizedBox(
-                height: sizedBoxHeightTall,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Nomor Dokumen',
-                textRight: '${masterDataDetailPengajuanCuti['no_doc']}',
+                    '${masterDataDetailBantuanKomunikasi['nrp_penerima']}',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
               const SizedBox(
                 height: sizedBoxHeightShort,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Keperluan Cuti',
-                textRight: '${masterDataDetailPengajuanCuti['keperluan']}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              RowWithSemicolonWidget(
-                textLeft: 'Total Cuti Yang Diambil',
-                textRight: '${masterDataDetailPengajuanCuti['jml_cuti']}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-              const SizedBox(
-                height: sizedBoxHeightExtraTall,
-              ),
-              const TitleWidget(title: 'Karyawan Pengganti'),
-              const SizedBox(
-                height: sizedBoxHeightShort,
-              ),
-              const LineWidget(),
-              const SizedBox(
-                height: sizedBoxHeightTall,
               ),
               RowWithSemicolonWidget(
                 textLeft: 'Nama',
-                textRight: '${masterDataDetailPengajuanCuti['nama_pengganti']}',
+                textRight:
+                    '${masterDataDetailBantuanKomunikasi['nama_penerima']}',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -312,7 +174,130 @@ class _DetailPengajuanCutiState extends State<DetailPengajuanCuti> {
               RowWithSemicolonWidget(
                 textLeft: 'Jabatan',
                 textRight:
-                    '${masterDataDetailPengajuanCuti['posisi_pengganti']}',
+                    '${masterDataDetailBantuanKomunikasi['jabatan_penerima']}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Entitas',
+                textRight:
+                    '${masterDataDetailBantuanKomunikasi['entitas_penerima']}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Pangkat',
+                textRight:
+                    '${masterDataDetailBantuanKomunikasi['pangkat_penerima']}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightExtraTall,
+              ),
+              const TitleWidget(title: 'Detail Fasilitas Komunikasi'),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              const LineWidget(),
+              const SizedBox(
+                height: sizedBoxHeightTall,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Kelompok Jabatan',
+                textRight:
+                    '${masterDataDetailBantuanKomunikasi['pangkat_komunikasi']}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Nominal (IDR)',
+                textRight: '${nominalFormated}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Jenis Fasilitas',
+                textRight:
+                    '${masterDataDetailBantuanKomunikasi['nama_fasilitas']}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Jenis Mobile Phone',
+                textRight:
+                    '${masterDataDetailBantuanKomunikasi['jenis_phone_name']}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              (masterDataDetailBantuanKomunikasi['merek_phone'] != null)
+                  ? RowWithSemicolonWidget(
+                      textLeft: 'Merek Mobile Phone',
+                      textRight:
+                          '${masterDataDetailBantuanKomunikasi['merek_phone']}',
+                      fontSizeLeft: textMedium,
+                      fontSizeRight: textMedium,
+                    )
+                  : const SizedBox(
+                      height: 0,
+                    ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Prioritas',
+                textRight: masterDataDetailBantuanKomunikasi['prioritas'] == '0'
+                    ? 'Rendah'
+                    : masterDataDetailBantuanKomunikasi['prioritas'] == '1'
+                        ? 'Sedang'
+                        : 'Tinggi',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Tujuan Komunikasi Internal',
+                textRight:
+                    '${masterDataDetailBantuanKomunikasi['tujuan_internal']}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Tujuan Komunikasi Eksternal',
+                textRight:
+                    '${masterDataDetailBantuanKomunikasi['tujuan_eksternal']}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              const SizedBox(
+                height: sizedBoxHeightShort,
+              ),
+              RowWithSemicolonWidget(
+                textLeft: 'Keterangan',
+                textRight: '${masterDataDetailBantuanKomunikasi['keterangan']}',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
@@ -321,7 +306,8 @@ class _DetailPengajuanCutiState extends State<DetailPengajuanCuti> {
               ),
               TitleCenterWithLongBadgeWidget(
                 textLeft: 'Status Pengajuan',
-                textRight: '${masterDataDetailPengajuanCuti['status_approve']}',
+                textRight:
+                    '${masterDataDetailBantuanKomunikasi['status_approve']}',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
                 color: Colors.yellow,
@@ -331,7 +317,8 @@ class _DetailPengajuanCutiState extends State<DetailPengajuanCuti> {
               ),
               TitleCenterWidget(
                 textLeft: 'Pada',
-                textRight: ': ${masterDataDetailPengajuanCuti['created_at']}',
+                textRight:
+                    ': ${masterDataDetailBantuanKomunikasi['created_at']}',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
