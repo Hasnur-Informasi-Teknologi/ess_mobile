@@ -14,6 +14,7 @@ import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class FormRencanaBiayaPerjalananDinas extends StatefulWidget {
   const FormRencanaBiayaPerjalananDinas({super.key});
@@ -73,6 +74,8 @@ class _FormRencanaBiayaPerjalananDinasState
   List<Map<String, dynamic>> selectedKategori = [];
   List<String?> selectedValueAkomodasi = [];
   List<Map<String, dynamic>> selectedAkomodasi = [];
+  List<DateRangePickerController> dateTglMulaiControllers = [];
+  List<DateRangePickerController> dateTglSelesaiControllers = [];
   List<String?> selectedValueTipe = [];
   List<Map<String, dynamic>> selectedTipe = [];
   final _nilaiController = TextEditingController();
@@ -359,31 +362,6 @@ class _FormRencanaBiayaPerjalananDinasState
     }
   }
 
-  Future<void> _selectDateBiaya(int index, String keyField) async {
-    DateTime currentSelectedDate =
-        DateTime.parse(formDataList[index][keyField]);
-    DateTime adjustedInitialDate = currentSelectedDate;
-
-    if (adjustedInitialDate.isBefore(selectedDateBerangkat)) {
-      adjustedInitialDate = selectedDateBerangkat;
-    } else if (adjustedInitialDate.isAfter(selectedDateKembali)) {
-      adjustedInitialDate = selectedDateKembali;
-    }
-
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: adjustedInitialDate,
-      firstDate: selectedDateBerangkat,
-      lastDate: selectedDateKembali,
-    );
-    if (picked != null &&
-        picked != DateTime.parse(formDataList[index][keyField])) {
-      setState(() {
-        formDataList[index][keyField] = picked.toString();
-      });
-    }
-  }
-
   Future<void> _submit() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
@@ -443,9 +421,9 @@ class _FormRencanaBiayaPerjalananDinasState
             "id_kategori": selectedValueKategori[index],
             "id_akomodasi": selectedValueAkomodasi[index],
             "tgl_mulai":
-                formatDate(DateTime.tryParse(formData["tglMulai"]), null),
+                formatDate(dateTglMulaiControllers[index].selectedDate, null),
             "tgl_berakhir":
-                formatDate(DateTime.tryParse(formData["tglSelesai"]), null),
+                formatDate(dateTglSelesaiControllers[index].selectedDate, null),
             "id_tipe": selectedValueTipe[index],
             "keterangan": formData["keterangan"].text,
             "nilai": formData["nilai"].text,
@@ -489,11 +467,11 @@ class _FormRencanaBiayaPerjalananDinasState
   void addFormData() {
     setState(() {
       formDataList.add({
-        "tglMulai": DateTime.now().toString(),
-        "tglSelesai": DateTime.now().toString(),
         "nilai": TextEditingController(),
         "keterangan": TextEditingController(),
       });
+      dateTglMulaiControllers.add(DateRangePickerController());
+      dateTglSelesaiControllers.add(DateRangePickerController());
       selectedValueKategori.add(null);
       selectedValueAkomodasi.add(null);
       selectedValueTipe.add(null);
@@ -503,6 +481,8 @@ class _FormRencanaBiayaPerjalananDinasState
   void removeFormData(int index) {
     setState(() {
       formDataList.removeAt(index);
+      dateTglMulaiControllers.removeAt(index);
+      dateTglSelesaiControllers.removeAt(index);
       selectedValueKategori[index] = null;
       selectedValueAkomodasi[index] = null;
       selectedValueTipe[index] = null;
@@ -1144,6 +1124,154 @@ class _FormRencanaBiayaPerjalananDinasState
       );
     }
 
+    Widget dropdownTglMulai(int index) {
+      Size size = MediaQuery.of(context).size;
+      double paddingHorizontalNarrow = size.width * 0.035;
+      double textMedium = size.width * 0.0329;
+
+      return CupertinoButton(
+        child: Container(
+          height: 50,
+          width: 250,
+          padding: EdgeInsets.symmetric(
+            horizontal: paddingHorizontalNarrow,
+          ),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(color: Colors.grey)),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Icon(
+                Icons.calendar_month_outlined,
+                color: Colors.grey,
+              ),
+              Text(
+                dateTglMulaiControllers[index].selectedDate != null
+                    ? DateFormat('dd-MM-yyyy')
+                        .format(dateTglMulaiControllers[index].selectedDate!)
+                    : 'Pilih Tanggal',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: textMedium,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w300,
+                ),
+              ),
+            ],
+          ),
+        ),
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                content: SizedBox(
+                  height: 350,
+                  width: 350,
+                  child: SfDateRangePicker(
+                    minDate: selectedDateBerangkat,
+                    maxDate: selectedDateKembali,
+                    controller: dateTglMulaiControllers[index],
+                    onSelectionChanged:
+                        (DateRangePickerSelectionChangedArgs args) {
+                      setState(() {
+                        dateTglMulaiControllers[index].selectedDate =
+                            args.value;
+                        debugPrint(
+                            'dateTglMulaiControllers[index].selectedDate ${args.value}');
+                      });
+                    },
+                    selectionMode: DateRangePickerSelectionMode.single,
+                  ),
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      );
+    }
+
+    Widget dropdownTglSelesai(int index) {
+      Size size = MediaQuery.of(context).size;
+      double paddingHorizontalNarrow = size.width * 0.035;
+      double textMedium = size.width * 0.0329;
+
+      return CupertinoButton(
+        child: Container(
+          height: 50,
+          width: 250,
+          padding: EdgeInsets.symmetric(
+            horizontal: paddingHorizontalNarrow,
+          ),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(color: Colors.grey)),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Icon(
+                Icons.calendar_month_outlined,
+                color: Colors.grey,
+              ),
+              Text(
+                dateTglSelesaiControllers[index].selectedDate != null
+                    ? DateFormat('dd-MM-yyyy')
+                        .format(dateTglSelesaiControllers[index].selectedDate!)
+                    : 'Pilih Tanggal',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: textMedium,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w300,
+                ),
+              ),
+            ],
+          ),
+        ),
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                content: SizedBox(
+                  height: 350,
+                  width: 350,
+                  child: SfDateRangePicker(
+                    minDate: selectedDateBerangkat,
+                    maxDate: selectedDateKembali,
+                    controller: dateTglSelesaiControllers[index],
+                    onSelectionChanged:
+                        (DateRangePickerSelectionChangedArgs args) {
+                      setState(() {
+                        dateTglSelesaiControllers[index].selectedDate =
+                            args.value;
+                        debugPrint(
+                            'dateTglSelesaiControllers[index].selectedDate ${args.value}');
+                      });
+                    },
+                    selectionMode: DateRangePickerSelectionMode.single,
+                  ),
+                ),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      );
+    }
+
     Widget dropdownlistTipe(int index) {
       Size size = MediaQuery.of(context).size;
       double paddingHorizontalNarrow = size.width * 0.035;
@@ -1175,9 +1303,7 @@ class _FormRencanaBiayaPerjalananDinasState
           onChanged: (newValue) {
             setState(() {
               selectedValueTipe[index] = newValue!;
-              debounceVoidCallback(() {
-                updateTotalNilai();
-              });
+              updateTotalNilai();
               debugPrint('selectedValueTipe $selectedValueTipe');
             });
           },
@@ -1216,8 +1342,8 @@ class _FormRencanaBiayaPerjalananDinasState
 
     Widget buildForm() {
       Size size = MediaQuery.of(context).size;
-      double sizedBoxHeightShort = size.height * 0.0086;
       double paddingHorizontalWide = size.width * 0.0585;
+      double textMedium = size.width * 0.0329;
 
       return SizedBox(
         height: formDataList.isEmpty ? 0 : size.width,
@@ -1236,10 +1362,13 @@ class _FormRencanaBiayaPerjalananDinasState
                     children: [
                       Row(
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.only(right: 30),
-                            child: Text('Kategori'),
-                          ),
+                          Padding(
+                              padding: const EdgeInsets.only(right: 49),
+                              child: TitleWidget(
+                                title: 'Kategori',
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              )),
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.only(left: 1.0),
@@ -1248,13 +1377,16 @@ class _FormRencanaBiayaPerjalananDinasState
                           ),
                         ],
                       ),
-                      SizedBox(height: sizedBoxHeightShort),
+                      const SizedBox(height: 30),
                       Row(
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.only(right: 10),
-                            child: Text('Akomodasi'),
-                          ),
+                          Padding(
+                              padding: const EdgeInsets.only(right: 30),
+                              child: TitleWidget(
+                                title: 'Akomodasi',
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              )),
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.only(left: 1.0),
@@ -1263,82 +1395,68 @@ class _FormRencanaBiayaPerjalananDinasState
                           ),
                         ],
                       ),
-                      SizedBox(height: sizedBoxHeightShort),
+                      const SizedBox(height: 15),
                       Row(
                         children: [
-                          const Text('Tgl Mulai'),
+                          Padding(
+                              padding: const EdgeInsets.only(right: 30),
+                              child: TitleWidget(
+                                title: 'Tgl Mulai',
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              )),
+                          const SizedBox(width: 12),
                           Expanded(
                             child: Padding(
-                              padding:
-                                  const EdgeInsets.only(right: 15, left: 40),
-                              child: TextFormField(
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 12),
-                                readOnly: true,
-                                onTap: () =>
-                                    _selectDateBiaya(index, 'tglMulai'),
-                                decoration: const InputDecoration(
-                                  contentPadding: EdgeInsets.symmetric(
-                                    vertical: 5,
-                                  ),
-                                  border: OutlineInputBorder(),
-                                ),
-                                controller: TextEditingController(
-                                  text: DateFormat('yyyy-MM-dd').format(
-                                      DateTime.parse(
-                                          formDataList[index]["tglMulai"])),
-                                ),
-                              ),
+                              padding: const EdgeInsets.only(left: 1.0),
+                              child: dropdownTglMulai(index),
                             ),
                           ),
                         ],
                       ),
-                      SizedBox(height: sizedBoxHeightShort),
                       Row(
                         children: [
-                          const Text('Tgl Selesai'),
+                          Padding(
+                              padding: const EdgeInsets.only(right: 30),
+                              child: TitleWidget(
+                                title: 'Tgl Selesai',
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              )),
+                          const SizedBox(width: 3),
                           Expanded(
                             child: Padding(
-                              padding:
-                                  const EdgeInsets.only(right: 15, left: 30),
-                              child: TextFormField(
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 12),
-                                readOnly: true,
-                                onTap: () =>
-                                    _selectDateBiaya(index, 'tglSelesai'),
-                                decoration: const InputDecoration(
-                                  contentPadding: EdgeInsets.symmetric(
-                                    vertical: 5,
-                                  ),
-                                  border: OutlineInputBorder(),
-                                ),
-                                controller: TextEditingController(
-                                  text: DateFormat('yyyy-MM-dd').format(
-                                      DateTime.parse(
-                                          formDataList[index]["tglSelesai"])),
-                                ),
-                              ),
+                              padding: const EdgeInsets.only(left: 1.0),
+                              child: dropdownTglSelesai(index),
                             ),
                           ),
                         ],
                       ),
-                      SizedBox(height: sizedBoxHeightShort),
+                      const SizedBox(height: 15),
                       Row(
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.only(right: 57),
-                            child: Text('Tipe'),
-                          ),
+                          Padding(
+                              padding: const EdgeInsets.only(right: 80),
+                              child: TitleWidget(
+                                title: 'Tipe',
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              )),
                           Expanded(
                             child: dropdownlistTipe(index),
                           ),
                         ],
                       ),
-                      SizedBox(height: sizedBoxHeightShort),
+                      const SizedBox(height: 30),
                       Row(
                         children: [
-                          const Text('Nilai'),
+                          Padding(
+                              padding: const EdgeInsets.only(right: 20),
+                              child: TitleWidget(
+                                title: 'Nilai',
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              )),
                           Expanded(
                             child: Padding(
                               padding:
@@ -1362,10 +1480,16 @@ class _FormRencanaBiayaPerjalananDinasState
                           ),
                         ],
                       ),
-                      SizedBox(height: sizedBoxHeightShort),
+                      const SizedBox(height: 30),
                       Row(
                         children: [
-                          const Text('Keterangan'),
+                          Padding(
+                              padding: const EdgeInsets.only(right: 20),
+                              child: TitleWidget(
+                                title: 'Keterangan',
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              )),
                           Expanded(
                             child: Padding(
                               padding:
@@ -1382,25 +1506,12 @@ class _FormRencanaBiayaPerjalananDinasState
                       const SizedBox(height: 10),
                     ],
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.add,
-                          color: Colors.green,
-                        ),
-                        onPressed: addFormData,
-                      ),
-                      const SizedBox(width: 5),
-                      IconButton(
-                        icon: const Icon(
-                          Icons.delete,
-                          color: Colors.red,
-                        ),
-                        onPressed: () => removeFormData(index),
-                      ),
-                    ],
+                  IconButton(
+                    icon: const Icon(
+                      Icons.delete,
+                      color: Colors.red,
+                    ),
+                    onPressed: () => removeFormData(index),
                   ),
                 ],
               ),
