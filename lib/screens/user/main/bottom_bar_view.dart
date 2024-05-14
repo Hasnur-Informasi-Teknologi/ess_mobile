@@ -255,14 +255,32 @@ class _TabIconsState extends State<TabIcons> with TickerProviderStateMixin {
                             curve: const Interval(0.1, 1.0,
                                 curve: Curves.fastOutSlowIn))),
                     child: widget.tabIconData!.isSelected
-                        ? Icon(
-                            widget.tabIconData!.iconSelected,
-                            size: 35,
-                            color: Colors.amber,
+                        ? Column(
+                            children: [
+                              Icon(
+                                widget.tabIconData!.iconSelected,
+                                size: 35,
+                                color: Colors.amber,
+                              ),
+                              Text(
+                                widget.tabIconData!.title,
+                                style: const TextStyle(
+                                    fontSize: 10, fontWeight: FontWeight.w500),
+                              ),
+                            ],
                           )
-                        : Icon(
-                            widget.tabIconData!.icon,
-                            size: 35,
+                        : Column(
+                            children: [
+                              Icon(
+                                widget.tabIconData!.icon,
+                                size: 35,
+                              ),
+                              Text(
+                                widget.tabIconData!.title,
+                                style: const TextStyle(
+                                    fontSize: 10, fontWeight: FontWeight.w500),
+                              ),
+                            ],
                           )
                     // Image.asset(widget.tabIconData!.isSelected
                     //     ? widget.tabIconData!.selectedImagePath

@@ -54,10 +54,11 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
+    final nrp = karyawan['pernr'];
     if (token != null) {
       try {
         final response = await http.get(
-          Uri.parse('$_apiUrl/get_work_schedules/78220012'),
+          Uri.parse('$_apiUrl/get_work_schedules/$nrp'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
@@ -65,6 +66,7 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
 
         final responseData = jsonDecode(response.body);
         final responseDataApi = responseData["data"][0]["toleransiin"];
+        print(responseDataApi);
 
         setState(() {
           clockInToleransi = responseDataApi;
@@ -191,8 +193,6 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
                   "address": alamat.toString(),
                   "image": imageFile,
                 };
-
-                print(newData);
 
                 _cameraController!.dispose();
                 Navigator.pushReplacement(
