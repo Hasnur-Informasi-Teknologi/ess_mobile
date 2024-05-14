@@ -554,6 +554,8 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
     // Log the disposal of all controllers
     debugPrint('FormLaporanAktivitasDanBiayaPerjalananDinas disposed.');
 
+    _debounce?.cancel();
+
     // Call the superclass's dispose method
     super.dispose();
   }
