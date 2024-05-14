@@ -8,7 +8,8 @@ class TabIconData {
       this.isSelected = false,
       this.animationController,
       this.icon,
-      this.iconSelected});
+      this.iconSelected,
+      this.title = ''});
 
   String imagePath;
   String selectedImagePath;
@@ -16,6 +17,7 @@ class TabIconData {
   int index;
   IconData? icon;
   IconData? iconSelected;
+  String title;
 
   AnimationController? animationController;
 
@@ -28,6 +30,7 @@ class TabIconData {
       animationController: null,
       iconSelected: Icons.home,
       icon: Icons.home_outlined,
+      title: 'Home',
     ),
     TabIconData(
       imagePath: 'assets/fitness_app/tab_2.png',
@@ -37,6 +40,7 @@ class TabIconData {
       animationController: null,
       iconSelected: Icons.file_open_rounded,
       icon: Icons.file_open_outlined,
+      title: 'Permintaan',
     ),
     TabIconData(
       imagePath: 'assets/fitness_app/tab_3.png',
@@ -46,6 +50,7 @@ class TabIconData {
       animationController: null,
       iconSelected: Icons.work_history_rounded,
       icon: Icons.work_history_outlined,
+      title: 'Persetujuan',
     ),
     TabIconData(
       imagePath: 'assets/fitness_app/tab_4.png',
@@ -55,6 +60,7 @@ class TabIconData {
       animationController: null,
       iconSelected: Icons.person_2_rounded,
       icon: Icons.person_2_outlined,
+      title: 'Profile',
     ),
   ];
 }

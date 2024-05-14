@@ -50,10 +50,10 @@ import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
 import 'package:mobile_ess/screens/user/profile/profile_edit_screen.dart';
 import 'package:mobile_ess/screens/user/profile/profile_screen.dart';
-import 'package:mobile_ess/screens/user/submition/detail_aplikasi_training.dart';
-import 'package:mobile_ess/screens/user/submition/detail_bantuan_komunikasi.dart';
+import 'package:mobile_ess/screens/user/permintaan/detail_aplikasi_training.dart';
+import 'package:mobile_ess/screens/user/permintaan/detail_bantuan_komunikasi.dart';
 
-import 'package:mobile_ess/screens/user/submition/detail_form_pengajuan_lembur.dart';
+import 'package:mobile_ess/screens/user/permintaan/detail_form_pengajuan_lembur.dart';
 
 import 'package:mobile_ess/splash_screen.dart';
 import 'package:path/path.dart';
