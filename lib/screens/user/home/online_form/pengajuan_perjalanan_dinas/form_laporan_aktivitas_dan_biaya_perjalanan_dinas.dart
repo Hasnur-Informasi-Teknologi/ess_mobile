@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -75,8 +74,6 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
   final int maxSizeKbs = 1024;
   final String apiUrl = API_URL;
   bool _isFileNull = false;
-  bool _isLoading = false;
-  bool _isLoadingTripNumber = true;
 
   Timer? _debounce;
 
@@ -100,28 +97,13 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
     }
   }
 
-  String formatDate(DateTime? date, TimeOfDay? time, {bool isoFormat = false}) {
-    if (date == null || time == null) return '';
-    // Format month, day, hour, and minute with leading zeros if necessary
-    String month = date.month.toString().padLeft(2, '0');
-    String day = date.day.toString().padLeft(2, '0');
-    String hour = time.hour.toString().padLeft(2, '0');
-    String minute = time.minute.toString().padLeft(2, '0');
-    // Construct the final date-time string based on format choice
-    if (isoFormat) {
-      return '${date.year}-$month-$day' 'T$hour:$minute';
-    } else {
-      return '${date.year}-$month-$day $hour:$minute:00';
-    }
-  }
-
   Future<void> calculateFinancials() async {
     // Logging the start of the function
     debugPrint('calculateFinancials - Start');
 
     // Calculating the total expenses
-    int totalExpenses = costReport.fold(0, (sum, item) {
-      int value = int.tryParse(item['nilai'].text) ?? 0;
+    double totalExpenses = costReport.fold(0.0, (sum, item) {
+      double value = double.tryParse(item['nilai'].text) ?? 0.0;
       debugPrint('calculateFinancials - Total Expenses: $value');
       return sum + value;
     });
@@ -130,8 +112,8 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
     debugPrint('calculateFinancials - Total Expenses: $totalExpenses');
 
     // Parsing the jumlahKasDiterima text
-    int jumlahKasDiterima =
-        int.tryParse(_jumlahKasDiterimaController.text) ?? 0;
+    double jumlahKasDiterima =
+        double.tryParse(_jumlahKasDiterimaController.text) ?? 0.0;
 
     // Logging the jumlahKasDiterima
     debugPrint('calculateFinancials - Jumlah Kas Diterima: $jumlahKasDiterima');
@@ -201,12 +183,9 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
-    setState(() {
-      _isLoadingTripNumber = true;
-    });
-
     if (token != null) {
       try {
+        // Make a GET request to the API endpoint
         final response = await http.get(
           Uri.parse("$apiUrl/laporan-perdin/get_trip_number"),
           headers: <String, String>{
@@ -215,24 +194,22 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
           },
         );
 
+        // Log the response data
         debugPrint('API Response: ${response.body}');
+
+        // Decode the response data
         final responseData = jsonDecode(response.body);
 
+        // Update the state with the trip numbers
         setState(() {
-          selectedTripNumber =
-              List<Map<String, dynamic>>.from(responseData['data']);
-          _isLoadingTripNumber = false;
+          selectedTripNumber = List<Map<String, dynamic>>.from(
+            responseData['data'],
+          );
         });
       } catch (e) {
+        // Log any errors that occur
         debugPrint('Error in getTripNumber: $e');
-        setState(() {
-          _isLoadingTripNumber = false;
-        });
       }
-    } else {
-      setState(() {
-        _isLoadingTripNumber = false;
-      });
     }
   }
 
@@ -554,8 +531,6 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
     // Log the disposal of all controllers
     debugPrint('FormLaporanAktivitasDanBiayaPerjalananDinas disposed.');
 
-    _debounce?.cancel();
-
     // Call the superclass's dispose method
     super.dispose();
   }
@@ -628,113 +603,68 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
   }
 
   Future<void> _submit() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    if (_formKey.currentState!.validate() == false) {
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
-
-    var request = http.MultipartRequest(
-      'POST',
-      Uri.parse('$apiUrl/laporan-perdin/add'),
-    );
-    request.headers['Content-Type'] = 'multipart/form-data';
-    request.headers['Authorization'] = 'Bearer $token';
-
-    Map<String, dynamic> formattedReport = {};
+    Map<String, String> formattedReport = {};
     for (int i = 0; i < costReport.length; i++) {
       String input = selectedValueKategori[i] ?? '';
       Map<String, String> words = extractWords(input);
 
-      List<PlatformFile> files = costReport[i]['files'];
-
-      if (files.isNotEmpty) {
-        // We'll just take the first file for this example
-        PlatformFile platformFile = files[i];
-        File file = File(platformFile.path!);
-
-        formattedReport['vtable2[$i][tgl_biaya]'] =
-            costReport[i]['tanggalBiaya'];
-        formattedReport['vtable2[$i][kategori]'] = words['firstWord']!;
-        formattedReport['vtable2[$i][kategori_name]'] = words['secondWord']!;
-        formattedReport['vtable2[$i][uraian]'] = costReport[i]['uraian'].text;
-        formattedReport['vtable2[$i][nilai]'] = costReport[i]['nilai'].text;
-        request.files.add(http.MultipartFile('vtable2[$i][lampiran]',
-            file.readAsBytes().asStream(), file.lengthSync(),
-            filename: file.path.split('/').last));
+      formattedReport['vtable2[$i][tgl_biaya]'] = costReport[i]['tanggalBiaya'];
+      formattedReport['vtable2[$i][kategori]'] = words['firstWord']!;
+      formattedReport['vtable2[$i][kategori_name]'] = words['secondWord']!;
+      formattedReport['vtable2[$i][uraian]'] = costReport[i]['uraian'].text;
+      formattedReport['vtable2[$i][nilai]'] = costReport[i]['nilai'].text;
+      // formattedReport['vtable2[$i][lampiran]'] = costReport[i]['files'];
+      // Assuming file handling as discussed:
+      if (costReport[i]['files'] != null && costReport[i]['files'].isNotEmpty) {
+        formattedReport['vtable2[$i][lampiran]'] = costReport[i]['files']
+            .map((file) => file.name)
+            .join(
+                ', '); // Just names or paths; adjust based on server requirements
+      } else {
+        formattedReport['vtable2[$i][lampiran]'] = '';
       }
     }
-    request.fields['jml_kas_diterima'] = _jumlahKasDiterimaController.text;
-    request.fields['jml_pengeluaran'] = _jumlahPengeluaranController.text;
-    request.fields['jml_kelebihan_kas'] = _kelebihanKasController.text;
-    request.fields['jml_kekurangan_kas'] = _kekuranganKasController.text;
-    request.fields['trip_number'] = selectedValueTripNumber!;
-    request.fields['id_tperdin'] = _idTPerdinController.text;
-    request.fields['nrp_user'] = _nrpController.text;
-    request.fields['jabatan_user'] = _jabatanController.text;
-    request.fields['department_user'] = _departmentController.text;
-    request.fields['entitas_user'] = _perusahaanController.text;
-    request.fields['tempat_tujuan'] = _lokasiDinasController.text;
-    request.fields['perihal'] = _perihalController.text;
-    request.fields['tgl_berangkat'] =
-        formatDate(datePengajuanBerangkat, timePengajuanBerangkat);
-    request.fields['tgl_kembali'] =
-        formatDate(datePengajuanPulang, timePengajuanPulang);
-    request.fields['type_cost_assign'] = _typeCostAssignController.text;
-    request.fields['lama_rencana_perdin'] = _lamaPengajuanController.text;
-    request.fields['lama_aktual_perdin'] = _lamaAktualController.text;
-    request.fields['tgl_aktual_berangkat'] = formatDate(
-        selectedDateAktualBerangkat, selectedTimeAktualBerangkat,
-        isoFormat: true);
-    request.fields['tgl_aktual_kembali'] = formatDate(
-        selectedDateAktualPulang, selectedTimeAktualPulang,
-        isoFormat: true);
-    request.fields['catatan_biaya'] = _catatanBiayaController.text;
-    request.fields['catatan_aktivitas'] = _catatanAktivitasController.text;
-    request.fields['vtable'] = jsonEncode(activitiesReport.map((activity) {
-      return {
-        "tgl_aktivitas": activity["tanggalAktivitas"],
-        "aktivitas": activity["aktivitas"].text,
-        "hasil_aktivitas": activity["hasilAktivitas"].text,
-        "hambatan": activity["hambatan"].text,
-        "tindak_lanjut": activity["tindakLanjut"].text,
-        "selected": activity["selected"]
-      };
-    }).toList());
-    formattedReport.forEach((key, value) {
-      request.fields[key] = value;
+
+    final body = jsonEncode({
+      'jml_kas_diterima': _jumlahKasDiterimaController.text,
+      'jml_pengeluaran': _jumlahPengeluaranController.text,
+      'jml_kelebihan_kas': _kelebihanKasController.text,
+      'jml_kekurangan_kas': _kekuranganKasController.text,
+      'trip_number': selectedValueTripNumber,
+      'id_tperdin': _idTPerdinController.text,
+      'nrp_user': _nrpController.text,
+      'jabatan_user': _jabatanController.text,
+      'department_user': _departmentController.text,
+      'entitas_user': _perusahaanController.text,
+      'tempat_tujuan': _lokasiDinasController.text,
+      'perihal': _perihalController.text,
+      'tgl_berangkat':
+          '${datePengajuanBerangkat?.year}-${datePengajuanBerangkat?.month}-${datePengajuanBerangkat?.day} ${timePengajuanBerangkat?.hour}:${timePengajuanBerangkat?.minute}',
+      'tgl_kembali':
+          '${datePengajuanPulang?.year}-${datePengajuanPulang?.month}-${datePengajuanPulang?.day} ${timePengajuanPulang?.hour}:${timePengajuanPulang?.minute}',
+      'type_cost_assign': _typeCostAssignController.text,
+      'lama_rencana_perdin': _lamaPengajuanController.text,
+      'lama_aktual_perdin': _lamaAktualController.text,
+      'tgl_aktual_berangkat':
+          '${selectedDateAktualBerangkat.year}-${selectedDateAktualBerangkat.month}-${selectedDateAktualBerangkat.day} ${selectedTimeAktualBerangkat.hour}:${selectedTimeAktualBerangkat.minute}',
+      'tgl_aktual_kembali':
+          '${selectedDateAktualPulang.year}-${selectedDateAktualPulang.month}-${selectedDateAktualPulang.day} ${selectedTimeAktualPulang.hour}:${selectedTimeAktualPulang.minute}',
+      'catatan_biaya': _catatanBiayaController.text,
+      'catatan_aktivitas': _catatanAktivitasController.text,
+      'vtable': activitiesReport.map((activity) {
+        return {
+          "tgl_aktivitas": activity["tanggalAktivitas"],
+          "aktivitas": activity["aktivitas"].text,
+          "hasil_aktivitas": activity["hasilAktivitas"].text,
+          "hambatan": activity["hambatan"].text,
+          "tindak_lanjut": activity["tindakLanjut"].text,
+          "selected": activity["selected"]
+        };
+      }).toList(),
+      'vtable2': formattedReport,
     });
 
-    debugPrint('Body: ${request.fields}');
-
-    var response = await request.send();
-    final responseData = await response.stream.bytesToString();
-    final responseDataMessage = json.decode(responseData);
-    Get.snackbar('Infomation', responseDataMessage['message'],
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.amber,
-        icon: const Icon(
-          Icons.info,
-          color: Colors.white,
-        ),
-        shouldIconPulse: false);
-    setState(() {
-      _isLoading = false;
-    });
-    debugPrint('Message $responseDataMessage');
-    if (responseDataMessage['status'] == 'success') {
-      activitiesReport.clear();
-      costReport.clear();
-      Get.offAllNamed('/user/main/home/online_form/pengajuan_perjalanan_dinas');
-    }
+    debugPrint(jsonEncode(body));
   }
 
   @override
@@ -766,7 +696,7 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
             ),
           ),
           value: selectedValueTripNumber,
-          icon: _isLoadingTripNumber
+          icon: selectedTripNumber.isEmpty
               ? const SizedBox(
                   height: 15,
                   width: 15,
@@ -776,38 +706,23 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                 )
               : const Icon(Icons.arrow_drop_down),
           onChanged: (newValue) {
-            if (!_isLoadingTripNumber && selectedTripNumber.isEmpty) return;
             setState(() {
               selectedValueTripNumber = newValue!;
               getDataTripNumber(selectedValueTripNumber!);
             });
           },
-          items: selectedTripNumber.isNotEmpty
-              ? selectedTripNumber.map((value) {
-                  return DropdownMenuItem<String>(
-                    value: value["trip_number"].toString(),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: Text(
-                        value["trip_number"],
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ),
-                  );
-                }).toList()
-              : [
-                  const DropdownMenuItem(
-                    value: "no-data",
-                    enabled: false,
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 10),
-                      child: Text(
-                        'No Data Available',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                    ),
-                  )
-                ],
+          items: selectedTripNumber.map((value) {
+            return DropdownMenuItem<String>(
+              value: value["trip_number"].toString(),
+              child: Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: Text(
+                  value["trip_number"],
+                  style: const TextStyle(fontSize: 12),
+                ),
+              ),
+            );
+          }).toList(),
           decoration: InputDecoration(
             labelStyle: const TextStyle(fontSize: 12),
             focusedBorder: const UnderlineInputBorder(
@@ -829,1257 +744,1239 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
       );
     }
 
-    return _isLoading
-        ? const Scaffold(body: Center(child: CircularProgressIndicator()))
-        : Scaffold(
-            backgroundColor: Colors.white,
-            appBar: AppBar(
-              centerTitle: false,
-              elevation: 0,
-              backgroundColor: Colors.white,
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  Get.back();
-                },
-              ),
-              title: const Text(
-                'Laporan Aktivitas & Biaya Perjalanan Dinas',
-              ),
-            ),
-            body: ListView(
-              children: [
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      // Trip Number
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Trip Number',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+    return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
+          centerTitle: false,
+          elevation: 0,
+          backgroundColor: Colors.white,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Get.back();
+            },
+          ),
+          title: const Text(
+            'Laporan Aktivitas & Biaya Perjalanan Dinas',
+          ),
+        ),
+        body: ListView(
+          children: [
+            Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: sizedBoxHeightTall,
+                  ),
+                  // Trip Number
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Trip Number',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightShort,
+                  ),
+                  dropdownlistTripNumber(),
+                  SizedBox(
+                    height: sizedBoxHeightTall,
+                  ),
+                  // NRP
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'NRP',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightShort,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TextFormField(
+                      style: const TextStyle(fontSize: 12),
+                      controller: _nrpController,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        enabled: false,
+                        hintText: 'NRP',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      dropdownlistTripNumber(),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      // NRP
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'NRP',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightTall,
+                  ),
+                  // Nama
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Nama',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightShort,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TextFormField(
+                      style: const TextStyle(fontSize: 12),
+                      controller: _namaController,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        enabled: false,
+                        hintText: 'Nama',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightTall,
+                  ),
+                  // Department
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Department',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightShort,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TextFormField(
+                      style: const TextStyle(fontSize: 12),
+                      controller: _departmentController,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        enabled: false,
+                        hintText: 'Department',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormField(
-                          style: const TextStyle(fontSize: 12),
-                          controller: _nrpController,
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 5, horizontal: 10),
-                            enabled: false,
-                            hintText: 'NRP',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightTall,
+                  ),
+                  // Perusahaan
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Perusahaan',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightShort,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TextFormField(
+                      style: const TextStyle(fontSize: 12),
+                      controller: _perusahaanController,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        enabled: false,
+                        hintText: 'Perusahaan',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightTall,
+                  ),
+                  // Lokasi Dinas
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Lokasi Dinas',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightShort,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TextFormField(
+                      style: const TextStyle(fontSize: 12),
+                      controller: _lokasiDinasController,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        enabled: false,
+                        hintText: 'Lokasi Dinas',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightTall,
+                  ),
+                  // Perihal
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Perihal',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightShort,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TextFormField(
+                      style: const TextStyle(fontSize: 12),
+                      controller: _perihalController,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        enabled: false,
+                        hintText: 'Perihal',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightTall,
+                  ),
+                  // Tanggal Pengajuan Berangkat
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Tanggal Pengajuan Berangkat',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  CupertinoButton(
+                    onPressed: null,
+                    child: Container(
+                      width: size.width,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: paddingHorizontalNarrow,
+                          vertical: padding5),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          border: Border.all(color: Colors.grey)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Icon(
+                            Icons.calendar_month_outlined,
+                            color: Colors.grey,
+                          ),
+                          Text(
+                            datePengajuanBerangkat == null ||
+                                    timePengajuanBerangkat == null
+                                ? 'Tanggal Pengajuan Berangkat'
+                                : '${datePengajuanBerangkat!.day}-${datePengajuanBerangkat!.month}-${datePengajuanBerangkat!.year} ${timePengajuanBerangkat!.format(context)}',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: textMedium,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w300,
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      // Nama
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Nama',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormField(
-                          style: const TextStyle(fontSize: 12),
-                          controller: _namaController,
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 5, horizontal: 10),
-                            enabled: false,
-                            hintText: 'Nama',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  // Tanggal Pengajuan Pulang
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Tanggal Pengajuan Pulang',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  CupertinoButton(
+                    onPressed: null,
+                    child: Container(
+                      width: size.width,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: paddingHorizontalNarrow,
+                          vertical: padding5),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          border: Border.all(color: Colors.grey)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Icon(
+                            Icons.calendar_month_outlined,
+                            color: Colors.grey,
+                          ),
+                          Text(
+                            datePengajuanPulang == null ||
+                                    timePengajuanPulang == null
+                                ? 'Tanggal Pengajuan Pulang'
+                                : '${datePengajuanPulang!.day}-${datePengajuanPulang!.month}-${datePengajuanPulang!.year} ${timePengajuanPulang!.format(context)}',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: textMedium,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w300,
                             ),
                           ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightShort,
+                  ),
+                  // Lama Pengajuan Perjalanan Dinas
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Lama Pengajuan Perjalanan Dinas',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightShort,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TextFormField(
+                      style: const TextStyle(fontSize: 12),
+                      controller: _lamaPengajuanController,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        enabled: false,
+                        hintText: 'Lama Pengajuan Perjalanan Dinas',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      // Department
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Department',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormField(
-                          style: const TextStyle(fontSize: 12),
-                          controller: _departmentController,
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 5, horizontal: 10),
-                            enabled: false,
-                            hintText: 'Department',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightTall,
+                  ),
+                  // Tanggal Aktual Berangkat
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Tanggal Aktual Berangkat',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  CupertinoButton(
+                    child: Container(
+                      width: size.width,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: paddingHorizontalNarrow,
+                          vertical: padding5),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          border: Border.all(color: Colors.grey)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Icon(
+                            Icons.calendar_month_outlined,
+                            color: Colors.grey,
+                          ),
+                          Text(
+                            '${selectedDateAktualBerangkat.day}-${selectedDateAktualBerangkat.month}-${selectedDateAktualBerangkat.year}-${selectedTimeAktualBerangkat.format(context)}',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: textMedium,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w300,
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      // Perusahaan
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Perusahaan',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormField(
-                          style: const TextStyle(fontSize: 12),
-                          controller: _perusahaanController,
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 5, horizontal: 10),
-                            enabled: false,
-                            hintText: 'Perusahaan',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+                    ),
+                    onPressed: () {
+                      _selectDateTimeAktualBerangkat(context);
+                    },
+                  ),
+                  // Tanggal Aktual Pulang
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Tanggal Aktual Pulang',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  CupertinoButton(
+                    child: Container(
+                      width: size.width,
+                      padding: EdgeInsets.symmetric(
+                          horizontal: paddingHorizontalNarrow,
+                          vertical: padding5),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          border: Border.all(color: Colors.grey)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Icon(
+                            Icons.calendar_month_outlined,
+                            color: Colors.grey,
+                          ),
+                          Text(
+                            '${selectedDateAktualPulang.day}-${selectedDateAktualPulang.month}-${selectedDateAktualPulang.year}-${selectedTimeAktualPulang.format(context)}',
+                            style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: textMedium,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w300,
                             ),
                           ),
+                        ],
+                      ),
+                    ),
+                    onPressed: () {
+                      _selectDateTimeAktualPulang(context);
+                    },
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightShort,
+                  ),
+                  // Lama Aktual Perjalanan Dinas
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Lama Aktual Perjalanan Dinas',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightShort,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TextFormField(
+                      style: const TextStyle(fontSize: 12),
+                      controller: _lamaAktualController,
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(
+                            vertical: 5, horizontal: 10),
+                        enabled: false,
+                        hintText: 'Lama Aktual Perjalanan Dinas',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      // Lokasi Dinas
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Lokasi Dinas',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightTall,
+                  ),
+                  // Laporan Aktivitas Perjalanan Dinas
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow,
+                        vertical: padding10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const LineWidget(),
+                        SizedBox(
+                          height: sizedBoxHeightTall,
                         ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormField(
-                          style: const TextStyle(fontSize: 12),
-                          controller: _lokasiDinasController,
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 5, horizontal: 10),
-                            enabled: false,
-                            hintText: 'Lokasi Dinas',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
+                        RowWithButtonWidget(
+                          textLeft: 'Laporan Aktivitas Perjalanan Dinas',
+                          textRight: 'Tambah +',
+                          fontSizeLeft: textMedium,
+                          fontSizeRight: textSmall,
+                          onTab: () {
+                            addActivity(
+                              reportType: activitiesReport,
+                            );
+                          },
+                          isEnabled: selectedValueTripNumber != null,
                         ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      // Perihal
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Perihal',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormField(
-                          style: const TextStyle(fontSize: 12),
-                          controller: _perihalController,
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 5, horizontal: 10),
-                            enabled: false,
-                            hintText: 'Perihal',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      // Tanggal Pengajuan Berangkat
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Tanggal Pengajuan Berangkat',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      CupertinoButton(
-                        onPressed: null,
-                        child: Container(
-                          width: size.width,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow,
-                              vertical: padding5),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(color: Colors.grey)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightShort,
+                  ),
+                  SizedBox(
+                    height: activitiesReport.isEmpty ? 0 : size.width * 1.1,
+                    child: ListView.builder(
+                        itemCount: activitiesReport.length,
+                        itemBuilder: (context, index) {
+                          Map<String, dynamic> activity =
+                              activitiesReport[index];
+                          TextEditingController aktivitas =
+                              activity['aktivitas'];
+                          TextEditingController hasilAktivitas =
+                              activity['hasilAktivitas'];
+                          TextEditingController hambatan = activity['hambatan'];
+                          TextEditingController tindakLanjut =
+                              activity['tindakLanjut'];
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(
-                                Icons.calendar_month_outlined,
-                                color: Colors.grey,
-                              ),
-                              Text(
-                                datePengajuanBerangkat == null ||
-                                        timePengajuanBerangkat == null
-                                    ? 'Tanggal Pengajuan Berangkat'
-                                    : '${datePengajuanBerangkat!.day}-${datePengajuanBerangkat!.month}-${datePengajuanBerangkat!.year} ${timePengajuanBerangkat!.format(context)}',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
+                              // Tanggal
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalNarrow),
+                                child: TitleWidget(
+                                  title: 'Tanggal',
                                   fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      // Tanggal Pengajuan Pulang
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Tanggal Pengajuan Pulang',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      CupertinoButton(
-                        onPressed: null,
-                        child: Container(
-                          width: size.width,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow,
-                              vertical: padding5),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(color: Colors.grey)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Icon(
-                                Icons.calendar_month_outlined,
-                                color: Colors.grey,
-                              ),
-                              Text(
-                                datePengajuanPulang == null ||
-                                        timePengajuanPulang == null
-                                    ? 'Tanggal Pengajuan Pulang'
-                                    : '${datePengajuanPulang!.day}-${datePengajuanPulang!.month}-${datePengajuanPulang!.year} ${timePengajuanPulang!.format(context)}',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      // Lama Pengajuan Perjalanan Dinas
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Lama Pengajuan Perjalanan Dinas',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormField(
-                          style: const TextStyle(fontSize: 12),
-                          controller: _lamaPengajuanController,
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 5, horizontal: 10),
-                            enabled: false,
-                            hintText: 'Lama Pengajuan Perjalanan Dinas',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      // Tanggal Aktual Berangkat
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Tanggal Aktual Berangkat',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      CupertinoButton(
-                        child: Container(
-                          width: size.width,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow,
-                              vertical: padding5),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(color: Colors.grey)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Icon(
-                                Icons.calendar_month_outlined,
-                                color: Colors.grey,
-                              ),
-                              Text(
-                                '${selectedDateAktualBerangkat.day}-${selectedDateAktualBerangkat.month}-${selectedDateAktualBerangkat.year}-${selectedTimeAktualBerangkat.format(context)}',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        onPressed: () {
-                          _selectDateTimeAktualBerangkat(context);
-                        },
-                      ),
-                      // Tanggal Aktual Pulang
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Tanggal Aktual Pulang',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      CupertinoButton(
-                        child: Container(
-                          width: size.width,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow,
-                              vertical: padding5),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(color: Colors.grey)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Icon(
-                                Icons.calendar_month_outlined,
-                                color: Colors.grey,
-                              ),
-                              Text(
-                                '${selectedDateAktualPulang.day}-${selectedDateAktualPulang.month}-${selectedDateAktualPulang.year}-${selectedTimeAktualPulang.format(context)}',
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        onPressed: () {
-                          _selectDateTimeAktualPulang(context);
-                        },
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      // Lama Aktual Perjalanan Dinas
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Lama Aktual Perjalanan Dinas',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormField(
-                          style: const TextStyle(fontSize: 12),
-                          controller: _lamaAktualController,
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 5, horizontal: 10),
-                            enabled: false,
-                            hintText: 'Lama Aktual Perjalanan Dinas',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      // Laporan Aktivitas Perjalanan Dinas
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow,
-                            vertical: padding10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const LineWidget(),
-                            SizedBox(
-                              height: sizedBoxHeightTall,
-                            ),
-                            RowWithButtonWidget(
-                              textLeft: 'Laporan Aktivitas Perjalanan Dinas',
-                              textRight: 'Tambah +',
-                              fontSizeLeft: textMedium,
-                              fontSizeRight: textSmall,
-                              onTab: () {
-                                addActivity(
-                                  reportType: activitiesReport,
-                                );
-                              },
-                              isEnabled: selectedValueTripNumber != null,
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      SizedBox(
-                        height: activitiesReport.isEmpty ? 0 : size.width * 1.1,
-                        child: ListView.builder(
-                            itemCount: activitiesReport.length,
-                            itemBuilder: (context, index) {
-                              Map<String, dynamic> activity =
-                                  activitiesReport[index];
-                              TextEditingController aktivitas =
-                                  activity['aktivitas'];
-                              TextEditingController hasilAktivitas =
-                                  activity['hasilAktivitas'];
-                              TextEditingController hambatan =
-                                  activity['hambatan'];
-                              TextEditingController tindakLanjut =
-                                  activity['tindakLanjut'];
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Tanggal
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: paddingHorizontalNarrow),
-                                    child: TitleWidget(
-                                      title: 'Tanggal',
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: textMedium,
-                                    ),
-                                  ),
-                                  CupertinoButton(
-                                    child: Container(
-                                      width: size.width,
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: paddingHorizontalNarrow,
-                                          vertical: padding5),
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                          border:
-                                              Border.all(color: Colors.grey)),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          const Icon(
-                                            Icons.calendar_month_outlined,
-                                            color: Colors.grey,
-                                          ),
-                                          Text(
-                                            DateFormat('dd-MM-yyyy').format(
-                                                DateTime.parse(
-                                                    activitiesReport[index]
-                                                        ["tanggalAktivitas"])),
-                                            style: TextStyle(
-                                              color: Colors.grey,
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    onPressed: () => _selectDate(
-                                      index: index,
-                                      reportType: activitiesReport,
-                                      keyField: 'tanggalAktivitas',
-                                    ),
-                                  ),
-                                  // Aktivitas
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: paddingHorizontalNarrow),
-                                    child: TitleWidget(
-                                      title: 'Aktivitas',
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: textMedium,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: sizedBoxHeightShort,
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: paddingHorizontalNarrow),
-                                    child: TextFormFieldWidget(
-                                      controller: aktivitas,
-                                      maxHeightConstraints: _maxHeightNama,
-                                      hintText: 'Aktivitas',
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: sizedBoxHeightTall,
-                                  ),
-                                  // Hasil Aktivitas
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: paddingHorizontalNarrow),
-                                    child: TitleWidget(
-                                      title: 'Hasil Aktivitas',
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: textMedium,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: sizedBoxHeightShort,
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: paddingHorizontalNarrow),
-                                    child: TextFormFieldWidget(
-                                      controller: hasilAktivitas,
-                                      maxHeightConstraints: _maxHeightNama,
-                                      hintText: 'Hasil Aktivitas',
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: sizedBoxHeightTall,
-                                  ),
-                                  // Hambatan (Problem Indentification)
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: paddingHorizontalNarrow),
-                                    child: TitleWidget(
-                                      title:
-                                          'Hambatan (Problem Indentification)',
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: textMedium,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: sizedBoxHeightShort,
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: paddingHorizontalNarrow),
-                                    child: TextFormFieldWidget(
-                                      controller: hambatan,
-                                      maxHeightConstraints: _maxHeightNama,
-                                      hintText:
-                                          'Hambatan (Problem Indentification)',
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: sizedBoxHeightTall,
-                                  ),
-                                  // Tindak Lanjut (Corrective Action)
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: paddingHorizontalNarrow),
-                                    child: TitleWidget(
-                                      title:
-                                          'Tindak Lanjut (Corrective Action)',
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: textMedium,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: sizedBoxHeightShort,
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: paddingHorizontalNarrow),
-                                    child: TextFormFieldWidget(
-                                      controller: tindakLanjut,
-                                      maxHeightConstraints: _maxHeightNama,
-                                      hintText:
-                                          'Tindak Lanjut (Corrective Action)',
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: sizedBoxHeightTall,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
+                              CupertinoButton(
+                                child: Container(
+                                  width: size.width,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: paddingHorizontalNarrow,
+                                      vertical: padding5),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                      border: Border.all(color: Colors.grey)),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      IconButton(
-                                        icon: const Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
+                                      const Icon(
+                                        Icons.calendar_month_outlined,
+                                        color: Colors.grey,
+                                      ),
+                                      Text(
+                                        DateFormat('dd-MM-yyyy').format(
+                                            DateTime.parse(
+                                                activitiesReport[index]
+                                                    ["tanggalAktivitas"])),
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: textMedium,
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.w300,
                                         ),
-                                        onPressed: () => removeActivity(
-                                            index: index,
-                                            reportType: activitiesReport),
                                       ),
                                     ],
                                   ),
-                                ],
-                              );
-                            }),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide),
-                        child: TitleWidget(
-                          title: 'Catatan :',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide),
-                        child: TextFormFieldWidget(
-                          controller: _catatanAktivitasController,
-                          maxHeightConstraints: _maxHeightNama,
-                          hintText: '----',
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      // Laporan Biaya Perjalanan Dinas
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow,
-                            vertical: padding10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const LineWidget(),
-                            SizedBox(
-                              height: sizedBoxHeightTall,
-                            ),
-                            RowWithButtonWidget(
-                              textLeft: 'Laporan Biaya Perjalanan Dinas',
-                              textRight: 'Tambah +',
-                              fontSizeLeft: textMedium,
-                              fontSizeRight: textSmall,
-                              onTab: () {
-                                addActivity(
-                                  reportType: costReport,
-                                );
-                              },
-                              isEnabled: selectedValueTripNumber != null,
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      SizedBox(
-                        height: costReport.isEmpty ? 0 : size.width,
-                        child: ListView.builder(
-                            itemCount: costReport.length,
-                            itemBuilder: (context, index) {
-                              Map<String, dynamic> cost = costReport[index];
-                              TextEditingController uraian = cost['uraian'];
-                              TextEditingController nilai = cost['nilai'];
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                ),
+                                onPressed: () => _selectDate(
+                                  index: index,
+                                  reportType: activitiesReport,
+                                  keyField: 'tanggalAktivitas',
+                                ),
+                              ),
+                              // Aktivitas
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalNarrow),
+                                child: TitleWidget(
+                                  title: 'Aktivitas',
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                              ),
+                              SizedBox(
+                                height: sizedBoxHeightShort,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalNarrow),
+                                child: TextFormFieldWidget(
+                                  controller: aktivitas,
+                                  maxHeightConstraints: _maxHeightNama,
+                                  hintText: 'Aktivitas',
+                                ),
+                              ),
+                              SizedBox(
+                                height: sizedBoxHeightTall,
+                              ),
+                              // Hasil Aktivitas
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalNarrow),
+                                child: TitleWidget(
+                                  title: 'Hasil Aktivitas',
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                              ),
+                              SizedBox(
+                                height: sizedBoxHeightShort,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalNarrow),
+                                child: TextFormFieldWidget(
+                                  controller: hasilAktivitas,
+                                  maxHeightConstraints: _maxHeightNama,
+                                  hintText: 'Hasil Aktivitas',
+                                ),
+                              ),
+                              SizedBox(
+                                height: sizedBoxHeightTall,
+                              ),
+                              // Hambatan (Problem Indentification)
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalNarrow),
+                                child: TitleWidget(
+                                  title: 'Hambatan (Problem Indentification)',
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                              ),
+                              SizedBox(
+                                height: sizedBoxHeightShort,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalNarrow),
+                                child: TextFormFieldWidget(
+                                  controller: hambatan,
+                                  maxHeightConstraints: _maxHeightNama,
+                                  hintText:
+                                      'Hambatan (Problem Indentification)',
+                                ),
+                              ),
+                              SizedBox(
+                                height: sizedBoxHeightTall,
+                              ),
+                              // Tindak Lanjut (Corrective Action)
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalNarrow),
+                                child: TitleWidget(
+                                  title: 'Tindak Lanjut (Corrective Action)',
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                              ),
+                              SizedBox(
+                                height: sizedBoxHeightShort,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalNarrow),
+                                child: TextFormFieldWidget(
+                                  controller: tindakLanjut,
+                                  maxHeightConstraints: _maxHeightNama,
+                                  hintText: 'Tindak Lanjut (Corrective Action)',
+                                ),
+                              ),
+                              SizedBox(
+                                height: sizedBoxHeightTall,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
-                                  // Tanggal
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: paddingHorizontalNarrow),
-                                    child: TitleWidget(
-                                      title: 'Tanggal',
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: textMedium,
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
                                     ),
+                                    onPressed: () => removeActivity(
+                                        index: index,
+                                        reportType: activitiesReport),
                                   ),
-                                  CupertinoButton(
-                                    child: Container(
-                                      width: size.width,
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: paddingHorizontalNarrow,
-                                          vertical: padding5),
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                          border:
-                                              Border.all(color: Colors.grey)),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          const Icon(
-                                            Icons.calendar_month_outlined,
-                                            color: Colors.grey,
-                                          ),
-                                          Text(
-                                            DateFormat('dd-MM-yyyy').format(
-                                                DateTime.parse(costReport[index]
-                                                    ["tanggalBiaya"])),
-                                            style: TextStyle(
-                                              color: Colors.grey,
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              fontWeight: FontWeight.w300,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    onPressed: () => _selectDate(
-                                      index: index,
-                                      reportType: costReport,
-                                      keyField: 'tanggalBiaya',
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: paddingHorizontalNarrow),
-                                    child: TitleWidget(
-                                      title: 'Kategori',
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: textMedium,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: sizedBoxHeightShort,
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.symmetric(
-                                        horizontal: paddingHorizontalNarrow),
-                                    height: 45,
-                                    decoration: BoxDecoration(
+                                ],
+                              ),
+                            ],
+                          );
+                        }),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightTall,
+                  ),
+                  Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+                    child: TitleWidget(
+                      title: 'Catatan :',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightShort,
+                  ),
+                  Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+                    child: TextFormFieldWidget(
+                      controller: _catatanAktivitasController,
+                      maxHeightConstraints: _maxHeightNama,
+                      hintText: '----',
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightTall,
+                  ),
+                  // Laporan Biaya Perjalanan Dinas
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow,
+                        vertical: padding10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const LineWidget(),
+                        SizedBox(
+                          height: sizedBoxHeightTall,
+                        ),
+                        RowWithButtonWidget(
+                          textLeft: 'Laporan Biaya Perjalanan Dinas',
+                          textRight: 'Tambah +',
+                          fontSizeLeft: textMedium,
+                          fontSizeRight: textSmall,
+                          onTab: () {
+                            addActivity(
+                              reportType: costReport,
+                            );
+                          },
+                          isEnabled: selectedValueTripNumber != null,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightShort,
+                  ),
+                  SizedBox(
+                    height: costReport.isEmpty ? 0 : size.width,
+                    child: ListView.builder(
+                        itemCount: costReport.length,
+                        itemBuilder: (context, index) {
+                          Map<String, dynamic> cost = costReport[index];
+                          TextEditingController uraian = cost['uraian'];
+                          TextEditingController nilai = cost['nilai'];
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Tanggal
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalNarrow),
+                                child: TitleWidget(
+                                  title: 'Tanggal',
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                              ),
+                              CupertinoButton(
+                                child: Container(
+                                  width: size.width,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: paddingHorizontalNarrow,
+                                      vertical: padding5),
+                                  decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5),
-                                      border: Border.all(color: Colors.grey),
-                                    ),
-                                    child: DropdownButtonFormField<String>(
-                                      hint: const Padding(
-                                        padding: EdgeInsets.only(left: 10),
-                                        child: Text(
-                                          'Pilih Kategori',
-                                          style: TextStyle(fontSize: 12),
-                                        ),
-                                      ),
-                                      value: selectedValueKategori[index],
-                                      icon: selectedKategori.isEmpty
-                                          ? const SizedBox(
-                                              height: 15,
-                                              width: 15,
-                                              child: CircularProgressIndicator(
-                                                valueColor:
-                                                    AlwaysStoppedAnimation<
-                                                        Color>(Colors.blue),
-                                              ),
-                                            )
-                                          : const Icon(Icons.arrow_drop_down),
-                                      onChanged: (newValue) {
-                                        setState(() {
-                                          selectedValueKategori[index] =
-                                              newValue!;
-                                        });
-                                      },
-                                      items: selectedKategori.map((value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value["kode_cost"] +
-                                              ' - ' +
-                                              value["deskripsi"],
-                                          child: Padding(
-                                            padding:
-                                                const EdgeInsets.only(left: 10),
-                                            child: Text(
-                                              value["deskripsi"],
-                                              style:
-                                                  const TextStyle(fontSize: 12),
-                                            ),
-                                          ),
-                                        );
-                                      }).toList(),
-                                      decoration: InputDecoration(
-                                        labelStyle:
-                                            const TextStyle(fontSize: 12),
-                                        focusedBorder:
-                                            const UnderlineInputBorder(
-                                          borderSide: BorderSide(
-                                            color: Colors.transparent,
-                                            width: 1.0,
-                                          ),
-                                        ),
-                                        enabledBorder: UnderlineInputBorder(
-                                          borderSide: BorderSide(
-                                            color:
-                                                selectedValueTripNumber != null
-                                                    ? Colors.transparent
-                                                    : Colors.transparent,
-                                            width: 1.0,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: sizedBoxHeightTall,
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: paddingHorizontalNarrow),
-                                    child: TitleWidget(
-                                      title: 'Uraian',
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: textMedium,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: sizedBoxHeightShort,
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: paddingHorizontalNarrow),
-                                    child: TextFormFieldWidget(
-                                      controller: uraian,
-                                      maxHeightConstraints: _maxHeightNama,
-                                      hintText: 'Uraian',
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: sizedBoxHeightTall,
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: paddingHorizontalNarrow),
-                                    child: TitleWidget(
-                                      title: 'Nilai',
-                                      fontWeight: FontWeight.w300,
-                                      fontSize: textMedium,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: sizedBoxHeightShort,
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: paddingHorizontalNarrow),
-                                    child: TextFormFieldWidget(
-                                      controller: nilai,
-                                      maxHeightConstraints: _maxHeightNama,
-                                      hintText: 'Nilai',
-                                      keyboardType: TextInputType.number,
-                                      inputFormatters: [
-                                        FilteringTextInputFormatter.allow(
-                                            RegExp(r'^[0-9]*$'))
-                                      ],
-                                      onChanged: (String value) {
-                                        debounceCalculation(
-                                            calculateFinancials);
-                                      },
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: sizedBoxHeightTall,
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: paddingHorizontalNarrow),
-                                    child: Row(
-                                      children: [
-                                        TitleWidget(
-                                          title: 'Lampiran',
-                                          fontWeight: FontWeight.w300,
-                                          fontSize: textMedium,
-                                        ),
-                                        Text(
-                                          '*',
-                                          textAlign: TextAlign.start,
-                                          style: TextStyle(
-                                              color: Colors.red,
-                                              fontSize: textMedium,
-                                              fontFamily: 'Poppins',
-                                              letterSpacing: 0.6,
-                                              fontWeight: FontWeight.w300),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: sizedBoxHeightShort,
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: paddingHorizontalNarrow),
-                                    child: Column(
-                                      children: [
-                                        Center(
-                                          child: ElevatedButton(
-                                            onPressed: () => pickFiles(
-                                                index: index,
-                                                reportType: costReport),
-                                            child: const Text('Pilih File'),
-                                          ),
-                                        ),
-                                        if (costReport[index]['files'] != null)
-                                          Column(
-                                            children: (costReport[index]
-                                                        ['files']
-                                                    as List<PlatformFile>)
-                                                .map((file) {
-                                              return ListTile(
-                                                title: Text(file.name),
-                                              );
-                                            }).toList(),
-                                          ),
-                                      ],
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: sizedBoxHeightTall,
-                                  ),
-                                  _isFileNull
-                                      ? Center(
-                                          child: Text(
-                                          'File Kosong',
-                                          style: TextStyle(
-                                              color: Colors.red,
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: textMedium),
-                                        ))
-                                      : const Text(''),
-                                  SizedBox(
-                                    height: sizedBoxHeightTall,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
+                                      border: Border.all(color: Colors.grey)),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      IconButton(
-                                        icon: const Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
+                                      const Icon(
+                                        Icons.calendar_month_outlined,
+                                        color: Colors.grey,
+                                      ),
+                                      Text(
+                                        DateFormat('dd-MM-yyyy').format(
+                                            DateTime.parse(costReport[index]
+                                                ["tanggalBiaya"])),
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: textMedium,
+                                          fontFamily: 'Poppins',
+                                          fontWeight: FontWeight.w300,
                                         ),
-                                        onPressed: () => removeActivity(
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                onPressed: () => _selectDate(
+                                  index: index,
+                                  reportType: costReport,
+                                  keyField: 'tanggalBiaya',
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalNarrow),
+                                child: TitleWidget(
+                                  title: 'Kategori',
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                              ),
+                              SizedBox(
+                                height: sizedBoxHeightShort,
+                              ),
+                              Container(
+                                margin: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalNarrow),
+                                height: 45,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5),
+                                  border: Border.all(color: Colors.grey),
+                                ),
+                                child: DropdownButtonFormField<String>(
+                                  hint: const Padding(
+                                    padding: EdgeInsets.only(left: 10),
+                                    child: Text(
+                                      'Pilih Kategori',
+                                      style: TextStyle(fontSize: 12),
+                                    ),
+                                  ),
+                                  value: selectedValueKategori[index],
+                                  icon: selectedKategori.isEmpty
+                                      ? const SizedBox(
+                                          height: 15,
+                                          width: 15,
+                                          child: CircularProgressIndicator(
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                                    Colors.blue),
+                                          ),
+                                        )
+                                      : const Icon(Icons.arrow_drop_down),
+                                  onChanged: (newValue) {
+                                    setState(() {
+                                      selectedValueKategori[index] = newValue!;
+                                    });
+                                  },
+                                  items: selectedKategori.map((value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value["kode_cost"] +
+                                          ' - ' +
+                                          value["deskripsi"],
+                                      child: Padding(
+                                        padding:
+                                            const EdgeInsets.only(left: 10),
+                                        child: Text(
+                                          value["deskripsi"],
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                  decoration: InputDecoration(
+                                    labelStyle: const TextStyle(fontSize: 12),
+                                    focusedBorder: const UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Colors.transparent,
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                    enabledBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: selectedValueTripNumber != null
+                                            ? Colors.transparent
+                                            : Colors.transparent,
+                                        width: 1.0,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: sizedBoxHeightTall,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalNarrow),
+                                child: TitleWidget(
+                                  title: 'Uraian',
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                              ),
+                              SizedBox(
+                                height: sizedBoxHeightShort,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalNarrow),
+                                child: TextFormFieldWidget(
+                                  controller: uraian,
+                                  maxHeightConstraints: _maxHeightNama,
+                                  hintText: 'Uraian',
+                                ),
+                              ),
+                              SizedBox(
+                                height: sizedBoxHeightTall,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalNarrow),
+                                child: TitleWidget(
+                                  title: 'Nilai',
+                                  fontWeight: FontWeight.w300,
+                                  fontSize: textMedium,
+                                ),
+                              ),
+                              SizedBox(
+                                height: sizedBoxHeightShort,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalNarrow),
+                                child: TextFormFieldWidget(
+                                  controller: nilai,
+                                  maxHeightConstraints: _maxHeightNama,
+                                  hintText: 'Nilai',
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^[0-9]*$'))
+                                  ],
+                                  onChanged: (String value) {
+                                    debounceCalculation(calculateFinancials);
+                                  },
+                                ),
+                              ),
+                              SizedBox(
+                                height: sizedBoxHeightTall,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalNarrow),
+                                child: Row(
+                                  children: [
+                                    TitleWidget(
+                                      title: 'Lampiran',
+                                      fontWeight: FontWeight.w300,
+                                      fontSize: textMedium,
+                                    ),
+                                    Text(
+                                      '*',
+                                      textAlign: TextAlign.start,
+                                      style: TextStyle(
+                                          color: Colors.red,
+                                          fontSize: textMedium,
+                                          fontFamily: 'Poppins',
+                                          letterSpacing: 0.6,
+                                          fontWeight: FontWeight.w300),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: sizedBoxHeightShort,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalNarrow),
+                                child: Column(
+                                  children: [
+                                    Center(
+                                      child: ElevatedButton(
+                                        onPressed: () => pickFiles(
                                             index: index,
                                             reportType: costReport),
+                                        child: const Text('Pilih File'),
                                       ),
-                                    ],
+                                    ),
+                                    if (costReport[index]['files'] != null)
+                                      Column(
+                                        children: (costReport[index]['files']
+                                                as List<PlatformFile>)
+                                            .map((file) {
+                                          return ListTile(
+                                            title: Text(file.name),
+                                          );
+                                        }).toList(),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: sizedBoxHeightTall,
+                              ),
+                              _isFileNull
+                                  ? Center(
+                                      child: Text(
+                                      'File Kosong',
+                                      style: TextStyle(
+                                          color: Colors.red,
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: textMedium),
+                                    ))
+                                  : const Text(''),
+                              SizedBox(
+                                height: sizedBoxHeightTall,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                    ),
+                                    onPressed: () => removeActivity(
+                                        index: index, reportType: costReport),
                                   ),
                                 ],
-                              );
-                            }),
-                      ),
+                              ),
+                            ],
+                          );
+                        }),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightTall,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
                       SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: size.width * 0.48,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: paddingHorizontalNarrow),
-                                  child: TitleWidget(
-                                    title: 'Jumlah Kas Diterima',
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: textMedium,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: sizedBoxHeightShort,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: paddingHorizontalNarrow),
-                                  child: TextFormFieldWidget(
-                                    controller: _jumlahKasDiterimaController,
-                                    maxHeightConstraints: _maxHeightNama,
-                                    hintText: '----',
-                                    enable: false,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            width: size.width * 0.48,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: paddingHorizontalNarrow),
-                                  child: TitleWidget(
-                                    title: 'Jumlah Pengeluaran',
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: textMedium,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: sizedBoxHeightShort,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: paddingHorizontalNarrow),
-                                  child: TextFormFieldWidget(
-                                    controller: _jumlahPengeluaranController,
-                                    maxHeightConstraints: _maxHeightNama,
-                                    hintText: '----',
-                                    enable: false,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: size.width * 0.48,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: paddingHorizontalNarrow),
-                                  child: TitleWidget(
-                                    title: 'Kelebihan Kas',
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: textMedium,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: sizedBoxHeightShort,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: paddingHorizontalNarrow),
-                                  child: TextFormFieldWidget(
-                                    controller: _kelebihanKasController,
-                                    maxHeightConstraints: _maxHeightNama,
-                                    hintText: '----',
-                                    enable: false,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            width: size.width * 0.48,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: paddingHorizontalNarrow),
-                                  child: TitleWidget(
-                                    title: 'Kekurangan Kas',
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: textMedium,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: sizedBoxHeightShort,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: paddingHorizontalNarrow),
-                                  child: TextFormFieldWidget(
-                                    controller: _kekuranganKasController,
-                                    maxHeightConstraints: _maxHeightNama,
-                                    hintText: '----',
-                                    enable: false,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide),
-                        child: TitleWidget(
-                          title: 'Catatan :',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide),
-                        child: TextFormFieldWidget(
-                          controller: _catatanBiayaController,
-                          maxHeightConstraints: _maxHeightNama,
-                          hintText: '----',
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      SizedBox(
-                        width: size.width,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow,
-                          ),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              _submit();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(primaryYellow),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                        width: size.width * 0.48,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow),
+                              child: TitleWidget(
+                                title: 'Jumlah Kas Diterima',
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
                               ),
                             ),
-                            child: Text(
-                              'Submit',
-                              style: TextStyle(
-                                  color: const Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.9,
-                                  fontWeight: FontWeight.w500),
+                            SizedBox(
+                              height: sizedBoxHeightShort,
                             ),
-                          ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow),
+                              child: TextFormFieldWidget(
+                                controller: _jumlahKasDiterimaController,
+                                maxHeightConstraints: _maxHeightNama,
+                                hintText: '----',
+                                enable: false,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(
-                        height: 15,
+                      SizedBox(
+                        width: size.width * 0.48,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow),
+                              child: TitleWidget(
+                                title: 'Jumlah Pengeluaran',
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              ),
+                            ),
+                            SizedBox(
+                              height: sizedBoxHeightShort,
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow),
+                              child: TextFormFieldWidget(
+                                controller: _jumlahPengeluaranController,
+                                maxHeightConstraints: _maxHeightNama,
+                                hintText: '----',
+                                enable: false,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ));
+                  SizedBox(
+                    height: sizedBoxHeightTall,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: size.width * 0.48,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow),
+                              child: TitleWidget(
+                                title: 'Kelebihan Kas',
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              ),
+                            ),
+                            SizedBox(
+                              height: sizedBoxHeightShort,
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow),
+                              child: TextFormFieldWidget(
+                                controller: _kelebihanKasController,
+                                maxHeightConstraints: _maxHeightNama,
+                                hintText: '----',
+                                enable: false,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        width: size.width * 0.48,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow),
+                              child: TitleWidget(
+                                title: 'Kekurangan Kas',
+                                fontWeight: FontWeight.w300,
+                                fontSize: textMedium,
+                              ),
+                            ),
+                            SizedBox(
+                              height: sizedBoxHeightShort,
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow),
+                              child: TextFormFieldWidget(
+                                controller: _kekuranganKasController,
+                                maxHeightConstraints: _maxHeightNama,
+                                hintText: '----',
+                                enable: false,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightTall,
+                  ),
+                  Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+                    child: TitleWidget(
+                      title: 'Catatan :',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightShort,
+                  ),
+                  Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+                    child: TextFormFieldWidget(
+                      controller: _catatanBiayaController,
+                      maxHeightConstraints: _maxHeightNama,
+                      hintText: '----',
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightTall,
+                  ),
+                  SizedBox(
+                    width: size.width,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow,
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _submit();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(primaryYellow),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'Submit',
+                          style: TextStyle(
+                              color: const Color(primaryBlack),
+                              fontSize: textMedium,
+                              fontFamily: 'Poppins',
+                              letterSpacing: 0.9,
+                              fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 15,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ));
   }
 }
