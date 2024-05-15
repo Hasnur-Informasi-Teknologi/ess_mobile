@@ -28,7 +28,6 @@ class _FormRencanaBiayaPerjalananDinasState
     extends State<FormRencanaBiayaPerjalananDinas> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // Sesi 1
   List<Map<String, dynamic>> selectedEntitasHCGS = [];
   String? selectedValueEntitasHCGS;
   List<Map<String, dynamic>> selectedNrpHCGS = [];
