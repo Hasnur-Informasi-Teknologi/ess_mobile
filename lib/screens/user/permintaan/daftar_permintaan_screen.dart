@@ -124,7 +124,6 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
         setState(() {
           masterDataPermintaan =
               List<Map<String, dynamic>>.from(dataMasterBantuanKomunikasiApi);
-          // print(masterDataPermintaan);
           _isLoading = false;
         });
       } catch (e) {
@@ -610,7 +609,6 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                                               horizontal:
                                                   paddingHorizontalNarrow,
                                             ),
-                                            // buildBantuanKomunikasi
                                             child: selectedValueDaftarPermintaan ==
                                                     '2'
                                                 ? buildBantuanKomunikasi(
@@ -932,7 +930,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              Icon(Icons.details_sharp),
+                              const Icon(Icons.details_sharp),
                               Text(
                                 'Detail',
                                 style: TextStyle(
@@ -1002,6 +1000,8 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding5 = size.width * 0.0188;
+
+    print(data['id']);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1091,7 +1091,9 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                     InkWell(
                       onTap: () {
                         Get.toNamed(
-                            '/user/main/submition/aplikasi_training/detail_aplikasi_training');
+                          '/user/main/daftar_permintaan/detail_pengajuan_cuti',
+                          arguments: {'id': data['id']},
+                        );
                       },
                       child: Container(
                         width: size.width * 0.38,

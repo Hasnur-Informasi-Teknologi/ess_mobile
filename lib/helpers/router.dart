@@ -48,17 +48,12 @@ import 'package:mobile_ess/screens/user/home/request_attendance/ubah_data_kehadi
 import 'package:mobile_ess/screens/user/home/transactions/transactions_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
+import 'package:mobile_ess/screens/user/permintaan/detail_pengajuan_cuti_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/profile/profile_edit_screen.dart';
 import 'package:mobile_ess/screens/user/profile/profile_screen.dart';
-import 'package:mobile_ess/screens/user/submition/detail_aplikasi_training.dart';
-import 'package:mobile_ess/screens/user/submition/detail_bantuan_komunikasi.dart';
-
-import 'package:mobile_ess/screens/user/submition/detail_form_pengajuan_lembur.dart';
+import 'package:mobile_ess/screens/user/permintaan/detail_bantuan_komunikasi_daftar_permintaan.dart';
 
 import 'package:mobile_ess/splash_screen.dart';
-import 'package:path/path.dart';
-
-import '../screens/admin/administrator/master data/master_data_pic_hrgs.dart';
 
 Map<String, Widget Function(BuildContext)> routers() {
   return {
@@ -67,7 +62,6 @@ Map<String, Widget Function(BuildContext)> routers() {
     '/user/main': (context) => const MainScreenWithAnimation(),
     '/user/profile': (context) => const ProfileScreen(),
     '/user/profile/edit': (context) => const ProfileEditScreen(),
-    // '/user/main_new': (context) => const MainScreenWithAnimation(),
     '/user/main/home/online_form': (context) => const OnlineFormScreen(),
     '/user/main/home/online_form/aplikasi_training': (context) =>
         const FormAplikasiTrainingScreen(),
@@ -120,10 +114,10 @@ Map<String, Widget Function(BuildContext)> routers() {
     '/user/main/home/pengumuman': (context) => const PengumumanScreen(),
     '/user/main/home/pengumuman/detail_pengumuman': (context) =>
         const DetailPengumumanScreen(),
-    '/user/main/submition/aplikasi_training/detail_aplikasi_training':
-        (context) => const DetailAplikasiTraining(),
     '/user/main/daftar_permintaan/detail_bantuan_komunikasi': (context) =>
-        const DetailBantuanKomunikasi(),
+        const DetailBantuanKomunikasiDaftarPermintaan(),
+    '/user/main/daftar_permintaan/detail_pengajuan_cuti': (context) =>
+        const DetailPengajuanCutiDaftarPermintaan(),
     // '/user/main/submition/aplikasi_training/detail_aplikasi_training':
     //     (context) => const DetailFormPengajuanLembur(),
     '/user/main/home/transactions': (context) => const TransactionsScreen(),

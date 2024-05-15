@@ -1,19 +1,28 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:get/get.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
+import 'package:mobile_ess/widgets/pdf_screen.dart';
 import 'package:mobile_ess/widgets/row_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_center_with_badge_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
 class DaftarPersetujuanScreen extends StatefulWidget {
   const DaftarPersetujuanScreen({super.key});
@@ -26,6 +35,7 @@ class DaftarPersetujuanScreen extends StatefulWidget {
 class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _alasanRejectController = TextEditingController();
+  String rawatInapPDFpath = "";
 
   final String _apiUrl = API_URL;
 
@@ -53,6 +63,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
   String? selectedValueDaftarPersetujuan;
   bool _isLoading = false;
+  bool _isLoadingContent = false;
   bool _isLoadingScreen = false;
 
   bool isDataEmpty = true;
@@ -65,6 +76,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   String? type = 'persetujuan';
   String? kodeEntitas = '';
   String? tahunPengajuan = '';
+  int? idRawatInap;
 
   final double _maxHeightDaftarPermintaan = 60.0;
   final double _maxHeightSearch = 40.0;
@@ -75,6 +87,11 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   void initState() {
     super.initState();
     getMasterDataCuti();
+    // createPdfRawatInap(146).then((f) {
+    //   setState(() {
+    //     rawatInapPDFpath = f.path;
+    //   });
+    // });
   }
 
   Future<void> getDataPengajuanCuti(String? statusFilter) async {
@@ -151,13 +168,14 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
       try {
         final response = await http.get(
             Uri.parse(
-                "$_apiUrl/rawat/inap/all?page=$page&limit=$perPage&search=$search&status=$statusFilterRawatInapJalan&permintaan=1"),
+                "$_apiUrl/rawat/inap/all?page=$page&limit=$perPage&search=$search&status=$statusFilterRawatInapJalan&permintaan=0"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
             });
         final responseData = jsonDecode(response.body);
         final dataMasterInapApi = responseData['data']['data'];
+        print(dataMasterInapApi);
 
         setState(() {
           masterDataPersetujuan =
@@ -458,26 +476,95 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     }
   }
 
-  Future<void> _download(int? id) async {
+  Future<File> createPdfRawatInap(int? id) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
-    if (token != null) {
-      try {
-        var url =
-            "http://192.168.89.21/online-form/approval-rawat-inap/$id/download";
-        var response = await http.get(Uri.parse(url));
-        if (response.statusCode == 200) {
-          var dir = await getApplicationDocumentsDirectory();
-          File file = File('${dir.path}/nama_file_yang_diinginkan.pdf');
-          await file.writeAsBytes(response.bodyBytes);
-          print('File berhasil diunduh ke: ${file.path}');
-        } else {
-          print('Gagal mengunduh file: ${response.reasonPhrase}');
-        }
-      } catch (e) {
-        print(e);
+    setState(() {
+      _isLoadingContent = true;
+    });
+
+    Completer<File> completer = Completer();
+    try {
+      // final url = "http://www.pdf995.com/samples/pdf.pdf";
+      var url =
+          "http://192.168.89.21/online-form/approval-rawat-inap/${id}/pdf/inap${id}.pdf";
+      final filename = url.substring(url.lastIndexOf("/") + 1);
+      var request = await HttpClient().getUrl(Uri.parse(url));
+      request.headers.set('Content-Type', 'application/json;charset=UTF-8');
+      request.headers.set('Authorization', 'Bearer $token');
+      var response = await request.close();
+      var bytes = await consolidateHttpClientResponseBytes(response);
+      // var dir = await getApplicationDocumentsDirectory();
+      var dir = await getExternalStorageDirectory();
+
+      var downloadDir = Directory('${dir!.path}/Download');
+      if (!downloadDir.existsSync()) {
+        downloadDir.createSync(recursive: true);
       }
+      print(dir);
+      print(dir.path);
+      setState(() {
+        _isLoadingContent = false;
+      });
+      File file = File("${dir.path}/$filename");
+
+      await file.writeAsBytes(bytes, flush: true);
+      print('File berhasil diunduh ke: ${file.path}');
+      completer.complete(file);
+
+      if (rawatInapPDFpath.isNotEmpty) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PDFScreen(path: rawatInapPDFpath),
+          ),
+        );
+      }
+    } catch (e) {
+      throw Exception('Error parsing asset file!');
+    }
+
+    return completer.future;
+  }
+
+  Future<File> fromAsset(String asset, String filename) async {
+    Completer<File> completer = Completer();
+
+    try {
+      var dir = await getApplicationDocumentsDirectory();
+      File file = File("${dir.path}/$filename");
+      var data = await rootBundle.load(asset);
+      var bytes = data.buffer.asUint8List();
+      await file.writeAsBytes(bytes, flush: true);
+      completer.complete(file);
+    } catch (e) {
+      throw Exception('Error parsing asset file!');
+    }
+
+    return completer.future;
+  }
+
+  Future<void> _downloadRawatInap(int? id) async {
+    createPdfRawatInap(id).then((f) {
+      setState(() {
+        rawatInapPDFpath = f.path;
+      });
+    });
+
+    if (rawatInapPDFpath.isNotEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PDFScreen(path: rawatInapPDFpath),
+        ),
+      );
+    } else {
+      createPdfRawatInap(id).then((f) {
+        setState(() {
+          rawatInapPDFpath = f.path;
+        });
+      });
     }
   }
 
@@ -2101,15 +2188,16 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                     ),
                     InkWell(
                       onTap: () {
-                        _download(data['id_rawat_inap']);
-                        // Get.snackbar('Infomation', 'Coming Soon',
-                        //     snackPosition: SnackPosition.TOP,
-                        //     backgroundColor: Colors.amber,
-                        //     icon: const Icon(
-                        //       Icons.info,
-                        //       color: Colors.white,
+                        _downloadRawatInap(data['id_rawat_inap']);
+                        // if (rawatInapPDFpath.isNotEmpty) {
+                        //   Navigator.push(
+                        //     context,
+                        //     MaterialPageRoute(
+                        //       builder: (context) =>
+                        //           PDFScreen(path: rawatInapPDFpath),
                         //     ),
-                        //     shouldIconPulse: false);
+                        //   );
+                        // }
                       },
                       child: Container(
                         width: size.width * 0.38,
@@ -2119,23 +2207,34 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                           color: const Color(primaryYellow),
                           borderRadius: BorderRadius.circular(5.0),
                         ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Icon(Icons.download_rounded),
-                              Text(
-                                'Unduhan',
-                                style: TextStyle(
-                                  color: Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w500,
+                        child: _isLoadingContent
+                            ? Center(
+                                child: SizedBox(
+                                  width: size.height * 0.025,
+                                  height: size.height * 0.025,
+                                  child: const CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              )
+                            : Center(
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Icon(Icons.download_rounded),
+                                    Text(
+                                      'Unduhan',
+                                      style: TextStyle(
+                                        color: Color(primaryBlack),
+                                        fontSize: textMedium,
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
                       ),
                     ),
                   ],
