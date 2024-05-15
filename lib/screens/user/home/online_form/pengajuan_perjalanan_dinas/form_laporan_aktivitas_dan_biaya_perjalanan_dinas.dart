@@ -28,7 +28,6 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
     extends State<FormLaporanAktivitasDanBiayaPerjalananDinas> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // Sesi 1
   List<Map<String, dynamic>> selectedTripNumber = [];
   String? selectedValueTripNumber;
   final _nrpController = TextEditingController();
