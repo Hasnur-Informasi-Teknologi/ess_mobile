@@ -49,6 +49,7 @@ import 'package:mobile_ess/screens/user/home/transactions/transactions_screen.da
 import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_pengajuan_cuti_daftar_permintaan.dart';
+import 'package:mobile_ess/screens/user/permintaan/detail_rawat_inap_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/profile/profile_edit_screen.dart';
 import 'package:mobile_ess/screens/user/profile/profile_screen.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_bantuan_komunikasi_daftar_permintaan.dart';
@@ -118,6 +119,8 @@ Map<String, Widget Function(BuildContext)> routers() {
         const DetailBantuanKomunikasiDaftarPermintaan(),
     '/user/main/daftar_permintaan/detail_pengajuan_cuti': (context) =>
         const DetailPengajuanCutiDaftarPermintaan(),
+    '/user/main/daftar_permintaan/detail_rawat_inap': (context) =>
+        const DetailRawatInapDaftarPermintaan(),
     // '/user/main/submition/aplikasi_training/detail_aplikasi_training':
     //     (context) => const DetailFormPengajuanLembur(),
     '/user/main/home/transactions': (context) => const TransactionsScreen(),

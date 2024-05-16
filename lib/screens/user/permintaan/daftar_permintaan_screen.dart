@@ -1,15 +1,23 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
+import 'package:mobile_ess/widgets/pdf_screen.dart';
 import 'package:mobile_ess/widgets/row_widget.dart';
 import 'package:mobile_ess/widgets/title_center_with_badge_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DaftarPermintaanScreen extends StatefulWidget {
@@ -22,9 +30,7 @@ class DaftarPermintaanScreen extends StatefulWidget {
 class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final String _apiUrl = API_URL;
-
-  final TextEditingController _trainingController = TextEditingController();
-  final TextEditingController _searchController = TextEditingController();
+  String rawatInapPDFpath = "";
 
   List<Map<String, dynamic>> selectedDaftarPermintaan = [
     {'id': '1', 'opsi': 'Aplikasi Rekrutmen'},
@@ -57,9 +63,9 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
   String? type = 'permintaan';
   String? kodeEntitas = '';
   String? tahunPengajuan = '';
+  bool _isLoadingContent = false;
 
   final double _maxHeightDaftarPermintaan = 60.0;
-  final double _maxHeightSearch = 40.0;
 
   int current = 0;
 
@@ -67,7 +73,6 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
   void initState() {
     super.initState();
     getMasterDataCuti();
-    // getDataPengajuanCuti(statusFilter);
   }
 
   Future<void> getDataPengajuanCuti(String? statusFilter) async {
@@ -280,17 +285,102 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
     }
   }
 
+  Future<File> createPdfRawatInap(int? id) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    setState(() {
+      _isLoadingContent = true;
+    });
+
+    Completer<File> completer = Completer();
+    try {
+      var url =
+          "http://192.168.89.21/online-form/approval-rawat-inap/${id}/pdf/inap${id}.pdf";
+      final filename = url.substring(url.lastIndexOf("/") + 1);
+      var request = await HttpClient().getUrl(Uri.parse(url));
+      request.headers.set('Content-Type', 'application/json;charset=UTF-8');
+      request.headers.set('Authorization', 'Bearer $token');
+      var response = await request.close();
+      var bytes = await consolidateHttpClientResponseBytes(response);
+      // var dir = await getApplicationDocumentsDirectory();
+      var dir = await getExternalStorageDirectory();
+
+      var downloadDir = Directory('${dir!.path}/Download');
+      if (!downloadDir.existsSync()) {
+        downloadDir.createSync(recursive: true);
+      }
+      setState(() {
+        _isLoadingContent = false;
+      });
+      File file = File("${dir.path}/$filename");
+
+      await file.writeAsBytes(bytes, flush: true);
+      completer.complete(file);
+
+      if (rawatInapPDFpath.isNotEmpty) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PDFScreen(path: rawatInapPDFpath),
+          ),
+        );
+      }
+    } catch (e) {
+      throw Exception('Error parsing asset file!');
+    }
+
+    return completer.future;
+  }
+
+  Future<File> fromAsset(String asset, String filename) async {
+    Completer<File> completer = Completer();
+
+    try {
+      var dir = await getApplicationDocumentsDirectory();
+      File file = File("${dir.path}/$filename");
+      var data = await rootBundle.load(asset);
+      var bytes = data.buffer.asUint8List();
+      await file.writeAsBytes(bytes, flush: true);
+      completer.complete(file);
+    } catch (e) {
+      throw Exception('Error parsing asset file!');
+    }
+
+    return completer.future;
+  }
+
+  Future<void> _downloadRawatInap(int? id) async {
+    createPdfRawatInap(id).then((f) {
+      setState(() {
+        rawatInapPDFpath = f.path;
+      });
+    });
+
+    if (rawatInapPDFpath.isNotEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PDFScreen(path: rawatInapPDFpath),
+        ),
+      );
+    } else {
+      createPdfRawatInap(id).then((f) {
+        setState(() {
+          rawatInapPDFpath = f.path;
+        });
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightShort = size.height * 0.0086;
-    double sizedBoxHeightExtraTall = size.height * 0.0215;
     double paddingHorizontalNarrow = size.width * 0.035;
     double paddingHorizontalWide = size.width * 0.0585;
-    double padding5 = size.width * 0.0115;
-    double padding10 = size.width * 0.023;
 
     return DefaultTabController(
       length: 4,
@@ -417,40 +507,6 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                   SizedBox(
                     height: sizedBoxHeightTall,
                   ),
-                  // Padding(
-                  //   padding:
-                  //       EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                  //   child: TextFormField(
-                  //     controller: _searchController,
-                  //     decoration: InputDecoration(
-                  //       border: OutlineInputBorder(
-                  //         borderRadius: BorderRadius.circular(5),
-                  //         borderSide: const BorderSide(
-                  //           color: Colors.transparent,
-                  //           width: 0,
-                  //         ),
-                  //       ),
-                  //       focusedBorder: OutlineInputBorder(
-                  //           borderRadius: BorderRadius.circular(5),
-                  //           borderSide: const BorderSide(
-                  //               color: Colors.black, width: 1)),
-                  //       enabledBorder: OutlineInputBorder(
-                  //           borderRadius: BorderRadius.circular(5),
-                  //           borderSide:
-                  //               const BorderSide(color: Colors.grey, width: 0)),
-                  //       constraints:
-                  //           BoxConstraints(maxHeight: _maxHeightSearch),
-                  //       filled: true,
-                  //       fillColor: Colors.white,
-                  //       hintText: 'Search',
-                  //       hintStyle: TextStyle(
-                  //         fontSize: textMedium,
-                  //         fontFamily: 'Poppins',
-                  //         color: Color(textPlaceholder),
-                  //       ),
-                  //     ),
-                  //   ),
-                  // ),
                 ],
               ),
             ),
@@ -581,7 +637,6 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                                 masterDataPermintaan = [];
                               });
                             }
-                            print(masterDataPermintaan);
                           },
                         ),
                         //Main Body
@@ -633,7 +688,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                                                                 ? buildRawatJalan(
                                                                     masterDataPermintaan[
                                                                         index])
-                                                                : Text(
+                                                                : const Text(
                                                                     'Kosong'),
                                           );
                                         },
@@ -683,7 +738,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                                                                 ? buildRawatJalan(
                                                                     masterDataPermintaan[
                                                                         index])
-                                                                : Text(
+                                                                : const Text(
                                                                     'Kosong'),
                                           );
                                         },
@@ -733,7 +788,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                                                                 ? buildRawatJalan(
                                                                     masterDataPermintaan[
                                                                         index])
-                                                                : Text(
+                                                                : const Text(
                                                                     'Kosong'),
                                           );
                                         },
@@ -783,7 +838,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                                                                 ? buildRawatJalan(
                                                                     masterDataPermintaan[
                                                                         index])
-                                                                : Text(
+                                                                : const Text(
                                                                     'Kosong'),
                                           );
                                         },
@@ -1000,8 +1055,6 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding5 = size.width * 0.0188;
-
-    print(data['id']);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1400,7 +1453,9 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                     InkWell(
                       onTap: () {
                         Get.toNamed(
-                            '/user/main/submition/aplikasi_training/detail_aplikasi_training');
+                          '/user/main/daftar_permintaan/detail_rawat_inap',
+                          arguments: {'id': data['id_rawat_inap']},
+                        );
                       },
                       child: Container(
                         width: size.width * 0.38,
@@ -1414,7 +1469,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              Icon(Icons.details_sharp),
+                              const Icon(Icons.details_sharp),
                               Text(
                                 'Detail',
                                 style: TextStyle(
@@ -1431,14 +1486,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                     ),
                     InkWell(
                       onTap: () {
-                        Get.snackbar('Infomation', 'Coming Soon',
-                            snackPosition: SnackPosition.TOP,
-                            backgroundColor: Colors.amber,
-                            icon: const Icon(
-                              Icons.info,
-                              color: Colors.white,
-                            ),
-                            shouldIconPulse: false);
+                        _downloadRawatInap(data['id_rawat_inap']);
                       },
                       child: Container(
                         width: size.width * 0.38,
@@ -1448,23 +1496,34 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                           color: const Color(primaryYellow),
                           borderRadius: BorderRadius.circular(5.0),
                         ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Icon(Icons.download_rounded),
-                              Text(
-                                'Unduhan',
-                                style: TextStyle(
-                                  color: Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w500,
+                        child: _isLoadingContent
+                            ? Center(
+                                child: SizedBox(
+                                  width: size.height * 0.025,
+                                  height: size.height * 0.025,
+                                  child: const CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              )
+                            : Center(
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    const Icon(Icons.download_rounded),
+                                    Text(
+                                      'Unduhan',
+                                      style: TextStyle(
+                                        color: const Color(primaryBlack),
+                                        fontSize: textMedium,
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
                       ),
                     ),
                   ],

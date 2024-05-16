@@ -87,11 +87,6 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   void initState() {
     super.initState();
     getMasterDataCuti();
-    // createPdfRawatInap(146).then((f) {
-    //   setState(() {
-    //     rawatInapPDFpath = f.path;
-    //   });
-    // });
   }
 
   Future<void> getDataPengajuanCuti(String? statusFilter) async {
@@ -175,7 +170,6 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
             });
         final responseData = jsonDecode(response.body);
         final dataMasterInapApi = responseData['data']['data'];
-        print(dataMasterInapApi);
 
         setState(() {
           masterDataPersetujuan =
