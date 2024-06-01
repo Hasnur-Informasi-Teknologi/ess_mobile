@@ -198,14 +198,14 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
                                       ),
                                     ),
                                     onPressed: clockInProcess,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(12),
-                                      child: const Text(
-                                        'Button Proses Absen',
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(12),
+                                      child: Text(
+                                        'Clock In',
                                         style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w500),
-                                      ).tr(namedArgs: {'check': 'Check-In'}),
+                                      ),
                                     ),
                                   ),
                                 ),

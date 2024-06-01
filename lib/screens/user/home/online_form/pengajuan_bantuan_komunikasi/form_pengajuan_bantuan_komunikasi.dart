@@ -491,37 +491,6 @@ class _FormPengajuanBantuanKomunikasiState
     setState(() {
       _isLoading = false;
     });
-
-    // print(justDate);
-    // print(_nrpController.text);
-    // print(_pangkatController.text);
-    // print(_namaController.text);
-    // print(selectedValueEntitas);
-    // print(selectedValuePenerima);
-    // print(selectedValueMdBiayaKomunikasi);
-    // print(selectedValuePenerima);
-    // print(_namaPenerimaController.text);
-    // print(_jabatanPenerimaController.text);
-    // print(_idPangkatPenerimaController.text);
-    // print(_pangkatPenerimaController.text);
-    // print(selectedValueJfKomunikas);
-    // print(_nominalController.text);
-    // print(prioritas);
-    // print(_merekMobilePhoneController.text);
-    // print(jenisMobilePhone);
-    // print(_tujuanEksternalController.text);
-    // print(_tujuanInternalController.text);
-    // print(_keteranganController.text);
-    // print(selectedValueEntitasAtasan);
-    // print(selectedValueAtasan);
-    // print(selectedValueEntitasDirektur);
-    // print(selectedValueDirektur);
-    // print(selectedValueEntitasHcgs);
-    // print(selectedValueHcgs);
-    // print(selectedValueEntitasDirekturKeuangan);
-    // print(selectedValueDirekturKeuangan);
-    // print(selectedValueEntitasPresidenDirektur);
-    // print(selectedValuePresidenDirektur);
   }
 
   String? _validatorEntitas(dynamic value) {
@@ -765,16 +734,13 @@ class _FormPengajuanBantuanKomunikasiState
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    double textSmall = size.width * 0.027;
     double textMedium = size.width * 0.0329;
     double textLarge = size.width * 0.04;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double paddingHorizontalNarrow = size.width * 0.035;
-    double paddingHorizontalWide = size.width * 0.0585;
-    double padding5 = size.width * 0.0115;
-    double padding7 = size.width * 0.018;
+
     return _isLoading
         ? const Scaffold(body: Center(child: CircularProgressIndicator()))
         : Scaffold(
@@ -805,1682 +771,10 @@ class _FormPengajuanBantuanKomunikasiState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Diajukan Oleh : ',
-                          fontWeight: FontWeight.w500,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: const LineWidget(),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Tanggal Pengajuan',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      CupertinoButton(
-                        child: Container(
-                          width: size.width,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow,
-                              vertical: padding5),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5),
-                              border: Border.all(color: Colors.grey)),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Icon(
-                                Icons.calendar_month_outlined,
-                                color: Colors.grey,
-                              ),
-                              Text(
-                                DateFormat('dd-MM-yyyy').format(
-                                    _tanggalPengajuanController.selectedDate ??
-                                        DateTime.now()),
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w300,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        onPressed: () {},
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'NRP',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFielDisableWidget(
-                          controller: _nrpController,
-                          maxHeightConstraints: maxHeightNrp,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Nama',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFielDisableWidget(
-                          controller: _namaController,
-                          maxHeightConstraints: maxHeightNama,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Pangkat',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFielDisableWidget(
-                          controller: _pangkatController,
-                          maxHeightConstraints: maxHeightPangkat,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Fasilitas Komunikasi Diberikan Kepada : ',
-                          fontWeight: FontWeight.w500,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: const LineWidget(),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih Entitas : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorEntitas,
-                          value: selectedValueEntitas,
-                          icon: selectedEntitas.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueEntitas = newValue ?? '';
-                              selectedValuePenerima = null;
-                              getDataPenerima();
-                            });
-                          },
-                          items:
-                              selectedEntitas.map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["kode"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: value["nama"] as String,
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            constraints:
-                                BoxConstraints(maxHeight: maxHeightEntitas),
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValueEntitas != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih Kelompok Jabatan & Pangkat : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorJabatan,
-                          value: selectedValueMdBiayaKomunikasi,
-                          icon: selectedMdBiayaKomunikasi.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueMdBiayaKomunikasi = newValue ?? '';
-                              selectedValuePenerima = null;
-                              getDataPenerima();
-                            });
-                          },
-                          items: selectedMdBiayaKomunikasi
-                              .map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["id"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: value["pangkat"] as String,
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            constraints:
-                                BoxConstraints(maxHeight: maxHeightJabatan),
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValueMdBiayaKomunikasi != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih Penerima : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorPenerima,
-                          value: selectedValuePenerima,
-                          icon: selectedPenerima.isEmpty ||
-                                  selectedValueMdBiayaKomunikasi == null
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValuePenerima = newValue ?? '';
-                              // Filter selectedPenerima berdasarkan selectedValuePenerima
-                              var filteredPenerima = selectedPenerima.where(
-                                  (penerima) =>
-                                      penerima["pernr"] ==
-                                      selectedValuePenerima);
-                              // Ambil nilai pangkat dan jabatan dari hasil filter
-                              _jabatanPenerimaController.text = filteredPenerima
-                                  .map((penerima) => penerima["position"])
-                                  .first;
-                              _pangkatPenerimaController.text = filteredPenerima
-                                  .map((penerima) => penerima["pangkat"])
-                                  .first;
-                              _namaPenerimaController.text = filteredPenerima
-                                  .map((penerima) => penerima["nama"])
-                                  .first;
-                              _idPangkatPenerimaController.text =
-                                  filteredPenerima
-                                      .map((penerima) => penerima["kd_pangkat"])
-                                      .first;
-                            });
-                          },
-                          items: selectedPenerima
-                              .map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["pernr"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: '${value["nama"]} - ${value["pernr"]}',
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            constraints:
-                                BoxConstraints(maxHeight: maxHeightPenerima),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValuePenerima != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Jabatan',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFielDisableWidget(
-                          controller: _jabatanPenerimaController,
-                          maxHeightConstraints: maxHeightJabatanPenerima,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Pangkat',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFielDisableWidget(
-                          controller: _pangkatPenerimaController,
-                          maxHeightConstraints: maxHeightPangkatPenerima,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih Fasilitas : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorFasilitas,
-                          value: selectedValueJfKomunikas,
-                          icon: selectedJfKomunikasi.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueJfKomunikas = newValue ?? '';
-                              if (selectedValueJfKomunikas == '1') {
-                                _isMobilePhoneChecked = true;
-                              } else {
-                                _isMobilePhoneChecked = false;
-                              }
-                            });
-                          },
-                          items: selectedJfKomunikasi
-                              .map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["id"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: value["nama_fasilitas"] as String,
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            constraints:
-                                BoxConstraints(maxHeight: maxHeightJabatan),
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValueJfKomunikas != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Prioritas ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          buildCheckbox('Rendah', _isRendahChecked),
-                          buildCheckbox('Sedang', _isSedangChecked),
-                          buildCheckbox('Tinggi', _isTinggiChecked),
-                        ],
-                      ),
-                      (_isMobilePhoneChecked!)
-                          ? Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  height: sizedBoxHeightTall,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: paddingHorizontalNarrow),
-                                  child: TitleWidget(
-                                    title: 'Merek Mobile Phone ',
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: textMedium,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: sizedBoxHeightShort,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: paddingHorizontalNarrow),
-                                  child: TextFormFieldWidget(
-                                    controller: _merekMobilePhoneController,
-                                    maxHeightConstraints:
-                                        maxHeightMerekMobilePhone,
-                                    hintText: 'masukkan merek',
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: sizedBoxHeightTall,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: paddingHorizontalNarrow),
-                                  child: TitleWidget(
-                                    title: 'Jenis Mobile Phone ',
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: textMedium,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: sizedBoxHeightShort,
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    buildCheckboxMerekPhone(
-                                        'Smartphone', _isSmartphoneChecked),
-                                    buildCheckboxMerekPhone(
-                                        'Lainnya', _isLainnyaChecked)
-                                  ],
-                                ),
-                              ],
-                            )
-                          : const SizedBox(
-                              height: 0,
-                            ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Nominal (Rupiah) ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFieldNumberWidget(
-                          validator: _validatorNominal,
-                          controller: _nominalController,
-                          maxHeightConstraints: maxHeightNominal,
-                          hintText: 'masukkan nominal',
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Tujuan Komunikasi ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFieldWidget(
-                          validator: _validatorKomunikasi,
-                          controller: _tujuanInternalController,
-                          maxHeightConstraints:
-                              maxHeightTujuanKomunikasiInternal,
-                          hintText: 'Tujuan Internal',
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFieldWidget(
-                          controller: _tujuanEksternalController,
-                          maxHeightConstraints:
-                              maxHeightTujuanKomunikasiEksternal,
-                          hintText: 'Tujuan Eksternal',
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Keterangan ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFieldWidget(
-                          validator: _validatorKeterangan,
-                          controller: _keteranganController,
-                          maxHeightConstraints: maxHeightKeterangan,
-                          hintText: 'Keterangan',
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Diajukan Kepada : ',
-                          fontWeight: FontWeight.w500,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: const LineWidget(),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih Entitas Atasan : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorEntitasAtasan,
-                          value: selectedValueEntitasAtasan,
-                          icon: selectedEntitasAtasan.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueEntitasAtasan = newValue ?? '';
-                              selectedValueAtasan = null;
-                              getDataAtasan();
-                            });
-                          },
-                          items: selectedEntitasAtasan
-                              .map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["kode"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: value["nama"] as String,
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            constraints: BoxConstraints(
-                                maxHeight: maxHeightEntitasAtasan),
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValueEntitasAtasan != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih Atasan : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorAtasan,
-                          value: selectedValueAtasan,
-                          icon: selectedAtasan.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueAtasan = newValue ?? '';
-                            });
-                          },
-                          items:
-                              selectedAtasan.map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["pernr"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: '${value["nama"]} - ${value["pernr"]}',
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            constraints:
-                                BoxConstraints(maxHeight: maxHeightAtasan),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValueAtasan != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih Entitas HCGS : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorEntitasHcgs,
-                          value: selectedValueEntitasHcgs,
-                          icon: selectedEntitasHcgs.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueEntitasHcgs = newValue ?? '';
-                              selectedValueHcgs = null;
-                              getDataHcgs();
-                            });
-                          },
-                          items: selectedEntitasHcgs
-                              .map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["kode"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: value["nama"] as String,
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            constraints:
-                                BoxConstraints(maxHeight: maxHeightEntitasHcgs),
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValueEntitasHcgs != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih HCGS : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorHcgs,
-                          value: selectedValueHcgs,
-                          icon: selectedHcgs.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueHcgs = newValue ?? '';
-                            });
-                          },
-                          items: selectedHcgs.map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["pernr"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: '${value["nama"]} - ${value["pernr"]}',
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            constraints:
-                                BoxConstraints(maxHeight: maxHeightHcgs),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValueHcgs != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih Entitas Direktur : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorEntitasDirektur,
-                          value: selectedValueEntitasDirektur,
-                          icon: selectedEntitasDirektur.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueEntitasDirektur = newValue ?? '';
-                              selectedValueDirektur = null;
-                              getDataDirektur();
-                            });
-                          },
-                          items: selectedEntitasDirektur
-                              .map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["kode"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: value["nama"] as String,
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            constraints: BoxConstraints(
-                                maxHeight: maxHeightEntitasDirektur),
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValueEntitasDirektur != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih Direktur : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorDirektur,
-                          value: selectedValueDirektur,
-                          icon: selectedDirektur.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueDirektur = newValue ?? '';
-                            });
-                          },
-                          items: selectedDirektur
-                              .map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["pernr"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: '${value["nama"]} - ${value["pernr"]}',
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            constraints:
-                                BoxConstraints(maxHeight: maxHeightDirektur),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValueDirektur != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih Entitas Direktur Keuangan : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorEntitasDirekturKeuangan,
-                          value: selectedValueEntitasDirekturKeuangan,
-                          icon: selectedEntitasDirekturKeuangan.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueEntitasDirekturKeuangan =
-                                  newValue ?? '';
-                              selectedValueDirekturKeuangan = null;
-                              getDataDirekturKeuangan();
-                            });
-                          },
-                          items: selectedEntitasDirekturKeuangan
-                              .map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["kode"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: value["nama"] as String,
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            constraints: BoxConstraints(
-                                maxHeight: maxHeightEntitasDirekturKeuangan),
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color:
-                                    selectedValueEntitasDirekturKeuangan != null
-                                        ? Colors.black54
-                                        : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih Direktur Keuangan : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorDirekturKeuangan,
-                          value: selectedValueDirekturKeuangan,
-                          icon: selectedDirekturKeuangan.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueDirekturKeuangan = newValue ?? '';
-                            });
-                          },
-                          items: selectedDirekturKeuangan
-                              .map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["pernr"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: '${value["nama"]} - ${value["pernr"]}',
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            constraints: BoxConstraints(
-                                maxHeight: maxHeightDirekturKeuangan),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValueDirekturKeuangan != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih Entitas Presiden Direktur : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorEntitasPresidenDirektur,
-                          value: selectedValueEntitasPresidenDirektur,
-                          icon: selectedEntitasPresidenDirektur.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueEntitasPresidenDirektur =
-                                  newValue ?? '';
-                              selectedValuePresidenDirektur = null;
-                              getDataPresidenDirektur();
-                            });
-                          },
-                          items: selectedEntitasPresidenDirektur
-                              .map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["kode"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: value["nama"] as String,
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            constraints: BoxConstraints(
-                                maxHeight: maxHeightEntitasPresidenDirektur),
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color:
-                                    selectedValueEntitasPresidenDirektur != null
-                                        ? Colors.black54
-                                        : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih Presiden Direktur : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorPresidenDirektur,
-                          value: selectedValuePresidenDirektur,
-                          icon: selectedPresidenDirektur.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValuePresidenDirektur = newValue ?? '';
-                            });
-                          },
-                          items: selectedPresidenDirektur
-                              .map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["pernr"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: '${value["nama"]} - ${value["pernr"]}',
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            constraints: BoxConstraints(
-                                maxHeight: maxHeightPresidenDirektur),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValuePresidenDirektur != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      SizedBox(
-                        width: size.width,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalNarrow),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              showSubmitModal(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(primaryYellow),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                            child: Text(
-                              'Submit',
-                              style: TextStyle(
-                                  color: const Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.9,
-                                  fontWeight: FontWeight.w500),
-                            ),
-                          ),
-                        ),
-                      ),
+                      diajukanOlehFormWidget(context),
+                      fasilitasKomunikasiDiberikanKepadaFormWidget(context),
+                      diajukanKepadaFormWidget(context),
+                      submitButton(context),
                       SizedBox(
                         height: sizedBoxHeightExtraTall,
                       ),
@@ -2488,6 +782,1631 @@ class _FormPengajuanBantuanKomunikasiState
                   ))
             ]),
           );
+  }
+
+  Widget diajukanOlehFormWidget(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double padding5 = size.width * 0.0115;
+    double textMedium = size.width * 0.0329;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double sizedBoxHeightTall = size.height * 0.0163;
+    double paddingHorizontalNarrow = size.width * 0.035;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: sizedBoxHeightTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: TitleWidget(
+            title: 'Diajukan Oleh : ',
+            fontWeight: FontWeight.w500,
+            fontSize: textMedium,
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightShort,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: const LineWidget(),
+        ),
+        SizedBox(
+          height: sizedBoxHeightTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: TitleWidget(
+            title: 'Tanggal Pengajuan',
+            fontWeight: FontWeight.w300,
+            fontSize: textMedium,
+          ),
+        ),
+        CupertinoButton(
+          child: Container(
+            width: size.width,
+            padding: EdgeInsets.symmetric(
+                horizontal: paddingHorizontalNarrow, vertical: padding5),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: Colors.grey)),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Icon(
+                  Icons.calendar_month_outlined,
+                  color: Colors.grey,
+                ),
+                Text(
+                  DateFormat('dd-MM-yyyy').format(
+                      _tanggalPengajuanController.selectedDate ??
+                          DateTime.now()),
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          onPressed: () {},
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: TitleWidget(
+            title: 'NRP',
+            fontWeight: FontWeight.w300,
+            fontSize: textMedium,
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightShort,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: TextFormFielDisableWidget(
+            controller: _nrpController,
+            maxHeightConstraints: maxHeightNrp,
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: TitleWidget(
+            title: 'Nama',
+            fontWeight: FontWeight.w300,
+            fontSize: textMedium,
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightShort,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: TextFormFielDisableWidget(
+            controller: _namaController,
+            maxHeightConstraints: maxHeightNama,
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: TitleWidget(
+            title: 'Pangkat',
+            fontWeight: FontWeight.w300,
+            fontSize: textMedium,
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightShort,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: TextFormFielDisableWidget(
+            controller: _pangkatController,
+            maxHeightConstraints: maxHeightPangkat,
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightExtraTall,
+        ),
+      ],
+    );
+  }
+
+  Widget fasilitasKomunikasiDiberikanKepadaFormWidget(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double sizedBoxHeightTall = size.height * 0.0163;
+    double paddingHorizontalNarrow = size.width * 0.035;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: TitleWidget(
+            title: 'Fasilitas Komunikasi Diberikan Kepada : ',
+            fontWeight: FontWeight.w500,
+            fontSize: textMedium,
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightShort,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: const LineWidget(),
+        ),
+        SizedBox(
+          height: sizedBoxHeightExtraTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: Row(
+            children: [
+              TitleWidget(
+                title: 'Pilih Entitas : ',
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              Text(
+                '*',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300),
+              )
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: DropdownButtonFormField<String>(
+            menuMaxHeight: size.height * 0.5,
+            validator: _validatorEntitas,
+            value: selectedValueEntitas,
+            icon: selectedEntitas.isEmpty
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  )
+                : const Icon(Icons.arrow_drop_down),
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedValueEntitas = newValue ?? '';
+                selectedValuePenerima = null;
+                getDataPenerima();
+              });
+            },
+            items: selectedEntitas.map((Map<String, dynamic> value) {
+              return DropdownMenuItem<String>(
+                value: value["kode"].toString(),
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: TitleWidget(
+                    title: value["nama"] as String,
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+              );
+            }).toList(),
+            decoration: InputDecoration(
+              constraints: BoxConstraints(maxHeight: maxHeightEntitas),
+              labelStyle: TextStyle(fontSize: textMedium),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.black,
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: selectedValueEntitas != null
+                      ? Colors.black54
+                      : Colors.grey,
+                  width: 1.0,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightExtraTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: Row(
+            children: [
+              TitleWidget(
+                title: 'Pilih Kelompok Jabatan & Pangkat : ',
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              Text(
+                '*',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300),
+              )
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: DropdownButtonFormField<String>(
+            menuMaxHeight: size.height * 0.5,
+            validator: _validatorJabatan,
+            value: selectedValueMdBiayaKomunikasi,
+            icon: selectedMdBiayaKomunikasi.isEmpty
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  )
+                : const Icon(Icons.arrow_drop_down),
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedValueMdBiayaKomunikasi = newValue ?? '';
+                selectedValuePenerima = null;
+                getDataPenerima();
+              });
+            },
+            items: selectedMdBiayaKomunikasi.map((Map<String, dynamic> value) {
+              return DropdownMenuItem<String>(
+                value: value["id"].toString(),
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: TitleWidget(
+                    title: value["pangkat"] as String,
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+              );
+            }).toList(),
+            decoration: InputDecoration(
+              constraints: BoxConstraints(maxHeight: maxHeightJabatan),
+              labelStyle: TextStyle(fontSize: textMedium),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.black,
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: selectedValueMdBiayaKomunikasi != null
+                      ? Colors.black54
+                      : Colors.grey,
+                  width: 1.0,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightExtraTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: Row(
+            children: [
+              TitleWidget(
+                title: 'Pilih Penerima : ',
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              Text(
+                '*',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300),
+              )
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: DropdownButtonFormField<String>(
+            menuMaxHeight: size.height * 0.5,
+            validator: _validatorPenerima,
+            value: selectedValuePenerima,
+            icon: selectedPenerima.isEmpty ||
+                    selectedValueMdBiayaKomunikasi == null
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  )
+                : const Icon(Icons.arrow_drop_down),
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedValuePenerima = newValue ?? '';
+                // Filter selectedPenerima berdasarkan selectedValuePenerima
+                var filteredPenerima = selectedPenerima.where(
+                    (penerima) => penerima["pernr"] == selectedValuePenerima);
+                // Ambil nilai pangkat dan jabatan dari hasil filter
+                _jabatanPenerimaController.text = filteredPenerima
+                    .map((penerima) => penerima["position"])
+                    .first;
+                _pangkatPenerimaController.text = filteredPenerima
+                    .map((penerima) => penerima["pangkat"])
+                    .first;
+                _namaPenerimaController.text =
+                    filteredPenerima.map((penerima) => penerima["nama"]).first;
+                _idPangkatPenerimaController.text = filteredPenerima
+                    .map((penerima) => penerima["kd_pangkat"])
+                    .first;
+              });
+            },
+            items: selectedPenerima.map((Map<String, dynamic> value) {
+              return DropdownMenuItem<String>(
+                value: value["pernr"].toString(),
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: TitleWidget(
+                    title: '${value["nama"]} - ${value["pernr"]}',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+              );
+            }).toList(),
+            decoration: InputDecoration(
+              labelStyle: TextStyle(fontSize: textMedium),
+              constraints: BoxConstraints(maxHeight: maxHeightPenerima),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.black,
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: selectedValuePenerima != null
+                      ? Colors.black54
+                      : Colors.grey,
+                  width: 1.0,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: TitleWidget(
+            title: 'Jabatan',
+            fontWeight: FontWeight.w300,
+            fontSize: textMedium,
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightShort,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: TextFormFielDisableWidget(
+            controller: _jabatanPenerimaController,
+            maxHeightConstraints: maxHeightJabatanPenerima,
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: TitleWidget(
+            title: 'Pangkat',
+            fontWeight: FontWeight.w300,
+            fontSize: textMedium,
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightShort,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: TextFormFielDisableWidget(
+            controller: _pangkatPenerimaController,
+            maxHeightConstraints: maxHeightPangkatPenerima,
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: Row(
+            children: [
+              TitleWidget(
+                title: 'Pilih Fasilitas : ',
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              Text(
+                '*',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300),
+              )
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: DropdownButtonFormField<String>(
+            menuMaxHeight: size.height * 0.5,
+            validator: _validatorFasilitas,
+            value: selectedValueJfKomunikas,
+            icon: selectedJfKomunikasi.isEmpty
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  )
+                : const Icon(Icons.arrow_drop_down),
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedValueJfKomunikas = newValue ?? '';
+                if (selectedValueJfKomunikas == '1') {
+                  _isMobilePhoneChecked = true;
+                } else {
+                  _isMobilePhoneChecked = false;
+                }
+              });
+            },
+            items: selectedJfKomunikasi.map((Map<String, dynamic> value) {
+              return DropdownMenuItem<String>(
+                value: value["id"].toString(),
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: TitleWidget(
+                    title: value["nama_fasilitas"] as String,
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+              );
+            }).toList(),
+            decoration: InputDecoration(
+              constraints: BoxConstraints(maxHeight: maxHeightJabatan),
+              labelStyle: TextStyle(fontSize: textMedium),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.black,
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: selectedValueJfKomunikas != null
+                      ? Colors.black54
+                      : Colors.grey,
+                  width: 1.0,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightExtraTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: Row(
+            children: [
+              TitleWidget(
+                title: 'Prioritas ',
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              Text(
+                '*',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300),
+              )
+            ],
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightShort,
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            buildCheckbox('Rendah', _isRendahChecked),
+            buildCheckbox('Sedang', _isSedangChecked),
+            buildCheckbox('Tinggi', _isTinggiChecked),
+          ],
+        ),
+        (_isMobilePhoneChecked!)
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: sizedBoxHeightTall,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Merek Mobile Phone ',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightShort,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TextFormFieldWidget(
+                      controller: _merekMobilePhoneController,
+                      maxHeightConstraints: maxHeightMerekMobilePhone,
+                      hintText: 'masukkan merek',
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightTall,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: TitleWidget(
+                      title: 'Jenis Mobile Phone ',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                  SizedBox(
+                    height: sizedBoxHeightShort,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      buildCheckboxMerekPhone(
+                          'Smartphone', _isSmartphoneChecked),
+                      buildCheckboxMerekPhone('Lainnya', _isLainnyaChecked)
+                    ],
+                  ),
+                ],
+              )
+            : const SizedBox(
+                height: 0,
+              ),
+        SizedBox(
+          height: sizedBoxHeightTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: Row(
+            children: [
+              TitleWidget(
+                title: 'Nominal (Rupiah) ',
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              Text(
+                '*',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300),
+              )
+            ],
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightShort,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: TextFormFieldNumberWidget(
+            validator: _validatorNominal,
+            controller: _nominalController,
+            maxHeightConstraints: maxHeightNominal,
+            hintText: 'masukkan nominal',
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: Row(
+            children: [
+              TitleWidget(
+                title: 'Tujuan Komunikasi ',
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              Text(
+                '*',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300),
+              )
+            ],
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightShort,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: TextFormFieldWidget(
+            validator: _validatorKomunikasi,
+            controller: _tujuanInternalController,
+            maxHeightConstraints: maxHeightTujuanKomunikasiInternal,
+            hintText: 'Tujuan Internal',
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightShort,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: TextFormFieldWidget(
+            controller: _tujuanEksternalController,
+            maxHeightConstraints: maxHeightTujuanKomunikasiEksternal,
+            hintText: 'Tujuan Eksternal',
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: Row(
+            children: [
+              TitleWidget(
+                title: 'Keterangan ',
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              Text(
+                '*',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300),
+              )
+            ],
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightShort,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: TextFormFieldWidget(
+            validator: _validatorKeterangan,
+            controller: _keteranganController,
+            maxHeightConstraints: maxHeightKeterangan,
+            hintText: 'Keterangan',
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightExtraTall,
+        ),
+      ],
+    );
+  }
+
+  Widget diajukanKepadaFormWidget(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double padding5 = size.width * 0.0115;
+    double textMedium = size.width * 0.0329;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double sizedBoxHeightTall = size.height * 0.0163;
+    double paddingHorizontalNarrow = size.width * 0.035;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: TitleWidget(
+            title: 'Diajukan Kepada : ',
+            fontWeight: FontWeight.w500,
+            fontSize: textMedium,
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightShort,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: const LineWidget(),
+        ),
+        SizedBox(
+          height: sizedBoxHeightExtraTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: Row(
+            children: [
+              TitleWidget(
+                title: 'Pilih Entitas Atasan : ',
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              Text(
+                '*',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300),
+              )
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: DropdownButtonFormField<String>(
+            menuMaxHeight: size.height * 0.5,
+            validator: _validatorEntitasAtasan,
+            value: selectedValueEntitasAtasan,
+            icon: selectedEntitasAtasan.isEmpty
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  )
+                : const Icon(Icons.arrow_drop_down),
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedValueEntitasAtasan = newValue ?? '';
+                selectedValueAtasan = null;
+                getDataAtasan();
+              });
+            },
+            items: selectedEntitasAtasan.map((Map<String, dynamic> value) {
+              return DropdownMenuItem<String>(
+                value: value["kode"].toString(),
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: TitleWidget(
+                    title: value["nama"] as String,
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+              );
+            }).toList(),
+            decoration: InputDecoration(
+              constraints: BoxConstraints(maxHeight: maxHeightEntitasAtasan),
+              labelStyle: TextStyle(fontSize: textMedium),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.black,
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: selectedValueEntitasAtasan != null
+                      ? Colors.black54
+                      : Colors.grey,
+                  width: 1.0,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightExtraTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: Row(
+            children: [
+              TitleWidget(
+                title: 'Pilih Atasan : ',
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              Text(
+                '*',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300),
+              )
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: DropdownButtonFormField<String>(
+            menuMaxHeight: size.height * 0.5,
+            validator: _validatorAtasan,
+            value: selectedValueAtasan,
+            icon: selectedAtasan.isEmpty
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  )
+                : const Icon(Icons.arrow_drop_down),
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedValueAtasan = newValue ?? '';
+              });
+            },
+            items: selectedAtasan.map((Map<String, dynamic> value) {
+              return DropdownMenuItem<String>(
+                value: value["pernr"].toString(),
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: TitleWidget(
+                    title: '${value["nama"]} - ${value["pernr"]}',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+              );
+            }).toList(),
+            decoration: InputDecoration(
+              labelStyle: TextStyle(fontSize: textMedium),
+              constraints: BoxConstraints(maxHeight: maxHeightAtasan),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.black,
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: selectedValueAtasan != null
+                      ? Colors.black54
+                      : Colors.grey,
+                  width: 1.0,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightExtraTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: Row(
+            children: [
+              TitleWidget(
+                title: 'Pilih Entitas HCGS : ',
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              Text(
+                '*',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300),
+              )
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: DropdownButtonFormField<String>(
+            menuMaxHeight: size.height * 0.5,
+            validator: _validatorEntitasHcgs,
+            value: selectedValueEntitasHcgs,
+            icon: selectedEntitasHcgs.isEmpty
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  )
+                : const Icon(Icons.arrow_drop_down),
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedValueEntitasHcgs = newValue ?? '';
+                selectedValueHcgs = null;
+                getDataHcgs();
+              });
+            },
+            items: selectedEntitasHcgs.map((Map<String, dynamic> value) {
+              return DropdownMenuItem<String>(
+                value: value["kode"].toString(),
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: TitleWidget(
+                    title: value["nama"] as String,
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+              );
+            }).toList(),
+            decoration: InputDecoration(
+              constraints: BoxConstraints(maxHeight: maxHeightEntitasHcgs),
+              labelStyle: TextStyle(fontSize: textMedium),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.black,
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: selectedValueEntitasHcgs != null
+                      ? Colors.black54
+                      : Colors.grey,
+                  width: 1.0,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightExtraTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: Row(
+            children: [
+              TitleWidget(
+                title: 'Pilih HCGS : ',
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              Text(
+                '*',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300),
+              )
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: DropdownButtonFormField<String>(
+            menuMaxHeight: size.height * 0.5,
+            validator: _validatorHcgs,
+            value: selectedValueHcgs,
+            icon: selectedHcgs.isEmpty
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  )
+                : const Icon(Icons.arrow_drop_down),
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedValueHcgs = newValue ?? '';
+              });
+            },
+            items: selectedHcgs.map((Map<String, dynamic> value) {
+              return DropdownMenuItem<String>(
+                value: value["pernr"].toString(),
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: TitleWidget(
+                    title: '${value["nama"]} - ${value["pernr"]}',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+              );
+            }).toList(),
+            decoration: InputDecoration(
+              labelStyle: TextStyle(fontSize: textMedium),
+              constraints: BoxConstraints(maxHeight: maxHeightHcgs),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.black,
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color:
+                      selectedValueHcgs != null ? Colors.black54 : Colors.grey,
+                  width: 1.0,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightExtraTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: Row(
+            children: [
+              TitleWidget(
+                title: 'Pilih Entitas Direktur : ',
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              Text(
+                '*',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300),
+              )
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: DropdownButtonFormField<String>(
+            menuMaxHeight: size.height * 0.5,
+            validator: _validatorEntitasDirektur,
+            value: selectedValueEntitasDirektur,
+            icon: selectedEntitasDirektur.isEmpty
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  )
+                : const Icon(Icons.arrow_drop_down),
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedValueEntitasDirektur = newValue ?? '';
+                selectedValueDirektur = null;
+                getDataDirektur();
+              });
+            },
+            items: selectedEntitasDirektur.map((Map<String, dynamic> value) {
+              return DropdownMenuItem<String>(
+                value: value["kode"].toString(),
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: TitleWidget(
+                    title: value["nama"] as String,
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+              );
+            }).toList(),
+            decoration: InputDecoration(
+              constraints: BoxConstraints(maxHeight: maxHeightEntitasDirektur),
+              labelStyle: TextStyle(fontSize: textMedium),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.black,
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: selectedValueEntitasDirektur != null
+                      ? Colors.black54
+                      : Colors.grey,
+                  width: 1.0,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightExtraTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: Row(
+            children: [
+              TitleWidget(
+                title: 'Pilih Direktur : ',
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              Text(
+                '*',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300),
+              )
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: DropdownButtonFormField<String>(
+            menuMaxHeight: size.height * 0.5,
+            validator: _validatorDirektur,
+            value: selectedValueDirektur,
+            icon: selectedDirektur.isEmpty
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  )
+                : const Icon(Icons.arrow_drop_down),
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedValueDirektur = newValue ?? '';
+              });
+            },
+            items: selectedDirektur.map((Map<String, dynamic> value) {
+              return DropdownMenuItem<String>(
+                value: value["pernr"].toString(),
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: TitleWidget(
+                    title: '${value["nama"]} - ${value["pernr"]}',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+              );
+            }).toList(),
+            decoration: InputDecoration(
+              labelStyle: TextStyle(fontSize: textMedium),
+              constraints: BoxConstraints(maxHeight: maxHeightDirektur),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.black,
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: selectedValueDirektur != null
+                      ? Colors.black54
+                      : Colors.grey,
+                  width: 1.0,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightExtraTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: Row(
+            children: [
+              TitleWidget(
+                title: 'Pilih Entitas Direktur Keuangan : ',
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              Text(
+                '*',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300),
+              )
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: DropdownButtonFormField<String>(
+            menuMaxHeight: size.height * 0.5,
+            validator: _validatorEntitasDirekturKeuangan,
+            value: selectedValueEntitasDirekturKeuangan,
+            icon: selectedEntitasDirekturKeuangan.isEmpty
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  )
+                : const Icon(Icons.arrow_drop_down),
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedValueEntitasDirekturKeuangan = newValue ?? '';
+                selectedValueDirekturKeuangan = null;
+                getDataDirekturKeuangan();
+              });
+            },
+            items: selectedEntitasDirekturKeuangan
+                .map((Map<String, dynamic> value) {
+              return DropdownMenuItem<String>(
+                value: value["kode"].toString(),
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: TitleWidget(
+                    title: value["nama"] as String,
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+              );
+            }).toList(),
+            decoration: InputDecoration(
+              constraints:
+                  BoxConstraints(maxHeight: maxHeightEntitasDirekturKeuangan),
+              labelStyle: TextStyle(fontSize: textMedium),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.black,
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: selectedValueEntitasDirekturKeuangan != null
+                      ? Colors.black54
+                      : Colors.grey,
+                  width: 1.0,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightExtraTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: Row(
+            children: [
+              TitleWidget(
+                title: 'Pilih Direktur Keuangan : ',
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              Text(
+                '*',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300),
+              )
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: DropdownButtonFormField<String>(
+            menuMaxHeight: size.height * 0.5,
+            validator: _validatorDirekturKeuangan,
+            value: selectedValueDirekturKeuangan,
+            icon: selectedDirekturKeuangan.isEmpty
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  )
+                : const Icon(Icons.arrow_drop_down),
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedValueDirekturKeuangan = newValue ?? '';
+              });
+            },
+            items: selectedDirekturKeuangan.map((Map<String, dynamic> value) {
+              return DropdownMenuItem<String>(
+                value: value["pernr"].toString(),
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: TitleWidget(
+                    title: '${value["nama"]} - ${value["pernr"]}',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+              );
+            }).toList(),
+            decoration: InputDecoration(
+              labelStyle: TextStyle(fontSize: textMedium),
+              constraints: BoxConstraints(maxHeight: maxHeightDirekturKeuangan),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.black,
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: selectedValueDirekturKeuangan != null
+                      ? Colors.black54
+                      : Colors.grey,
+                  width: 1.0,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightExtraTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: Row(
+            children: [
+              TitleWidget(
+                title: 'Pilih Entitas Presiden Direktur : ',
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              Text(
+                '*',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300),
+              )
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: DropdownButtonFormField<String>(
+            menuMaxHeight: size.height * 0.5,
+            validator: _validatorEntitasPresidenDirektur,
+            value: selectedValueEntitasPresidenDirektur,
+            icon: selectedEntitasPresidenDirektur.isEmpty
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  )
+                : const Icon(Icons.arrow_drop_down),
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedValueEntitasPresidenDirektur = newValue ?? '';
+                selectedValuePresidenDirektur = null;
+                getDataPresidenDirektur();
+              });
+            },
+            items: selectedEntitasPresidenDirektur
+                .map((Map<String, dynamic> value) {
+              return DropdownMenuItem<String>(
+                value: value["kode"].toString(),
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: TitleWidget(
+                    title: value["nama"] as String,
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+              );
+            }).toList(),
+            decoration: InputDecoration(
+              constraints:
+                  BoxConstraints(maxHeight: maxHeightEntitasPresidenDirektur),
+              labelStyle: TextStyle(fontSize: textMedium),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.black,
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: selectedValueEntitasPresidenDirektur != null
+                      ? Colors.black54
+                      : Colors.grey,
+                  width: 1.0,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightExtraTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: Row(
+            children: [
+              TitleWidget(
+                title: 'Pilih Presiden Direktur : ',
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              Text(
+                '*',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300),
+              )
+            ],
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+          child: DropdownButtonFormField<String>(
+            menuMaxHeight: size.height * 0.5,
+            validator: _validatorPresidenDirektur,
+            value: selectedValuePresidenDirektur,
+            icon: selectedPresidenDirektur.isEmpty
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  )
+                : const Icon(Icons.arrow_drop_down),
+            onChanged: (String? newValue) {
+              setState(() {
+                selectedValuePresidenDirektur = newValue ?? '';
+              });
+            },
+            items: selectedPresidenDirektur.map((Map<String, dynamic> value) {
+              return DropdownMenuItem<String>(
+                value: value["pernr"].toString(),
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: TitleWidget(
+                    title: '${value["nama"]} - ${value["pernr"]}',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+              );
+            }).toList(),
+            decoration: InputDecoration(
+              labelStyle: TextStyle(fontSize: textMedium),
+              constraints: BoxConstraints(maxHeight: maxHeightPresidenDirektur),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.black,
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: selectedValuePresidenDirektur != null
+                      ? Colors.black54
+                      : Colors.grey,
+                  width: 1.0,
+                ),
+              ),
+            ),
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightExtraTall,
+        ),
+      ],
+    );
+  }
+
+  Widget submitButton(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double paddingHorizontalNarrow = size.width * 0.035;
+
+    return SizedBox(
+      width: size.width,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+        child: ElevatedButton(
+          onPressed: () {
+            showSubmitModal(context);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(primaryYellow),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: Text(
+            'Submit',
+            style: TextStyle(
+                color: const Color(primaryBlack),
+                fontSize: textMedium,
+                fontFamily: 'Poppins',
+                letterSpacing: 0.9,
+                fontWeight: FontWeight.w500),
+          ),
+        ),
+      ),
+    );
   }
 
   void showSubmitModal(BuildContext context) {

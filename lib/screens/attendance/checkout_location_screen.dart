@@ -255,19 +255,16 @@ class _CheckoutLocationScreenState extends State<CheckoutLocationScreen> {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                     ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 12, right: 12),
-                                      child: const Text(
-                                        'Button Proses Absen',
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500),
-                                      ).tr(namedArgs: {
-                                        'check': widget.attendanceType
-                                      }),
-                                    ),
                                     onPressed: clockOutProcess,
+                                    child: const Padding(
+                                        padding: EdgeInsets.only(
+                                            left: 12, right: 12),
+                                        child: Text(
+                                          'Clock Out',
+                                          style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w500),
+                                        )),
                                   ),
                                 ),
                                 SingleChildScrollView(

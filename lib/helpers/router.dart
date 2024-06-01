@@ -48,8 +48,14 @@ import 'package:mobile_ess/screens/user/home/request_attendance/ubah_data_kehadi
 import 'package:mobile_ess/screens/user/home/transactions/transactions_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
+import 'package:mobile_ess/screens/user/permintaan/detail_im_perjalanan_dinas_daftar_permintaan.dart';
+import 'package:mobile_ess/screens/user/permintaan/detail_lpj_perjalanan_dinas_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_pengajuan_cuti_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_rawat_inap_daftar_permintaan.dart';
+import 'package:mobile_ess/screens/user/persetujuan/detail_pengajuan_cuti_daftar_persetujuan.dart';
+import 'package:mobile_ess/screens/user/persetujuan/detail_perpanjangan_cuti_daftar_persetujuan.dart';
+import 'package:mobile_ess/screens/user/persetujuan/detail_rawat_inap_daftar_persetujuan.dart';
+import 'package:mobile_ess/screens/user/persetujuan/detail_rawat_jalan_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/profile/profile_edit_screen.dart';
 import 'package:mobile_ess/screens/user/profile/profile_screen.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_bantuan_komunikasi_daftar_permintaan.dart';
@@ -121,6 +127,19 @@ Map<String, Widget Function(BuildContext)> routers() {
         const DetailPengajuanCutiDaftarPermintaan(),
     '/user/main/daftar_permintaan/detail_rawat_inap': (context) =>
         const DetailRawatInapDaftarPermintaan(),
+    '/user/main/daftar_permintaan/detail_im_perjalanan_dinas': (context) =>
+        const DetailImPerjalananDinasDaftarPermintaan(),
+    '/user/main/daftar_permintaan/detail_lpj_perjalanan_dinas': (context) =>
+        const DetailLpjPerjalananDinasDaftarPermintaan(),
+    '/user/main/daftar_persetujuan/detail_rawat_inap': (context) =>
+        const DetailRawatInapDaftarPersetujuan(),
+    '/user/main/daftar_persetujuan/detail_rawat_jalan': (context) =>
+        const DetailRawatJalanDaftarPersetujuan(),
+    '/user/main/daftar_persetujuan/detail_pengajuan_cuti': (context) =>
+        const DetailPengajuanCutiDaftarPersetujuan(),
+    '/user/main/daftar_persetujuan/detail_perpanjangan_cuti': (context) =>
+        const DetailPerpanjanganCutiDaftarPersetujuan(),
+
     // '/user/main/submition/aplikasi_training/detail_aplikasi_training':
     //     (context) => const DetailFormPengajuanLembur(),
     '/user/main/home/transactions': (context) => const TransactionsScreen(),

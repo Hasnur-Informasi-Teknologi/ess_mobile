@@ -60,39 +60,23 @@ class _RegisterFaceScreenState extends State<RegisterFaceScreen> {
     final userId = karyawan['pernr'];
 
     final entity = prefs.getString('entity');
-    print('====1=====');
-    print('====2=====');
     // XFile image = await _cameraController!.takePicture();
     final image = await _cameraController!.takePicture();
-    // print(image);
-    print('====3=====');
     if (image != null && image.path != null) {
       File rotatedImage =
           await FlutterExifRotation.rotateImage(path: image.path);
 
-      print(rotatedImage.path);
-
-      print('Capture Berhasil');
-
       File imageFile = File(rotatedImage.path);
-      print('====4=====');
-
       //========================================================================
       var request = http.MultipartRequest(
           'POST', Uri.parse('https://hitfaceapi.my.id/api/face/extract'));
-      print('====5=====');
       request.fields['id_user'] = userId.toString();
       request.fields['entity'] = entity.toString();
       request.fields['force'] = force;
-      print('====6=====');
-      print(request.fields);
-      print('====7=====');
       request.files.add(http.MultipartFile.fromBytes(
           'file', imageFile.readAsBytesSync(),
           filename: imageFile.path.split('/').last));
-      print('====8=====');
       var res = await request.send();
-      print('====9=====');
       var respStr = await res.stream.bytesToString();
       final result = jsonDecode(respStr) as Map<dynamic, dynamic>;
       var status = result['status'] ?? '';
@@ -103,7 +87,6 @@ class _RegisterFaceScreenState extends State<RegisterFaceScreen> {
       // var idUser = result['id_user'] ?? '';
       // print(
       // 'status : $status , message : $message , duplicate : $duplicate, confidence : $confidence, entity : $entity2');
-      print(result);
       if (status == false) {
         _showErrorDialog(message);
         setState(() => _isDuplicate = false);
@@ -358,7 +341,6 @@ class _RegisterFaceScreenState extends State<RegisterFaceScreen> {
   @override
   void dispose() {
     _cameraController!.dispose();
-    print('Camera Disposed!');
     super.dispose();
   }
 }

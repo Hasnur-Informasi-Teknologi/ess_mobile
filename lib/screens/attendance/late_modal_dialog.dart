@@ -87,8 +87,6 @@ class _LateModalDialogState extends State<LateModalDialog> {
     setState(() {
       _isLoading = false;
     });
-    print('Message $responseDataMessage');
-    print(responseDataMessage['error']);
     if (responseDataMessage['message'] == 'Success') {
       Get.offAllNamed('/user/main');
     }
