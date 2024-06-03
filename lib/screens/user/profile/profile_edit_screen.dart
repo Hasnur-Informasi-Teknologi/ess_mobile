@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -229,9 +230,6 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       ));
 
       final response = await request.send();
-      print("CHECK UPLOAD PHOTO");
-      print(response);
-      print(response.statusCode);
       if (response.statusCode == 200) {
         print('Image uploaded!');
         x.message.value = "Image Uploaded!";
@@ -250,13 +248,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    double textSmall = size.width * 0.027;
-    double textMedium = size.width * 0.0329;
-    double textLarge = size.width * 0.04;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightTall = size.height * 0.0163;
-    double paddingHorizontalWide = size.width * 0.0585;
-    double sizedBoxHeightExtraTall = size.height * 0.0215;
 
     return Scaffold(
         appBar: AppBar(
@@ -271,423 +264,403 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
+                      const SizedBox(
                         height: 30,
                       ),
-                      Center(
+                      const Center(
                         child: Text("Edit Profile",
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
                             )),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 30,
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Obx(
-                            () => Text(x.message.toString()),
-                          ),
-                          SizedBox(
-                            width: 20,
-                          ),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              onPrimary: Colors.black87,
-                              elevation: 5,
-                              primary: Colors.blue[300],
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              shape: const RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10)),
-                              ),
-                            ),
-                            onPressed: () async {
-                              x.message.value = '';
-                              final imageFile =
-                                  await _pickImage(ImageSource.gallery);
-                              if (imageFile != null) {
-                                uploadImage(imageFile);
-                              }
-                            },
-                            child: Row(children: [Text('Upload Photo ...')]),
-                          ),
-                        ],
-                      ),
+                      uploadPhotoButton(context),
                       const TitleWidget(title: 'Data Pribadi'),
                       SizedBox(height: sizedBoxHeightShort),
-                      ExpansionPanelList(
-                        expandedHeaderPadding: EdgeInsets.zero,
-                        elevation: 1,
-                        animationDuration: Duration(milliseconds: 500),
-                        expansionCallback: (int index, bool isExpanded) {
-                          setState(() {
-                            x.infoPribadi.value = !x.infoPribadi.value;
-                          });
-                        },
-                        children: [
-                          ExpansionPanel(
-                            headerBuilder:
-                                (BuildContext context, bool isExpanded) {
-                              return ListTile(
-                                leading: const Icon(Icons.person_2),
-                                title: Text(
-                                  'Informasi Pribadi',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: textMedium),
-                                ),
-                              );
-                            },
-                            body: ListTile(
-                              title: Column(
-                                children: [
-                                  CustomRow(
-                                    title: "No KTP",
-                                    choosedSetting: 'nomor_ktp',
-                                    enable: true,
-                                  ),
-                                  CustomRowDateInput(
-                                      title: "Tanggal Lahir",
-                                      choosedSetting: "tgl_lahir"),
-                                  CustomRow(
-                                      title: "Alamat",
-                                      choosedSetting: 'alamat_tinggal'),
-                                  CustomRow(
-                                      title: "Kota",
-                                      choosedSetting: 'kota_tinggal'),
-                                  CustomRow(
-                                      title: "Provinsi",
-                                      choosedSetting: 'provinsi_tinggal'),
-                                  CustomRow(
-                                      title: "Kode Pos",
-                                      keyboardType: TextInputType.number,
-                                      choosedSetting: 'kode_pos'),
-                                  CustomRow(
-                                      title: "Alamat Surat",
-                                      choosedSetting: 'alamat_surat'),
-                                  CustomRow(
-                                      title: "Kota Surat",
-                                      choosedSetting: 'kota_surat'),
-                                  CustomRow(
-                                      title: "Kode Pos Surat",
-                                      keyboardType: TextInputType.number,
-                                      choosedSetting: 'kode_pos_surat'),
-                                  CustomRow(
-                                      title: "No Telepon Rumah",
-                                      keyboardType: TextInputType.number,
-                                      choosedSetting: 'no_telp_rmh'),
-                                  CustomRow(
-                                      title: "No HP",
-                                      keyboardType: TextInputType.number,
-                                      choosedSetting: 'no_hp'),
-                                  CustomRow(
-                                      title: "Golongan Darah",
-                                      choosedSetting: 'golongan_darah'),
-                                  CustomRow(
-                                      title: "Status Pajak",
-                                      choosedSetting: 'sts_pajak'),
-                                  CustomSelectionMenikah(
-                                      title: "Status Pernikahan",
-                                      choosedSetting: 'status_pernikahan',
-                                      listMap: ['Menikah', 'Belum Menikah']),
-                                  CustomRowDateInput(
-                                      title: "Tanggal Pernikahan",
-                                      choosedSetting: "tanggal_nikah"),
-                                  CustomRow(
-                                      title: "Nama Pasangan",
-                                      choosedSetting: 'nama_pasangan'),
-                                  CustomRowDateInput(
-                                      title: "Tanggal  Lahir Pasangan",
-                                      choosedSetting: "tgl_lhr_pasangan"),
-                                ],
-                              ),
-                            ),
-                            isExpanded: x.infoPribadi.value,
-                          ),
-                        ],
-                      ),
-
+                      informasiPribadiFormWidget(context),
                       SizedBox(height: sizedBoxHeightTall),
-                      // =====================================================================================
-                      ExpansionPanelList(
-                        expandedHeaderPadding: EdgeInsets.zero,
-                        elevation: 1,
-                        animationDuration: Duration(milliseconds: 500),
-                        expansionCallback: (int index, bool isExpanded) {
-                          setState(() {
-                            x.infoFisik.value = !x.infoFisik.value;
-                          });
-                        },
-                        children: [
-                          ExpansionPanel(
-                            headerBuilder:
-                                (BuildContext context, bool isExpanded) {
-                              return ListTile(
-                                leading: const Icon(Icons.info),
-                                title: Text(
-                                  'Informasi Fisik',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: textMedium),
-                                ),
-                              );
-                            },
-                            body: ListTile(
-                              title: Column(
-                                children: [
-                                  CustomRow(
-                                      title: "Tinggi Badan",
-                                      choosedSetting: 'tinggi_badan'),
-                                  CustomRow(
-                                      title: "Berat Badan",
-                                      choosedSetting: 'berat_badan'),
-                                  CustomRow(
-                                      title: "Ukuran Baju",
-                                      choosedSetting: 'ukuran_baju'),
-                                  CustomRow(
-                                      title: "Ukuran Celana",
-                                      choosedSetting: 'ukuran_celana'),
-                                  CustomRow(
-                                      title: "Ukuran Sepatu",
-                                      choosedSetting: 'ukuran_sepatu'),
-                                ],
-                              ),
-                            ),
-                            isExpanded: x.infoFisik.value,
-                          ),
-                        ],
-                      ),
+                      informasiFisikFormWidget(context),
                       SizedBox(height: sizedBoxHeightTall),
                       const Divider(),
                       const TitleWidget(title: 'Data Kepegawaian'),
                       SizedBox(height: sizedBoxHeightShort),
-                      // =====================================================================================
-                      ExpansionPanelList(
-                        expandedHeaderPadding: EdgeInsets.zero,
-                        elevation: 1,
-                        animationDuration: Duration(milliseconds: 500),
-                        expansionCallback: (int index, bool isExpanded) {
-                          setState(() {
-                            x.infoKepegawaian.value = !x.infoKepegawaian.value;
-                          });
-                        },
-                        children: [
-                          ExpansionPanel(
-                            headerBuilder:
-                                (BuildContext context, bool isExpanded) {
-                              return ListTile(
-                                leading: const Icon(Icons.work),
-                                title: Text(
-                                  'Informasi Kepegawaian',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: textMedium),
-                                ),
-                              );
-                            },
-                            body: ListTile(
-                              title: Column(
-                                children: [
-                                  CustomRow(
-                                      title: "Email Kantor",
-                                      choosedSetting: 'email'),
-                                  CustomRow(
-                                      title: "SBU/Direktorat",
-                                      choosedSetting: 'sbu'),
-                                  CustomRow(
-                                      title: "Lokasi",
-                                      choosedSetting: 'lokasi'),
-                                  CustomRow(
-                                      title: "Penempatan",
-                                      choosedSetting: 'penempatan'),
-                                  CustomRowDateInput(
-                                      title: "Akhir Masa Probation",
-                                      choosedSetting: "akhir_probation"),
-                                  CustomRow(
-                                      title: "Personal Area",
-                                      choosedSetting: 'per_area'),
-                                  CustomRow(
-                                      title: "Bank Key",
-                                      choosedSetting: 'bank_key'),
-                                  CustomRow(
-                                      title: "No Rekening",
-                                      choosedSetting: 'bank_account'),
-                                  CustomRow(
-                                      title: "NPWP", choosedSetting: 'npwp'),
-                                  CustomRow(
-                                      title: "BPJS Ketenagakerjaan",
-                                      choosedSetting: 'jamsostek'),
-                                  CustomRow(
-                                      title: "BPJS Kesehatan",
-                                      choosedSetting: 'bpjskes'),
-                                  CustomRowDateInput(
-                                      title: "Tanggal Masuk",
-                                      choosedSetting: "awal_kontrak_kerja1"),
-                                ],
-                              ),
-                            ),
-                            isExpanded: x.infoKepegawaian.value,
-                          ),
-                        ],
-                      ),
+                      informasiKepegawaianFormWidget(context),
                       SizedBox(height: sizedBoxHeightShort),
-                      // =====================================================================================
-                      ExpansionPanelList(
-                        expandedHeaderPadding: EdgeInsets.zero,
-                        elevation: 1,
-                        animationDuration: Duration(milliseconds: 500),
-                        expansionCallback: (int index, bool isExpanded) {
-                          setState(() {
-                            x.infoKontrak.value = !x.infoKontrak.value;
-                          });
-                        },
-                        children: [
-                          ExpansionPanel(
-                            headerBuilder:
-                                (BuildContext context, bool isExpanded) {
-                              return ListTile(
-                                leading: const Icon(Icons.description),
-                                title: Text(
-                                  'Informasi Kontrak',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: textMedium),
-                                ),
-                              );
-                            },
-                            body: ListTile(
-                              title: Column(
-                                children: [
-                                  CustomRowDateInput(
-                                      title: "Akhir Masa Kerja",
-                                      choosedSetting: "akhir_kontrak_kerja1"),
-                                ],
-                              ),
-                            ),
-                            isExpanded: x.infoKontrak.value,
-                          ),
-                        ],
-                      ),
+                      informasiKontrakFormWidget(context),
                       SizedBox(height: sizedBoxHeightTall),
                       const Divider(),
                       const TitleWidget(title: 'Data Kepegawaian'),
                       SizedBox(height: sizedBoxHeightShort),
-                      // =====================================================================================
-                      ExpansionPanelList(
-                        expandedHeaderPadding: EdgeInsets.zero,
-                        elevation: 1,
-                        animationDuration: Duration(milliseconds: 500),
-                        expansionCallback: (int index, bool isExpanded) {
-                          setState(() {
-                            x.infoPendidikan.value = !x.infoPendidikan.value;
-                          });
-                        },
-                        children: [
-                          ExpansionPanel(
-                            headerBuilder:
-                                (BuildContext context, bool isExpanded) {
-                              return ListTile(
-                                leading: const Icon(Icons.school),
-                                title: Text(
-                                  'Informasi Pendidikan',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: textMedium),
-                                ),
-                              );
-                            },
-                            body: ListTile(
-                              title: Column(
-                                children: [
-                                  CustomRow(
-                                      title: "Jurusan",
-                                      choosedSetting: 'jurusan'),
-                                  CustomRow(
-                                      title: "Asal Pendidikan",
-                                      choosedSetting: 'asal_sekolah'),
-                                  CustomRowDateInput(
-                                      title: "Tahun Lulus",
-                                      choosedSetting: "tahun_lulus"),
-                                ],
-                              ),
-                            ),
-                            isExpanded: x.infoPendidikan.value,
-                          ),
-                        ],
-                      ),
-
-                      SizedBox(
+                      informasiPendidikanFormWidget(context),
+                      const SizedBox(
                         height: 50,
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(''),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              onPrimary: Colors.black87,
-                              elevation: 5,
-                              padding: EdgeInsets.symmetric(horizontal: 16),
-                              shape: const RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(8)),
-                              ),
-                            ),
-                            onPressed: () {
-                              Get.dialog(
-                                AlertDialog(
-                                  title: Text('Confirmation'),
-                                  content: Text('Apakah Simpan data ini ?'),
-                                  actions: <Widget>[
-                                    TextButton(
-                                      child: Text('Cancel'),
-                                      onPressed: () {
-                                        Get.back(result: false);
-                                      },
-                                    ),
-                                    TextButton(
-                                      child: Text('Accept'),
-                                      onPressed: () {
-                                        Get.back(result: true);
-                                      },
-                                    ),
-                                  ],
-                                ),
-                                barrierDismissible: false,
-                              ).then((result) {
-                                if (result != null && result == true) {
-                                  simpanDataKaryawan();
-                                  print("User accepted");
-                                } else {
-                                  print(
-                                      "User did not accept or dismissed the dialog");
-                                }
-                              });
-                            },
-                            child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.save_as_rounded),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text('Ubah Data')
-                                ]),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
+                      ubahDataButton(context),
+                      const SizedBox(
                         height: 300,
                       ),
-                      // =====================================================================================
                     ],
                   ),
                 )),
           ),
         ));
+  }
+
+  Widget uploadPhotoButton(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Obx(
+          () => Text(x.message.toString()),
+        ),
+        const SizedBox(
+          width: 20,
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            onPrimary: Colors.black87,
+            elevation: 5,
+            primary: Colors.blue[300],
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
+          ),
+          onPressed: () async {
+            x.message.value = '';
+            final imageFile = await _pickImage(ImageSource.gallery);
+            if (imageFile != null) {
+              uploadImage(imageFile);
+            }
+          },
+          child: Row(children: [Text('Upload Photo ...')]),
+        ),
+      ],
+    );
+  }
+
+  Widget informasiPribadiFormWidget(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+
+    return ExpansionPanelList(
+      expandedHeaderPadding: EdgeInsets.zero,
+      elevation: 1,
+      animationDuration: Duration(milliseconds: 500),
+      expansionCallback: (int index, bool isExpanded) {
+        setState(() {
+          x.infoPribadi.value = !x.infoPribadi.value;
+        });
+      },
+      children: [
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              leading: const Icon(Icons.person_2),
+              title: Text(
+                'Informasi Pribadi',
+                style: TextStyle(
+                    fontWeight: FontWeight.w600, fontSize: textMedium),
+              ),
+            );
+          },
+          body: const ListTile(
+            title: Column(
+              children: [
+                CustomRow(
+                  title: "No KTP",
+                  choosedSetting: 'nomor_ktp',
+                  enable: true,
+                ),
+                CustomRowDateInput(
+                    title: "Tanggal Lahir", choosedSetting: "tgl_lahir"),
+                CustomRow(title: "Alamat", choosedSetting: 'alamat_tinggal'),
+                CustomRow(title: "Kota", choosedSetting: 'kota_tinggal'),
+                CustomRow(
+                    title: "Provinsi", choosedSetting: 'provinsi_tinggal'),
+                CustomRow(
+                    title: "Kode Pos",
+                    keyboardType: TextInputType.number,
+                    choosedSetting: 'kode_pos'),
+                CustomRow(
+                    title: "Alamat Surat", choosedSetting: 'alamat_surat'),
+                CustomRow(title: "Kota Surat", choosedSetting: 'kota_surat'),
+                CustomRow(
+                    title: "Kode Pos Surat",
+                    keyboardType: TextInputType.number,
+                    choosedSetting: 'kode_pos_surat'),
+                CustomRow(
+                    title: "No Telepon Rumah",
+                    keyboardType: TextInputType.number,
+                    choosedSetting: 'no_telp_rmh'),
+                CustomRow(
+                    title: "No HP",
+                    keyboardType: TextInputType.number,
+                    choosedSetting: 'no_hp'),
+                CustomRow(
+                    title: "Golongan Darah", choosedSetting: 'golongan_darah'),
+                CustomRow(title: "Status Pajak", choosedSetting: 'sts_pajak'),
+                CustomSelectionMenikah(
+                    title: "Status Pernikahan",
+                    choosedSetting: 'status_pernikahan',
+                    listMap: ['Menikah', 'Belum Menikah']),
+                CustomRowDateInput(
+                    title: "Tanggal Pernikahan",
+                    choosedSetting: "tanggal_nikah"),
+                CustomRow(
+                    title: "Nama Pasangan", choosedSetting: 'nama_pasangan'),
+                CustomRowDateInput(
+                    title: "Tanggal  Lahir Pasangan",
+                    choosedSetting: "tgl_lhr_pasangan"),
+              ],
+            ),
+          ),
+          isExpanded: x.infoPribadi.value,
+        ),
+      ],
+    );
+  }
+
+  Widget informasiFisikFormWidget(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double sizedBoxHeightShort = size.height * 0.0086;
+
+    return ExpansionPanelList(
+      expandedHeaderPadding: EdgeInsets.zero,
+      elevation: 1,
+      animationDuration: Duration(milliseconds: 500),
+      expansionCallback: (int index, bool isExpanded) {
+        setState(() {
+          x.infoFisik.value = !x.infoFisik.value;
+        });
+      },
+      children: [
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              leading: const Icon(Icons.info),
+              title: Text(
+                'Informasi Fisik',
+                style: TextStyle(
+                    fontWeight: FontWeight.w600, fontSize: textMedium),
+              ),
+            );
+          },
+          body: const ListTile(
+            title: Column(
+              children: [
+                CustomRow(
+                    title: "Tinggi Badan", choosedSetting: 'tinggi_badan'),
+                CustomRow(title: "Berat Badan", choosedSetting: 'berat_badan'),
+                CustomRow(title: "Ukuran Baju", choosedSetting: 'ukuran_baju'),
+                CustomRow(
+                    title: "Ukuran Celana", choosedSetting: 'ukuran_celana'),
+                CustomRow(
+                    title: "Ukuran Sepatu", choosedSetting: 'ukuran_sepatu'),
+              ],
+            ),
+          ),
+          isExpanded: x.infoFisik.value,
+        ),
+      ],
+    );
+  }
+
+  Widget informasiKepegawaianFormWidget(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+
+    return ExpansionPanelList(
+      expandedHeaderPadding: EdgeInsets.zero,
+      elevation: 1,
+      animationDuration: Duration(milliseconds: 500),
+      expansionCallback: (int index, bool isExpanded) {
+        setState(() {
+          x.infoKepegawaian.value = !x.infoKepegawaian.value;
+        });
+      },
+      children: [
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              leading: const Icon(Icons.work),
+              title: Text(
+                'Informasi Kepegawaian',
+                style: TextStyle(
+                    fontWeight: FontWeight.w600, fontSize: textMedium),
+              ),
+            );
+          },
+          body: const ListTile(
+            title: Column(
+              children: [
+                CustomRow(title: "Email Kantor", choosedSetting: 'email'),
+                CustomRow(title: "SBU/Direktorat", choosedSetting: 'sbu'),
+                CustomRow(title: "Lokasi", choosedSetting: 'lokasi'),
+                CustomRow(title: "Penempatan", choosedSetting: 'penempatan'),
+                CustomRowDateInput(
+                    title: "Akhir Masa Probation",
+                    choosedSetting: "akhir_probation"),
+                CustomRow(title: "Personal Area", choosedSetting: 'per_area'),
+                CustomRow(title: "Bank Key", choosedSetting: 'bank_key'),
+                CustomRow(title: "No Rekening", choosedSetting: 'bank_account'),
+                CustomRow(title: "NPWP", choosedSetting: 'npwp'),
+                CustomRow(
+                    title: "BPJS Ketenagakerjaan", choosedSetting: 'jamsostek'),
+                CustomRow(title: "BPJS Kesehatan", choosedSetting: 'bpjskes'),
+                CustomRowDateInput(
+                    title: "Tanggal Masuk",
+                    choosedSetting: "awal_kontrak_kerja1"),
+              ],
+            ),
+          ),
+          isExpanded: x.infoKepegawaian.value,
+        ),
+      ],
+    );
+  }
+
+  Widget informasiKontrakFormWidget(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+
+    return ExpansionPanelList(
+      expandedHeaderPadding: EdgeInsets.zero,
+      elevation: 1,
+      animationDuration: Duration(milliseconds: 500),
+      expansionCallback: (int index, bool isExpanded) {
+        setState(() {
+          x.infoKontrak.value = !x.infoKontrak.value;
+        });
+      },
+      children: [
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              leading: const Icon(Icons.description),
+              title: Text(
+                'Informasi Kontrak',
+                style: TextStyle(
+                    fontWeight: FontWeight.w600, fontSize: textMedium),
+              ),
+            );
+          },
+          body: const ListTile(
+            title: Column(
+              children: [
+                CustomRowDateInput(
+                    title: "Akhir Masa Kerja",
+                    choosedSetting: "akhir_kontrak_kerja1"),
+              ],
+            ),
+          ),
+          isExpanded: x.infoKontrak.value,
+        ),
+      ],
+    );
+  }
+
+  Widget informasiPendidikanFormWidget(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+
+    return ExpansionPanelList(
+      expandedHeaderPadding: EdgeInsets.zero,
+      elevation: 1,
+      animationDuration: Duration(milliseconds: 500),
+      expansionCallback: (int index, bool isExpanded) {
+        setState(() {
+          x.infoPendidikan.value = !x.infoPendidikan.value;
+        });
+      },
+      children: [
+        ExpansionPanel(
+          headerBuilder: (BuildContext context, bool isExpanded) {
+            return ListTile(
+              leading: const Icon(Icons.school),
+              title: Text(
+                'Informasi Pendidikan',
+                style: TextStyle(
+                    fontWeight: FontWeight.w600, fontSize: textMedium),
+              ),
+            );
+          },
+          body: const ListTile(
+            title: Column(
+              children: [
+                CustomRow(title: "Jurusan", choosedSetting: 'jurusan'),
+                CustomRow(
+                    title: "Asal Pendidikan", choosedSetting: 'asal_sekolah'),
+                CustomRowDateInput(
+                    title: "Tahun Lulus", choosedSetting: "tahun_lulus"),
+              ],
+            ),
+          ),
+          isExpanded: x.infoPendidikan.value,
+        ),
+      ],
+    );
+  }
+
+  Widget ubahDataButton(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(''),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            onPrimary: Colors.black87,
+            elevation: 5,
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+            ),
+          ),
+          onPressed: () {
+            Get.dialog(
+              AlertDialog(
+                title: Text('Confirmation'),
+                content: Text('Apakah Simpan data ini ?'),
+                actions: <Widget>[
+                  TextButton(
+                    child: Text('Cancel'),
+                    onPressed: () {
+                      Get.back(result: false);
+                    },
+                  ),
+                  TextButton(
+                    child: Text('Accept'),
+                    onPressed: () {
+                      Get.back(result: true);
+                    },
+                  ),
+                ],
+              ),
+              barrierDismissible: false,
+            ).then((result) {
+              if (result != null && result == true) {
+                simpanDataKaryawan();
+                print("User accepted");
+              } else {
+                print("User did not accept or dismissed the dialog");
+              }
+            });
+          },
+          child:
+              const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            Icon(Icons.save_as_rounded),
+            SizedBox(
+              width: 10,
+            ),
+            Text('Ubah Data')
+          ]),
+        ),
+      ],
+    );
   }
 }
 

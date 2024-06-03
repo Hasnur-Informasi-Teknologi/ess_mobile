@@ -87,8 +87,6 @@ class _LateModalDialogState extends State<LateModalDialog> {
     setState(() {
       _isLoading = false;
     });
-    print('Message $responseDataMessage');
-    print(responseDataMessage['error']);
     if (responseDataMessage['message'] == 'Success') {
       Get.offAllNamed('/user/main');
     }
@@ -157,9 +155,11 @@ class _LateModalDialogState extends State<LateModalDialog> {
                   SizedBox(
                     height: sizedBoxHeightExtraTall,
                   ),
-                  ElevatedButton(
-                    onPressed: _getImage,
-                    child: Text('Take Picture'),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: _getImage,
+                      child: Text('Take Picture'),
+                    ),
                   ),
                   SizedBox(
                     height: sizedBoxHeightExtraTall,

@@ -24,6 +24,10 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+class DataUserDaftarPersetujuanController extends GetxController {
+  var data = {}.obs;
+}
+
 class DaftarPersetujuanScreen extends StatefulWidget {
   const DaftarPersetujuanScreen({super.key});
 
@@ -38,9 +42,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   String rawatInapPDFpath = "";
 
   final String _apiUrl = API_URL;
-
-  final TextEditingController _trainingController = TextEditingController();
-  final TextEditingController _searchController = TextEditingController();
+  DataUserDaftarPersetujuanController x =
+      Get.put(DataUserDaftarPersetujuanController());
 
   List<Map<String, dynamic>> selectedDaftarPersetujuan = [
     {'id': '1', 'opsi': 'Aplikasi Rekrutmen'},
@@ -51,7 +54,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     {'id': '5', 'opsi': 'Pengajuan Cuti'},
     {'id': '8', 'opsi': 'Perpanjangan Cuti'},
     {'id': '6', 'opsi': 'Pengajuan Training'},
-    {'id': '7', 'opsi': 'Perjalanan Dinas'},
+    {'id': '7', 'opsi': 'IM Perjalanan Dinas'},
+    {'id': '13', 'opsi': 'LPJ Perjalanan Dinas'},
     {'id': '9', 'opsi': 'Rawat Inap'},
     {'id': '10', 'opsi': 'Rawat Jalan'},
     {'id': '11', 'opsi': 'Surat Keterangan'},
@@ -87,11 +91,15 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   void initState() {
     super.initState();
     getMasterDataCuti();
-    // createPdfRawatInap(146).then((f) {
-    //   setState(() {
-    //     rawatInapPDFpath = f.path;
-    //   });
-    // });
+    getData();
+  }
+
+  Future<Map<String, dynamic>> getData() async {
+    final prefs = await SharedPreferences.getInstance();
+    var userData = prefs.getString('userData');
+    final responseData = jsonDecode(userData.toString());
+    x.data.value = responseData['data'];
+    return responseData;
   }
 
   Future<void> getDataPengajuanCuti(String? statusFilter) async {
@@ -175,7 +183,6 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
             });
         final responseData = jsonDecode(response.body);
         final dataMasterInapApi = responseData['data']['data'];
-        print(dataMasterInapApi);
 
         setState(() {
           masterDataPersetujuan =
@@ -200,7 +207,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
       try {
         final response = await http.get(
             Uri.parse(
-                "$_apiUrl/rawat/jalan/all?page=$page&limit=$perPage&search=$search&status=$statusFilterRawatInapJalan&permintaan=1"),
+                "$_apiUrl/rawat/jalan/all?page=$page&limit=$perPage&search=$search&status=$statusFilterRawatInapJalan&permintaan=0"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
@@ -267,6 +274,37 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
         setState(() {
           masterDataCuti = Map<String, dynamic>.from(masterDataCutiApi);
+        });
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
+  Future<void> getDataImPerjalananDinas(String? statusFilter) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? token = prefs.getString('token');
+    setState(() {
+      _isLoading = true;
+    });
+
+    if (token != null) {
+      try {
+        final response = await http.get(
+            Uri.parse(
+                "$_apiUrl/rencana-perdin/get?page=$page&perPage=$perPage&search=$search&status=$statusFilter&type=$type"),
+            headers: <String, String>{
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Authorization': 'Bearer $token'
+            });
+        final responseData = jsonDecode(response.body);
+        final dataImPerjalananDinasApi = responseData['dperdin'];
+
+        setState(() {
+          masterDataPersetujuan =
+              List<Map<String, dynamic>>.from(dataImPerjalananDinasApi);
+          _isLoading = false;
         });
       } catch (e) {
         print(e);
@@ -443,7 +481,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
             'Authorization': 'Bearer $token'
           },
           body: jsonEncode(
-            {'id': id.toString(), 'alasan': _alasanRejectController.text},
+            {'id': id.toString()},
           ),
         );
         final responseData = jsonDecode(response.body);
@@ -571,534 +609,450 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    double textMedium = size.width * 0.0329;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightShort = size.height * 0.0086;
-    double sizedBoxHeightExtraTall = size.height * 0.0215;
     double paddingHorizontalNarrow = size.width * 0.035;
     double paddingHorizontalWide = size.width * 0.0585;
-    double padding5 = size.width * 0.0115;
-    double padding10 = size.width * 0.023;
 
     return _isLoadingScreen
         ? const Scaffold(body: Center(child: CircularProgressIndicator()))
         : DefaultTabController(
             length: 4,
-            child: Scaffold(
-              backgroundColor: Colors.white,
-              appBar: AppBar(
-                elevation: 0,
+            child: SafeArea(
+              child: Scaffold(
                 backgroundColor: Colors.white,
-                title: Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.notifications),
-                        onPressed: () {},
+                body: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: sizedBoxHeightTall,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: paddingHorizontalWide),
+                      child: const TitleWidget(title: 'Daftar Persetujuan'),
+                    ),
+                    SizedBox(
+                      height: sizedBoxHeightTall,
+                    ),
+                    formSearchWidget(context),
+                    SizedBox(
+                      height: sizedBoxHeightShort,
+                    ),
+                    selectedValueDaftarPersetujuan == '12'
+                        ? summaryCutiWidget(context)
+                        : Expanded(
+                            child: Column(
+                              children: [
+                                TabBar(
+                                  indicatorSize: TabBarIndicatorSize.label,
+                                  tabAlignment: TabAlignment.center,
+                                  isScrollable: true,
+                                  indicatorColor: Colors.black,
+                                  labelColor: Colors.black,
+                                  unselectedLabelColor: Colors.grey,
+                                  labelPadding: EdgeInsets.symmetric(
+                                      horizontal: paddingHorizontalNarrow),
+                                  tabs: const [
+                                    Tab(
+                                      text: 'Semua',
+                                    ),
+                                    Tab(
+                                      text: 'Disetujui',
+                                    ),
+                                    Tab(
+                                      text: 'Proses',
+                                    ),
+                                    Tab(
+                                      text: 'Ditolak',
+                                    ),
+                                  ],
+                                  onTap: (index) {
+                                    setState(() {
+                                      current = index;
+                                      if (index == 0) {
+                                        statusFilter = 'ALL';
+                                        statusFilterRawatInapJalan = 'ALL';
+                                      } else if (index == 1) {
+                                        statusFilter = 'V';
+                                        statusFilterRawatInapJalan = 'APPROVED';
+                                      } else if (index == 2) {
+                                        statusFilter = 'P';
+                                        statusFilterRawatInapJalan = 'PROCESS';
+                                      } else {
+                                        statusFilter = 'X';
+                                        statusFilterRawatInapJalan = 'REJECTED';
+                                      }
+                                    });
+                                    if (selectedValueDaftarPersetujuan == '5') {
+                                      getDataPengajuanCuti(statusFilter);
+                                    } else if (selectedValueDaftarPersetujuan ==
+                                        '7') {
+                                      getDataImPerjalananDinas(statusFilter);
+                                    } else if (selectedValueDaftarPersetujuan ==
+                                        '8') {
+                                      getDataPerpanjanganCuti(statusFilter);
+                                    } else if (selectedValueDaftarPersetujuan ==
+                                        '9') {
+                                      getDataRawatInap(
+                                          statusFilterRawatInapJalan);
+                                    } else if (selectedValueDaftarPersetujuan ==
+                                        '10') {
+                                      getDataRawatJalan(
+                                          statusFilterRawatInapJalan);
+                                    } else {
+                                      setState(() {
+                                        masterDataPersetujuan = [];
+                                      });
+                                    }
+                                  },
+                                ),
+                                //Main Body
+                                Expanded(
+                                  child: TabBarView(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    children: [
+                                      allTabWidget(context),
+                                      approvedTabWidget(context),
+                                      prossesTabWidget(context),
+                                      rejectedTabWidget(context),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                    const SizedBox(
+                      height: 75,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+  }
+
+  Widget formSearchWidget(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double paddingHorizontalWide = size.width * 0.0585;
+    double sizedBoxHeightTall = size.height * 0.0163;
+
+    return Form(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        key: _formKey,
+        children: [
+          SizedBox(
+            height: sizedBoxHeightTall,
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+            child: TitleWidget(
+              title: 'Pilih Daftar Persetujuan : ',
+              fontWeight: FontWeight.w300,
+              fontSize: textMedium,
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+            child: DropdownButtonFormField<String>(
+              value: selectedValueDaftarPersetujuan,
+              icon: selectedDaftarPersetujuan.isEmpty
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
                       ),
-                    ],
+                    )
+                  : const Icon(Icons.arrow_drop_down),
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedValueDaftarPersetujuan = newValue ?? '';
+                  if (selectedValueDaftarPersetujuan == '5') {
+                    getDataPengajuanCuti(statusFilter);
+                  } else if (selectedValueDaftarPersetujuan == '7') {
+                    getDataImPerjalananDinas(statusFilter);
+                  } else if (selectedValueDaftarPersetujuan == '8') {
+                    getDataPerpanjanganCuti(statusFilter);
+                  } else if (selectedValueDaftarPersetujuan == '9') {
+                    getDataRawatInap(statusFilterRawatInapJalan);
+                  } else if (selectedValueDaftarPersetujuan == '10') {
+                    getDataRawatJalan(statusFilterRawatInapJalan);
+                  } else if (selectedValueDaftarPersetujuan == '12') {
+                    getDataSummaryCuti();
+                  } else {
+                    setState(() {
+                      masterDataPersetujuan = [];
+                    });
+                  }
+                });
+              },
+              items:
+                  selectedDaftarPersetujuan.map((Map<String, dynamic> value) {
+                return DropdownMenuItem<String>(
+                  value: value["id"].toString(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(1.0),
+                    child: TitleWidget(
+                      title: value["opsi"] as String,
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
+                  ),
+                );
+              }).toList(),
+              decoration: InputDecoration(
+                constraints:
+                    BoxConstraints(maxHeight: _maxHeightDaftarPermintaan),
+                labelStyle: TextStyle(fontSize: textMedium),
+                focusedBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.black,
+                    width: 1.0,
+                  ),
+                ),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: selectedValueDaftarPersetujuan != null
+                        ? Colors.black54
+                        : Colors.grey,
+                    width: 1.0,
                   ),
                 ),
               ),
-              body: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: sizedBoxHeightTall,
-                  ),
-                  Padding(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                    child: const TitleWidget(title: 'Daftar Persetujuan'),
-                  ),
-                  SizedBox(
-                    height: sizedBoxHeightTall,
-                  ),
-                  Form(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      key: _formKey,
-                      children: [
-                        SizedBox(
-                          height: sizedBoxHeightTall,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalWide),
-                          child: TitleWidget(
-                            title: 'Pilih Daftar Persetujuan : ',
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: paddingHorizontalWide),
-                          child: DropdownButtonFormField<String>(
-                            value: selectedValueDaftarPersetujuan,
-                            icon: selectedDaftarPersetujuan.isEmpty
-                                ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.blue),
-                                    ),
-                                  )
-                                : const Icon(Icons.arrow_drop_down),
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                selectedValueDaftarPersetujuan = newValue ?? '';
-                                if (selectedValueDaftarPersetujuan == '5') {
-                                  getDataPengajuanCuti(statusFilter);
-                                } else if (selectedValueDaftarPersetujuan ==
-                                    '8') {
-                                  getDataPerpanjanganCuti(statusFilter);
-                                } else if (selectedValueDaftarPersetujuan ==
-                                    '9') {
-                                  getDataRawatInap(statusFilterRawatInapJalan);
-                                } else if (selectedValueDaftarPersetujuan ==
-                                    '10') {
-                                  getDataRawatJalan(statusFilterRawatInapJalan);
-                                } else if (selectedValueDaftarPersetujuan ==
-                                    '12') {
-                                  getDataSummaryCuti();
-                                } else {
-                                  setState(() {
-                                    masterDataPersetujuan = [];
-                                  });
-                                }
-                              });
-                            },
-                            items: selectedDaftarPersetujuan
-                                .map((Map<String, dynamic> value) {
-                              return DropdownMenuItem<String>(
-                                value: value["id"].toString(),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(1.0),
-                                  child: TitleWidget(
-                                    title: value["opsi"] as String,
-                                    fontWeight: FontWeight.w300,
-                                    fontSize: textMedium,
-                                  ),
-                                ),
-                              );
-                            }).toList(),
-                            decoration: InputDecoration(
-                              constraints: BoxConstraints(
-                                  maxHeight: _maxHeightDaftarPermintaan),
-                              labelStyle: TextStyle(fontSize: textMedium),
-                              focusedBorder: const UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.black,
-                                  width: 1.0,
-                                ),
-                              ),
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: selectedValueDaftarPersetujuan != null
-                                      ? Colors.black54
-                                      : Colors.grey,
-                                  width: 1.0,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: sizedBoxHeightTall,
-                        ),
-                        // Padding(
-                        //   padding: EdgeInsets.symmetric(
-                        //       horizontal: paddingHorizontalWide),
-                        //   child: TextFormField(
-                        //     controller: _searchController,
-                        //     decoration: InputDecoration(
-                        //       border: OutlineInputBorder(
-                        //         borderRadius: BorderRadius.circular(5),
-                        //         borderSide: const BorderSide(
-                        //           color: Colors.transparent,
-                        //           width: 0,
-                        //         ),
-                        //       ),
-                        //       focusedBorder: OutlineInputBorder(
-                        //           borderRadius: BorderRadius.circular(5),
-                        //           borderSide: const BorderSide(
-                        //               color: Colors.black, width: 1)),
-                        //       enabledBorder: OutlineInputBorder(
-                        //           borderRadius: BorderRadius.circular(5),
-                        //           borderSide: const BorderSide(
-                        //               color: Colors.grey, width: 0)),
-                        //       constraints:
-                        //           BoxConstraints(maxHeight: _maxHeightSearch),
-                        //       filled: true,
-                        //       fillColor: Colors.white,
-                        //       hintText: 'Search',
-                        //       hintStyle: TextStyle(
-                        //         fontSize: textMedium,
-                        //         fontFamily: 'Poppins',
-                        //         color: Color(textPlaceholder),
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: sizedBoxHeightShort,
-                  ),
-                  selectedValueDaftarPersetujuan == '12'
-                      ? Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                height: sizedBoxHeightShort,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: paddingHorizontalWide),
-                                child: const LineWidget(),
-                              ),
-                              SizedBox(
-                                height: sizedBoxHeightShort,
-                              ),
-                              SizedBox(
-                                height: 20,
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: paddingHorizontalWide),
-                                  child: TitleWidget(
-                                    title: 'Periode Rawat',
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: textMedium,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                height: sizedBoxHeightShort,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: paddingHorizontalWide),
-                                child: const LineWidget(),
-                              ),
-                              SizedBox(
-                                height: sizedBoxHeightShort,
-                              ),
-                              Expanded(
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: paddingHorizontalNarrow),
-                                  child: ListView.builder(
-                                    itemCount: masterDataSummaryCuti.length,
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      return Padding(
-                                        padding: EdgeInsets.symmetric(
-                                          vertical: sizedBoxHeightShort,
-                                          horizontal: paddingHorizontalNarrow,
-                                        ),
-                                        child: buildSummaryCuti(
-                                            masterDataSummaryCuti[index]),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 75,
-                              ),
-                            ],
-                          ),
-                        )
-                      : Expanded(
-                          child: Column(
-                            children: [
-                              TabBar(
-                                indicatorSize: TabBarIndicatorSize.label,
-                                tabAlignment: TabAlignment.center,
-                                isScrollable: true,
-                                indicatorColor: Colors.black,
-                                labelColor: Colors.black,
-                                unselectedLabelColor: Colors.grey,
-                                labelPadding: EdgeInsets.symmetric(
-                                    horizontal: paddingHorizontalNarrow),
-                                tabs: const [
-                                  Tab(
-                                    text: 'Semua',
-                                  ),
-                                  Tab(
-                                    text: 'Disetujui',
-                                  ),
-                                  Tab(
-                                    text: 'Proses',
-                                  ),
-                                  Tab(
-                                    text: 'Ditolak',
-                                  ),
-                                ],
-                                onTap: (index) {
-                                  setState(() {
-                                    current = index;
-                                    if (index == 0) {
-                                      statusFilter = 'ALL';
-                                      statusFilterRawatInapJalan = 'ALL';
-                                    } else if (index == 1) {
-                                      statusFilter = 'V';
-                                      statusFilterRawatInapJalan = 'APPROVED';
-                                    } else if (index == 2) {
-                                      statusFilter = 'P';
-                                      statusFilterRawatInapJalan = 'PROCESS';
-                                    } else {
-                                      statusFilter = 'X';
-                                      statusFilterRawatInapJalan = 'REJECTED';
-                                    }
-                                  });
-                                  if (selectedValueDaftarPersetujuan == '5') {
-                                    getDataPengajuanCuti(statusFilter);
-                                  } else if (selectedValueDaftarPersetujuan ==
-                                      '8') {
-                                    getDataPerpanjanganCuti(statusFilter);
-                                  } else if (selectedValueDaftarPersetujuan ==
-                                      '9') {
-                                    getDataRawatInap(
-                                        statusFilterRawatInapJalan);
-                                  } else if (selectedValueDaftarPersetujuan ==
-                                      '10') {
-                                    getDataRawatJalan(
-                                        statusFilterRawatInapJalan);
-                                  } else {
-                                    setState(() {
-                                      masterDataPersetujuan = [];
-                                    });
-                                  }
-                                },
-                              ),
-                              //Main Body
-                              Expanded(
-                                child: TabBarView(
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  children: [
-                                    _isLoading
-                                        ? const Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                vertical: 200),
-                                            child: Center(
-                                                child:
-                                                    CircularProgressIndicator()),
-                                          )
-                                        : Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal:
-                                                    paddingHorizontalNarrow),
-                                            child: ListView.builder(
-                                              itemCount:
-                                                  masterDataPersetujuan.length,
-                                              itemBuilder:
-                                                  (BuildContext context,
-                                                      int index) {
-                                                return Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                    vertical:
-                                                        sizedBoxHeightShort,
-                                                    horizontal:
-                                                        paddingHorizontalNarrow,
-                                                  ),
-                                                  child: selectedValueDaftarPersetujuan ==
-                                                          '5'
-                                                      ? buildCuti(
-                                                          masterDataPersetujuan[
-                                                              index])
-                                                      : selectedValueDaftarPersetujuan ==
-                                                              '8'
-                                                          ? buildPerpanjanganCuti(
-                                                              masterDataPersetujuan[
-                                                                  index])
-                                                          : selectedValueDaftarPersetujuan ==
-                                                                  '9'
-                                                              ? buildRawatInap(
-                                                                  masterDataPersetujuan[
-                                                                      index])
-                                                              : selectedValueDaftarPersetujuan ==
-                                                                      '10'
-                                                                  ? buildRawatJalan(
-                                                                      masterDataPersetujuan[
-                                                                          index])
-                                                                  : const Text(
-                                                                      'Kosong'),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                    _isLoading
-                                        ? const Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                vertical: 200),
-                                            child: Center(
-                                                child:
-                                                    CircularProgressIndicator()),
-                                          )
-                                        : Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal:
-                                                    paddingHorizontalNarrow),
-                                            child: ListView.builder(
-                                              itemCount:
-                                                  masterDataPersetujuan.length,
-                                              itemBuilder:
-                                                  (BuildContext context,
-                                                      int index) {
-                                                return Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                    vertical:
-                                                        sizedBoxHeightShort,
-                                                    horizontal:
-                                                        paddingHorizontalNarrow,
-                                                  ),
-                                                  child: selectedValueDaftarPersetujuan ==
-                                                          '5'
-                                                      ? buildCuti(
-                                                          masterDataPersetujuan[
-                                                              index])
-                                                      : selectedValueDaftarPersetujuan ==
-                                                              '8'
-                                                          ? buildPerpanjanganCuti(
-                                                              masterDataPersetujuan[
-                                                                  index])
-                                                          : selectedValueDaftarPersetujuan ==
-                                                                  '9'
-                                                              ? buildRawatInap(
-                                                                  masterDataPersetujuan[
-                                                                      index])
-                                                              : selectedValueDaftarPersetujuan ==
-                                                                      '10'
-                                                                  ? buildRawatJalan(
-                                                                      masterDataPersetujuan[
-                                                                          index])
-                                                                  : const Text(
-                                                                      'Kosong'),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                    _isLoading
-                                        ? const Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                vertical: 200),
-                                            child: Center(
-                                                child:
-                                                    CircularProgressIndicator()),
-                                          )
-                                        : Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal:
-                                                    paddingHorizontalNarrow),
-                                            child: ListView.builder(
-                                              itemCount:
-                                                  masterDataPersetujuan.length,
-                                              itemBuilder:
-                                                  (BuildContext context,
-                                                      int index) {
-                                                return Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                    vertical:
-                                                        sizedBoxHeightShort,
-                                                    horizontal:
-                                                        paddingHorizontalNarrow,
-                                                  ),
-                                                  child: selectedValueDaftarPersetujuan ==
-                                                          '5'
-                                                      ? buildCuti(
-                                                          masterDataPersetujuan[
-                                                              index])
-                                                      : selectedValueDaftarPersetujuan ==
-                                                              '8'
-                                                          ? buildPerpanjanganCuti(
-                                                              masterDataPersetujuan[
-                                                                  index])
-                                                          : selectedValueDaftarPersetujuan ==
-                                                                  '9'
-                                                              ? buildRawatInap(
-                                                                  masterDataPersetujuan[
-                                                                      index])
-                                                              : selectedValueDaftarPersetujuan ==
-                                                                      '10'
-                                                                  ? buildRawatJalan(
-                                                                      masterDataPersetujuan[
-                                                                          index])
-                                                                  : const Text(
-                                                                      'Kosong'),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                    _isLoading
-                                        ? const Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                vertical: 200),
-                                            child: Center(
-                                                child:
-                                                    CircularProgressIndicator()),
-                                          )
-                                        : Padding(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal:
-                                                    paddingHorizontalNarrow),
-                                            child: ListView.builder(
-                                              itemCount:
-                                                  masterDataPersetujuan.length,
-                                              itemBuilder:
-                                                  (BuildContext context,
-                                                      int index) {
-                                                return Padding(
-                                                  padding: EdgeInsets.symmetric(
-                                                    vertical:
-                                                        sizedBoxHeightShort,
-                                                    horizontal:
-                                                        paddingHorizontalNarrow,
-                                                  ),
-                                                  child: selectedValueDaftarPersetujuan ==
-                                                          '5'
-                                                      ? buildCuti(
-                                                          masterDataPersetujuan[
-                                                              index])
-                                                      : selectedValueDaftarPersetujuan ==
-                                                              '8'
-                                                          ? buildPerpanjanganCuti(
-                                                              masterDataPersetujuan[
-                                                                  index])
-                                                          : selectedValueDaftarPersetujuan ==
-                                                                  '9'
-                                                              ? buildRawatInap(
-                                                                  masterDataPersetujuan[
-                                                                      index])
-                                                              : selectedValueDaftarPersetujuan ==
-                                                                      '10'
-                                                                  ? buildRawatJalan(
-                                                                      masterDataPersetujuan[
-                                                                          index])
-                                                                  : const Text(
-                                                                      'Kosong'),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                  const SizedBox(
-                    height: 75,
-                  ),
-                ],
+            ),
+          ),
+          SizedBox(
+            height: sizedBoxHeightTall,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget summaryCutiWidget(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double paddingHorizontalWide = size.width * 0.0585;
+
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: sizedBoxHeightShort,
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+            child: const LineWidget(),
+          ),
+          SizedBox(
+            height: sizedBoxHeightShort,
+          ),
+          SizedBox(
+            height: 20,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+              child: TitleWidget(
+                title: 'Periode Rawat',
+                fontWeight: FontWeight.w500,
+                fontSize: textMedium,
               ),
+            ),
+          ),
+          SizedBox(
+            height: sizedBoxHeightShort,
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+            child: const LineWidget(),
+          ),
+          SizedBox(
+            height: sizedBoxHeightShort,
+          ),
+          Expanded(
+            child: Padding(
+              padding:
+                  EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+              child: ListView.builder(
+                itemCount: masterDataSummaryCuti.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Padding(
+                    padding: EdgeInsets.symmetric(
+                      vertical: sizedBoxHeightShort,
+                      horizontal: paddingHorizontalNarrow,
+                    ),
+                    child: buildSummaryCuti(masterDataSummaryCuti[index]),
+                  );
+                },
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 75,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget allTabWidget(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double sizedBoxHeightShort = 8;
+
+    return _isLoading
+        ? const Padding(
+            padding: EdgeInsets.symmetric(vertical: 200),
+            child: Center(child: CircularProgressIndicator()),
+          )
+        : Padding(
+            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+            child: ListView.builder(
+              itemCount: masterDataPersetujuan.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: sizedBoxHeightShort,
+                    horizontal: paddingHorizontalNarrow,
+                  ),
+                  child: selectedValueDaftarPersetujuan == '5'
+                      ? buildCuti(masterDataPersetujuan[index])
+                      : selectedValueDaftarPersetujuan == '7'
+                          ? buildImPerjalananDinas(masterDataPersetujuan[index])
+                          : selectedValueDaftarPersetujuan == '8'
+                              ? buildPerpanjanganCuti(
+                                  masterDataPersetujuan[index])
+                              : selectedValueDaftarPersetujuan == '9'
+                                  ? buildRawatInap(masterDataPersetujuan[index])
+                                  : selectedValueDaftarPersetujuan == '10'
+                                      ? buildRawatJalan(
+                                          masterDataPersetujuan[index])
+                                      : const Text('Kosong'),
+                );
+              },
+            ),
+          );
+  }
+
+  Widget approvedTabWidget(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double sizedBoxHeightShort = 8;
+
+    return _isLoading
+        ? const Padding(
+            padding: EdgeInsets.symmetric(vertical: 200),
+            child: Center(child: CircularProgressIndicator()),
+          )
+        : Padding(
+            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+            child: ListView.builder(
+              itemCount: masterDataPersetujuan.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: sizedBoxHeightShort,
+                    horizontal: paddingHorizontalNarrow,
+                  ),
+                  child: selectedValueDaftarPersetujuan == '5'
+                      ? buildCuti(masterDataPersetujuan[index])
+                      : selectedValueDaftarPersetujuan == '7'
+                          ? buildImPerjalananDinas(masterDataPersetujuan[index])
+                          : selectedValueDaftarPersetujuan == '8'
+                              ? buildPerpanjanganCuti(
+                                  masterDataPersetujuan[index])
+                              : selectedValueDaftarPersetujuan == '9'
+                                  ? buildRawatInap(masterDataPersetujuan[index])
+                                  : selectedValueDaftarPersetujuan == '10'
+                                      ? buildRawatJalan(
+                                          masterDataPersetujuan[index])
+                                      : const Text('Kosong'),
+                );
+              },
+            ),
+          );
+  }
+
+  Widget prossesTabWidget(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double sizedBoxHeightShort = 8;
+
+    return _isLoading
+        ? const Padding(
+            padding: EdgeInsets.symmetric(vertical: 200),
+            child: Center(child: CircularProgressIndicator()),
+          )
+        : Padding(
+            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+            child: ListView.builder(
+              itemCount: masterDataPersetujuan.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: sizedBoxHeightShort,
+                    horizontal: paddingHorizontalNarrow,
+                  ),
+                  child: selectedValueDaftarPersetujuan == '5'
+                      ? buildCuti(masterDataPersetujuan[index])
+                      : selectedValueDaftarPersetujuan == '7'
+                          ? buildImPerjalananDinas(masterDataPersetujuan[index])
+                          : selectedValueDaftarPersetujuan == '8'
+                              ? buildPerpanjanganCuti(
+                                  masterDataPersetujuan[index])
+                              : selectedValueDaftarPersetujuan == '9'
+                                  ? buildRawatInap(masterDataPersetujuan[index])
+                                  : selectedValueDaftarPersetujuan == '10'
+                                      ? buildRawatJalan(
+                                          masterDataPersetujuan[index])
+                                      : const Text('Kosong'),
+                );
+              },
+            ),
+          );
+  }
+
+  Widget rejectedTabWidget(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double sizedBoxHeightShort = 8;
+
+    return _isLoading
+        ? const Padding(
+            padding: EdgeInsets.symmetric(vertical: 200),
+            child: Center(child: CircularProgressIndicator()),
+          )
+        : Padding(
+            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+            child: ListView.builder(
+              itemCount: masterDataPersetujuan.length,
+              itemBuilder: (BuildContext context, int index) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: sizedBoxHeightShort,
+                    horizontal: paddingHorizontalNarrow,
+                  ),
+                  child: selectedValueDaftarPersetujuan == '5'
+                      ? buildCuti(masterDataPersetujuan[index])
+                      : selectedValueDaftarPersetujuan == '7'
+                          ? buildImPerjalananDinas(masterDataPersetujuan[index])
+                          : selectedValueDaftarPersetujuan == '8'
+                              ? buildPerpanjanganCuti(
+                                  masterDataPersetujuan[index])
+                              : selectedValueDaftarPersetujuan == '9'
+                                  ? buildRawatInap(masterDataPersetujuan[index])
+                                  : selectedValueDaftarPersetujuan == '10'
+                                      ? buildRawatJalan(
+                                          masterDataPersetujuan[index])
+                                      : const Text('Kosong'),
+                );
+              },
             ),
           );
   }
@@ -1196,14 +1150,19 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    data['full_approve'] == 'V' || data['full_approve'] == 'X'
+                    (data['level'] == '1' &&
+                                x.data['pernr'] == data['nrp_atasan']) ||
+                            (data['level'] == '2' &&
+                                x.data['pernr'] == data['nrp_direktur'])
                         ? InkWell(
                             onTap: () {
                               Get.toNamed(
-                                  '/user/main/submition/aplikasi_training/detail_aplikasi_training');
+                                '/user/main/daftar_persetujuan/detail_pengajuan_cuti',
+                                arguments: {'id': data['id']},
+                              );
                             },
                             child: Container(
-                              width: size.width * 0.77,
+                              width: size.width * 0.25,
                               height: size.height * 0.04,
                               padding: EdgeInsets.all(padding5),
                               decoration: BoxDecoration(
@@ -1233,10 +1192,12 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                         : InkWell(
                             onTap: () {
                               Get.toNamed(
-                                  '/user/main/submition/aplikasi_training/detail_aplikasi_training');
+                                '/user/main/daftar_persetujuan/detail_pengajuan_cuti',
+                                arguments: {'id': data['uuid']},
+                              );
                             },
                             child: Container(
-                              width: size.width * 0.25,
+                              width: size.width * 0.77,
                               height: size.height * 0.04,
                               padding: EdgeInsets.all(padding5),
                               decoration: BoxDecoration(
@@ -1248,7 +1209,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
                                   children: [
-                                    // Icon(Icons.details_sharp),
+                                    Icon(Icons.details_sharp),
                                     Text(
                                       'Detail',
                                       style: TextStyle(
@@ -1263,16 +1224,12 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                               ),
                             ),
                           ),
-                    data['full_approve'] == 'V' || data['full_approve'] == 'X'
-                        ? Text('')
-                        : InkWell(
+                    (data['level'] == '1' &&
+                                x.data['pernr'] == data['nrp_atasan']) ||
+                            (data['level'] == '2' &&
+                                x.data['pernr'] == data['nrp_direktur'])
+                        ? InkWell(
                             onTap: () {
-                              // showModalBottomSheet(
-                              //   context: context,
-                              //   builder: (BuildContext context) {
-                              //     return modalRejectCuti(data['id']);
-                              //   },
-                              // );
                               showRejectPengajuanCutiModal(context, data['id']);
                             },
                             child: Container(
@@ -1302,12 +1259,14 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                                 ),
                               ),
                             ),
-                          ),
-                    data['full_approve'] == 'V' || data['full_approve'] == 'X'
-                        ? Text('')
-                        : InkWell(
+                          )
+                        : Text(''),
+                    (data['level'] == '1' &&
+                                x.data['pernr'] == data['nrp_atasan']) ||
+                            (data['level'] == '2' &&
+                                x.data['pernr'] == data['nrp_direktur'])
+                        ? InkWell(
                             onTap: () {
-                              // approveCuti(data['id']);
                               showApprovePengajuanCutiModal(
                                   context, data['id']);
                             },
@@ -1338,7 +1297,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                                 ),
                               ),
                             ),
-                          ),
+                          )
+                        : Text(''),
                   ],
                 ),
               ],
@@ -1649,14 +1609,17 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    data['full_approve'] == 'V' || data['full_approve'] == 'X'
+                    data['full_approve'] == null &&
+                            data['nrp_atasan'] == x.data['pernr']
                         ? InkWell(
                             onTap: () {
                               Get.toNamed(
-                                  '/user/main/submition/aplikasi_training/detail_aplikasi_training');
+                                '/user/main/daftar_persetujuan/detail_perpanjangan_cuti',
+                                arguments: {'id': data['id']},
+                              );
                             },
                             child: Container(
-                              width: size.width * 0.77,
+                              width: size.width * 0.25,
                               height: size.height * 0.04,
                               padding: EdgeInsets.all(padding5),
                               decoration: BoxDecoration(
@@ -1686,10 +1649,12 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                         : InkWell(
                             onTap: () {
                               Get.toNamed(
-                                  '/user/main/submition/aplikasi_training/detail_aplikasi_training');
+                                '/user/main/daftar_persetujuan/detail_perpanjangan_cuti',
+                                arguments: {'id': data['id']},
+                              );
                             },
                             child: Container(
-                              width: size.width * 0.25,
+                              width: size.width * 0.77,
                               height: size.height * 0.04,
                               padding: EdgeInsets.all(padding5),
                               decoration: BoxDecoration(
@@ -1716,9 +1681,9 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                               ),
                             ),
                           ),
-                    data['full_approve'] == 'V' || data['full_approve'] == 'X'
-                        ? Text('')
-                        : InkWell(
+                    data['full_approve'] == null &&
+                            data['nrp_atasan'] == x.data['pernr']
+                        ? InkWell(
                             onTap: () {
                               showRejectPerpanjanganCutiModal(
                                   context, data['id']);
@@ -1750,10 +1715,11 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                                 ),
                               ),
                             ),
-                          ),
-                    data['full_approve'] == 'V' || data['full_approve'] == 'X'
-                        ? Text('')
-                        : InkWell(
+                          )
+                        : Text(''),
+                    data['full_approve'] == null &&
+                            data['nrp_atasan'] == x.data['pernr']
+                        ? InkWell(
                             onTap: () {
                               // approvePerpanjanganCuti(data['id']);
                               showApprovePerpanjanganCutiModal(
@@ -1786,7 +1752,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                                 ),
                               ),
                             ),
-                          ),
+                          )
+                        : Text(''),
                   ],
                 ),
               ],
@@ -2022,72 +1989,6 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     );
   }
 
-  Widget modalRejectPerpanjanganCuti(int? id) {
-    Size size = MediaQuery.of(context).size;
-    double textMedium = size.width * 0.0329;
-    double padding5 = size.width * 0.0188;
-    double padding10 = size.width * 0.023;
-    double paddingHorizontalWide = size.width * 0.0585;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Text(
-            'Enter your rejection reason:',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: padding5),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-            child: TextFormFieldWidget(
-              controller: _alasanRejectController,
-              maxHeightConstraints: 40,
-              hintText: 'Alasan Reject',
-            ),
-          ),
-          SizedBox(height: padding10),
-          InkWell(
-            onTap: () {
-              rejectPerpanjanganCuti(id);
-            },
-            child: Container(
-              width: size.width * 0.25,
-              height: size.height * 0.04,
-              padding: EdgeInsets.all(padding5),
-              decoration: BoxDecoration(
-                color: Colors.red[400],
-                borderRadius: BorderRadius.circular(5.0),
-              ),
-              child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Icon(Icons.delete),
-                    Text(
-                      'Reject',
-                      style: TextStyle(
-                        color: Color(primaryBlack),
-                        fontSize: textMedium,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: padding10),
-        ],
-      ),
-    );
-  }
-
   Widget buildRawatInap(Map<String, dynamic> data) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
@@ -2157,7 +2058,9 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                     InkWell(
                       onTap: () {
                         Get.toNamed(
-                            '/user/main/submition/aplikasi_training/detail_aplikasi_training');
+                          '/user/main/daftar_persetujuan/detail_rawat_inap',
+                          arguments: {'id': data['id_rawat_inap']},
+                        );
                       },
                       child: Container(
                         width: size.width * 0.38,
@@ -2189,15 +2092,6 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                     InkWell(
                       onTap: () {
                         _downloadRawatInap(data['id_rawat_inap']);
-                        // if (rawatInapPDFpath.isNotEmpty) {
-                        //   Navigator.push(
-                        //     context,
-                        //     MaterialPageRoute(
-                        //       builder: (context) =>
-                        //           PDFScreen(path: rawatInapPDFpath),
-                        //     ),
-                        //   );
-                        // }
                       },
                       child: Container(
                         width: size.width * 0.38,
@@ -2316,7 +2210,9 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                     InkWell(
                       onTap: () {
                         Get.toNamed(
-                            '/user/main/submition/aplikasi_training/detail_aplikasi_training');
+                          '/user/main/daftar_persetujuan/detail_rawat_jalan',
+                          arguments: {'id': data['id']},
+                        );
                       },
                       child: Container(
                         width: size.width * 0.38,
@@ -2381,6 +2277,176 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                             ],
                           ),
                         ),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget buildImPerjalananDinas(Map<String, dynamic> data) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double padding5 = size.width * 0.0188;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(vertical: sizedBoxHeightExtraTall),
+          height: size.height * 0.3,
+          width: size.width * 0.9,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(paddingHorizontalNarrow),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                RowWidget(
+                  textLeft: 'Nomor Dokumen',
+                  textRight: '${data['no_doc']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Pemohon',
+                  textRight: '${data['nrp_user']} - ${data['nama_user']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Nama Atasan',
+                  textRight: '${data['nama_atasan']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Nama HRGS',
+                  textRight: '${data['nama_hrgs']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Tempat Tujuan',
+                  textRight: '${data['tempat_tujuan']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Perihal',
+                  textRight: '${data['catatan_atasan']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Tanggal Pengajuan',
+                  textRight: '${data['tgl_pengajuan']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Tanggal Posting',
+                  textRight: data['status_sap'] ?? '',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Status',
+                  textRight: '${data['status_approve']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                SizedBox(
+                  height: sizedBoxHeightShort,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        Get.toNamed(
+                          '/user/main/daftar_permintaan/detail_im_perjalanan_dinas',
+                          arguments: {'id': data['id']},
+                        );
+                      },
+                      child: Container(
+                        width: size.width * 0.38,
+                        height: size.height * 0.04,
+                        padding: EdgeInsets.all(padding5),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              const Icon(Icons.details_sharp),
+                              Text(
+                                'Detail',
+                                style: TextStyle(
+                                  color: Color(primaryBlack),
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        // _downloadRawatInap(data['id_rawat_inap']);
+                      },
+                      child: Container(
+                        width: size.width * 0.38,
+                        height: size.height * 0.04,
+                        padding: EdgeInsets.all(padding5),
+                        decoration: BoxDecoration(
+                          color: const Color(primaryYellow),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: _isLoadingContent
+                            ? Center(
+                                child: SizedBox(
+                                  width: size.height * 0.025,
+                                  height: size.height * 0.025,
+                                  child: const CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              )
+                            : Center(
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    const Icon(Icons.download_rounded),
+                                    Text(
+                                      'Unduhan',
+                                      style: TextStyle(
+                                        color: const Color(primaryBlack),
+                                        fontSize: textMedium,
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                       ),
                     ),
                   ],

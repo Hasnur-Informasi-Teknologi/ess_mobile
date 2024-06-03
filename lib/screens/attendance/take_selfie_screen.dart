@@ -151,7 +151,6 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
             _showErrorDialog('Confidence Data Kurang dari 50%!');
           } else {
             // proses absen
-            print('Proses absen id_user : $idUser');
             _cameraController!.dispose();
             var clockInTime = attendanceData['clock_in_time'] ?? '';
             var clockOutTime = attendanceData['clock_out_time'] ?? '';

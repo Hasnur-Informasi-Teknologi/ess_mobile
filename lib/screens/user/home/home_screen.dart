@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
 import 'package:mobile_ess/widgets/header_profile_widget.dart';
 import 'package:mobile_ess/screens/user/home/icons_container_widget.dart';
-import 'package:mobile_ess/widgets/jadwal_kerja_card_widget.dart';
+import 'package:mobile_ess/screens/attendance/jadwal_kerja_card_widget.dart';
 import 'package:mobile_ess/widgets/pengumuman_card_widget.dart';
 import 'package:mobile_ess/widgets/row_with_button_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
@@ -56,8 +56,10 @@ class _HomeScreenState extends State<HomeScreen> {
         );
 
         final responseData = jsonDecode(response.body);
-        print(responseData);
-      } catch (e) {}
+        // print(responseData);
+      } catch (e) {
+        print(e);
+      }
     } else {
       print('tidak ada token home');
     }
@@ -82,15 +84,9 @@ class _HomeScreenState extends State<HomeScreen> {
     Size size = MediaQuery.of(context).size;
     double textSmall = size.width * 0.027;
     double textMedium = size.width * 0.0329;
-    double textLarge = size.width * 0.04;
-    double sizedBoxHeightExtraTall = size.height * 0.0215;
     double paddingHorizontalNarrow = size.width * 0.035;
     double paddingHorizontalWide = size.width * 0.0585;
     double padding10 = size.width * 0.023;
-    double sizedBoxHeightTall = size.height * 0.0163;
-    double sizedBoxHeightShort = size.height * 0.0086;
-    double padding5 = size.width * 0.0115;
-    double padding7 = size.width * 0.018;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -215,16 +211,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                     iconSize: 24,
                                     elevation: 16,
                                     onChanged: (String? newValue) {
+                                      print(newValue);
                                       setState(() {
                                         if (newValue == '1') {
                                           Get.toNamed('/admin/main');
                                         } else {
                                           Get.toNamed('/user/main');
-                                          // Navigator.pushReplacement(
-                                          //     context,
-                                          //     MaterialPageRoute(
-                                          //         builder: (context) =>
-                                          //             const MainScreenWithAnimation()));
                                         }
                                         selectionDashboard = newValue;
                                       });
@@ -252,15 +244,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 : Text(''),
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-            child: const TitleWidget(title: 'Kehadiran'),
-          ),
-          Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: paddingHorizontalWide, vertical: padding10),
             child: RowWithButtonWidget(
-              textLeft: 'Jangan lupa Absen Pagi Ini!',
-              textRight: 'Request attendance',
+              textLeft: '',
+              textRight: 'Laporan Absensi',
               fontSizeLeft: textSmall,
               fontSizeRight: textSmall,
               onTab: () {
@@ -269,31 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const JadwalKerjaCardWidget(),
-          // SizedBox(
-          //   height: sizedBoxHeightExtraTall,
-          // ),
-          // Padding(
-          //   padding: EdgeInsets.symmetric(
-          //       horizontal: paddingHorizontalWide, vertical: padding10),
-          //   child: RowWithButtonWidget(
-          //     textLeft: 'Pengumuman',
-          //     textRight: 'Lihat Semua',
-          //     fontSizeLeft: textLarge,
-          //     fontSizeRight: textSmall,
-          //     onTab: () {
-          //       Navigator.push(
-          //           context,
-          //           MaterialPageRoute(
-          //               builder: (ctx) => const PengumumanScreen()));
-          //     },
-          //   ),
-          // ),
-          // Column(
-          //   children: List.generate(4, (index) {
-          //     return const PengumumanCardWidget();
-          //   }),
-          // ),
-          SizedBox(
+          const SizedBox(
             height: 100,
           )
         ],

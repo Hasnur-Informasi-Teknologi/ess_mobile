@@ -176,180 +176,10 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                       actions: <Widget>[
                         Column(children: <Widget>[
                           x.absenIn == false && x.absenOut == false
-                              ? Column(
-                                  children: [
-                                    Container(
-                                      width: double.infinity,
-                                      height: 45,
-                                      margin: const EdgeInsets.only(bottom: 10),
-                                      child: OutlinedButton(
-                                          style: OutlinedButton.styleFrom(
-                                              side: const BorderSide(
-                                                  color: Color(primaryYellow))),
-                                          onPressed: () {
-                                            print('home');
-                                            Navigator.pushAndRemoveUntil(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (ctx) =>
-                                                        const WFHLocationScreen(
-                                                            workLocation:
-                                                                'Home',
-                                                            attendanceType:
-                                                                'Check-In')),
-                                                (route) => false);
-                                          },
-                                          child: const Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Icon(Icons.home),
-                                              Text('WFH',
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color:
-                                                          Color(primaryBlack))),
-                                            ],
-                                          )),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Container(
-                                      width: double.infinity,
-                                      height: 45,
-                                      margin: const EdgeInsets.only(bottom: 10),
-                                      child: OutlinedButton(
-                                        style: OutlinedButton.styleFrom(
-                                            side: const BorderSide(
-                                                color: Color(primaryYellow))),
-                                        onPressed: () {
-                                          Navigator.pushAndRemoveUntil(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (ctx) =>
-                                                      const WFOLocationNewScreen(
-                                                          workLocation:
-                                                              'Office')),
-                                              (route) => false);
-                                        },
-                                        child: const Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Icon(Icons.work),
-                                            Text('WFO',
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.w500,
-                                                    color:
-                                                        Color(primaryBlack))),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Container(
-                                      width: double.infinity,
-                                      height: 45,
-                                      margin: const EdgeInsets.only(bottom: 10),
-                                      child: OutlinedButton(
-                                          style: OutlinedButton.styleFrom(
-                                              side: const BorderSide(
-                                                  color: Color(primaryYellow))),
-                                          onPressed: () {
-                                            Navigator.pushAndRemoveUntil(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (ctx) =>
-                                                        const TripLocationScreen(
-                                                            workLocation:
-                                                                'Trip',
-                                                            attendanceType:
-                                                                'Check-In')),
-                                                (route) => false);
-                                          },
-                                          child: const Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Icon(Icons.car_crash),
-                                              Text('Bussiness Trip',
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color:
-                                                          Color(primaryBlack))),
-                                            ],
-                                          )),
-                                    ),
-                                    const SizedBox(width: 10),
-                                  ],
-                                )
+                              ? clockInWidget(context)
                               : x.absenIn == true && x.absenOut == false
-                                  ? Column(
-                                      children: [
-                                        Container(
-                                          width: double.infinity,
-                                          height: 45,
-                                          margin:
-                                              const EdgeInsets.only(bottom: 10),
-                                          child: OutlinedButton(
-                                            style: OutlinedButton.styleFrom(
-                                                side: const BorderSide(
-                                                    color:
-                                                        Color(primaryYellow))),
-                                            onPressed: () {
-                                              Navigator.pushAndRemoveUntil(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (ctx) =>
-                                                          const CheckoutLocationScreen(
-                                                              attendanceType:
-                                                                  'Check-Out')),
-                                                  (route) => false);
-                                            },
-                                            child: const Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Icon(Icons.outbound),
-                                                Text('Absen Pulang',
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        color: Color(
-                                                            primaryBlack))),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                  : Column(
-                                      children: [
-                                        Container(
-                                          height: size.height * 0.07,
-                                          padding: EdgeInsets.all(padding5),
-                                          decoration: BoxDecoration(
-                                            color: const Color(primaryYellow),
-                                            borderRadius:
-                                                BorderRadius.circular(5.0),
-                                          ),
-                                          child: const Center(
-                                            child: Text(
-                                              'Sudah Absen',
-                                              style: TextStyle(
-                                                color:
-                                                    const Color(primaryBlack),
-                                                fontSize: 20,
-                                                fontFamily: 'Poppins',
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                  ? clockOutWidget(context)
+                                  : sudahAbsenWidget(context),
                         ])
                       ],
                     ));
@@ -362,7 +192,6 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                 }
                 setState(() {
                   tabBody = const AdminHeaderScreen();
-                  // tabBody = const HomeScreen();
                 });
               });
             } else if (index == 1) {
@@ -394,6 +223,159 @@ class _AdminMainScreenState extends State<AdminMainScreen>
               });
             }
           },
+        ),
+      ],
+    );
+  }
+
+  Widget clockInWidget(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          height: 45,
+          margin: const EdgeInsets.only(bottom: 10),
+          child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(primaryYellow))),
+              onPressed: () {
+                print('home');
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (ctx) => const WFHLocationScreen(
+                            workLocation: 'Home', attendanceType: 'Check-In')),
+                    (route) => false);
+              },
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Icon(Icons.home),
+                  Text('WFH',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Color(primaryBlack))),
+                ],
+              )),
+        ),
+        const SizedBox(width: 10),
+        Container(
+          width: double.infinity,
+          height: 45,
+          margin: const EdgeInsets.only(bottom: 10),
+          child: OutlinedButton(
+            style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Color(primaryYellow))),
+            onPressed: () {
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                      builder: (ctx) =>
+                          const WFOLocationNewScreen(workLocation: 'Office')),
+                  (route) => false);
+            },
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Icon(Icons.work),
+                Text('WFO',
+                    style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: Color(primaryBlack))),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Container(
+          width: double.infinity,
+          height: 45,
+          margin: const EdgeInsets.only(bottom: 10),
+          child: OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(primaryYellow))),
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (ctx) => const TripLocationScreen(
+                            workLocation: 'Trip', attendanceType: 'Check-In')),
+                    (route) => false);
+              },
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Icon(Icons.car_crash),
+                  Text('Bussiness Trip',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: Color(primaryBlack))),
+                ],
+              )),
+        ),
+        const SizedBox(width: 10),
+      ],
+    );
+  }
+
+  Widget clockOutWidget(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          height: 45,
+          margin: const EdgeInsets.only(bottom: 10),
+          child: OutlinedButton(
+            style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: Color(primaryYellow))),
+            onPressed: () {
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                      builder: (ctx) => const CheckoutLocationScreen(
+                          attendanceType: 'Check-Out')),
+                  (route) => false);
+            },
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Icon(Icons.outbound),
+                Text('Absen Pulang',
+                    style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: Color(primaryBlack))),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget sudahAbsenWidget(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double padding5 = size.width * 0.0115;
+
+    return Column(
+      children: [
+        Container(
+          height: size.height * 0.07,
+          padding: EdgeInsets.all(padding5),
+          decoration: BoxDecoration(
+            color: const Color(primaryYellow),
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          child: const Center(
+            child: Text(
+              'Sudah Absen',
+              style: TextStyle(
+                color: const Color(primaryBlack),
+                fontSize: 20,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
         ),
       ],
     );

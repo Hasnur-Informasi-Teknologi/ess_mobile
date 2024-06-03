@@ -4,11 +4,11 @@ import 'package:mobile_ess/screens/admin/componentDashboard/kontrakScreen.dart';
 import 'package:mobile_ess/screens/admin/componentDashboard/probationKaryawanScreen.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/cupertino_datepicker_widget.dart';
-import 'package:mobile_ess/widgets/request_attendance_table_widget.dart';
+import 'package:mobile_ess/screens/attendance/request_attendance_table_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 
-class KontrakKaryawanController extends GetxController{
-  var pilih="1".obs;
+class KontrakKaryawanController extends GetxController {
+  var pilih = "1".obs;
 }
 
 class KontrakKaryawan extends StatefulWidget {
@@ -35,7 +35,7 @@ class KontrakKaryawanState extends State<KontrakKaryawan> {
     '1': 'Periode',
   };
   // ========================================================
-   Map<String, String> pilihValues = {
+  Map<String, String> pilihValues = {
     '1': 'Kontrak',
     '2': 'Probation',
   };
@@ -60,7 +60,6 @@ class KontrakKaryawanState extends State<KontrakKaryawan> {
               horizontal: paddingHorizontalWide, vertical: padding10),
           child: Column(
             children: [
-            
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Padding(
@@ -168,7 +167,7 @@ class KontrakKaryawanState extends State<KontrakKaryawan> {
                         child: TextFormField(
                           style: TextStyle(fontSize: 12),
                           decoration: const InputDecoration(
-                          enabledBorder: InputBorder.none,
+                            enabledBorder: InputBorder.none,
                             hintText: 'Pangkat', // placeholder
                           ),
                           // onChanged: (val)=>vdata['Username']=val, // pilih salah satu
@@ -186,87 +185,87 @@ class KontrakKaryawanState extends State<KontrakKaryawan> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                   Container(
-                        height: 40,
-                        padding: EdgeInsets.all(4),
-                        margin: EdgeInsets.only(left: 10),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Color.fromARGB(
-                                102, 158, 158, 158), // Set border color
-                            width: 1, // Set border width
-                          ),
-                          borderRadius: BorderRadius.circular(
-                              6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
+                    Container(
+                      height: 40,
+                      padding: EdgeInsets.all(4),
+                      margin: EdgeInsets.only(left: 10),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Color.fromARGB(
+                              102, 158, 158, 158), // Set border color
+                          width: 1, // Set border width
                         ),
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 5, right: 5),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors
-                                    .black, // Set the font size for the dropdown items
-                              ),
-                              value: x.pilih.value,
-                              iconSize: 24,
-                              elevation: 16,
-                              onChanged: (String? newValue) {
-                                x.pilih.value = newValue.toString();
-                                print(newValue);
-                              },
-                              items: pilihValues.keys
-                                  .map<DropdownMenuItem<String>>((String id) {
-                                return DropdownMenuItem<String>(
-                                  value: id,
-                                  child: Text(pilihValues[id]!),
-                                );
-                              }).toList(),
+                        borderRadius: BorderRadius.circular(
+                            6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 5, right: 5),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors
+                                  .black, // Set the font size for the dropdown items
                             ),
+                            value: x.pilih.value,
+                            iconSize: 24,
+                            elevation: 16,
+                            onChanged: (String? newValue) {
+                              x.pilih.value = newValue.toString();
+                              print(newValue);
+                            },
+                            items: pilihValues.keys
+                                .map<DropdownMenuItem<String>>((String id) {
+                              return DropdownMenuItem<String>(
+                                value: id,
+                                child: Text(pilihValues[id]!),
+                              );
+                            }).toList(),
                           ),
                         ),
                       ),
-                      Container(
-                        height: 40,
-                        padding: EdgeInsets.all(4),
-                        margin: EdgeInsets.only(left: 10),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Color.fromARGB(
-                                102, 158, 158, 158), // Set border color
-                            width: 1, // Set border width
-                          ),
-                          borderRadius: BorderRadius.circular(
-                              6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
+                    ),
+                    Container(
+                      height: 40,
+                      padding: EdgeInsets.all(4),
+                      margin: EdgeInsets.only(left: 10),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Color.fromARGB(
+                              102, 158, 158, 158), // Set border color
+                          width: 1, // Set border width
                         ),
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 5, right: 5),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Colors
-                                    .black, // Set the font size for the dropdown items
-                              ),
-                              value: lokasiValue,
-                              iconSize: 24,
-                              elevation: 16,
-                              onChanged: (String? newValue) {
-                                setState(() {
-                                  lokasiValue = newValue;
-                                });
-                              },
-                              items: lokasiValues.keys
-                                  .map<DropdownMenuItem<String>>((String id) {
-                                return DropdownMenuItem<String>(
-                                  value: id,
-                                  child: Text(lokasiValues[id]!),
-                                );
-                              }).toList(),
+                        borderRadius: BorderRadius.circular(
+                            6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 5, right: 5),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: Colors
+                                  .black, // Set the font size for the dropdown items
                             ),
+                            value: lokasiValue,
+                            iconSize: 24,
+                            elevation: 16,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                lokasiValue = newValue;
+                              });
+                            },
+                            items: lokasiValues.keys
+                                .map<DropdownMenuItem<String>>((String id) {
+                              return DropdownMenuItem<String>(
+                                value: id,
+                                child: Text(lokasiValues[id]!),
+                              );
+                            }).toList(),
                           ),
                         ),
                       ),
+                    ),
                     Container(
                       height: 40,
                       width: 150,
@@ -326,16 +325,14 @@ class KontrakKaryawanState extends State<KontrakKaryawan> {
                 height: 20,
               ),
               Obx(() {
-                if(x.pilih=='1'){
+                if (x.pilih == '1') {
                   return KontrakEmployeeScreen();
-                }
-                else if(x.pilih=='2'){
+                } else if (x.pilih == '2') {
                   return ProbationKaryawanScreen();
-                }
-                else{
+                } else {
                   return Text("woke");
                 }
-              }), 
+              }),
             ],
           ),
         ),
