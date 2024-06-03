@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/cupertino_datepicker_widget.dart';
-import 'package:mobile_ess/widgets/request_attendance_table_widget.dart';
+import 'package:mobile_ess/screens/attendance/request_attendance_table_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 
 class KehadiranTanpaKeterangan extends StatefulWidget {

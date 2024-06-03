@@ -271,17 +271,17 @@ class _WFOLocationScreenState extends State<WFOLocationScreen> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 12, right: 12),
-                                    child: const Text(
-                                      'Button Proses Absen',
+                                  onPressed: clockInProcess,
+                                  child: const Padding(
+                                    padding:
+                                        EdgeInsets.only(left: 12, right: 12),
+                                    child: Text(
+                                      'Clock In',
                                       style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w500),
-                                    ).tr(namedArgs: {'check': 'Check-In'}),
+                                    ),
                                   ),
-                                  onPressed: clockInProcess,
                                 ),
                               ),
                               SingleChildScrollView(

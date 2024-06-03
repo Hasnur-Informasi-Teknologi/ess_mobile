@@ -77,13 +77,13 @@ class _TripLocationScreenState extends State<TripLocationScreen> {
     var timeZone = prefs.getString('timeZone');
     var timezone = await FlutterTimezone.getLocalTimezone();
     if (timezone == 'Asia/Jakarta') {
-      timeZone='WIB'; // Western Indonesia Time
+      timeZone = 'WIB'; // Western Indonesia Time
     } else if (timezone == 'Asia/Makassar') {
-      timeZone='WITA'; // Central Indonesia Time
+      timeZone = 'WITA'; // Central Indonesia Time
     } else if (timezone == 'Asia/Jayapura') {
-      timeZone='WIT'; // Eastern Indonesia Time
+      timeZone = 'WIT'; // Eastern Indonesia Time
     } else {
-      timeZone='Unknown'; // Unknown or not applicable
+      timeZone = 'Unknown'; // Unknown or not applicable
     }
     if (timeZone == 'WITA') {
       stimestamp = stimestamp + (1 * 60 * 60 * 1000);
@@ -207,18 +207,16 @@ class _TripLocationScreenState extends State<TripLocationScreen> {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                     ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(12),
-                                      child: const Text(
-                                        'Button Proses Absen',
+                                    onPressed: clockInProcess,
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(12),
+                                      child: Text(
+                                        'Clock In',
                                         style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w500),
-                                      ).tr(namedArgs: {
-                                        'check': widget.attendanceType
-                                      }),
+                                      ),
                                     ),
-                                    onPressed: clockInProcess,
                                   ),
                                 ),
                                 SingleChildScrollView(

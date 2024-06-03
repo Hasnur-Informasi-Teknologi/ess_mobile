@@ -205,18 +205,16 @@ class _WFHLocationScreenState extends State<WFHLocationScreen> {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                     ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(12),
-                                      child: const Text(
-                                        'Button Proses Absen',
+                                    onPressed: clockInProcess,
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(12),
+                                      child: Text(
+                                        'Clock In',
                                         style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w500),
-                                      ).tr(namedArgs: {
-                                        'check': widget.attendanceType
-                                      }),
+                                      ),
                                     ),
-                                    onPressed: clockInProcess,
                                   ),
                                 ),
                                 SingleChildScrollView(

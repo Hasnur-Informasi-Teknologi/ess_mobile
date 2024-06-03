@@ -25,7 +25,7 @@ class RowWithSemicolonWidget extends StatelessWidget {
         SizedBox(
           width: size.width * 0.4,
           child: Text(
-            textLeft!,
+            '$textLeft',
             style: TextStyle(
               color: const Color(primaryBlack),
               fontSize: fontSizeLeft ?? textSmall,
@@ -49,7 +49,7 @@ class RowWithSemicolonWidget extends StatelessWidget {
         SizedBox(
           width: size.width * 0.43,
           child: Text(
-            textRight!,
+            '$textRight',
             style: TextStyle(
               color: const Color(primaryBlack),
               fontSize: fontSizeRight ?? textSmall,
