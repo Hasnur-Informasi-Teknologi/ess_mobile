@@ -54,7 +54,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     {'id': '5', 'opsi': 'Pengajuan Cuti'},
     {'id': '8', 'opsi': 'Perpanjangan Cuti'},
     {'id': '6', 'opsi': 'Pengajuan Training'},
-    {'id': '7', 'opsi': 'Perjalanan Dinas'},
+    {'id': '7', 'opsi': 'IM Perjalanan Dinas'},
+    {'id': '13', 'opsi': 'LPJ Perjalanan Dinas'},
     {'id': '9', 'opsi': 'Rawat Inap'},
     {'id': '10', 'opsi': 'Rawat Jalan'},
     {'id': '11', 'opsi': 'Surat Keterangan'},
@@ -273,6 +274,37 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
         setState(() {
           masterDataCuti = Map<String, dynamic>.from(masterDataCutiApi);
+        });
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
+  Future<void> getDataImPerjalananDinas(String? statusFilter) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? token = prefs.getString('token');
+    setState(() {
+      _isLoading = true;
+    });
+
+    if (token != null) {
+      try {
+        final response = await http.get(
+            Uri.parse(
+                "$_apiUrl/rencana-perdin/get?page=$page&perPage=$perPage&search=$search&status=$statusFilter&type=$type"),
+            headers: <String, String>{
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Authorization': 'Bearer $token'
+            });
+        final responseData = jsonDecode(response.body);
+        final dataImPerjalananDinasApi = responseData['dperdin'];
+
+        setState(() {
+          masterDataPersetujuan =
+              List<Map<String, dynamic>>.from(dataImPerjalananDinasApi);
+          _isLoading = false;
         });
       } catch (e) {
         print(e);
@@ -655,6 +687,9 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                                     if (selectedValueDaftarPersetujuan == '5') {
                                       getDataPengajuanCuti(statusFilter);
                                     } else if (selectedValueDaftarPersetujuan ==
+                                        '7') {
+                                      getDataImPerjalananDinas(statusFilter);
+                                    } else if (selectedValueDaftarPersetujuan ==
                                         '8') {
                                       getDataPerpanjanganCuti(statusFilter);
                                     } else if (selectedValueDaftarPersetujuan ==
@@ -738,6 +773,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                   selectedValueDaftarPersetujuan = newValue ?? '';
                   if (selectedValueDaftarPersetujuan == '5') {
                     getDataPengajuanCuti(statusFilter);
+                  } else if (selectedValueDaftarPersetujuan == '7') {
+                    getDataImPerjalananDinas(statusFilter);
                   } else if (selectedValueDaftarPersetujuan == '8') {
                     getDataPerpanjanganCuti(statusFilter);
                   } else if (selectedValueDaftarPersetujuan == '9') {
@@ -886,14 +923,17 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                   ),
                   child: selectedValueDaftarPersetujuan == '5'
                       ? buildCuti(masterDataPersetujuan[index])
-                      : selectedValueDaftarPersetujuan == '8'
-                          ? buildPerpanjanganCuti(masterDataPersetujuan[index])
-                          : selectedValueDaftarPersetujuan == '9'
-                              ? buildRawatInap(masterDataPersetujuan[index])
-                              : selectedValueDaftarPersetujuan == '10'
-                                  ? buildRawatJalan(
-                                      masterDataPersetujuan[index])
-                                  : const Text('Kosong'),
+                      : selectedValueDaftarPersetujuan == '7'
+                          ? buildImPerjalananDinas(masterDataPersetujuan[index])
+                          : selectedValueDaftarPersetujuan == '8'
+                              ? buildPerpanjanganCuti(
+                                  masterDataPersetujuan[index])
+                              : selectedValueDaftarPersetujuan == '9'
+                                  ? buildRawatInap(masterDataPersetujuan[index])
+                                  : selectedValueDaftarPersetujuan == '10'
+                                      ? buildRawatJalan(
+                                          masterDataPersetujuan[index])
+                                      : const Text('Kosong'),
                 );
               },
             ),
@@ -922,14 +962,17 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                   ),
                   child: selectedValueDaftarPersetujuan == '5'
                       ? buildCuti(masterDataPersetujuan[index])
-                      : selectedValueDaftarPersetujuan == '8'
-                          ? buildPerpanjanganCuti(masterDataPersetujuan[index])
-                          : selectedValueDaftarPersetujuan == '9'
-                              ? buildRawatInap(masterDataPersetujuan[index])
-                              : selectedValueDaftarPersetujuan == '10'
-                                  ? buildRawatJalan(
-                                      masterDataPersetujuan[index])
-                                  : const Text('Kosong'),
+                      : selectedValueDaftarPersetujuan == '7'
+                          ? buildImPerjalananDinas(masterDataPersetujuan[index])
+                          : selectedValueDaftarPersetujuan == '8'
+                              ? buildPerpanjanganCuti(
+                                  masterDataPersetujuan[index])
+                              : selectedValueDaftarPersetujuan == '9'
+                                  ? buildRawatInap(masterDataPersetujuan[index])
+                                  : selectedValueDaftarPersetujuan == '10'
+                                      ? buildRawatJalan(
+                                          masterDataPersetujuan[index])
+                                      : const Text('Kosong'),
                 );
               },
             ),
@@ -958,14 +1001,17 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                   ),
                   child: selectedValueDaftarPersetujuan == '5'
                       ? buildCuti(masterDataPersetujuan[index])
-                      : selectedValueDaftarPersetujuan == '8'
-                          ? buildPerpanjanganCuti(masterDataPersetujuan[index])
-                          : selectedValueDaftarPersetujuan == '9'
-                              ? buildRawatInap(masterDataPersetujuan[index])
-                              : selectedValueDaftarPersetujuan == '10'
-                                  ? buildRawatJalan(
-                                      masterDataPersetujuan[index])
-                                  : const Text('Kosong'),
+                      : selectedValueDaftarPersetujuan == '7'
+                          ? buildImPerjalananDinas(masterDataPersetujuan[index])
+                          : selectedValueDaftarPersetujuan == '8'
+                              ? buildPerpanjanganCuti(
+                                  masterDataPersetujuan[index])
+                              : selectedValueDaftarPersetujuan == '9'
+                                  ? buildRawatInap(masterDataPersetujuan[index])
+                                  : selectedValueDaftarPersetujuan == '10'
+                                      ? buildRawatJalan(
+                                          masterDataPersetujuan[index])
+                                      : const Text('Kosong'),
                 );
               },
             ),
@@ -994,14 +1040,17 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                   ),
                   child: selectedValueDaftarPersetujuan == '5'
                       ? buildCuti(masterDataPersetujuan[index])
-                      : selectedValueDaftarPersetujuan == '8'
-                          ? buildPerpanjanganCuti(masterDataPersetujuan[index])
-                          : selectedValueDaftarPersetujuan == '9'
-                              ? buildRawatInap(masterDataPersetujuan[index])
-                              : selectedValueDaftarPersetujuan == '10'
-                                  ? buildRawatJalan(
-                                      masterDataPersetujuan[index])
-                                  : const Text('Kosong'),
+                      : selectedValueDaftarPersetujuan == '7'
+                          ? buildImPerjalananDinas(masterDataPersetujuan[index])
+                          : selectedValueDaftarPersetujuan == '8'
+                              ? buildPerpanjanganCuti(
+                                  masterDataPersetujuan[index])
+                              : selectedValueDaftarPersetujuan == '9'
+                                  ? buildRawatInap(masterDataPersetujuan[index])
+                                  : selectedValueDaftarPersetujuan == '10'
+                                      ? buildRawatJalan(
+                                          masterDataPersetujuan[index])
+                                      : const Text('Kosong'),
                 );
               },
             ),
@@ -2228,6 +2277,176 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                             ],
                           ),
                         ),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget buildImPerjalananDinas(Map<String, dynamic> data) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double padding5 = size.width * 0.0188;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(vertical: sizedBoxHeightExtraTall),
+          height: size.height * 0.3,
+          width: size.width * 0.9,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(paddingHorizontalNarrow),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                RowWidget(
+                  textLeft: 'Nomor Dokumen',
+                  textRight: '${data['no_doc']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Pemohon',
+                  textRight: '${data['nrp_user']} - ${data['nama_user']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Nama Atasan',
+                  textRight: '${data['nama_atasan']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Nama HRGS',
+                  textRight: '${data['nama_hrgs']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Tempat Tujuan',
+                  textRight: '${data['tempat_tujuan']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Perihal',
+                  textRight: '${data['catatan_atasan']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Tanggal Pengajuan',
+                  textRight: '${data['tgl_pengajuan']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Tanggal Posting',
+                  textRight: data['status_sap'] ?? '',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Status',
+                  textRight: '${data['status_approve']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                SizedBox(
+                  height: sizedBoxHeightShort,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        Get.toNamed(
+                          '/user/main/daftar_permintaan/detail_im_perjalanan_dinas',
+                          arguments: {'id': data['id']},
+                        );
+                      },
+                      child: Container(
+                        width: size.width * 0.38,
+                        height: size.height * 0.04,
+                        padding: EdgeInsets.all(padding5),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              const Icon(Icons.details_sharp),
+                              Text(
+                                'Detail',
+                                style: TextStyle(
+                                  color: Color(primaryBlack),
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        // _downloadRawatInap(data['id_rawat_inap']);
+                      },
+                      child: Container(
+                        width: size.width * 0.38,
+                        height: size.height * 0.04,
+                        padding: EdgeInsets.all(padding5),
+                        decoration: BoxDecoration(
+                          color: const Color(primaryYellow),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: _isLoadingContent
+                            ? Center(
+                                child: SizedBox(
+                                  width: size.height * 0.025,
+                                  height: size.height * 0.025,
+                                  child: const CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              )
+                            : Center(
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    const Icon(Icons.download_rounded),
+                                    Text(
+                                      'Unduhan',
+                                      style: TextStyle(
+                                        color: const Color(primaryBlack),
+                                        fontSize: textMedium,
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                       ),
                     ),
                   ],

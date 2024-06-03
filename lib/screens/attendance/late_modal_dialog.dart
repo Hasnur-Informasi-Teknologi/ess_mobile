@@ -155,9 +155,11 @@ class _LateModalDialogState extends State<LateModalDialog> {
                   SizedBox(
                     height: sizedBoxHeightExtraTall,
                   ),
-                  ElevatedButton(
-                    onPressed: _getImage,
-                    child: Text('Take Picture'),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: _getImage,
+                      child: Text('Take Picture'),
+                    ),
                   ),
                   SizedBox(
                     height: sizedBoxHeightExtraTall,
