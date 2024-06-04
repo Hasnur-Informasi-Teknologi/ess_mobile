@@ -53,6 +53,7 @@ import 'package:mobile_ess/screens/user/permintaan/detail_lpj_perjalanan_dinas_d
 import 'package:mobile_ess/screens/user/permintaan/detail_pengajuan_cuti_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_rawat_inap_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_im_perjalanan_dinas_daftar_persetujuan.dart';
+import 'package:mobile_ess/screens/user/persetujuan/detail_lpj_perjalanan_dinas_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_pengajuan_cuti_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_perpanjangan_cuti_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_rawat_inap_daftar_persetujuan.dart';
@@ -142,6 +143,8 @@ Map<String, Widget Function(BuildContext)> routers() {
         const DetailPerpanjanganCutiDaftarPersetujuan(),
     '/user/main/daftar_persetujuan/detail_im_perjalanan_dinas': (context) =>
         const DetailImPerjalananDinasDaftarPersetujuan(),
+    '/user/main/daftar_persetujuan/detail_lpj_perjalanan_dinas': (context) =>
+        const DetailLpjPerjalananDinasDaftarPersetujuan(),
 
     // '/user/main/submition/aplikasi_training/detail_aplikasi_training':
     //     (context) => const DetailFormPengajuanLembur(),

@@ -2592,7 +2592,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                     InkWell(
                       onTap: () {
                         Get.toNamed(
-                          '/user/main/daftar_permintaan/detail_lpj_perjalanan_dinas',
+                          '/user/main/daftar_persetujuan/detail_lpj_perjalanan_dinas',
                           arguments: {'id': data['id']},
                         );
                       },
