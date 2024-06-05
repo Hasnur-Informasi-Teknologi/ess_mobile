@@ -1949,6 +1949,18 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                                       args) {
                                                 setState(() {
                                                   tanggalMulai = args.value;
+
+                                                  if (selectedValueCutiLainnya ==
+                                                      '12') {
+                                                    _tanggalBerakhirController
+                                                            .selectedDate =
+                                                        tanggalMulai!.add(
+                                                            Duration(days: 90));
+
+                                                    tanggalBerakhir =
+                                                        tanggalMulai!.add(
+                                                            Duration(days: 90));
+                                                  }
                                                 });
                                               },
                                               selectionMode:
