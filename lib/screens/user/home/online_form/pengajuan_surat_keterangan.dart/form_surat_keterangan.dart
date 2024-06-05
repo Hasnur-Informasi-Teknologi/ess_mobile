@@ -18,7 +18,7 @@ class FormSuratKeterangan extends StatefulWidget {
 class _FormSuratKeteranganState extends State<FormSuratKeterangan> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // Sesi 1
+  // Sesi 1 (Surat keterangan)
   final _namaController = TextEditingController();
   final _nrpController = TextEditingController();
   final _nikController = TextEditingController();
