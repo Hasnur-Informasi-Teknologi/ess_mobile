@@ -49,7 +49,7 @@ class TitleCenterWithLongBadgeWidget extends StatelessWidget {
             child: Text(
               textRight!,
               style: TextStyle(
-                color: Colors.black,
+                color: Colors.black87,
                 fontSize: fontSizeRight ?? textSmall,
                 fontFamily: 'Poppins',
                 fontWeight: fontWeightRight ?? FontWeight.w300,

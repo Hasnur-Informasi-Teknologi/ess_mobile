@@ -120,125 +120,79 @@ class _DetailPengajuanTrainingDaftarPersetujuanState
     }
   }
 
-  Future<void> rejectAndApprove(int? id, String? status) async {
+  Future<void> rejectAndApprove(int? id, String status) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     String? token = prefs.getString('token');
 
-    String keterangan = _keteranganController.text;
-    String lainnya = _lainyaController.text;
-    String institusiTraining = _institusiTrainingController.text;
-
-    print(tanggalSharing);
+    String keterangan =
+        _keteranganController.text == '' ? '-' : _keteranganController.text;
+    String lainnya =
+        _lainyaController.text == '' ? '-' : _lainyaController.text;
+    String institusiTraining = _institusiTrainingController.text == ''
+        ? '-'
+        : _institusiTrainingController.text;
 
     setState(() {
       _isLoading = true;
     });
 
-    print('###############');
-    print('###############');
-    print('###############');
-    print('###############');
-    print('###############');
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('$_apiUrl/training/$id/process'),
+    );
 
-    if (token != null) {
-      try {
-        var request = http.MultipartRequest(
-          'POST',
-          Uri.parse('$_apiUrl/training/${id}/process'),
-        );
+    request.headers['Content-Type'] = 'multipart/form-data';
+    request.headers['Authorization'] = 'Bearer $token';
+    request.fields['status'] = status;
+    request.fields['institusi_training'] = institusiTraining;
+    request.fields['keterangan'] = keterangan;
+    request.fields['fungsi_training'] = selectedValueFungsiTraining.toString();
+    request.fields['tujuan_objektif'] = selectedValueTujuanObjektif.toString();
+    request.fields['penugasan_karyawan'] =
+        selectedValuePenugasanKaryawan.toString();
+    request.fields['penugasan_lainnya'] = lainnya;
+    request.fields['tgl_sharing'] = tanggalSharing.toString();
 
-        print('##############');
-        print('##############');
-        print('##############');
-        print('$_apiUrl/training/${id}/process');
+    var response = await request.send();
+    final responseData = await response.stream.bytesToString();
+    final responseDataMessage = json.decode(responseData);
+    Get.snackbar('Infomation', responseDataMessage['message'],
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.amber,
+        icon: const Icon(
+          Icons.info,
+          color: Colors.white,
+        ),
+        shouldIconPulse: false);
+    setState(() {
+      _isLoading = false;
+    });
 
-        request.headers['Content-Type'] = 'multipart/form-data';
-        // request.headers['Authorization'] = 'Bearer $token';
-        // request.fields['status'] = status!;
-        // request.fields['keterangan'] = keterangan;
-        // request.fields['institusi_training'] = institusiTraining;
-        // request.fields['fungsi_training'] =
-        //     selectedValueFungsiTraining.toString();
-        // request.fields['tujuan_objektif'] =
-        //     selectedValueTujuanObjektif.toString();
-        // request.fields['penugasan_karyawan'] =
-        //     selectedValuePenugasanKaryawan.toString();
-        // request.fields['penugasan_lainnya'] = lainnya;
-        // request.fields['tgl_sharing'] = tanggalSharing.toString();
+    print('Message $responseDataMessage');
 
-        var response = await request.send();
-        final responseData = await response.stream.bytesToString();
-        final responseDataMessage = json.decode(responseData);
-        Get.snackbar('Infomation', responseDataMessage['message'],
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.amber,
-            icon: const Icon(
-              Icons.info,
-              color: Colors.white,
-            ),
-            shouldIconPulse: false);
-        setState(() {
-          _isLoading = false;
-        });
-
-        print('Message $responseDataMessage');
-
-        if (responseDataMessage['status'] == 'success') {
-          Get.offAllNamed('/user/main');
-        }
-        // var url = '$_apiUrl/training/${id}/process';
-        // final response = await http.post(
-        //   Uri.parse(url),
-        //   headers: <String, String>{
-        //     'Content-Type': 'application/json; charset=UTF-8',
-        //     'Authorization': 'Bearer $token'
-        //   },
-        //   body: jsonEncode(
-        //     {
-        //       'status': status,
-        //       'keterangan': keterangan,
-        //       'institusi_training': institusiTraining,
-        //       'fungsi_training': selectedValueFungsiTraining,
-        //       'tujuan_objektif': selectedValueTujuanObjektif,
-        //       'penugasan_karyawan': selectedValuePenugasanKaryawan,
-        //       'penugasan_lainnya': lainnya,
-        //       'tgl_sharing': tanggalSharing?.toIso8601String(),
-        //     },
-        //   ),
-        // );
-        // print(url);
-        // final responseData = jsonDecode(response.body);
-        // print(responseData);
-
-        // if (responseData['status'] == 'success') {
-        //   Get.offAllNamed('/user/main');
-        //   Get.snackbar('Infomation', responseData['message'],
-        //       snackPosition: SnackPosition.TOP,
-        //       backgroundColor: Colors.amber,
-        //       icon: const Icon(
-        //         Icons.info,
-        //         color: Colors.white,
-        //       ),
-        //       shouldIconPulse: false);
-        // } else {
-        //   Get.snackbar('Infomation', 'Gagal',
-        //       snackPosition: SnackPosition.TOP,
-        //       backgroundColor: Colors.amber,
-        //       icon: const Icon(
-        //         Icons.info,
-        //         color: Colors.white,
-        //       ),
-        //       shouldIconPulse: false);
-        //   setState(() {
-        //     _isLoading = false;
-        //   });
-        // }
-      } catch (e) {
-        print(e);
-      }
+    if (responseDataMessage['status'] == 'success') {
+      Get.offAllNamed('/user/main');
+      Get.snackbar('Infomation', responseDataMessage['message'],
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.amber,
+          icon: const Icon(
+            Icons.info,
+            color: Colors.white,
+          ),
+          shouldIconPulse: false);
     } else {
-      print('nulll');
+      Get.snackbar('Infomation', 'Gagal',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.amber,
+          icon: const Icon(
+            Icons.info,
+            color: Colors.white,
+          ),
+          shouldIconPulse: false);
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 

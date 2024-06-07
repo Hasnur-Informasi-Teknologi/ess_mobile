@@ -370,6 +370,13 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
     }
   }
 
+  void deleteFile(PlatformFile file) {
+    setState(() {
+      _files?.remove(file);
+      _isFileNull = _files?.isEmpty ?? true;
+    });
+  }
+
   String? _validatorEntitas(dynamic value) {
     if (value == null || value.isEmpty) {
       setState(() {
@@ -1160,6 +1167,13 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                                 children: _files!.map((file) {
                                   return ListTile(
                                     title: Text(file.name),
+                                    trailing: IconButton(
+                                      icon: const Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () => deleteFile(file),
+                                    ),
                                     // subtitle: Text('${file.size} bytes'),
                                   );
                                 }).toList(),
@@ -1188,7 +1202,7 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                             horizontal: paddingHorizontalWide),
                         child: TitleWidget(
                           title: 'Diajukan Kepada',
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w700,
                           fontSize: textMedium,
                         ),
                       ),
