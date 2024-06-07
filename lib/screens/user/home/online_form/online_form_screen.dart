@@ -157,15 +157,15 @@ class OnlineFormScreen extends StatelessWidget {
   void handleIconTap(int index) {
     switch (index) {
       case 0:
-        // Get.toNamed('/user/main/home/online_form/aplikasi_training');
-        Get.snackbar('Infomation', 'Coming Soon',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.amber,
-            icon: const Icon(
-              Icons.info,
-              color: Colors.white,
-            ),
-            shouldIconPulse: false);
+        Get.toNamed('/user/main/home/online_form/aplikasi_training');
+        // Get.snackbar('Infomation', 'Coming Soon',
+        //     snackPosition: SnackPosition.TOP,
+        //     backgroundColor: Colors.amber,
+        //     icon: const Icon(
+        //       Icons.info,
+        //       color: Colors.white,
+        //     ),
+        //     shouldIconPulse: false);
         break;
       case 1:
         // Get.toNamed('/user/main/home/online_form/aplikasi_recruitment');
@@ -228,15 +228,15 @@ class OnlineFormScreen extends StatelessWidget {
             shouldIconPulse: false);
         break;
       case 7:
-        // Get.toNamed('/user/main/home/online_form/pengajuan_surat_keterangan');
-        Get.snackbar('Infomation', 'Coming Soon',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.amber,
-            icon: const Icon(
-              Icons.info,
-              color: Colors.white,
-            ),
-            shouldIconPulse: false);
+        Get.toNamed('/user/main/home/online_form/pengajuan_surat_keterangan');
+        // Get.snackbar('Infomation', 'Coming Soon',
+        //     snackPosition: SnackPosition.TOP,
+        //     backgroundColor: Colors.amber,
+        //     icon: const Icon(
+        //       Icons.info,
+        //       color: Colors.white,
+        //     ),
+        //     shouldIconPulse: false);
         break;
       case 8:
         Get.toNamed('/user/main/home/online_form/pengajuan_cuti');

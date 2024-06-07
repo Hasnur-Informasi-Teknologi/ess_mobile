@@ -513,6 +513,7 @@ class _FormAplikasiTrainingScreenState
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double sizedBoxHeightShort = size.height * 0.0086;
@@ -1253,8 +1254,14 @@ class _FormAplikasiTrainingScreenState
                     Get.back();
                   },
                 ),
-                title: const Text(
+                title: Text(
                   'Form Aplikasi Training',
+                  style: TextStyle(
+                      color: const Color(primaryBlack),
+                      fontSize: textLarge,
+                      fontFamily: 'Poppins',
+                      letterSpacing: 0.6,
+                      fontWeight: FontWeight.w500),
                 ),
               ),
               body: ListView(

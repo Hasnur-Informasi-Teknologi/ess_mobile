@@ -45,6 +45,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
     {'id': '13', 'opsi': 'LPJ Perjalanan Dinas'},
     {'id': '9', 'opsi': 'Rawat Inap'},
     {'id': '10', 'opsi': 'Rawat Jalan'},
+    {'id': '14', 'opsi': 'Surat Izin Keluar'},
     {'id': '11', 'opsi': 'Surat Keterangan'},
   ];
 
@@ -138,6 +139,37 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
     }
   }
 
+  Future<void> getDataSuratIzinKeluar(String? statusFilter) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? token = prefs.getString('token');
+    setState(() {
+      _isLoading = true;
+    });
+
+    if (token != null) {
+      try {
+        final response = await http.get(
+            Uri.parse(
+                "$_apiUrl/izin-keluar/get?page=$page&perPage=$perPage&search=$search&status=$statusFilter&type=$type"),
+            headers: <String, String>{
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Authorization': 'Bearer $token'
+            });
+        final responseData = jsonDecode(response.body);
+        final dataMasterSuratIzinKeluarApi = responseData['data'];
+
+        setState(() {
+          masterDataPermintaan =
+              List<Map<String, dynamic>>.from(dataMasterSuratIzinKeluarApi);
+          _isLoading = false;
+        });
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
   Future<void> getDataPerpanjanganCuti(String? statusFilter) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -161,6 +193,37 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
         setState(() {
           masterDataPermintaan =
               List<Map<String, dynamic>>.from(dataMasterCutiApi);
+          _isLoading = false;
+        });
+      } catch (e) {
+        print(e);
+      }
+    }
+  }
+
+  Future<void> getDataPengajuanTraining(String? statusFilter) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? token = prefs.getString('token');
+    setState(() {
+      _isLoading = true;
+    });
+
+    if (token != null) {
+      try {
+        final response = await http.get(
+            Uri.parse(
+                "$_apiUrl/training/all?page=$page&entitas=&search=$search&status=$statusFilter&limit=$perPage&permintaan=1"),
+            headers: <String, String>{
+              'Content-Type': 'application/json;charset=UTF-8',
+              'Authorization': 'Bearer $token'
+            });
+        final responseData = jsonDecode(response.body);
+        final dataMasterPengajuanTrainingApi = responseData['data']['data'];
+
+        setState(() {
+          masterDataPermintaan =
+              List<Map<String, dynamic>>.from(dataMasterPengajuanTrainingApi);
           _isLoading = false;
         });
       } catch (e) {
@@ -351,6 +414,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
   Future<File> createPdfRawatInap(int? id) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
+    print(id);
 
     setState(() {
       _isLoadingContent = true;
@@ -358,6 +422,8 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
 
     Completer<File> completer = Completer();
     try {
+      // var url =
+      //     "http://ess-dev.hasnurgroup.com:8081/online-form/preview-pdf-cuti/ee55673b-be6f-4ed3-a6fc-848255dd2bf7/okee";
       var url =
           "http://192.168.89.21/online-form/approval-rawat-inap/${id}/pdf/inap${id}.pdf";
       final filename = url.substring(url.lastIndexOf("/") + 1);
@@ -519,6 +585,9 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                                 getDataBantuanKomunikasi(statusFilter);
                               } else if (selectedValueDaftarPermintaan == '5') {
                                 getDataPengajuanCuti(statusFilter);
+                              } else if (selectedValueDaftarPermintaan == '6') {
+                                getDataPengajuanTraining(
+                                    statusFilterRawatInapJalan);
                               } else if (selectedValueDaftarPermintaan == '7') {
                                 getDataImPerjalananDinas(statusFilter);
                               } else if (selectedValueDaftarPermintaan == '8') {
@@ -531,6 +600,9 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                               } else if (selectedValueDaftarPermintaan ==
                                   '10') {
                                 getDataRawatJalan(statusFilterRawatInapJalan);
+                              } else if (selectedValueDaftarPermintaan ==
+                                  '14') {
+                                getDataSuratIzinKeluar(statusFilter);
                               } else {
                                 setState(() {
                                   masterDataPermintaan = [];
@@ -605,6 +677,8 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                     getDataBantuanKomunikasi(statusFilter);
                   } else if (selectedValueDaftarPermintaan == '5') {
                     getDataPengajuanCuti(statusFilter);
+                  } else if (selectedValueDaftarPermintaan == '6') {
+                    getDataPengajuanTraining(statusFilterRawatInapJalan);
                   } else if (selectedValueDaftarPermintaan == '7') {
                     getDataImPerjalananDinas(statusFilter);
                   } else if (selectedValueDaftarPermintaan == '13') {
@@ -617,6 +691,8 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                     getDataRawatJalan(statusFilterRawatInapJalan);
                   } else if (selectedValueDaftarPermintaan == '12') {
                     getDataSummaryCuti();
+                  } else if (selectedValueDaftarPermintaan == '14') {
+                    getDataSuratIzinKeluar(statusFilter);
                   } else {
                     setState(() {
                       masterDataPermintaan = [];
@@ -758,23 +834,32 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                       ? buildBantuanKomunikasi(masterDataPermintaan[index])
                       : selectedValueDaftarPermintaan == '5'
                           ? buildCuti(masterDataPermintaan[index])
-                          : selectedValueDaftarPermintaan == '7'
-                              ? buildImPerjalananDinas(
+                          : selectedValueDaftarPermintaan == '6'
+                              ? buildPengajuanTraining(
                                   masterDataPermintaan[index])
-                              : selectedValueDaftarPermintaan == '13'
-                                  ? buildLpjPerjalananDinas(
+                              : selectedValueDaftarPermintaan == '7'
+                                  ? buildImPerjalananDinas(
                                       masterDataPermintaan[index])
-                                  : selectedValueDaftarPermintaan == '8'
-                                      ? buildPerpanjanganCuti(
+                                  : selectedValueDaftarPermintaan == '13'
+                                      ? buildLpjPerjalananDinas(
                                           masterDataPermintaan[index])
-                                      : selectedValueDaftarPermintaan == '9'
-                                          ? buildRawatInap(
+                                      : selectedValueDaftarPermintaan == '14'
+                                          ? buildSuratIzinKeluar(
                                               masterDataPermintaan[index])
-                                          : selectedValueDaftarPermintaan ==
-                                                  '10'
-                                              ? buildRawatJalan(
+                                          : selectedValueDaftarPermintaan == '8'
+                                              ? buildPerpanjanganCuti(
                                                   masterDataPermintaan[index])
-                                              : const Text('Kosong'),
+                                              : selectedValueDaftarPermintaan ==
+                                                      '9'
+                                                  ? buildRawatInap(
+                                                      masterDataPermintaan[
+                                                          index])
+                                                  : selectedValueDaftarPermintaan ==
+                                                          '10'
+                                                      ? buildRawatJalan(
+                                                          masterDataPermintaan[
+                                                              index])
+                                                      : const Text('Kosong'),
                 );
               },
             ),
@@ -805,23 +890,32 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                       ? buildBantuanKomunikasi(masterDataPermintaan[index])
                       : selectedValueDaftarPermintaan == '5'
                           ? buildCuti(masterDataPermintaan[index])
-                          : selectedValueDaftarPermintaan == '7'
-                              ? buildImPerjalananDinas(
+                          : selectedValueDaftarPermintaan == '6'
+                              ? buildPengajuanTraining(
                                   masterDataPermintaan[index])
-                              : selectedValueDaftarPermintaan == '13'
-                                  ? buildLpjPerjalananDinas(
+                              : selectedValueDaftarPermintaan == '7'
+                                  ? buildImPerjalananDinas(
                                       masterDataPermintaan[index])
-                                  : selectedValueDaftarPermintaan == '8'
-                                      ? buildPerpanjanganCuti(
+                                  : selectedValueDaftarPermintaan == '13'
+                                      ? buildLpjPerjalananDinas(
                                           masterDataPermintaan[index])
-                                      : selectedValueDaftarPermintaan == '9'
-                                          ? buildRawatInap(
+                                      : selectedValueDaftarPermintaan == '14'
+                                          ? buildSuratIzinKeluar(
                                               masterDataPermintaan[index])
-                                          : selectedValueDaftarPermintaan ==
-                                                  '10'
-                                              ? buildRawatJalan(
+                                          : selectedValueDaftarPermintaan == '8'
+                                              ? buildPerpanjanganCuti(
                                                   masterDataPermintaan[index])
-                                              : const Text('Kosong'),
+                                              : selectedValueDaftarPermintaan ==
+                                                      '9'
+                                                  ? buildRawatInap(
+                                                      masterDataPermintaan[
+                                                          index])
+                                                  : selectedValueDaftarPermintaan ==
+                                                          '10'
+                                                      ? buildRawatJalan(
+                                                          masterDataPermintaan[
+                                                              index])
+                                                      : const Text('Kosong'),
                 );
               },
             ),
@@ -852,23 +946,32 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                       ? buildBantuanKomunikasi(masterDataPermintaan[index])
                       : selectedValueDaftarPermintaan == '5'
                           ? buildCuti(masterDataPermintaan[index])
-                          : selectedValueDaftarPermintaan == '7'
-                              ? buildImPerjalananDinas(
+                          : selectedValueDaftarPermintaan == '6'
+                              ? buildPengajuanTraining(
                                   masterDataPermintaan[index])
-                              : selectedValueDaftarPermintaan == '13'
-                                  ? buildLpjPerjalananDinas(
+                              : selectedValueDaftarPermintaan == '7'
+                                  ? buildImPerjalananDinas(
                                       masterDataPermintaan[index])
-                                  : selectedValueDaftarPermintaan == '8'
-                                      ? buildPerpanjanganCuti(
+                                  : selectedValueDaftarPermintaan == '13'
+                                      ? buildLpjPerjalananDinas(
                                           masterDataPermintaan[index])
-                                      : selectedValueDaftarPermintaan == '9'
-                                          ? buildRawatInap(
+                                      : selectedValueDaftarPermintaan == '14'
+                                          ? buildSuratIzinKeluar(
                                               masterDataPermintaan[index])
-                                          : selectedValueDaftarPermintaan ==
-                                                  '10'
-                                              ? buildRawatJalan(
+                                          : selectedValueDaftarPermintaan == '8'
+                                              ? buildPerpanjanganCuti(
                                                   masterDataPermintaan[index])
-                                              : const Text('Kosong'),
+                                              : selectedValueDaftarPermintaan ==
+                                                      '9'
+                                                  ? buildRawatInap(
+                                                      masterDataPermintaan[
+                                                          index])
+                                                  : selectedValueDaftarPermintaan ==
+                                                          '10'
+                                                      ? buildRawatJalan(
+                                                          masterDataPermintaan[
+                                                              index])
+                                                      : const Text('Kosong'),
                 );
               },
             ),
@@ -899,23 +1002,32 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                       ? buildBantuanKomunikasi(masterDataPermintaan[index])
                       : selectedValueDaftarPermintaan == '5'
                           ? buildCuti(masterDataPermintaan[index])
-                          : selectedValueDaftarPermintaan == '7'
-                              ? buildImPerjalananDinas(
+                          : selectedValueDaftarPermintaan == '6'
+                              ? buildPengajuanTraining(
                                   masterDataPermintaan[index])
-                              : selectedValueDaftarPermintaan == '13'
-                                  ? buildLpjPerjalananDinas(
+                              : selectedValueDaftarPermintaan == '7'
+                                  ? buildImPerjalananDinas(
                                       masterDataPermintaan[index])
-                                  : selectedValueDaftarPermintaan == '8'
-                                      ? buildPerpanjanganCuti(
+                                  : selectedValueDaftarPermintaan == '13'
+                                      ? buildLpjPerjalananDinas(
                                           masterDataPermintaan[index])
-                                      : selectedValueDaftarPermintaan == '9'
-                                          ? buildRawatInap(
+                                      : selectedValueDaftarPermintaan == '14'
+                                          ? buildSuratIzinKeluar(
                                               masterDataPermintaan[index])
-                                          : selectedValueDaftarPermintaan ==
-                                                  '10'
-                                              ? buildRawatJalan(
+                                          : selectedValueDaftarPermintaan == '8'
+                                              ? buildPerpanjanganCuti(
                                                   masterDataPermintaan[index])
-                                              : const Text('Kosong'),
+                                              : selectedValueDaftarPermintaan ==
+                                                      '9'
+                                                  ? buildRawatInap(
+                                                      masterDataPermintaan[
+                                                          index])
+                                                  : selectedValueDaftarPermintaan ==
+                                                          '10'
+                                                      ? buildRawatJalan(
+                                                          masterDataPermintaan[
+                                                              index])
+                                                      : const Text('Kosong'),
                 );
               },
             ),
@@ -1119,8 +1231,6 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding5 = size.width * 0.0188;
 
-    print(data['uuid']);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1211,6 +1321,332 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                         Get.toNamed(
                           '/user/main/daftar_permintaan/detail_pengajuan_cuti',
                           arguments: {'id': data['uuid']},
+                        );
+                      },
+                      child: Container(
+                        width: size.width * 0.38,
+                        height: size.height * 0.04,
+                        padding: EdgeInsets.all(padding5),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Icon(Icons.details_sharp),
+                              Text(
+                                'Detail',
+                                style: TextStyle(
+                                  color: Color(primaryBlack),
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Get.snackbar('Infomation', 'Coming Soon',
+                            snackPosition: SnackPosition.TOP,
+                            backgroundColor: Colors.amber,
+                            icon: const Icon(
+                              Icons.info,
+                              color: Colors.white,
+                            ),
+                            shouldIconPulse: false);
+                      },
+                      child: Container(
+                        width: size.width * 0.38,
+                        height: size.height * 0.04,
+                        padding: EdgeInsets.all(padding5),
+                        decoration: BoxDecoration(
+                          color: const Color(primaryYellow),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Icon(Icons.download_rounded),
+                              Text(
+                                'Unduhan',
+                                style: TextStyle(
+                                  color: Color(primaryBlack),
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget buildPengajuanTraining(Map<String, dynamic> data) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double padding5 = size.width * 0.0188;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(vertical: sizedBoxHeightExtraTall),
+          height: size.height * 0.3,
+          width: size.width * 0.9,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(paddingHorizontalNarrow),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                RowWidget(
+                  textLeft: 'No Dokumen',
+                  textRight: '${data['no_doc']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Pemohon',
+                  textRight: '${data['nrp']} - ${data['nama']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Tanggal Pengajuan',
+                  textRight: '${data['created_at']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Tanggal Training',
+                  textRight: '${data['tgl_training']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Judul Training',
+                  textRight: '${data['judul_training']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Status',
+                  textRight: '${data['status_approve']}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                SizedBox(
+                  height: sizedBoxHeightShort,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        Get.toNamed(
+                          '/user/main/daftar_permintaan/detail_pengajuan_training',
+                          arguments: {'id': data['id']},
+                        );
+                      },
+                      child: Container(
+                        width: size.width * 0.38,
+                        height: size.height * 0.04,
+                        padding: EdgeInsets.all(padding5),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Icon(Icons.details_sharp),
+                              Text(
+                                'Detail',
+                                style: TextStyle(
+                                  color: Color(primaryBlack),
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Get.snackbar('Infomation', 'Coming Soon',
+                            snackPosition: SnackPosition.TOP,
+                            backgroundColor: Colors.amber,
+                            icon: const Icon(
+                              Icons.info,
+                              color: Colors.white,
+                            ),
+                            shouldIconPulse: false);
+                      },
+                      child: Container(
+                        width: size.width * 0.38,
+                        height: size.height * 0.04,
+                        padding: EdgeInsets.all(padding5),
+                        decoration: BoxDecoration(
+                          color: const Color(primaryYellow),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Icon(Icons.download_rounded),
+                              Text(
+                                'Unduhan',
+                                style: TextStyle(
+                                  color: Color(primaryBlack),
+                                  fontSize: textMedium,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget buildSuratIzinKeluar(Map<String, dynamic> data) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double padding5 = size.width * 0.0188;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(vertical: sizedBoxHeightExtraTall),
+          height: size.height * 0.35,
+          width: size.width * 0.9,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(paddingHorizontalNarrow),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                RowWidget(
+                  textLeft: 'No Dokumen',
+                  textRight: '${data['no_doc'] ?? '-'}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Nrp (Pemohon)',
+                  textRight: '${data['nrp_user'] ?? '-'}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Nama (Pemohon)',
+                  textRight: '${data['nama_user'] ?? '-'}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Nama Atasan',
+                  textRight: '${data['nama_atasan'] ?? '-'}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Nama HRGS',
+                  textRight: '${data['nama_hrgs'] ?? '-'}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Tanggal Izin',
+                  textRight: '${data['tgl_izin'] ?? '-'}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Jam Keluar',
+                  textRight: '${data['tgl_izin'] ?? '-'}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Jam Kembali',
+                  textRight: '${data['tgl_izin'] ?? '-'}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Keperluan',
+                  textRight: '${data['tgl_izin'] ?? '-'}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Tanggal Pengajuan',
+                  textRight: '${data['tgl_izin'] ?? '-'}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                RowWidget(
+                  textLeft: 'Status',
+                  textRight: '${data['status_approve'] ?? '-'}',
+                  fontWeightLeft: FontWeight.w300,
+                  fontWeightRight: FontWeight.w300,
+                ),
+                SizedBox(
+                  height: sizedBoxHeightShort,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        Get.toNamed(
+                          '/user/main/daftar_permintaan/detail_surat_izin_keluar',
+                          arguments: {'id': data['id']},
                         );
                       },
                       child: Container(

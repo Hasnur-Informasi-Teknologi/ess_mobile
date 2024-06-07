@@ -2032,38 +2032,41 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                     ),
                                   ),
                                   onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          content: Container(
-                                            height: 350,
-                                            width: 350,
-                                            child: SfDateRangePicker(
-                                              controller:
-                                                  _tanggalBerakhirController,
-                                              onSelectionChanged:
-                                                  (DateRangePickerSelectionChangedArgs
-                                                      args) {
-                                                setState(() {
-                                                  tanggalBerakhir = args.value;
-                                                });
-                                              },
-                                              selectionMode:
-                                                  DateRangePickerSelectionMode
-                                                      .single,
+                                    if (selectedValueCutiLainnya != '12') {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            content: Container(
+                                              height: 350,
+                                              width: 350,
+                                              child: SfDateRangePicker(
+                                                controller:
+                                                    _tanggalBerakhirController,
+                                                onSelectionChanged:
+                                                    (DateRangePickerSelectionChangedArgs
+                                                        args) {
+                                                  setState(() {
+                                                    tanggalBerakhir =
+                                                        args.value;
+                                                  });
+                                                },
+                                                selectionMode:
+                                                    DateRangePickerSelectionMode
+                                                        .single,
+                                              ),
                                             ),
-                                          ),
-                                          actions: <Widget>[
-                                            TextButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(context),
-                                              child: Text('OK'),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
+                                            actions: <Widget>[
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(context),
+                                                child: Text('OK'),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    }
                                   },
                                 ),
                               ],

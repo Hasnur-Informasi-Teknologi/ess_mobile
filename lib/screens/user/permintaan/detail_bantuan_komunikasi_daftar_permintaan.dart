@@ -109,6 +109,7 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
               diajukanOlehWidget(context),
               diberikanKepadaWidget(context),
               detailFasilitasKomunikasiWidget(context),
+              keteranganWidget(context),
               footerWidget(context),
             ],
           ),
@@ -346,14 +347,61 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
     );
   }
 
+  Widget keteranganWidget(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double sizedBoxHeightTall = 15;
+
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      const TitleWidget(title: 'Keterangan'),
+      SizedBox(
+        height: sizedBoxHeightShort,
+      ),
+      const LineWidget(),
+      SizedBox(
+        height: sizedBoxHeightTall,
+      ),
+      RowWithSemicolonWidget(
+        textLeft: 'Tujuan Komunikasi Internal',
+        textRight: '${masterDataDetailBantuanKomunikasi['tujuan_internal']}',
+        fontSizeLeft: textMedium,
+        fontSizeRight: textMedium,
+      ),
+      SizedBox(
+        height: sizedBoxHeightShort,
+      ),
+      RowWithSemicolonWidget(
+        textLeft: 'Tujuan Komunikasi Ekternal',
+        textRight: '${masterDataDetailBantuanKomunikasi['tujuan_eksternal']}',
+        fontSizeLeft: textMedium,
+        fontSizeRight: textMedium,
+      ),
+      SizedBox(
+        height: sizedBoxHeightShort,
+      ),
+      RowWithSemicolonWidget(
+        textLeft: 'Keterangan',
+        textRight: '${masterDataDetailBantuanKomunikasi['keterangan']}',
+        fontSizeLeft: textMedium,
+        fontSizeRight: textMedium,
+      ),
+    ]);
+  }
+
   Widget footerWidget(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightTall = 15;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        SizedBox(
+          height: sizedBoxHeightTall,
+        ),
         TitleCenterWithLongBadgeWidget(
           textLeft: 'Status Pengajuan',
           textRight: '${masterDataDetailBantuanKomunikasi['status_approve']}',

@@ -47,6 +47,12 @@ class _TextFormFieldWidgetState extends State<TextFormFieldWidget> {
       inputFormatters: widget.inputFormatters,
       enabled: widget.enable ?? true,
       decoration: InputDecoration(
+        hintStyle: TextStyle(
+            color: const Color(textPlaceholder),
+            fontSize: textMedium,
+            fontFamily: 'Poppins',
+            letterSpacing: 0.6,
+            fontWeight: FontWeight.w300),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(5),
           borderSide: const BorderSide(
@@ -64,11 +70,6 @@ class _TextFormFieldWidgetState extends State<TextFormFieldWidget> {
         filled: widget.enable ?? true,
         fillColor: Colors.white,
         hintText: widget.hintText,
-        hintStyle: TextStyle(
-          fontSize: textMedium,
-          fontFamily: 'Poppins',
-          color: const Color(textPlaceholder),
-        ),
       ),
     );
   }
