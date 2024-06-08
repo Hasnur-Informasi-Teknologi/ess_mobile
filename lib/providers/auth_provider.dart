@@ -1,6 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/models/http_exception.dart';
 import 'package:mobile_ess/models/user_model.dart';
@@ -11,7 +14,9 @@ class AuthProvider with ChangeNotifier {
 
   Future signIn(String nrp, String password) async {
     try {
-      final response = await http.post(Uri.parse('$_apiUrl/login'),
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response = await ioClient.post(Uri.parse('$_apiUrl/login'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
@@ -29,14 +34,14 @@ class AuthProvider with ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       prefs.setString('token', responseData['token']);
       prefs.setString('nrp', nrp);
-      final user = await http.get(
+      final user = await ioClient.get(
         Uri.parse('$_apiUrl/master/profile/get_employee?nrp=$nrp'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': "Bearer " + responseData['token']
         },
       );
-      final user_auth = await http.get(
+      final user_auth = await ioClient.get(
         Uri.parse('$_apiUrl/master/profile/get_user?nrp=$nrp'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -81,7 +86,9 @@ class AuthProvider with ChangeNotifier {
     try {
       // SharedPreferences prefs = await SharedPreferences.getInstance();
       // final userId = prefs.getString('userId');
-      final response = await http.post(
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response = await ioClient.post(
           Uri.parse('http://ess-dev.hasnurgroup.com:8081/api/check_device'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',

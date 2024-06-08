@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
 import 'package:mobile_ess/widgets/row_with_semicolon_widget.dart';
@@ -43,7 +44,9 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse("$_apiUrl/bantuan-komunikasi/detail/$id"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
@@ -73,7 +74,9 @@ class _RawatInapState extends State<RawatInap> {
     });
 
     try {
-      final response = await http.get(
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response = await ioClient.get(
         Uri.parse(
             '$apiUrl/master/rawat-inap/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
         headers: <String, String>{
@@ -116,7 +119,9 @@ class _RawatInapState extends State<RawatInap> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse("$apiUrl/master/rawat-inap/kategori"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -175,7 +180,9 @@ class _RawatInapState extends State<RawatInap> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse("$apiUrl/master/rawat-inap/satuan"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -371,7 +378,9 @@ class _RawatInapState extends State<RawatInap> {
                   .toIso8601String(),
         });
 
-        final response = await http.post(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.post(
           Uri.parse("$apiUrl/master/rawat-inap/add"),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
@@ -1228,8 +1237,10 @@ class _RawatInapState extends State<RawatInap> {
       String? token = prefs.getString('token');
       if (token != null) {
         try {
+          final ioClient = createIOClientWithInsecureConnection();
+
           final response =
-              await http.post(Uri.parse("$apiUrl/master/rawat-inap/delete"),
+              await ioClient.post(Uri.parse("$apiUrl/master/rawat-inap/delete"),
                   headers: <String, String>{
                     'Content-Type': 'application/json;charset=UTF-8',
                     'Authorization': 'Bearer $token'
@@ -1299,8 +1310,9 @@ class _RawatInapState extends State<RawatInap> {
           'tgl_berakhir': textFieldValueTglBerakhir,
           'id': textFieldValueId,
         });
+        final ioClient = createIOClientWithInsecureConnection();
 
-        final response = await http.post(
+        final response = await ioClient.post(
           Uri.parse("$apiUrl/master/rawat-inap/update"),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',

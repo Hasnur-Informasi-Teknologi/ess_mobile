@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
@@ -73,7 +74,9 @@ class _UangMakanLuarNegeriState extends State<UangMakanLuarNegeri> {
     });
 
     try {
-      final response = await http.get(
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response = await ioClient.get(
         Uri.parse(
             '$apiUrl/master/makan-luar/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
         headers: <String, String>{
@@ -116,7 +119,9 @@ class _UangMakanLuarNegeriState extends State<UangMakanLuarNegeri> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse("$apiUrl/master/makan-luar/negara"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -301,7 +306,9 @@ class _UangMakanLuarNegeriState extends State<UangMakanLuarNegeri> {
       _formKey.currentState!.save();
 
       try {
-        final response = await http.post(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.post(
           Uri.parse('$apiUrl/master/makan-luar/add'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
@@ -1023,8 +1030,10 @@ class _UangMakanLuarNegeriState extends State<UangMakanLuarNegeri> {
 
       if (token != null) {
         try {
+          final ioClient = createIOClientWithInsecureConnection();
+
           final response =
-              await http.post(Uri.parse("$apiUrl/master/makan-luar/delete"),
+              await ioClient.post(Uri.parse("$apiUrl/master/makan-luar/delete"),
                   headers: <String, String>{
                     'Content-Type': 'application/json;charset=UTF-8',
                     'Authorization': 'Bearer $token'
@@ -1077,7 +1086,9 @@ class _UangMakanLuarNegeriState extends State<UangMakanLuarNegeri> {
       _formKey.currentState!.save();
 
       try {
-        final response = await http.post(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.post(
           Uri.parse('$apiUrl/master/makan-luar/update'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',

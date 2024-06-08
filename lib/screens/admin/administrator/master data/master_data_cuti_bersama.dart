@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
@@ -58,7 +59,9 @@ class _CutiBersamaState extends State<CutiBersama> {
     });
 
     try {
-      final response = await http.get(
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response = await ioClient.get(
         Uri.parse(
             '$apiUrl/master/cuti-bersama/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
         headers: <String, String>{
@@ -210,7 +213,9 @@ class _CutiBersamaState extends State<CutiBersama> {
       _formKey.currentState!.save();
 
       try {
-        final response = await http.post(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.post(
           Uri.parse("$apiUrl/master/cuti-bersama/add"),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
@@ -535,13 +540,15 @@ class _CutiBersamaState extends State<CutiBersama> {
       String? token = prefs.getString('token');
       if (token != null) {
         try {
-          final response =
-              await http.post(Uri.parse("$apiUrl/master/cuti-bersama/delete"),
-                  headers: <String, String>{
-                    'Content-Type': 'application/json;charset=UTF-8',
-                    'Authorization': 'Bearer $token'
-                  },
-                  body: jsonEncode({'id': id}));
+          final ioClient = createIOClientWithInsecureConnection();
+
+          final response = await ioClient.post(
+              Uri.parse("$apiUrl/master/cuti-bersama/delete"),
+              headers: <String, String>{
+                'Content-Type': 'application/json;charset=UTF-8',
+                'Authorization': 'Bearer $token'
+              },
+              body: jsonEncode({'id': id}));
           if (response.statusCode == 200) {
             Get.snackbar('Infomation', 'Berhasil Hapus Data',
                 snackPosition: SnackPosition.TOP,
@@ -591,7 +598,9 @@ class _CutiBersamaState extends State<CutiBersama> {
       _formKey.currentState!.save();
 
       try {
-        final response = await http.post(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.post(
           Uri.parse("$apiUrl/master/cuti-bersama/update"),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',

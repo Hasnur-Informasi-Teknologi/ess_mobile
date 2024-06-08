@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
@@ -208,7 +209,8 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
           Uri.parse("$apiUrl/laporan-perdin/get_trip_number"),
           headers: <String, String>{
             'Content-Type': 'application/json;charset=UTF-8',
@@ -246,7 +248,8 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
     if (token != null) {
       try {
         // Make a GET request to the API endpoint
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
           Uri.parse(
               "$apiUrl/laporan-perdin/get_im_perdin?trip_number=$tripNumber"),
           headers: <String, String>{

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
@@ -226,7 +227,8 @@ class _FormRencanaBiayaPerjalananDinasState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse("$apiUrl/rencana-perdin/master_data"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -275,7 +277,8 @@ class _FormRencanaBiayaPerjalananDinasState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse("$apiUrl/master/profile/get_employee"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -306,7 +309,8 @@ class _FormRencanaBiayaPerjalananDinasState
       });
 
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse("$apiUrl/master/daftar_karyawan?entitas=$entitasCode"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -340,7 +344,8 @@ class _FormRencanaBiayaPerjalananDinasState
       });
 
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse("$apiUrl/master/daftar_karyawan?entitas=$entitasCode"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
@@ -130,7 +131,8 @@ class _FormPengajuanBantuanKomunikasiState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse("$_apiUrl/master/profile/get_user"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -159,7 +161,8 @@ class _FormPengajuanBantuanKomunikasiState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse("$_apiUrl/bantuan-komunikasi/master_data"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -188,7 +191,9 @@ class _FormPengajuanBantuanKomunikasiState
 
     if (token != null) {
       try {
-        final response = await http.get(Uri.parse("$_apiUrl/master/entitas"),
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
+            Uri.parse("$_apiUrl/master/entitas"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
@@ -220,7 +225,8 @@ class _FormPengajuanBantuanKomunikasiState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/bantuan-komunikasi/karyawan?entitas=$selectedValueEntitas&kategori=penerima"),
             headers: <String, String>{
@@ -258,7 +264,8 @@ class _FormPengajuanBantuanKomunikasiState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/bantuan-komunikasi/karyawan?entitas=$selectedValueEntitasAtasan&kategori=atasan"),
             headers: <String, String>{
@@ -283,7 +290,8 @@ class _FormPengajuanBantuanKomunikasiState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/bantuan-komunikasi/karyawan?entitas=$selectedValueEntitasDirektur&kategori=direktur"),
             headers: <String, String>{
@@ -308,7 +316,8 @@ class _FormPengajuanBantuanKomunikasiState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/bantuan-komunikasi/karyawan?entitas=$selectedValueEntitasHcgs&kategori=hrgs"),
             headers: <String, String>{
@@ -333,7 +342,8 @@ class _FormPengajuanBantuanKomunikasiState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/bantuan-komunikasi/karyawan?entitas=$selectedValueEntitasDirekturKeuangan&kategori=keuangan"),
             headers: <String, String>{
@@ -359,7 +369,8 @@ class _FormPengajuanBantuanKomunikasiState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/bantuan-komunikasi/karyawan?entitas=$selectedValueEntitasPresidenDirektur&kategori=presiden"),
             headers: <String, String>{
@@ -430,8 +441,10 @@ class _FormPengajuanBantuanKomunikasiState
     _formKey.currentState!.save();
 
     try {
+      final ioClient = createIOClientWithInsecureConnection();
+
       final response =
-          await http.post(Uri.parse('$_apiUrl/bantuan-komunikasi/add'),
+          await ioClient.post(Uri.parse('$_apiUrl/bantuan-komunikasi/add'),
               headers: <String, String>{
                 'Content-Type': 'application/json; charset=UTF-8',
                 'Authorization': 'Bearer $token'

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -29,7 +30,8 @@ class _RequestAttendanceTableWidgetState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
           Uri.parse('$_apiUrl/master/profile/get_attendance_personal_yearly'),
           headers: <String, String>{
             'Content-Type': 'application/json;charset=UTF-8',

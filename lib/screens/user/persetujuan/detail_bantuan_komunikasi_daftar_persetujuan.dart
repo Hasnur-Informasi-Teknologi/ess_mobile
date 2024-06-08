@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
@@ -62,7 +63,9 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse("$_apiUrl/bantuan-komunikasi/detail/$id"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -95,13 +98,15 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
 
     if (token != null) {
       try {
-        final response =
-            await http.post(Uri.parse('$_apiUrl/bantuan-komunikasi/approve'),
-                headers: <String, String>{
-                  'Content-Type': 'application/json; charset=UTF-8',
-                  'Authorization': 'Bearer $token'
-                },
-                body: jsonEncode({'id': id.toString()}));
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.post(
+            Uri.parse('$_apiUrl/bantuan-komunikasi/approve'),
+            headers: <String, String>{
+              'Content-Type': 'application/json; charset=UTF-8',
+              'Authorization': 'Bearer $token'
+            },
+            body: jsonEncode({'id': id.toString()}));
         final responseData = jsonDecode(response.body);
         print(responseData);
         if (responseData['status'] == 'success') {
@@ -145,7 +150,9 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
 
     if (token != null) {
       try {
-        final response = await http.post(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.post(
           Uri.parse('$_apiUrl/bantuan-komunikasi/reject'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',

@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
@@ -194,7 +195,9 @@ class _DetailRawatJalanDaftarPersetujuanState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse("$_apiUrl/rawat/jalan/$id/detail"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -232,12 +235,12 @@ class _DetailRawatJalanDaftarPersetujuanState
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     var nrp = masterDataDetailRawatJalan['pernr'];
-    print(masterDataDetailRawatJalan['pernr']);
-    print(nrp);
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse("$_apiUrl/rawat/jalan/plafon?nrp=$nrp"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -245,7 +248,6 @@ class _DetailRawatJalanDaftarPersetujuanState
             });
         final responseData = jsonDecode(response.body);
         final dataDetailPlafonApi = responseData['data'];
-        print(dataDetailPlafonApi);
 
         setState(() {
           masterDataDetailPlafon =
@@ -274,7 +276,9 @@ class _DetailRawatJalanDaftarPersetujuanState
 
     if (token != null) {
       try {
-        final response = await http.post(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.post(
           Uri.parse('$_apiUrl/rawat/jalan/$id/process'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',

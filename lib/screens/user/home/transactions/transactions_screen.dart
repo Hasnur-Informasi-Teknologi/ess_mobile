@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/providers/auth_provider.dart';
 import 'package:mobile_ess/themes/constant.dart';
@@ -45,7 +46,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/get_data_detail_plafon?page=1&perPage=5&nrp=$nrp&search="),
             headers: <String, String>{
@@ -69,7 +71,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     String? token = prefs.getString('token');
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
           Uri.parse('$_apiUrl/get_data_karyawan'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',

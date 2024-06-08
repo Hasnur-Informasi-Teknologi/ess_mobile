@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:get/get.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
@@ -114,7 +115,9 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/bantuan-komunikasi/get?page=$page&perPage=$perPage&search=$search&status=$statusFilter&type=$type"),
             headers: <String, String>{
@@ -145,7 +148,9 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/izin-keluar/get?page=$page&perPage=$perPage&search=$search&status=$statusFilter&type=$type"),
             headers: <String, String>{
@@ -176,7 +181,9 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/pengajuan-cuti/get?page=$page&perPage=$perPage&search=$search&status=$statusFilter&type=$type&entitas=$kodeEntitas&tahun=$tahunPengajuan"),
             headers: <String, String>{
@@ -207,7 +214,9 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/perpanjangan-cuti/get?page=$page&perPage=$perPage&search=$search&status=$statusFilter&type=$type"),
             headers: <String, String>{
@@ -238,7 +247,9 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/training/all?page=$page&entitas=&search=$search&status=$statusFilter&limit=$perPage&permintaan=0"),
             headers: <String, String>{
@@ -269,7 +280,9 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/rawat/inap/all?page=$page&limit=$perPage&search=$search&status=$statusFilterRawatInapJalan&permintaan=0"),
             headers: <String, String>{
@@ -300,7 +313,9 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/rawat/jalan/all?page=$page&limit=$perPage&search=$search&status=$statusFilterRawatInapJalan&permintaan=0"),
             headers: <String, String>{
@@ -331,7 +346,9 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/pengajuan-cuti/summary?page=$page&perPage=$perPage&search=$search"),
             headers: <String, String>{
@@ -359,7 +376,10 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
     if (token != null) {
       try {
-        final response = await http.get(Uri.parse("$_apiUrl/master/cuti/get"),
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
+            Uri.parse("$_apiUrl/master/cuti/get"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
@@ -386,7 +406,9 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/rencana-perdin/get?page=$page&perPage=$perPage&search=$search&status=$statusFilter&type=$type"),
             headers: <String, String>{
@@ -417,7 +439,9 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/laporan-perdin/get?page=$page&perPage=$perPage&search=$search&status=$statusFilter&type=$type"),
             headers: <String, String>{
@@ -449,8 +473,10 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
     if (token != null) {
       try {
+        final ioClient = createIOClientWithInsecureConnection();
+
         final response =
-            await http.post(Uri.parse('$_apiUrl/pengajuan-cuti/approve'),
+            await ioClient.post(Uri.parse('$_apiUrl/pengajuan-cuti/approve'),
                 headers: <String, String>{
                   'Content-Type': 'application/json; charset=UTF-8',
                   'Authorization': 'Bearer $token'
@@ -498,7 +524,9 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
     if (token != null) {
       try {
-        final response = await http.post(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.post(
           Uri.parse('$_apiUrl/pengajuan-cuti/reject'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
@@ -549,8 +577,10 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
     if (token != null) {
       try {
+        final ioClient = createIOClientWithInsecureConnection();
+
         final response =
-            await http.post(Uri.parse('$_apiUrl/perpanjangan-cuti/approve'),
+            await ioClient.post(Uri.parse('$_apiUrl/perpanjangan-cuti/approve'),
                 headers: <String, String>{
                   'Content-Type': 'application/json; charset=UTF-8',
                   'Authorization': 'Bearer $token'
@@ -600,7 +630,9 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
     if (token != null) {
       try {
-        final response = await http.post(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.post(
           Uri.parse('$_apiUrl/perpanjangan-cuti/reject'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',

@@ -6,6 +6,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:get/get.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/screens/attendance/late_modal_dialog.dart';
 import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
@@ -57,7 +58,8 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
     final nrp = karyawan['pernr'];
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
           Uri.parse('$_apiUrl/get_work_schedules/$nrp'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
