@@ -168,15 +168,15 @@ class OnlineFormScreen extends StatelessWidget {
             shouldIconPulse: false);
         break;
       case 1:
-        Get.toNamed('/user/main/home/online_form/aplikasi_recruitment');
-        // Get.snackbar('Infomation', 'Coming Soon',
-        //     snackPosition: SnackPosition.TOP,
-        //     backgroundColor: Colors.amber,
-        //     icon: const Icon(
-        //       Icons.info,
-        //       color: Colors.white,
-        //     ),
-        //     shouldIconPulse: false);
+        // Get.toNamed('/user/main/home/online_form/aplikasi_recruitment');
+        Get.snackbar('Infomation', 'Coming Soon',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
         break;
       case 2:
         // Get.toNamed('/user/main/home/online_form/pengajuan_perjalanan_dinas');
