@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/screens/attendance/take_selfie_screen.dart';
 import 'package:mobile_ess/themes/colors.dart';
@@ -56,6 +57,7 @@ class _LateModalDialogState extends State<LateModalDialog> {
     }
 
     Map<String, String> headers = {'Content-Type': 'multipart/form-data'};
+    final ioClient = createIOClientWithInsecureConnection();
     var request = http.MultipartRequest('POST', Uri.parse('$_apiUrl/absen'))
       ..headers.addAll(headers)
       ..fields['nrp'] = widget.newData['nrp']
@@ -72,9 +74,10 @@ class _LateModalDialogState extends State<LateModalDialog> {
       ..files.add(http.MultipartFile.fromBytes(
           'image', widget.newData['image'].readAsBytesSync(),
           filename: widget.newData['image'].path.split('/').last));
-    var response = await request.send();
-
-    final responseData = await response.stream.bytesToString();
+    // var response = await request.send();
+    // final responseData = await response.stream.bytesToString();
+    var streamedResponse = await ioClient.send(request);
+    final responseData = await streamedResponse.stream.bytesToString();
     final responseDataMessage = json.decode(responseData);
     Get.snackbar('Infomation', responseDataMessage['message'],
         snackPosition: SnackPosition.TOP,

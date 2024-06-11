@@ -289,6 +289,7 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
       return;
     }
 
+    final ioClient = createIOClientWithInsecureConnection();
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('$_apiUrl/rawat/inap/create'),
@@ -340,8 +341,8 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
       ));
     }
 
-    var response = await request.send();
-    final responseData = await response.stream.bytesToString();
+    var streamedResponse = await ioClient.send(request);
+    final responseData = await streamedResponse.stream.bytesToString();
     final responseDataMessage = json.decode(responseData);
     Get.snackbar('Infomation', responseDataMessage['message'],
         snackPosition: SnackPosition.TOP,

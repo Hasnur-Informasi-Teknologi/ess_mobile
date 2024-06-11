@@ -647,6 +647,8 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
       return;
     }
 
+    final ioClient = createIOClientWithInsecureConnection();
+
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('$apiUrl/laporan-perdin/add'),
@@ -735,8 +737,8 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
     debugPrint('Body: ${request.fields}');
 
     try {
-      var response = await request.send();
-      final responseData = await response.stream.bytesToString();
+      var streamedResponse = await ioClient.send(request);
+      final responseData = await streamedResponse.stream.bytesToString();
       final responseDataMessage = json.decode(responseData);
       Get.snackbar('Infomation', responseDataMessage['message'],
           snackPosition: SnackPosition.TOP,

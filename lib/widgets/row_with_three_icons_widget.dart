@@ -235,6 +235,7 @@ class _RowWithThreeIconsWidgetState extends State<RowWithThreeIconsWidget> {
     }
 
     File file = File(filePath!);
+    final ioClient = createIOClientWithInsecureConnection();
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('$apiUrl/dokumen-perusahaan/add'),
@@ -250,8 +251,8 @@ class _RowWithThreeIconsWidgetState extends State<RowWithThreeIconsWidget> {
     request.fields['tipe_dokumen'] = selectedValueTipeDok.toString();
     request.fields['entitas'] = _entitasController.text;
 
-    var response = await request.send();
-    final responseData = await response.stream.bytesToString();
+    var streamedResponse = await ioClient.send(request);
+    final responseData = await streamedResponse.stream.bytesToString();
     final responseDataMessage = json.decode(responseData);
     Get.snackbar('Infomation', responseDataMessage['message'],
         snackPosition: SnackPosition.TOP,

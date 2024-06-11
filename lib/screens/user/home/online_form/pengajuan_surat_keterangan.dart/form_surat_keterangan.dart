@@ -221,6 +221,7 @@ class _FormSuratKeteranganState extends State<FormSuratKeterangan> {
       return;
     }
 
+    final ioClient = createIOClientWithInsecureConnection();
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('$apiUrl/surat-keterangan/add'),
@@ -250,8 +251,8 @@ class _FormSuratKeteranganState extends State<FormSuratKeterangan> {
     debugPrint('Body: ${request.fields}');
 
     try {
-      var response = await request.send();
-      final responseData = await response.stream.bytesToString();
+      var streamedResponse = await ioClient.send(request);
+      final responseData = await streamedResponse.stream.bytesToString();
       final responseDataMessage = json.decode(responseData);
 
       Get.snackbar('Information', responseDataMessage['message'],

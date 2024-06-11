@@ -16,6 +16,8 @@ class AuthProvider with ChangeNotifier {
     try {
       final ioClient = createIOClientWithInsecureConnection();
 
+      // print(_apiUrl);
+
       final response = await ioClient.post(Uri.parse('$_apiUrl/login'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',

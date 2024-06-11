@@ -476,13 +476,14 @@ class _FormAplikasiTrainingScreenState
     debugPrint('Request: ${request.files}');
 
     try {
-      var response = await request.send();
-      final responseData = await response.stream.bytesToString();
+      final ioClient = createIOClientWithInsecureConnection();
+      var streamedResponse = await ioClient.send(request);
+      final responseData = await streamedResponse.stream.bytesToString();
       final responseDataMessage = json.decode(responseData);
 
       debugPrint('Response: $responseDataMessage');
 
-      if (response.statusCode == 200) {
+      if (streamedResponse.statusCode == 200) {
         Get.snackbar('Information', responseDataMessage['message'],
             snackPosition: SnackPosition.TOP,
             backgroundColor: Colors.amber,

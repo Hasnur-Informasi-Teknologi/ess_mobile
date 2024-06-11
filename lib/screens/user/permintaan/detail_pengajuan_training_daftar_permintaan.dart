@@ -116,6 +116,7 @@ class _DetailPengajuanTrainingDaftarPermintaanState
     }
 
     File file = File(filePath!);
+    final ioClient = createIOClientWithInsecureConnection();
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('$_apiUrl/training/${id}/process'),
@@ -128,8 +129,8 @@ class _DetailPengajuanTrainingDaftarPermintaanState
         filename: file.path.split('/').last));
     request.fields['evaluasi_pasca_training'] = _postTestController.text;
 
-    var response = await request.send();
-    final responseData = await response.stream.bytesToString();
+    var streamedResponse = await ioClient.send(request);
+    final responseData = await streamedResponse.stream.bytesToString();
     final responseDataMessage = json.decode(responseData);
     Get.snackbar('Infomation', responseDataMessage['message'],
         snackPosition: SnackPosition.TOP,

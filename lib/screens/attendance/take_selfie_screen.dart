@@ -205,6 +205,7 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
                 });
               } else {
                 // Kalau Ontime
+                final ioClient = createIOClientWithInsecureConnection();
                 var request =
                     http.MultipartRequest('POST', Uri.parse('$_apiUrl/absen'))
                       ..headers.addAll(headers)
@@ -222,9 +223,9 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
                       ..files.add(http.MultipartFile.fromBytes(
                           'image', imageFile.readAsBytesSync(),
                           filename: imageFile.path.split('/').last));
-                var response = await request.send();
 
-                await response.stream.bytesToString();
+                var streamedResponse = await ioClient.send(request);
+                await streamedResponse.stream.bytesToString();
                 _cameraController!.dispose();
                 Navigator.pushReplacement(
                     context,
@@ -236,6 +237,7 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
               }
             } else {
               print('out');
+              final ioClient = createIOClientWithInsecureConnection();
               var request =
                   http.MultipartRequest('POST', Uri.parse('$_apiUrl/absen'))
                     ..headers.addAll(headers)
@@ -253,9 +255,10 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
                     ..files.add(http.MultipartFile.fromBytes(
                         'image', imageFile.readAsBytesSync(),
                         filename: imageFile.path.split('/').last));
-              var response = await request.send();
 
-              await response.stream.bytesToString();
+              var streamedResponse = await ioClient.send(request);
+              await streamedResponse.stream.bytesToString();
+
               _cameraController!.dispose();
               Navigator.pushReplacement(
                   context,
