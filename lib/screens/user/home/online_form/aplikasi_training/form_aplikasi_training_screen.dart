@@ -1641,7 +1641,6 @@ class _FormAplikasiTrainingScreenState
                                                 controller:
                                                     _ikatanDinasController,
                                                 hintText: '---',
-                                                enabled: true,
                                               ),
                                               SizedBox(
                                                 height: sizedBoxHeightTall,
