@@ -9,7 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trust_location/trust_location.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter_timezone/flutter_timezone.dart';
+// import 'package:flutter_timezone/flutter_timezone.dart';
 
 import 'package:mobile_ess/services/location_service.dart';
 import 'package:mobile_ess/themes/colors.dart';
@@ -75,16 +75,16 @@ class _TripLocationScreenState extends State<TripLocationScreen> {
     DateTime sdate = DateTime.parse(response.body);
     int stimestamp = sdate.millisecondsSinceEpoch;
     var timeZone = prefs.getString('timeZone');
-    var timezone = await FlutterTimezone.getLocalTimezone();
-    if (timezone == 'Asia/Jakarta') {
-      timeZone = 'WIB'; // Western Indonesia Time
-    } else if (timezone == 'Asia/Makassar') {
-      timeZone = 'WITA'; // Central Indonesia Time
-    } else if (timezone == 'Asia/Jayapura') {
-      timeZone = 'WIT'; // Eastern Indonesia Time
-    } else {
-      timeZone = 'Unknown'; // Unknown or not applicable
-    }
+    // var timezone = await FlutterTimezone.getLocalTimezone();
+    // if (timezone == 'Asia/Jakarta') {
+    //   timeZone = 'WIB'; // Western Indonesia Time
+    // } else if (timezone == 'Asia/Makassar') {
+    //   timeZone = 'WITA'; // Central Indonesia Time
+    // } else if (timezone == 'Asia/Jayapura') {
+    //   timeZone = 'WIT'; // Eastern Indonesia Time
+    // } else {
+    //   timeZone = 'Unknown'; // Unknown or not applicable
+    // }
     if (timeZone == 'WITA') {
       stimestamp = stimestamp + (1 * 60 * 60 * 1000);
     } else if (timeZone == 'WIT') {

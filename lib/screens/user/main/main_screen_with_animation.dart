@@ -190,7 +190,7 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
                   return;
                 }
                 setState(() {
-                  tabBody = const DaftarPermintaanScreen();
+                  // tabBody = const DaftarPermintaanScreen();
                 });
               });
             } else if (index == 2) {
@@ -199,7 +199,7 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
                   return;
                 }
                 setState(() {
-                  tabBody = const DaftarPersetujuanScreen();
+                  // tabBody = const DaftarPersetujuanScreen();
                 });
               });
             } else if (index == 3) {

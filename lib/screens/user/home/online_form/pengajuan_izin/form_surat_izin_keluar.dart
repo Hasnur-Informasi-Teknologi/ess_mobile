@@ -79,11 +79,6 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
     }
   }
 
-  DateTime convertTimeOfDayToDateTime(TimeOfDay time) {
-    final now = DateTime.now();
-    return DateTime(now.year, now.month, now.day, time.hour, time.minute);
-  }
-
   String formatTimeOfDay(TimeOfDay time) {
     final dateTime = convertTimeOfDayToDateTime(time);
     final format = DateFormat.Hm();
@@ -97,6 +92,20 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
     }
     validationMessages[fieldName] = null;
     return null;
+  }
+
+  bool isKaryawanInFormDataList(String pernr) {
+    for (var formData in formDataList) {
+      if (formData['karyawan']['pernr'] == pernr) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  DateTime convertTimeOfDayToDateTime(TimeOfDay time) {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day, time.hour, time.minute);
   }
 
   Future<void> getDataUser() async {
@@ -350,6 +359,78 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
     }
   }
 
+  Future<void> onCheckboxChangedKembaliKeKantor(
+      String label, bool? newValue) async {
+    setState(() {
+      if (newValue == true) {
+        selectedCheckboxKembaliKeKantor = label;
+      } else {
+        selectedCheckboxKembaliKeKantor = null;
+      }
+    });
+  }
+
+  Future<void> onCheckboxChangedKeperluan(String label, bool? newValue) async {
+    setState(() {
+      if (newValue == true) {
+        selectedCheckboxKeperluan = label;
+      } else {
+        selectedCheckboxKeperluan = null;
+      }
+    });
+  }
+
+  Future<void> addFormData() async {
+    if (selectedValueJenisIzin == null ||
+        selectedCheckboxKeperluan == null ||
+        selectedValueKaryawan == null) {
+      Get.snackbar(
+        'Error',
+        'Harap isi semua field pada Detail izin keluar.',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+        borderRadius: 20,
+        margin: const EdgeInsets.all(15),
+        duration: const Duration(seconds: 4),
+        icon: const Icon(
+          Icons.error,
+          color: Colors.white,
+        ),
+      );
+      return;
+    }
+
+    Map<String, dynamic> selectedEmployee = jsonDecode(selectedValueKaryawan!);
+    Map<String, dynamic> filteredEmployee = {
+      'nama': selectedEmployee['nama'],
+      'pernr': selectedEmployee['pernr']
+    };
+
+    final formData = {
+      'tanggal': selectedDateIzinKeluar,
+      'jam_keluar': formatTimeOfDay(selectedTimeJamKeluar),
+      'jam_kembali': selectedCheckboxKembaliKeKantor == 'Kembali'
+          ? formatTimeOfDay(selectedTimeJamKembali)
+          : null,
+      'jenis_izin': selectedValueJenisIzin,
+      'keperluan': selectedCheckboxKeperluan,
+      'karyawan': filteredEmployee,
+      'keterangan': _keteranganController.text
+    };
+
+    setState(() {
+      formDataList.add(formData);
+      selectedValueKaryawan = null;
+    });
+  }
+
+  Future<void> removeFormData(int index) async {
+    setState(() {
+      formDataList.removeAt(index);
+    });
+  }
+
   Future<void> _submit() async {
     setState(() {
       validateField(selectedValueEntitasHCGS, 'Entitas HCGS');
@@ -471,57 +552,6 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
     }
   }
 
-  void addFormData() {
-    if (selectedValueJenisIzin == null ||
-        selectedCheckboxKeperluan == null ||
-        selectedValueKaryawan == null) {
-      Get.snackbar(
-        'Error',
-        'Harap isi semua field pada Detail izin keluar.',
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-        borderRadius: 20,
-        margin: const EdgeInsets.all(15),
-        duration: const Duration(seconds: 4),
-        icon: const Icon(
-          Icons.error,
-          color: Colors.white,
-        ),
-      );
-      return;
-    }
-
-    Map<String, dynamic> selectedEmployee = jsonDecode(selectedValueKaryawan!);
-    Map<String, dynamic> filteredEmployee = {
-      'nama': selectedEmployee['nama'],
-      'pernr': selectedEmployee['pernr']
-    };
-
-    final formData = {
-      'tanggal': selectedDateIzinKeluar,
-      'jam_keluar': formatTimeOfDay(selectedTimeJamKeluar),
-      'jam_kembali': selectedCheckboxKembaliKeKantor == 'Kembali'
-          ? formatTimeOfDay(selectedTimeJamKembali)
-          : null,
-      'jenis_izin': selectedValueJenisIzin,
-      'keperluan': selectedCheckboxKeperluan,
-      'karyawan': filteredEmployee,
-      'keterangan': _keteranganController.text
-    };
-
-    setState(() {
-      formDataList.add(formData);
-      selectedValueKaryawan = null;
-    });
-  }
-
-  void removeFormData(int index) {
-    setState(() {
-      formDataList.removeAt(index);
-    });
-  }
-
   @override
   void initState() {
     super.initState();
@@ -553,18 +583,6 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding5 = size.width * 0.0115;
-
-    Widget validateContainer(String field) {
-      return validationMessages[field] != null
-          ? Padding(
-              padding: const EdgeInsets.only(left: 10, top: 5),
-              child: Text(
-                validationMessages[field]!,
-                style: TextStyle(color: Colors.red.shade900, fontSize: 12),
-              ),
-            )
-          : const SizedBox.shrink();
-    }
 
     Widget dropdownlistEntitasHCGS() {
       return Column(
@@ -1066,15 +1084,6 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
       );
     }
 
-    bool isKaryawanInFormDataList(String pernr) {
-      for (var formData in formDataList) {
-        if (formData['karyawan']['pernr'] == pernr) {
-          return true;
-        }
-      }
-      return false;
-    }
-
     Widget dropdownlistKaryawan() {
       List<Map<String, dynamic>> filteredKaryawan =
           selectedKaryawan.where((karyawan) {
@@ -1203,7 +1212,7 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
-                        child: buildHeading(title: 'Diajukan Oleh:'),
+                        child: buildHeading('Diajukan Oleh'),
                       ),
                       SizedBox(
                         height: sizedBoxHeightTall,
@@ -1275,7 +1284,7 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
-                        child: buildHeading(title: 'Diajukan Kepada:'),
+                        child: buildHeading('Diajukan Kepada'),
                       ),
                       SizedBox(
                         height: sizedBoxHeightTall,
@@ -1386,7 +1395,7 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                       Padding(
                         padding: EdgeInsets.symmetric(
                             horizontal: paddingHorizontalNarrow),
-                        child: buildHeading(title: 'Detail Izin Keluar:'),
+                        child: buildHeading('Detail Izin Keluar'),
                       ),
                       SizedBox(
                         height: sizedBoxHeightTall,
@@ -1448,14 +1457,12 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
                       ),
                       IgnorePointer(
                         ignoring: formDataList.isNotEmpty,
-                        child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 0),
-                            child: buildCheckbox(
-                                'Kembali Ke Kantor',
-                                selectedCheckboxKembaliKeKantor == 'Kembali',
-                                (newValue) => onCheckboxChangedKembaliKeKantor(
-                                    'Kembali', newValue),
-                                color: Colors.red)),
+                        child: buildCheckbox(
+                            'Kembali Ke Kantor',
+                            selectedCheckboxKembaliKeKantor == 'Kembali',
+                            (newValue) => onCheckboxChangedKembaliKeKantor(
+                                'Kembali', newValue),
+                            color: Colors.red),
                       ),
                       SizedBox(
                         height: sizedBoxHeightTall,
@@ -1913,11 +1920,9 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
           );
   }
 
-  Widget buildHeading({required String title, String subtitle = ''}) {
+  Widget buildHeading(String title) {
     Size size = MediaQuery.of(context).size;
-    double textSmall = size.width * 0.027;
     double textLarge = size.width * 0.04;
-    double sizedBoxHeightTall = size.height * 0.0163;
 
     return (Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text(
@@ -1928,19 +1933,6 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w500),
       ),
-      if (subtitle.isNotEmpty) ...[
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        Text(
-          subtitle,
-          style: TextStyle(
-              color: const Color(primaryBlack),
-              fontSize: textSmall,
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.w300),
-        ),
-      ],
     ]));
   }
 
@@ -1984,25 +1976,16 @@ class _FormSuratIzinKeluarState extends State<FormSuratIzinKeluar> {
     );
   }
 
-  Future<void> onCheckboxChangedKembaliKeKantor(
-      String label, bool? newValue) async {
-    setState(() {
-      if (newValue == true) {
-        selectedCheckboxKembaliKeKantor = label;
-      } else {
-        selectedCheckboxKembaliKeKantor = null;
-      }
-    });
-  }
-
-  Future<void> onCheckboxChangedKeperluan(String label, bool? newValue) async {
-    setState(() {
-      if (newValue == true) {
-        selectedCheckboxKeperluan = label;
-      } else {
-        selectedCheckboxKeperluan = null;
-      }
-    });
+  Widget validateContainer(String field) {
+    return validationMessages[field] != null
+        ? Padding(
+            padding: const EdgeInsets.only(left: 10, top: 5),
+            child: Text(
+              validationMessages[field]!,
+              style: TextStyle(color: Colors.red.shade900, fontSize: 12),
+            ),
+          )
+        : const SizedBox.shrink();
   }
 
   Widget buildCheckbox(String label, bool? value, Function(bool?) onChanged,

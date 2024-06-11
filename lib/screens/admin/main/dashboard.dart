@@ -200,7 +200,7 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                   return;
                 }
                 setState(() {
-                  tabBody = const DaftarPermintaanScreen();
+                  // tabBody = const DaftarPermintaanScreen();
                 });
               });
             } else if (index == 2) {
@@ -209,7 +209,7 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                   return;
                 }
                 setState(() {
-                  tabBody = const DaftarPersetujuanScreen();
+                  // tabBody = const DaftarPersetujuanScreen();
                 });
               });
             } else if (index == 3) {
