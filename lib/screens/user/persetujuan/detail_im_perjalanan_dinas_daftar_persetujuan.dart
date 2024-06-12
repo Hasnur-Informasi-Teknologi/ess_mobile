@@ -138,6 +138,15 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         setState(() {
           masterDataCostAssigment =
               List<Map<String, dynamic>>.from(masterDataCostAssigmentApi);
+
+          selectedValueCostAssigment =
+              masterDataCostAssigment[0]['type_cost_assign'].toString();
+
+          _noCostAssignController.text =
+              masterDataCostAssigment[0]['no_cost_assign'].toString();
+
+          _typeCostIdController.text =
+              masterDataCostAssigment[0]['type_cost_id'].toString();
         });
       } catch (e) {
         print(e);
@@ -356,7 +365,7 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Nrp',
-          textRight: '${masterDataDetailImPerjalananDinas['nrp_user']}',
+          textRight: '${masterDataDetailImPerjalananDinas['nrp_user'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -365,7 +374,8 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Entitas',
-          textRight: '${masterDataDetailImPerjalananDinas['entitas_user']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['entitas_user'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -374,7 +384,7 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Perihal',
-          textRight: '${masterDataDetailImPerjalananDinas['perihal']}',
+          textRight: '${masterDataDetailImPerjalananDinas['perihal'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -383,7 +393,7 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Nama',
-          textRight: '${masterDataDetailImPerjalananDinas['nama_user']}',
+          textRight: '${masterDataDetailImPerjalananDinas['nama_user'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -392,7 +402,8 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Jabatan',
-          textRight: '${masterDataDetailImPerjalananDinas['jabatan_user']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['jabatan_user'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -423,7 +434,7 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Nomor Dokumen',
-          textRight: '${masterDataDetailImPerjalananDinas['no_doc']}',
+          textRight: '${masterDataDetailImPerjalananDinas['no_doc'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -432,7 +443,8 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Trip Number',
-          textRight: '${masterDataDetailImPerjalananDinas['trip_number']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['trip_number'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -441,7 +453,8 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Trip Activity',
-          textRight: '${masterDataDetailImPerjalananDinas['trip_activity']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['trip_activity'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -450,7 +463,8 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tanggal/Jam Berangkat',
-          textRight: '${masterDataDetailImPerjalananDinas['tgl_berangkat']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['tgl_berangkat'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -459,7 +473,8 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tanggal/Jam Kembali',
-          textRight: '${masterDataDetailImPerjalananDinas['tgl_kembali']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['tgl_kembali'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -468,7 +483,8 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tempat Tujuan',
-          textRight: '${masterDataDetailImPerjalananDinas['tempat_tujuan']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['tempat_tujuan'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -477,7 +493,8 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Jenis Biaya',
-          textRight: '${masterDataDetailImPerjalananDinas['nama_jenis_biaya']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['nama_jenis_biaya'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -508,7 +525,8 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'NRP Atasan',
-          textRight: '${masterDataDetailImPerjalananDinas['nrp_atasan']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['nrp_atasan'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -517,7 +535,8 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Nama Atasan',
-          textRight: '${masterDataDetailImPerjalananDinas['nama_atasan']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['nama_atasan'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -526,7 +545,8 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Entitas Atasan',
-          textRight: '${masterDataDetailImPerjalananDinas['entitas_atasan']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['entitas_atasan'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -557,7 +577,7 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'NRP HCGS',
-          textRight: '${masterDataDetailImPerjalananDinas['nrp_hrgs']}',
+          textRight: '${masterDataDetailImPerjalananDinas['nrp_hrgs'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -566,7 +586,7 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Nama HCGS',
-          textRight: '${masterDataDetailImPerjalananDinas['nama_hrgs']}',
+          textRight: '${masterDataDetailImPerjalananDinas['nama_hrgs'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -575,7 +595,8 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Entitas HCGS',
-          textRight: '${masterDataDetailImPerjalananDinas['entitas_hrgs']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['entitas_hrgs'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -773,7 +794,8 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         ),
         TitleCenterWithLongBadgeWidget(
           textLeft: 'Status Pengajuan',
-          textRight: '${masterDataDetailImPerjalananDinas['status_approve']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['status_approve'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
           color: Colors.yellow,
@@ -783,7 +805,8 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
         ),
         TitleCenterWidget(
           textLeft: 'Pada',
-          textRight: ': ${masterDataDetailImPerjalananDinas['created_at']}',
+          textRight:
+              ': ${masterDataDetailImPerjalananDinas['created_at'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),

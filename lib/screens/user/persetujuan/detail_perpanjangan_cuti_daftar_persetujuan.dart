@@ -260,7 +260,7 @@ class _DetailPerpanjanganCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'NRP',
-          textRight: '${masterDataDetailPerpanjanganCuti['nrp_user']}',
+          textRight: '${masterDataDetailPerpanjanganCuti['nrp_user'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -269,7 +269,7 @@ class _DetailPerpanjanganCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Nama',
-          textRight: '${masterDataDetailPerpanjanganCuti['nama_user']}',
+          textRight: '${masterDataDetailPerpanjanganCuti['nama_user'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -278,7 +278,7 @@ class _DetailPerpanjanganCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tanggal Bergabung',
-          textRight: '${masterDataDetailPerpanjanganCuti['tgl_masuk']}',
+          textRight: '${masterDataDetailPerpanjanganCuti['tgl_masuk'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -287,7 +287,7 @@ class _DetailPerpanjanganCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Entitas',
-          textRight: '${masterDataDetailPerpanjanganCuti['pt_user']}',
+          textRight: '${masterDataDetailPerpanjanganCuti['pt_user'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -296,7 +296,8 @@ class _DetailPerpanjanganCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Atasan',
-          textRight: '${masterDataDetailPerpanjanganCuti['nama_atasan']}',
+          textRight:
+              '${masterDataDetailPerpanjanganCuti['nama_atasan'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -305,7 +306,7 @@ class _DetailPerpanjanganCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Alasan Cuti Tidak Digunakan',
-          textRight: '${masterDataDetailPerpanjanganCuti['alasan']}',
+          textRight: '${masterDataDetailPerpanjanganCuti['alasan'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -314,7 +315,8 @@ class _DetailPerpanjanganCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Total Perpanjangan Cuti',
-          textRight: '${masterDataDetailPerpanjanganCuti['jth_extend']} Hari',
+          textRight:
+              '${masterDataDetailPerpanjanganCuti['jth_extend'] ?? '-'} Hari',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -323,7 +325,7 @@ class _DetailPerpanjanganCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tanggal Mulai',
-          textRight: '${masterDataDetailPerpanjanganCuti['start_date']}',
+          textRight: '${masterDataDetailPerpanjanganCuti['start_date'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -332,7 +334,8 @@ class _DetailPerpanjanganCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tanggal Kadaluwarsa',
-          textRight: '${masterDataDetailPerpanjanganCuti['expired_date']}',
+          textRight:
+              '${masterDataDetailPerpanjanganCuti['expired_date'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -357,7 +360,8 @@ class _DetailPerpanjanganCutiDaftarPersetujuanState
       children: [
         TitleCenterWithLongBadgeWidget(
           textLeft: 'Status Pengajuan',
-          textRight: '${masterDataDetailPerpanjanganCuti['status_approve']}',
+          textRight:
+              '${masterDataDetailPerpanjanganCuti['status_approve'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
           color: Colors.yellow,
@@ -367,7 +371,8 @@ class _DetailPerpanjanganCutiDaftarPersetujuanState
         ),
         TitleCenterWidget(
           textLeft: 'Pada',
-          textRight: ': ${masterDataDetailPerpanjanganCuti['created_at']}',
+          textRight:
+              ': ${masterDataDetailPerpanjanganCuti['created_at'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),

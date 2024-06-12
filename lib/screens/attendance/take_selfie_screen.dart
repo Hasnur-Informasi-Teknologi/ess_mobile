@@ -56,18 +56,23 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
     String? token = prefs.getString('token');
     var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
     final nrp = karyawan['pernr'];
+    print('nrp');
+    print(nrp);
     if (token != null) {
       try {
         final ioClient = createIOClientWithInsecureConnection();
         final response = await ioClient.get(
           Uri.parse('$_apiUrl/get_work_schedules/$nrp'),
           headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Authorization': 'Bearer $token'
           },
         );
-
+        print('response');
         final responseData = jsonDecode(response.body);
+        print(responseData);
         final responseDataApi = responseData["data"][0]["toleransiin"];
+        print('responseDataApi');
         print(responseDataApi);
 
         setState(() {
@@ -104,6 +109,8 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
     final userId = karyawan['pernr'];
+    String? token = prefs.getString('token');
+    DateTime dateTime = DateTime.now();
 
     final image = await _cameraController!.takePicture();
     if (image != null && image.path != null) {
@@ -112,7 +119,9 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
           await FlutterExifRotation.rotateImage(path: image.path);
       File imageFile = File(rotatedImage.path);
 
-      Map<String, String> headers = {'Content-Type': 'multipart/form-data'};
+      Map<String, String> headers = {
+        'Content-Type': 'multipart/form-data',
+      };
       Map<String, dynamic> attendanceData = widget.attendanceData;
       var nrp = attendanceData['nrp'] ?? attendanceData['pernr'];
       var lat = attendanceData['lat'];
@@ -129,7 +138,9 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
       request.files.add(http.MultipartFile.fromBytes(
           'file', imageFile.readAsBytesSync(),
           filename: imageFile.path.split('/').last));
-      var res = await request.send();
+      final ioClient = createIOClientWithInsecureConnection();
+
+      var res = await ioClient.send(request);
       var respStr = await res.stream.bytesToString();
 
       final result = jsonDecode(respStr) as Map<dynamic, dynamic>;
@@ -138,11 +149,14 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
       var confidence = result['confidence'] ?? '0';
       var duplicate = result['duplicate'] ?? 'false';
       var idUser = result['id_user'] ?? '';
+      // print(idUser);
+      // print(userId);
       DateTime date = DateTime.now();
       String hari = DateFormat('EEEE').format(date).toLowerCase();
 
       print(
           'status : $status , message : $message , confidence : $confidence , duplicate : $duplicate');
+      print('success');
       if (status == false) {
         _showErrorDialog(message);
       } else {
@@ -153,28 +167,37 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
             _showErrorDialog('Confidence Data Kurang dari 50%!');
           } else {
             // proses absen
+            print('succes1');
             _cameraController!.dispose();
+            print('succes2');
             var clockInTime = attendanceData['clock_in_time'] ?? '';
             var clockOutTime = attendanceData['clock_out_time'] ?? '';
             var workingLocation = attendanceData['working_location'] ?? '';
-
             //Mengambil jam only
             String dateString = clockInTime.toString();
             String clockInTimeOnly = dateString.substring(11, 19);
+            List<String>? clockInToleransiParts;
+            if (clockInToleransi == null) {
+              DateTime adjustedTime = dateTime.add(Duration(minutes: 5));
+              String formattedTime =
+                  DateFormat('HH:mm:ss').format(adjustedTime);
+              clockInToleransiParts = formattedTime.split(':');
+            } else {
+              clockInToleransiParts = clockInToleransi!.split(':');
+            }
             // Memisahkan waktu menjadi jam, menit, dan detik
             List<String> timeParts = clockInTimeOnly.split(':');
-            List<String> clockInToleransiParts = clockInToleransi!.split(':');
-
             // Mendapatkan nilai jam, menit, dan detik
             int timeHour = int.parse(timeParts[0]);
             int timeMinute = int.parse(timeParts[1]);
             int timeSecond = int.parse(timeParts[2]);
-
             int clockInToleransiHour = int.parse(clockInToleransiParts[0]);
             int clockInToleransiMinute = int.parse(clockInToleransiParts[1]);
             int clockInToleransiSecond = int.parse(clockInToleransiParts[2]);
 
+            print(widget.clockInType);
             if (widget.clockInType == 'In') {
+              print('In');
               // Membandingkan hanya jam, menit, dan detik
               if (timeHour > clockInToleransiHour ||
                   (timeHour == clockInToleransiHour &&
@@ -188,7 +211,6 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
                   "nrp": nrp,
                   "lat": lat,
                   "long": long,
-                  "hari": hari + 'in',
                   "clock_time": clockInTime,
                   "working_location": workingLocation,
                   "address": alamat.toString(),
@@ -212,20 +234,15 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
                       ..fields['nrp'] = nrp
                       ..fields['lat'] = lat
                       ..fields['long'] = long
-                      ..fields['hari'] = hari + 'in'
                       ..fields['clock_time'] = clockInTime
                       ..fields['working_location'] = workingLocation
-                      ..fields['address'] = alamat.toString()
-                      ..fields['late_reason'] = 'okee'
-                      ..files.add(http.MultipartFile.fromBytes(
-                          'late_attachment', imageFile.readAsBytesSync(),
-                          filename: imageFile.path.split('/').last))
-                      ..files.add(http.MultipartFile.fromBytes(
-                          'image', imageFile.readAsBytesSync(),
-                          filename: imageFile.path.split('/').last));
+                      ..fields['address'] = alamat.toString();
 
                 var streamedResponse = await ioClient.send(request);
-                await streamedResponse.stream.bytesToString();
+                final responseData =
+                    await streamedResponse.stream.bytesToString();
+                final responseDataMessage = json.decode(responseData);
+                print(responseDataMessage);
                 _cameraController!.dispose();
                 Navigator.pushReplacement(
                     context,
@@ -244,17 +261,9 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
                     ..fields['nrp'] = nrp
                     ..fields['lat'] = lat
                     ..fields['long'] = long
-                    ..fields['hari'] = hari + 'in'
                     ..fields['clock_time'] = clockInTime
                     ..fields['working_location'] = workingLocation
-                    ..fields['address'] = alamat.toString()
-                    ..fields['late_reason'] = 'okee'
-                    ..files.add(http.MultipartFile.fromBytes(
-                        'late_attachment', imageFile.readAsBytesSync(),
-                        filename: imageFile.path.split('/').last))
-                    ..files.add(http.MultipartFile.fromBytes(
-                        'image', imageFile.readAsBytesSync(),
-                        filename: imageFile.path.split('/').last));
+                    ..fields['address'] = alamat.toString();
 
               var streamedResponse = await ioClient.send(request);
               await streamedResponse.stream.bytesToString();

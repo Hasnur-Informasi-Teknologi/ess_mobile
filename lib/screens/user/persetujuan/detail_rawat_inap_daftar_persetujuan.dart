@@ -1242,7 +1242,7 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Kode',
-          textRight: '${masterDataDetailRawatInap['kode_rawat_inap']}',
+          textRight: '${masterDataDetailRawatInap['kode_rawat_inap'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1251,7 +1251,7 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tanggal Pengajuan',
-          textRight: '${masterDataDetailRawatInap['tgl_pengajuan']}',
+          textRight: '${masterDataDetailRawatInap['tgl_pengajuan'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1260,7 +1260,7 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Nrp',
-          textRight: '${masterDataDetailRawatInap['pernr']}',
+          textRight: '${masterDataDetailRawatInap['pernr'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1269,7 +1269,7 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Nama Karyawan',
-          textRight: '${masterDataDetailRawatInap['nama']}',
+          textRight: '${masterDataDetailRawatInap['nama'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1278,7 +1278,7 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Perusahaan',
-          textRight: '${masterDataDetailRawatInap['pt']}',
+          textRight: '${masterDataDetailRawatInap['pt'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1287,7 +1287,7 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Lokasi Kerja',
-          textRight: '${masterDataDetailRawatInap['lokasi']}',
+          textRight: '${masterDataDetailRawatInap['lokasi'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1296,7 +1296,7 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Pangkat Karyawan',
-          textRight: '${masterDataDetailRawatInap['pangkat']}',
+          textRight: '${masterDataDetailRawatInap['pangkat'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1305,7 +1305,7 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tanggal Masuk',
-          textRight: '${masterDataDetailRawatInap['hire_date']}',
+          textRight: '${masterDataDetailRawatInap['hire_date'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1314,7 +1314,7 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Periode Rawat (Mulai)',
-          textRight: '${masterDataDetailRawatInap['prd_rawat_mulai']}',
+          textRight: '${masterDataDetailRawatInap['prd_rawat_mulai'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1323,7 +1323,7 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Periode Rawat (Berakhir)',
-          textRight: '${masterDataDetailRawatInap['prd_rawat_akhir']}',
+          textRight: '${masterDataDetailRawatInap['prd_rawat_akhir'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1332,7 +1332,7 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Nama Pasien',
-          textRight: '${masterDataDetailRawatInap['nm_pasien']}',
+          textRight: '${masterDataDetailRawatInap['nm_pasien'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1341,7 +1341,7 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Hubungan Dengan Karyawan',
-          textRight: '${masterDataDetailRawatInap['hub_karyawan']}',
+          textRight: '${masterDataDetailRawatInap['hub_karyawan'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1375,7 +1375,7 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tanggal Terima',
-          textRight: masterDataDetailRawatInap['approved_date2'] ?? '',
+          textRight: masterDataDetailRawatInap['approved_date2'] ?? '-',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1384,7 +1384,8 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Total Pengajuan',
-          textRight: 'Rp. ${masterDataDetailRawatInap['total_pengajuan']}',
+          textRight:
+              'Rp. ${masterDataDetailRawatInap['total_pengajuan'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1393,7 +1394,7 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Selisih',
-          textRight: 'Rp. ${masterDataDetailRawatInap['selisih']}',
+          textRight: 'Rp. ${masterDataDetailRawatInap['selisih'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1402,7 +1403,7 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Catatan',
-          textRight: masterDataDetailRawatInap['catatan'] ?? '',
+          textRight: masterDataDetailRawatInap['catatan'] ?? '-',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1411,7 +1412,7 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Keterangan Atasan',
-          textRight: masterDataDetailRawatInap['keterangan_atasan'] ?? '',
+          textRight: masterDataDetailRawatInap['keterangan_atasan'] ?? '-',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1420,7 +1421,7 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Keterangan PIC HCGS',
-          textRight: masterDataDetailRawatInap['keterangan_pic_hcgs'] ?? '',
+          textRight: masterDataDetailRawatInap['keterangan_pic_hcgs'] ?? '-',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1429,7 +1430,7 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Keterangan Direksi',
-          textRight: masterDataDetailRawatInap['keterangan_direksi'] ?? '',
+          textRight: masterDataDetailRawatInap['keterangan_direksi'] ?? '-',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1438,7 +1439,7 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Dokumen',
-          textRight: masterDataDetailRawatInap['dokumen'] ?? '',
+          textRight: masterDataDetailRawatInap['dokumen'] ?? '-',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1447,7 +1448,7 @@ class _DetailRawatInapDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Total Diganti Perusahaan',
-          textRight: 'Rp. ${masterDataDetailRawatInap['total_diganti']}',
+          textRight: 'Rp. ${masterDataDetailRawatInap['total_diganti'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1470,7 +1471,7 @@ class _DetailRawatInapDaftarPersetujuanState
           padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
           child: TitleCenterWithLongBadgeWidget(
             textLeft: 'Status Pengajuan',
-            textRight: '${masterDataDetailRawatInap['status_approve']}',
+            textRight: '${masterDataDetailRawatInap['status_approve'] ?? '-'}',
             fontSizeLeft: textMedium,
             fontSizeRight: textMedium,
             color: Colors.yellow,
@@ -1483,7 +1484,7 @@ class _DetailRawatInapDaftarPersetujuanState
           padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
           child: TitleCenterWidget(
             textLeft: 'Pada',
-            textRight: ': ${masterDataDetailRawatInap['created_at']}',
+            textRight: ': ${masterDataDetailRawatInap['created_at'] ?? '-'}',
             fontSizeLeft: textMedium,
             fontSizeRight: textMedium,
           ),

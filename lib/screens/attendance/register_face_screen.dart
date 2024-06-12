@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
 import 'package:mobile_ess/themes/colors.dart';
@@ -68,6 +69,7 @@ class _RegisterFaceScreenState extends State<RegisterFaceScreen> {
 
       File imageFile = File(rotatedImage.path);
       //========================================================================
+      final ioClient = createIOClientWithInsecureConnection();
       var request = http.MultipartRequest(
           'POST', Uri.parse('https://hitfaceapi.my.id/api/face/extract'));
       request.fields['id_user'] = userId.toString();
@@ -76,7 +78,7 @@ class _RegisterFaceScreenState extends State<RegisterFaceScreen> {
       request.files.add(http.MultipartFile.fromBytes(
           'file', imageFile.readAsBytesSync(),
           filename: imageFile.path.split('/').last));
-      var res = await request.send();
+      var res = await ioClient.send(request);
       var respStr = await res.stream.bytesToString();
       final result = jsonDecode(respStr) as Map<dynamic, dynamic>;
       var status = result['status'] ?? '';

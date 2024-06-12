@@ -293,7 +293,7 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'NRP',
-          textRight: '${masterDataDetailBantuanKomunikasi['nrp_user']}',
+          textRight: '${masterDataDetailBantuanKomunikasi['nrp_user'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -302,7 +302,7 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Nama',
-          textRight: '${masterDataDetailBantuanKomunikasi['nama_user']}',
+          textRight: '${masterDataDetailBantuanKomunikasi['nama_user'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -311,7 +311,8 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tanggal Pengajuan',
-          textRight: '${masterDataDetailBantuanKomunikasi['tgl_pengajuan']}',
+          textRight:
+              '${masterDataDetailBantuanKomunikasi['tgl_pengajuan'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -342,7 +343,8 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'NRP',
-          textRight: '${masterDataDetailBantuanKomunikasi['nrp_penerima']}',
+          textRight:
+              '${masterDataDetailBantuanKomunikasi['nrp_penerima'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -351,7 +353,8 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Nama',
-          textRight: '${masterDataDetailBantuanKomunikasi['nama_penerima']}',
+          textRight:
+              '${masterDataDetailBantuanKomunikasi['nama_penerima'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -360,7 +363,8 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Jabatan',
-          textRight: '${masterDataDetailBantuanKomunikasi['jabatan_penerima']}',
+          textRight:
+              '${masterDataDetailBantuanKomunikasi['jabatan_penerima'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -369,7 +373,8 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Entitas',
-          textRight: '${masterDataDetailBantuanKomunikasi['entitas_penerima']}',
+          textRight:
+              '${masterDataDetailBantuanKomunikasi['entitas_penerima'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -378,7 +383,8 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Pangkat',
-          textRight: '${masterDataDetailBantuanKomunikasi['pangkat_penerima']}',
+          textRight:
+              '${masterDataDetailBantuanKomunikasi['pangkat_penerima'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -410,7 +416,7 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
         RowWithSemicolonWidget(
           textLeft: 'Kelompok Jabatan',
           textRight:
-              '${masterDataDetailBantuanKomunikasi['pangkat_komunikasi']}',
+              '${masterDataDetailBantuanKomunikasi['pangkat_komunikasi'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -428,7 +434,8 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Jenis Fasilitas',
-          textRight: '${masterDataDetailBantuanKomunikasi['nama_fasilitas']}',
+          textRight:
+              '${masterDataDetailBantuanKomunikasi['nama_fasilitas'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -437,7 +444,8 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Jenis Mobile Phone',
-          textRight: '${masterDataDetailBantuanKomunikasi['jenis_phone_name']}',
+          textRight:
+              '${masterDataDetailBantuanKomunikasi['jenis_phone_name'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -448,7 +456,7 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
             ? RowWithSemicolonWidget(
                 textLeft: 'Merek Mobile Phone',
                 textRight:
-                    '${masterDataDetailBantuanKomunikasi['merek_phone']}',
+                    '${masterDataDetailBantuanKomunikasi['merek_phone'] ?? '-'}',
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               )
@@ -473,7 +481,8 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tujuan Komunikasi Internal',
-          textRight: '${masterDataDetailBantuanKomunikasi['tujuan_internal']}',
+          textRight:
+              '${masterDataDetailBantuanKomunikasi['tujuan_internal'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -482,7 +491,8 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tujuan Komunikasi Eksternal',
-          textRight: '${masterDataDetailBantuanKomunikasi['tujuan_eksternal']}',
+          textRight:
+              '${masterDataDetailBantuanKomunikasi['tujuan_eksternal'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -491,7 +501,8 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Keterangan',
-          textRight: '${masterDataDetailBantuanKomunikasi['keterangan']}',
+          textRight:
+              '${masterDataDetailBantuanKomunikasi['keterangan'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -520,7 +531,8 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
       ),
       RowWithSemicolonWidget(
         textLeft: 'Tujuan Komunikasi Internal',
-        textRight: '${masterDataDetailBantuanKomunikasi['tujuan_internal']}',
+        textRight:
+            '${masterDataDetailBantuanKomunikasi['tujuan_internal'] ?? '-'}',
         fontSizeLeft: textMedium,
         fontSizeRight: textMedium,
       ),
@@ -529,7 +541,8 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
       ),
       RowWithSemicolonWidget(
         textLeft: 'Tujuan Komunikasi Ekternal',
-        textRight: '${masterDataDetailBantuanKomunikasi['tujuan_eksternal']}',
+        textRight:
+            '${masterDataDetailBantuanKomunikasi['tujuan_eksternal'] ?? '-'}',
         fontSizeLeft: textMedium,
         fontSizeRight: textMedium,
       ),
@@ -538,7 +551,7 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
       ),
       RowWithSemicolonWidget(
         textLeft: 'Keterangan',
-        textRight: '${masterDataDetailBantuanKomunikasi['keterangan']}',
+        textRight: '${masterDataDetailBantuanKomunikasi['keterangan'] ?? '-'}',
         fontSizeLeft: textMedium,
         fontSizeRight: textMedium,
       ),
@@ -559,7 +572,8 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
         ),
         TitleCenterWithLongBadgeWidget(
           textLeft: 'Status Pengajuan',
-          textRight: '${masterDataDetailBantuanKomunikasi['status_approve']}',
+          textRight:
+              '${masterDataDetailBantuanKomunikasi['status_approve'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
           color: Colors.yellow,
@@ -569,7 +583,8 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
         ),
         TitleCenterWidget(
           textLeft: 'Pada',
-          textRight: ': ${masterDataDetailBantuanKomunikasi['created_at']}',
+          textRight:
+              ': ${masterDataDetailBantuanKomunikasi['created_at'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),

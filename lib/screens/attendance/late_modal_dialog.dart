@@ -13,6 +13,7 @@ import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LateModalDialog extends StatefulWidget {
   const LateModalDialog({super.key, required this.newData});
@@ -42,6 +43,8 @@ class _LateModalDialogState extends State<LateModalDialog> {
   }
 
   Future<void> _submit() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
     setState(() {
       _isLoading = true;
     });
@@ -56,24 +59,24 @@ class _LateModalDialogState extends State<LateModalDialog> {
       imageFile = await _compressImage(imageFile);
     }
 
-    Map<String, String> headers = {'Content-Type': 'multipart/form-data'};
+    print(widget.newData);
+
+    Map<String, String> headers = {
+      'Content-Type': 'multipart/form-data',
+    };
     final ioClient = createIOClientWithInsecureConnection();
     var request = http.MultipartRequest('POST', Uri.parse('$_apiUrl/absen'))
       ..headers.addAll(headers)
       ..fields['nrp'] = widget.newData['nrp']
       ..fields['lat'] = widget.newData['lat']
       ..fields['long'] = widget.newData['long']
-      ..fields['hari'] = widget.newData['hari']
       ..fields['clock_time'] = widget.newData['clock_time']
       ..fields['working_location'] = widget.newData['working_location']
       ..fields['address'] = widget.newData['address']
       ..fields['late_reason'] = _alasanTerlambatController.text
       ..files.add(http.MultipartFile.fromBytes(
           'late_attachment', imageFile.readAsBytesSync(),
-          filename: imageFile.path.split('/').last))
-      ..files.add(http.MultipartFile.fromBytes(
-          'image', widget.newData['image'].readAsBytesSync(),
-          filename: widget.newData['image'].path.split('/').last));
+          filename: imageFile.path.split('/').last));
     // var response = await request.send();
     // final responseData = await response.stream.bytesToString();
     var streamedResponse = await ioClient.send(request);

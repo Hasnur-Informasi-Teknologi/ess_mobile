@@ -161,7 +161,7 @@ class _DetailImPerjalananDinasDaftarPermintaanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Nrp',
-          textRight: '${masterDataDetailImPerjalananDinas['nrp_user']}',
+          textRight: '${masterDataDetailImPerjalananDinas['nrp_user'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -170,7 +170,8 @@ class _DetailImPerjalananDinasDaftarPermintaanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Entitas',
-          textRight: '${masterDataDetailImPerjalananDinas['entitas_user']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['entitas_user'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -179,7 +180,7 @@ class _DetailImPerjalananDinasDaftarPermintaanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Perihal',
-          textRight: '${masterDataDetailImPerjalananDinas['perihal']}',
+          textRight: '${masterDataDetailImPerjalananDinas['perihal'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -188,7 +189,7 @@ class _DetailImPerjalananDinasDaftarPermintaanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Nama',
-          textRight: '${masterDataDetailImPerjalananDinas['nama_user']}',
+          textRight: '${masterDataDetailImPerjalananDinas['nama_user'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -197,7 +198,8 @@ class _DetailImPerjalananDinasDaftarPermintaanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Jabatan',
-          textRight: '${masterDataDetailImPerjalananDinas['jabatan_user']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['jabatan_user'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -228,7 +230,7 @@ class _DetailImPerjalananDinasDaftarPermintaanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Nomor Dokumen',
-          textRight: '${masterDataDetailImPerjalananDinas['no_doc']}',
+          textRight: '${masterDataDetailImPerjalananDinas['no_doc'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -237,7 +239,8 @@ class _DetailImPerjalananDinasDaftarPermintaanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Trip Number',
-          textRight: '${masterDataDetailImPerjalananDinas['trip_number']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['trip_number'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -246,7 +249,8 @@ class _DetailImPerjalananDinasDaftarPermintaanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Trip Activity',
-          textRight: '${masterDataDetailImPerjalananDinas['trip_activity']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['trip_activity'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -255,7 +259,8 @@ class _DetailImPerjalananDinasDaftarPermintaanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tanggal/Jam Berangkat',
-          textRight: '${masterDataDetailImPerjalananDinas['tgl_berangkat']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['tgl_berangkat'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -264,7 +269,8 @@ class _DetailImPerjalananDinasDaftarPermintaanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tanggal/Jam Kembali',
-          textRight: '${masterDataDetailImPerjalananDinas['tgl_kembali']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['tgl_kembali'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -273,7 +279,8 @@ class _DetailImPerjalananDinasDaftarPermintaanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tempat Tujuan',
-          textRight: '${masterDataDetailImPerjalananDinas['tempat_tujuan']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['tempat_tujuan'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -282,7 +289,8 @@ class _DetailImPerjalananDinasDaftarPermintaanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Jenis Biaya',
-          textRight: '${masterDataDetailImPerjalananDinas['nama_jenis_biaya']}',
+          textRight:
+              '${masterDataDetailImPerjalananDinas['nama_jenis_biaya'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),

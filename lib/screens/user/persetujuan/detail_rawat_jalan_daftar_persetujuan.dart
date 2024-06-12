@@ -54,6 +54,7 @@ class _DetailRawatJalanDaftarPersetujuanState
   final _catatanController = TextEditingController();
   bool _isLoadingScreen = false;
   String? selectedValueDetailPlafon;
+  int? nominalDisetujui;
 
   List<Map<String, dynamic>> selectedJenisDokumen = [
     {'jenis': 'Dokumen Lengkap'},
@@ -175,6 +176,27 @@ class _DetailRawatJalanDaftarPersetujuanState
     final responseData = jsonDecode(userData.toString());
     x.data.value = responseData['data'];
     return responseData;
+  }
+
+  String _formatRupiah(dynamic amount) {
+    if (amount is String) {
+      double parsedAmount = double.tryParse(amount) ?? 0.0;
+      String formattedAmount =
+          NumberFormat.decimalPattern('id-ID').format(parsedAmount);
+      if (parsedAmount < 0) {
+        formattedAmount = '(${formattedAmount.substring(1)})';
+      }
+      return formattedAmount;
+    } else if (amount is int) {
+      double parsedAmount = amount.toDouble();
+      String formattedAmount =
+          NumberFormat.decimalPattern('id-ID').format(parsedAmount);
+      if (parsedAmount < 0) {
+        formattedAmount = '(${formattedAmount.substring(1)})';
+      }
+      return formattedAmount;
+    }
+    return '0';
   }
 
   int calculateTotalJumlahDisetujui(
@@ -346,7 +368,7 @@ class _DetailRawatJalanDaftarPersetujuanState
           .where((item) => item['ket'] == selectedValueDetailPlafon)
           .toList();
       _sisaPlafonController.text =
-          masterDataDetailPlafonFiltered[0]['sisa'].toString();
+          _formatRupiah(masterDataDetailPlafonFiltered[0]['sisa'].toString());
     });
 
     void submitDaftarPengajuan() {
@@ -419,6 +441,9 @@ class _DetailRawatJalanDaftarPersetujuanState
                 ['tgl_kuitansi'],
             'jumlah': int.parse(_plafonDisetujuiController.text),
           });
+
+          nominalDisetujui =
+              calculateTotalJumlahDisetujui(masterDataDetailApprovedRawatJalan);
         });
       } else {
         Get.snackbar('Infomation', 'Data Tersebut Tidak Boleh Lagi!',
@@ -539,8 +564,8 @@ class _DetailRawatJalanDaftarPersetujuanState
                           .where((item) =>
                               item['ket'] == selectedValueDetailPlafon)
                           .toList();
-                      _sisaPlafonController.text =
-                          masterDataDetailPlafonFiltered[0]['sisa'].toString();
+                      _sisaPlafonController.text = _formatRupiah(
+                          masterDataDetailPlafonFiltered[0]['sisa'].toString());
                     });
                   },
                   items:
@@ -710,7 +735,7 @@ class _DetailRawatJalanDaftarPersetujuanState
                 },
               ),
               title: Text(
-                'Detail Permintaan Rawat Jalan',
+                'Detail Persetujuan Rawat Jalan',
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: textLarge,
@@ -1160,21 +1185,6 @@ class _DetailRawatJalanDaftarPersetujuanState
                                     fontSize: textMedium,
                                     fontFamily: 'Poppins',
                                     fontWeight: FontWeight.w300,
-                                  ),
-                                ),
-                              );
-                            } else if (column == 'submit') {
-                              return TableViewCell(
-                                child: InkWell(
-                                  onTap: () {
-                                    handleButtonAdd(context, index);
-                                  },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.green,
-                                      borderRadius: BorderRadius.circular(2.0),
-                                    ),
-                                    child: const Center(child: Icon(Icons.add)),
                                   ),
                                 ),
                               );
@@ -1696,13 +1706,20 @@ class _DetailRawatJalanDaftarPersetujuanState
         SizedBox(
           height: sizedBoxHeightShort,
         ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nominal Disetujui',
-          textRight:
-              'Rp. ${masterDataDetailRawatJalan['jumlah_setuju'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
+        masterDataDetailRawatJalan['approved_at2'] == null
+            ? RowWithSemicolonWidget(
+                textLeft: 'Nominal Disetujui',
+                textRight: 'Rp. ${_formatRupiah(nominalDisetujui)}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              )
+            : RowWithSemicolonWidget(
+                textLeft: 'Nominal Disetujui',
+                textRight:
+                    'Rp. ${masterDataDetailRawatJalan['jumlah_setuju'] ?? '-'}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
         SizedBox(
           height: sizedBoxHeightShort,
         ),

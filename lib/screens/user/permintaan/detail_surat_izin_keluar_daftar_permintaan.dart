@@ -459,7 +459,8 @@ class _DetailSuratIzinKeluarDaftarPermintaanState
       children: [
         TitleCenterWithLongBadgeWidget(
           textLeft: 'Status Pengajuan',
-          textRight: '${masterDataParentSuratIzinKeluar['status_approve']}',
+          textRight:
+              '${masterDataParentSuratIzinKeluar['status_approve'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
           color: Colors.yellow,
@@ -469,7 +470,8 @@ class _DetailSuratIzinKeluarDaftarPermintaanState
         ),
         TitleCenterWidget(
           textLeft: 'Pada',
-          textRight: ': ${masterDataParentSuratIzinKeluar['created_at']}',
+          textRight:
+              ': ${masterDataParentSuratIzinKeluar['created_at'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),

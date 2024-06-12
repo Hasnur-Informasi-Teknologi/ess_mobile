@@ -44,6 +44,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   String pengajuanCutiPDFpath = "";
 
   final String _apiUrl = API_URL;
+  final String _url = URL;
   DataUserDaftarPersetujuanController x =
       Get.put(DataUserDaftarPersetujuanController());
 
@@ -684,8 +685,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     try {
       // var url =
       //     "http://ess-dev.hasnurgroup.com:8081/online-form/preview-pdf-cuti/ee55673b-be6f-4ed3-a6fc-848255dd2bf7/okee";
-      var url =
-          "http://192.168.89.21/online-form/approval-rawat-inap/${id}/pdf/inap${id}.pdf";
+      var url = "$_url/online-form/approval-rawat-inap/$id/pdf/inap$id.pdf";
       final filename = url.substring(url.lastIndexOf("/") + 1);
       var request = await HttpClient().getUrl(Uri.parse(url));
       request.headers.set('Content-Type', 'application/json;charset=UTF-8');

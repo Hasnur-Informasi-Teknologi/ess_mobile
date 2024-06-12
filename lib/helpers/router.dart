@@ -53,6 +53,7 @@ import 'package:mobile_ess/screens/user/permintaan/detail_lpj_perjalanan_dinas_d
 import 'package:mobile_ess/screens/user/permintaan/detail_pengajuan_cuti_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_pengajuan_training_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_rawat_inap_daftar_permintaan.dart';
+import 'package:mobile_ess/screens/user/permintaan/detail_rawat_jalan_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_surat_izin_keluar_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_bantuan_komunikasi_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_im_perjalanan_dinas_daftar_persetujuan.dart';
@@ -134,6 +135,8 @@ Map<String, Widget Function(BuildContext)> routers() {
         const DetailPengajuanCutiDaftarPermintaan(),
     '/user/main/daftar_permintaan/detail_rawat_inap': (context) =>
         const DetailRawatInapDaftarPermintaan(),
+    '/user/main/daftar_permintaan/detail_rawat_jalan': (context) =>
+        const DetailRawatJalanDaftarPermintaan(),
     '/user/main/daftar_permintaan/detail_im_perjalanan_dinas': (context) =>
         const DetailImPerjalananDinasDaftarPermintaan(),
     '/user/main/daftar_permintaan/detail_lpj_perjalanan_dinas': (context) =>

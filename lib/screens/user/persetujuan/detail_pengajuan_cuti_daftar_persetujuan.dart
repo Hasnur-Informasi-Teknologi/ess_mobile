@@ -280,7 +280,7 @@ class _DetailPengajuanCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'NRP',
-          textRight: '${masterDataDetailPengajuanCuti['nrp_user']}',
+          textRight: '${masterDataDetailPengajuanCuti['nrp_user'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -289,7 +289,7 @@ class _DetailPengajuanCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Nama',
-          textRight: '${masterDataDetailPengajuanCuti['nama_user']}',
+          textRight: '${masterDataDetailPengajuanCuti['nama_user'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -298,7 +298,7 @@ class _DetailPengajuanCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Perusahaan',
-          textRight: '${masterDataDetailPengajuanCuti['entitas_user']}',
+          textRight: '${masterDataDetailPengajuanCuti['entitas_user'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -307,7 +307,7 @@ class _DetailPengajuanCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Jabatan',
-          textRight: '${masterDataDetailPengajuanCuti['posisi_user']}',
+          textRight: '${masterDataDetailPengajuanCuti['posisi_user'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -316,7 +316,7 @@ class _DetailPengajuanCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Lokasi Kerja',
-          textRight: '${masterDataDetailPengajuanCuti['lokasi_user']}',
+          textRight: '${masterDataDetailPengajuanCuti['lokasi_user'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -347,7 +347,7 @@ class _DetailPengajuanCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tanggal Mulai',
-          textRight: '${masterDataDetailPengajuanCuti['tgl_mulai']}',
+          textRight: '${masterDataDetailPengajuanCuti['tgl_mulai'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -356,7 +356,7 @@ class _DetailPengajuanCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tanggal Berakhir',
-          textRight: '${masterDataDetailPengajuanCuti['tgl_berakhir']}',
+          textRight: '${masterDataDetailPengajuanCuti['tgl_berakhir'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -365,7 +365,8 @@ class _DetailPengajuanCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tanggal Kembali Kerja',
-          textRight: '${masterDataDetailPengajuanCuti['tgl_kembali_kerja']}',
+          textRight:
+              '${masterDataDetailPengajuanCuti['tgl_kembali_kerja'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -374,7 +375,7 @@ class _DetailPengajuanCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Alamat',
-          textRight: '${masterDataDetailPengajuanCuti['alamat_cuti']}',
+          textRight: '${masterDataDetailPengajuanCuti['alamat_cuti'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -383,7 +384,7 @@ class _DetailPengajuanCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'No Telpon',
-          textRight: '${masterDataDetailPengajuanCuti['no_telp']}',
+          textRight: '${masterDataDetailPengajuanCuti['no_telp'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -449,7 +450,7 @@ class _DetailPengajuanCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Atasan',
-          textRight: '${masterDataDetailPengajuanCuti['nama_atasan']}',
+          textRight: '${masterDataDetailPengajuanCuti['nama_atasan'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -458,7 +459,7 @@ class _DetailPengajuanCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Atasan dari Atasan',
-          textRight: '${masterDataDetailPengajuanCuti['nama_direktur']}',
+          textRight: '${masterDataDetailPengajuanCuti['nama_direktur'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -489,7 +490,7 @@ class _DetailPengajuanCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Nomor Dokumen',
-          textRight: '${masterDataDetailPengajuanCuti['no_doc']}',
+          textRight: '${masterDataDetailPengajuanCuti['no_doc'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -498,7 +499,7 @@ class _DetailPengajuanCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Keperluan Cuti',
-          textRight: '${masterDataDetailPengajuanCuti['keperluan']}',
+          textRight: '${masterDataDetailPengajuanCuti['keperluan'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -507,7 +508,7 @@ class _DetailPengajuanCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Keperluan Cuti Lainnya',
-          textRight: '${masterDataDetailPengajuanCuti['kep_lainnya']}',
+          textRight: '${masterDataDetailPengajuanCuti['kep_lainnya'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -546,7 +547,7 @@ class _DetailPengajuanCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Total Cuti Yang Diambil',
-          textRight: '${masterDataDetailPengajuanCuti['jml_cuti']} Hari',
+          textRight: '${masterDataDetailPengajuanCuti['jml_cuti'] ?? '-'} Hari',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -577,7 +578,8 @@ class _DetailPengajuanCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Nama',
-          textRight: '${masterDataDetailPengajuanCuti['nama_pengganti']}',
+          textRight:
+              '${masterDataDetailPengajuanCuti['nama_pengganti'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -586,7 +588,8 @@ class _DetailPengajuanCutiDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Jabatan',
-          textRight: '${masterDataDetailPengajuanCuti['posisi_pengganti']}',
+          textRight:
+              '${masterDataDetailPengajuanCuti['posisi_pengganti'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -612,7 +615,8 @@ class _DetailPengajuanCutiDaftarPersetujuanState
         ),
         TitleCenterWithLongBadgeWidget(
           textLeft: 'Status Pengajuan',
-          textRight: '${masterDataDetailPengajuanCuti['status_approve']}',
+          textRight:
+              '${masterDataDetailPengajuanCuti['status_approve'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
           color: Colors.yellow,
@@ -622,7 +626,7 @@ class _DetailPengajuanCutiDaftarPersetujuanState
         ),
         TitleCenterWidget(
           textLeft: 'Pada',
-          textRight: ': ${masterDataDetailPengajuanCuti['created_at']}',
+          textRight: ': ${masterDataDetailPengajuanCuti['created_at'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
