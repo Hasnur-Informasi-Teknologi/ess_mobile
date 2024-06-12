@@ -56,8 +56,6 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
     String? token = prefs.getString('token');
     var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
     final nrp = karyawan['pernr'];
-    print('nrp');
-    print(nrp);
     if (token != null) {
       try {
         final ioClient = createIOClientWithInsecureConnection();
@@ -68,12 +66,8 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
             'Authorization': 'Bearer $token'
           },
         );
-        print('response');
         final responseData = jsonDecode(response.body);
-        print(responseData);
         final responseDataApi = responseData["data"][0]["toleransiin"];
-        print('responseDataApi');
-        print(responseDataApi);
 
         setState(() {
           clockInToleransi = responseDataApi;
@@ -109,12 +103,9 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
     final userId = karyawan['pernr'];
-    String? token = prefs.getString('token');
-    DateTime dateTime = DateTime.now();
 
     final image = await _cameraController!.takePicture();
     if (image != null && image.path != null) {
-      // Note error ini cuma bug dari flutter, package exifrotation aman dipakai
       File rotatedImage =
           await FlutterExifRotation.rotateImage(path: image.path);
       File imageFile = File(rotatedImage.path);
@@ -129,7 +120,14 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
 
       List<Placemark> getAlamat =
           await placemarkFromCoordinates(double.parse(lat), double.parse(long));
-      alamat = getAlamat[2].toString();
+      print(getAlamat);
+      if (getAlamat.length > 2) {
+        alamat = getAlamat[2].toString();
+      } else {
+        alamat = getAlamat.isNotEmpty
+            ? getAlamat.last.toString()
+            : 'Alamat tidak ditemukan';
+      }
 
       var request = http.MultipartRequest(
           'POST', Uri.parse('https://hitfaceapi.my.id/api/face/recognition'));
@@ -149,14 +147,8 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
       var confidence = result['confidence'] ?? '0';
       var duplicate = result['duplicate'] ?? 'false';
       var idUser = result['id_user'] ?? '';
-      // print(idUser);
-      // print(userId);
-      DateTime date = DateTime.now();
-      String hari = DateFormat('EEEE').format(date).toLowerCase();
-
       print(
           'status : $status , message : $message , confidence : $confidence , duplicate : $duplicate');
-      print('success');
       if (status == false) {
         _showErrorDialog(message);
       } else {
@@ -177,15 +169,7 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
             String dateString = clockInTime.toString();
             String clockInTimeOnly = dateString.substring(11, 19);
             List<String>? clockInToleransiParts;
-            if (clockInToleransi == null) {
-              DateTime adjustedTime = dateTime.add(Duration(minutes: 5));
-              String formattedTime =
-                  DateFormat('HH:mm:ss').format(adjustedTime);
-              clockInToleransiParts = formattedTime.split(':');
-            } else {
-              clockInToleransiParts = clockInToleransi!.split(':');
-            }
-            // Memisahkan waktu menjadi jam, menit, dan detik
+            clockInToleransiParts = clockInToleransi!.split(':');
             List<String> timeParts = clockInTimeOnly.split(':');
             // Mendapatkan nilai jam, menit, dan detik
             int timeHour = int.parse(timeParts[0]);
@@ -298,7 +282,7 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Take Picture').tr(),
+        title: const Text('Take Picture'),
         centerTitle: true,
         backgroundColor: const Color(primaryYellow),
       ),
@@ -351,7 +335,7 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
                                       color: Color(primaryBlack)),
-                                ).tr(),
+                                ),
                                 onPressed: () async {
                                   if (!_cameraController!
                                       .value.isTakingPicture) {
