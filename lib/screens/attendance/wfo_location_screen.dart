@@ -173,7 +173,7 @@ class _WFOLocationScreenState extends State<WFOLocationScreen> {
     LatLng currentLatLng;
     return Scaffold(
         appBar: AppBar(
-            title: const Text('Location').tr(),
+            title: const Text('Location'),
             centerTitle: true,
             backgroundColor: const Color(primaryYellow),
             leading: IconButton(

@@ -234,12 +234,13 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
                   side: const BorderSide(color: Color(primaryYellow))),
               onPressed: () {
                 print('home');
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                        builder: (ctx) => const WFHLocationScreen(
-                            workLocation: 'Home', attendanceType: 'Check-In')),
-                    (route) => false);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (ctx) => const WFHLocationScreen(
+                        workLocation: 'Home', attendanceType: 'Check-In'),
+                  ),
+                );
               },
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -261,12 +262,13 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
             style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Color(primaryYellow))),
             onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                      builder: (ctx) =>
-                          const WFOLocationNewScreen(workLocation: 'Office')),
-                  (route) => false);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (ctx) =>
+                      const WFOLocationNewScreen(workLocation: 'Office'),
+                ),
+              );
             },
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -289,12 +291,13 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
               style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Color(primaryYellow))),
               onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                        builder: (ctx) => const TripLocationScreen(
-                            workLocation: 'Trip', attendanceType: 'Check-In')),
-                    (route) => false);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (ctx) => const TripLocationScreen(
+                        workLocation: 'Trip', attendanceType: 'Check-In'),
+                  ),
+                );
               },
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -323,12 +326,13 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
             style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Color(primaryYellow))),
             onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                      builder: (ctx) => const CheckoutLocationScreen(
-                          attendanceType: 'Check-Out')),
-                  (route) => false);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (ctx) =>
+                      const CheckoutLocationScreen(attendanceType: 'Check-Out'),
+                ),
+              );
             },
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
