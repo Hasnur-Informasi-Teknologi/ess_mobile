@@ -67,6 +67,7 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
           },
         );
         final responseData = jsonDecode(response.body);
+        print(responseData);
         final responseDataApi = responseData["data"][0]["toleransiin"];
 
         setState(() {
@@ -159,82 +160,104 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
             _showErrorDialog('Confidence Data Kurang dari 50%!');
           } else {
             // proses absen
-            print('succes1');
             _cameraController!.dispose();
-            print('succes2');
             var clockInTime = attendanceData['clock_in_time'] ?? '';
-            var clockOutTime = attendanceData['clock_out_time'] ?? '';
             var workingLocation = attendanceData['working_location'] ?? '';
-            //Mengambil jam only
             String dateString = clockInTime.toString();
             String clockInTimeOnly = dateString.substring(11, 19);
-            List<String>? clockInToleransiParts;
-            clockInToleransiParts = clockInToleransi!.split(':');
             List<String> timeParts = clockInTimeOnly.split(':');
-            // Mendapatkan nilai jam, menit, dan detik
             int timeHour = int.parse(timeParts[0]);
             int timeMinute = int.parse(timeParts[1]);
             int timeSecond = int.parse(timeParts[2]);
-            int clockInToleransiHour = int.parse(clockInToleransiParts[0]);
-            int clockInToleransiMinute = int.parse(clockInToleransiParts[1]);
-            int clockInToleransiSecond = int.parse(clockInToleransiParts[2]);
 
-            print(widget.clockInType);
+            List<String>? clockInToleransiParts;
+
             if (widget.clockInType == 'In') {
-              print('In');
-              // Membandingkan hanya jam, menit, dan detik
-              if (timeHour > clockInToleransiHour ||
-                  (timeHour == clockInToleransiHour &&
-                      timeMinute > clockInToleransiMinute) ||
-                  (timeHour == clockInToleransiHour &&
-                      timeMinute == clockInToleransiMinute &&
-                      timeSecond > clockInToleransiSecond)) {
-                // Kalau Terlambat
+              if (clockInToleransi != null) {
+                clockInToleransiParts = clockInToleransi!.split(':');
+                // Membandingkan hanya jam, menit, dan detik
+                int clockInToleransiHour = int.parse(clockInToleransiParts[0]);
+                int clockInToleransiMinute =
+                    int.parse(clockInToleransiParts[1]);
+                int clockInToleransiSecond =
+                    int.parse(clockInToleransiParts[2]);
 
-                Map<String, dynamic> newData = {
-                  "nrp": nrp,
-                  "lat": lat,
-                  "long": long,
-                  "clock_time": clockInTime,
-                  "working_location": workingLocation,
-                  "address": alamat.toString(),
-                  "image": imageFile,
-                };
+                if (timeHour > clockInToleransiHour ||
+                    (timeHour == clockInToleransiHour &&
+                        timeMinute > clockInToleransiMinute) ||
+                    (timeHour == clockInToleransiHour &&
+                        timeMinute == clockInToleransiMinute &&
+                        timeSecond > clockInToleransiSecond)) {
+                  // Kalau Terlambat
 
-                _cameraController!.dispose();
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (ctx) => LateModalDialog(newData: newData)));
-                setState(() {
-                  _camera = false;
-                });
+                  Map<String, dynamic> newData = {
+                    "nrp": nrp,
+                    "lat": lat,
+                    "long": long,
+                    "clock_time": clockInTime,
+                    "working_location": workingLocation,
+                    "address": alamat.toString(),
+                    "image": imageFile,
+                  };
+
+                  _cameraController!.dispose();
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (ctx) => LateModalDialog(newData: newData)));
+                  setState(() {
+                    _camera = false;
+                  });
+                } else {
+                  // Kalau Ontime
+                  final ioClient = createIOClientWithInsecureConnection();
+                  var request =
+                      http.MultipartRequest('POST', Uri.parse('$_apiUrl/absen'))
+                        ..headers.addAll(headers)
+                        ..fields['nrp'] = nrp
+                        ..fields['lat'] = lat
+                        ..fields['long'] = long
+                        ..fields['clock_time'] = clockInTime
+                        ..fields['working_location'] = workingLocation
+                        ..fields['address'] = alamat.toString();
+
+                  var streamedResponse = await ioClient.send(request);
+                  final responseData =
+                      await streamedResponse.stream.bytesToString();
+                  final responseDataMessage = json.decode(responseData);
+                  print(responseDataMessage);
+                  _cameraController!.dispose();
+
+                  Get.snackbar('Infomation', responseDataMessage['message'],
+                      snackPosition: SnackPosition.TOP,
+                      backgroundColor: Colors.amber,
+                      icon: const Icon(
+                        Icons.info,
+                        color: Colors.white,
+                      ),
+                      shouldIconPulse: false);
+                  setState(() {
+                    _isLoading = false;
+                  });
+                  if (responseDataMessage['message'] == 'Success') {
+                    Get.offAllNamed('/user/main');
+                  }
+                }
               } else {
-                // Kalau Ontime
-                final ioClient = createIOClientWithInsecureConnection();
-                var request =
-                    http.MultipartRequest('POST', Uri.parse('$_apiUrl/absen'))
-                      ..headers.addAll(headers)
-                      ..fields['nrp'] = nrp
-                      ..fields['lat'] = lat
-                      ..fields['long'] = long
-                      ..fields['clock_time'] = clockInTime
-                      ..fields['working_location'] = workingLocation
-                      ..fields['address'] = alamat.toString();
-
-                var streamedResponse = await ioClient.send(request);
-                final responseData =
-                    await streamedResponse.stream.bytesToString();
-                final responseDataMessage = json.decode(responseData);
-                print(responseDataMessage);
                 _cameraController!.dispose();
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (ctx) => const MainScreenWithAnimation()));
+                Get.snackbar('Infomation', 'Toleransi Masuk Tidak Di temukan',
+                    snackPosition: SnackPosition.TOP,
+                    backgroundColor: Colors.amber,
+                    icon: const Icon(
+                      Icons.info,
+                      color: Colors.white,
+                    ),
+                    shouldIconPulse: false);
                 setState(() {
+                  _isLoading = false;
                   _camera = false;
                 });
+                Get.offAllNamed('/user/main');
               }
             } else {
               print('out');
@@ -250,16 +273,28 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
                     ..fields['address'] = alamat.toString();
 
               var streamedResponse = await ioClient.send(request);
-              await streamedResponse.stream.bytesToString();
+              final responseData =
+                  await streamedResponse.stream.bytesToString();
+
+              final responseDataMessage = json.decode(responseData);
+              print(responseDataMessage);
 
               _cameraController!.dispose();
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (ctx) => const MainScreenWithAnimation()));
+
+              Get.snackbar('Infomation', responseDataMessage['message'],
+                  snackPosition: SnackPosition.TOP,
+                  backgroundColor: Colors.amber,
+                  icon: const Icon(
+                    Icons.info,
+                    color: Colors.white,
+                  ),
+                  shouldIconPulse: false);
               setState(() {
-                _camera = false;
+                _isLoading = false;
               });
+              if (responseDataMessage['message'] == 'Success') {
+                Get.offAllNamed('/user/main');
+              }
             }
           }
         }
