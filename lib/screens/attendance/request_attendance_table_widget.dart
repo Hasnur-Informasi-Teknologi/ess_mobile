@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -53,6 +54,14 @@ class _RequestAttendanceTableWidgetState
     }
   }
 
+  String formatDate(String dateStr) {
+    DateTime date = DateTime.parse(dateStr);
+
+    String formattedDate = DateFormat('dd/MM/yyyy').format(date);
+
+    return formattedDate;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -97,7 +106,8 @@ class _RequestAttendanceTableWidgetState
                               width: size.width * 1 / 7,
                               padding: EdgeInsets.all(padding5),
                               child: Text(
-                                '${masterDataAttendance[index]['in_date']}',
+                                formatDate(
+                                    masterDataAttendance[index]['in_date']),
                                 style: TextStyle(
                                   color: Colors.grey[700],
                                   fontSize: textSmall,

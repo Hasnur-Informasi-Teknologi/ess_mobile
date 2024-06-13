@@ -456,8 +456,7 @@ class _FormRencanaBiayaPerjalananDinasState
 
       if (responseDataMessage['status'] == 'success') {
         formDataList.clear();
-        Get.offAllNamed(
-            '/user/main/home/online_form/pengajuan_perjalanan_dinas');
+        Get.offAllNamed('/user/main');
       }
     } catch (e) {
       debugPrint('Error: $e');
@@ -1536,6 +1535,7 @@ class _FormRencanaBiayaPerjalananDinasState
     double paddingHorizontalWide = size.width * 0.0585;
     double padding5 = size.width * 0.0115;
     double padding10 = size.width * 0.023;
+    double textLarge = size.width * 0.04;
 
     return _isLoading
         ? const Scaffold(body: Center(child: CircularProgressIndicator()))
@@ -1551,8 +1551,14 @@ class _FormRencanaBiayaPerjalananDinasState
                   Get.back();
                 },
               ),
-              title: const Text(
+              title: Text(
                 'Form Internal Memo',
+                style: TextStyle(
+                    color: const Color(primaryBlack),
+                    fontSize: textLarge,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w500),
               ),
             ),
             body: ListView(

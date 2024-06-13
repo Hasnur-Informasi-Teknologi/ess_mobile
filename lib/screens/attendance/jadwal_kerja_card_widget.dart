@@ -49,22 +49,20 @@ class _JadwalKerjaCardWidgetState extends State<JadwalKerjaCardWidget> {
         );
         // final responseData = jsonDecode(response.body);
 
-        print(response.body);
-        print(response.statusCode);
-
         if (response.statusCode == 200) {
           final responseData = jsonDecode(response.body);
-          print(responseData);
           x.date.value = List.from(responseData['data'].reversed);
-          x.bulan.value = x.date[0]['attendance_month'].toString();
-          x.jam_masuk.value = x.date[0]['clock_in_time'] ?? '-';
-          x.jam_keluar.value = x.date[0]['clock_out_time'] ?? '-';
-          x.status.value = x.date[0]['clock_in_status'] ?? '-';
-          x.sistem_kerja.value = x.date[0]['working_location_status'] ?? '-';
 
           if (x.date.isNotEmpty) {
             x.index.value = x.date.length - 1;
           }
+          x.bulan.value = x.date[x.index.value]['attendance_month'].toString();
+          x.jam_masuk.value = x.date[x.index.value]['clock_in_time'] ?? '-';
+          x.jam_keluar.value = x.date[x.index.value]['clock_out_time'] ?? '-';
+          x.status.value = x.date[x.index.value]['clock_in_status'] ?? '-';
+          x.sistem_kerja.value =
+              x.date[x.index.value]['working_location_status'] ?? '-';
+
           // Process the response data
         } else {
           throw Exception('Failed to load data');

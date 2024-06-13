@@ -93,9 +93,7 @@ class _LateModalDialogState extends State<LateModalDialog> {
     setState(() {
       _isLoading = false;
     });
-    if (responseDataMessage['message'] == 'Success') {
-      Get.offAllNamed('/user/main');
-    }
+    Get.offAllNamed('/user/main');
   }
 
   Future<File> _compressImage(File imageFile) async {

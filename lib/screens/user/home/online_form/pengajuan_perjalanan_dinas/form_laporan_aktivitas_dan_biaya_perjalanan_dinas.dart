@@ -755,8 +755,7 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
       if (responseDataMessage['status'] == 'success') {
         activitiesReport.clear();
         costReport.clear();
-        Get.offAllNamed(
-            '/user/main/home/online_form/pengajuan_perjalanan_dinas');
+        Get.offAllNamed('/user/main');
       }
     } catch (e) {
       debugPrint('Error: $e');
@@ -780,6 +779,7 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
     double paddingHorizontalWide = size.width * 0.0585;
     double padding5 = size.width * 0.0115;
     double padding10 = size.width * 0.023;
+    double textLarge = size.width * 0.04;
 
     // Single Field Validation
     String? validateField(String? value, String fieldName) {
@@ -910,8 +910,14 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Get.back();
                 },
               ),
-              title: const Text(
+              title: Text(
                 'Laporan Aktivitas & Biaya Perjalanan Dinas',
+                style: TextStyle(
+                    color: const Color(primaryBlack),
+                    fontSize: textLarge,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w500),
               ),
             ),
             body: ListView(

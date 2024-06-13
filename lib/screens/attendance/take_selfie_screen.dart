@@ -44,6 +44,7 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
   bool _isLoading = false;
   String? alamat;
   String? clockInToleransi;
+  String? workSchedule;
 
   @override
   void initState() {
@@ -68,11 +69,16 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
         );
         final responseData = jsonDecode(response.body);
         print(responseData);
-        final responseDataApi = responseData["data"][0]["toleransiin"];
-
-        setState(() {
-          clockInToleransi = responseDataApi;
-        });
+        if (responseData["data"] != null) {
+          final responseDataApi = responseData["data"]["toleransiin"];
+          print(responseDataApi);
+          setState(() {
+            clockInToleransi = responseDataApi;
+            workSchedule = 'Ada Work Schedule';
+          });
+        } else {
+          print('Data is empty');
+        }
       } catch (e) {
         print(e);
       }
@@ -173,85 +179,102 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
             List<String>? clockInToleransiParts;
 
             if (widget.clockInType == 'In') {
-              if (clockInToleransi != null) {
-                clockInToleransiParts = clockInToleransi!.split(':');
-                // Membandingkan hanya jam, menit, dan detik
-                int clockInToleransiHour = int.parse(clockInToleransiParts[0]);
-                int clockInToleransiMinute =
-                    int.parse(clockInToleransiParts[1]);
-                int clockInToleransiSecond =
-                    int.parse(clockInToleransiParts[2]);
+              if (workSchedule != null) {
+                if (clockInToleransi != null) {
+                  clockInToleransiParts = clockInToleransi!.split(':');
+                  // Membandingkan hanya jam, menit, dan detik
+                  int clockInToleransiHour =
+                      int.parse(clockInToleransiParts[0]);
+                  int clockInToleransiMinute =
+                      int.parse(clockInToleransiParts[1]);
+                  int clockInToleransiSecond =
+                      int.parse(clockInToleransiParts[2]);
 
-                if (timeHour > clockInToleransiHour ||
-                    (timeHour == clockInToleransiHour &&
-                        timeMinute > clockInToleransiMinute) ||
-                    (timeHour == clockInToleransiHour &&
-                        timeMinute == clockInToleransiMinute &&
-                        timeSecond > clockInToleransiSecond)) {
-                  // Kalau Terlambat
+                  if (timeHour > clockInToleransiHour ||
+                      (timeHour == clockInToleransiHour &&
+                          timeMinute > clockInToleransiMinute) ||
+                      (timeHour == clockInToleransiHour &&
+                          timeMinute == clockInToleransiMinute &&
+                          timeSecond > clockInToleransiSecond)) {
+                    // Kalau Terlambat
 
-                  Map<String, dynamic> newData = {
-                    "nrp": nrp,
-                    "lat": lat,
-                    "long": long,
-                    "clock_time": clockInTime,
-                    "working_location": workingLocation,
-                    "address": alamat.toString(),
-                    "image": imageFile,
-                  };
+                    Map<String, dynamic> newData = {
+                      "nrp": nrp,
+                      "lat": lat,
+                      "long": long,
+                      "clock_time": clockInTime,
+                      "working_location": workingLocation,
+                      "address": alamat.toString(),
+                      "image": imageFile,
+                    };
 
-                  _cameraController!.dispose();
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (ctx) => LateModalDialog(newData: newData)));
-                  setState(() {
-                    _camera = false;
-                  });
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (ctx) =>
+                                LateModalDialog(newData: newData)));
+                    setState(() {
+                      _camera = false;
+                    });
+                  } else {
+                    // Kalau Ontime
+                    final ioClient = createIOClientWithInsecureConnection();
+                    var request = http.MultipartRequest(
+                        'POST', Uri.parse('$_apiUrl/absen'))
+                      ..headers.addAll(headers)
+                      ..fields['nrp'] = nrp
+                      ..fields['lat'] = lat
+                      ..fields['long'] = long
+                      ..fields['clock_time'] = clockInTime
+                      ..fields['working_location'] = workingLocation
+                      ..fields['address'] = alamat.toString();
+
+                    var streamedResponse = await ioClient.send(request);
+                    final responseData =
+                        await streamedResponse.stream.bytesToString();
+                    final responseDataMessage = json.decode(responseData);
+                    print(responseDataMessage);
+
+                    Get.snackbar('Infomation', responseDataMessage['message'],
+                        snackPosition: SnackPosition.TOP,
+                        backgroundColor: Colors.amber,
+                        icon: const Icon(
+                          Icons.info,
+                          color: Colors.white,
+                        ),
+                        shouldIconPulse: false);
+                    setState(() {
+                      _isLoading = false;
+                    });
+                    Get.offAllNamed('/user/main');
+                  }
                 } else {
-                  // Kalau Ontime
-                  final ioClient = createIOClientWithInsecureConnection();
-                  var request =
-                      http.MultipartRequest('POST', Uri.parse('$_apiUrl/absen'))
-                        ..headers.addAll(headers)
-                        ..fields['nrp'] = nrp
-                        ..fields['lat'] = lat
-                        ..fields['long'] = long
-                        ..fields['clock_time'] = clockInTime
-                        ..fields['working_location'] = workingLocation
-                        ..fields['address'] = alamat.toString();
-
-                  var streamedResponse = await ioClient.send(request);
-                  final responseData =
-                      await streamedResponse.stream.bytesToString();
-                  final responseDataMessage = json.decode(responseData);
-                  print(responseDataMessage);
-                  _cameraController!.dispose();
-
-                  Get.snackbar('Infomation', responseDataMessage['message'],
+                  Get.snackbar('Warning', 'Toleransi Masuk Tidak Di temukan',
                       snackPosition: SnackPosition.TOP,
-                      backgroundColor: Colors.amber,
+                      backgroundColor: Colors.red,
                       icon: const Icon(
                         Icons.info,
                         color: Colors.white,
                       ),
+                      colorText: Colors.white,
+                      duration: Duration(seconds: 15),
                       shouldIconPulse: false);
                   setState(() {
                     _isLoading = false;
+                    _camera = false;
                   });
-                  if (responseDataMessage['message'] == 'Success') {
-                    Get.offAllNamed('/user/main');
-                  }
+                  Get.offAllNamed('/user/main');
                 }
               } else {
-                _cameraController!.dispose();
-                Get.snackbar('Infomation', 'Toleransi Masuk Tidak Di temukan',
+                Get.snackbar('Warning', 'Work Schedule Tidak Di temukan',
                     snackPosition: SnackPosition.TOP,
-                    backgroundColor: Colors.amber,
+                    backgroundColor: Colors.red,
                     icon: const Icon(
                       Icons.info,
                       color: Colors.white,
                     ),
+                    colorText: Colors.white,
+                    duration: Duration(seconds: 15),
                     shouldIconPulse: false);
                 setState(() {
                   _isLoading = false;
@@ -279,8 +302,6 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
               final responseDataMessage = json.decode(responseData);
               print(responseDataMessage);
 
-              _cameraController!.dispose();
-
               Get.snackbar('Infomation', responseDataMessage['message'],
                   snackPosition: SnackPosition.TOP,
                   backgroundColor: Colors.amber,
@@ -292,9 +313,7 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
               setState(() {
                 _isLoading = false;
               });
-              if (responseDataMessage['message'] == 'Success') {
-                Get.offAllNamed('/user/main');
-              }
+              Get.offAllNamed('/user/main');
             }
           }
         }

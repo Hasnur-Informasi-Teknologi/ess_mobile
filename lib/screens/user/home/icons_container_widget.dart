@@ -168,37 +168,37 @@ class _IconsContainerWidgetState extends State<IconsContainerWidget> {
         Get.toNamed('/user/main/home/online_form');
         break;
       case 1:
-        Get.snackbar('Infomation', 'Coming Soon',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.amber,
-            icon: const Icon(
-              Icons.info,
-              color: Colors.white,
-            ),
-            shouldIconPulse: false);
-        // Get.toNamed('/user/main/home/documents');
+        Get.toNamed('/user/main/home/documents');
+        // Get.snackbar('Infomation', 'Coming Soon',
+        //     snackPosition: SnackPosition.TOP,
+        //     backgroundColor: Colors.amber,
+        //     icon: const Icon(
+        //       Icons.info,
+        //       color: Colors.white,
+        //     ),
+        //     shouldIconPulse: false);
         break;
       case 2:
-        Get.snackbar('Infomation', 'Coming Soon',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.amber,
-            icon: const Icon(
-              Icons.info,
-              color: Colors.white,
-            ),
-            shouldIconPulse: false);
-        // Get.toNamed('/user/main/home/transactions');
+        Get.toNamed('/user/main/home/transactions');
+        // Get.snackbar('Infomation', 'Coming Soon',
+        //     snackPosition: SnackPosition.TOP,
+        //     backgroundColor: Colors.amber,
+        //     icon: const Icon(
+        //       Icons.info,
+        //       color: Colors.white,
+        //     ),
+        //     shouldIconPulse: false);
         break;
       case 3:
-        Get.snackbar('Infomation', 'Coming Soon',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.amber,
-            icon: const Icon(
-              Icons.info,
-              color: Colors.white,
-            ),
-            shouldIconPulse: false);
         // Get.toNamed('/admin/karyawan');
+        // Get.snackbar('Infomation', 'Coming Soon',
+        //     snackPosition: SnackPosition.TOP,
+        //     backgroundColor: Colors.amber,
+        //     icon: const Icon(
+        //       Icons.info,
+        //       color: Colors.white,
+        //     ),
+        //     shouldIconPulse: false);
         break;
       case 4:
         return print('Documents');
