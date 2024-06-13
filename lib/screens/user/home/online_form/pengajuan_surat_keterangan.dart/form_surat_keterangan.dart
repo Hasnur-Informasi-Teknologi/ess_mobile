@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
@@ -78,7 +79,8 @@ class _FormSuratKeteranganState extends State<FormSuratKeterangan> {
       });
 
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse("$apiUrl/rencana-perdin/master_data"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -111,7 +113,8 @@ class _FormSuratKeteranganState extends State<FormSuratKeterangan> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse("$apiUrl/master/profile/get_employee"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -146,7 +149,8 @@ class _FormSuratKeteranganState extends State<FormSuratKeterangan> {
       });
 
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse("$apiUrl/master/daftar_karyawan?entitas=$entitasCode"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -180,7 +184,8 @@ class _FormSuratKeteranganState extends State<FormSuratKeterangan> {
       });
 
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse("$apiUrl/master/daftar_karyawan?entitas=$entitasCode"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -216,6 +221,7 @@ class _FormSuratKeteranganState extends State<FormSuratKeterangan> {
       return;
     }
 
+    final ioClient = createIOClientWithInsecureConnection();
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('$apiUrl/surat-keterangan/add'),
@@ -245,8 +251,8 @@ class _FormSuratKeteranganState extends State<FormSuratKeterangan> {
     debugPrint('Body: ${request.fields}');
 
     try {
-      var response = await request.send();
-      final responseData = await response.stream.bytesToString();
+      var streamedResponse = await ioClient.send(request);
+      final responseData = await streamedResponse.stream.bytesToString();
       final responseDataMessage = json.decode(responseData);
 
       Get.snackbar('Information', responseDataMessage['message'],
@@ -282,6 +288,7 @@ class _FormSuratKeteranganState extends State<FormSuratKeterangan> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightShort = size.height * 0.0086;
     double paddingHorizontalNarrow = size.width * 0.035;
@@ -656,8 +663,14 @@ class _FormSuratKeteranganState extends State<FormSuratKeterangan> {
                   Get.back();
                 },
               ),
-              title: const Text(
+              title: Text(
                 'Surat Keterangan',
+                style: TextStyle(
+                    color: const Color(primaryBlack),
+                    fontSize: textLarge,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w500),
               ),
             ),
             body: ListView(

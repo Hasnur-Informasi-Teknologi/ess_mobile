@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/row_widget.dart';
@@ -36,27 +37,40 @@ class _JadwalKerjaCardWidgetState extends State<JadwalKerjaCardWidget> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
+    final nrp = karyawan['pernr'];
     if (token != null) {
       try {
-        final response = await http.get(
-          Uri.parse('$_apiUrl/attendance_report/' + karyawan['pernr']),
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
+          Uri.parse('$_apiUrl/attendance_report/$nrp'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
         );
-        final responseData = jsonDecode(response.body);
+        // final responseData = jsonDecode(response.body);
+
+        if (response.statusCode == 200) {
+          final responseData = jsonDecode(response.body);
+          x.date.value = List.from(responseData['data'].reversed);
+
+          if (x.date.isNotEmpty) {
+            x.index.value = x.date.length - 1;
+          }
+          x.bulan.value = x.date[x.index.value]['attendance_month'].toString();
+          x.jam_masuk.value = x.date[x.index.value]['clock_in_time'] ?? '-';
+          x.jam_keluar.value = x.date[x.index.value]['clock_out_time'] ?? '-';
+          x.status.value = x.date[x.index.value]['clock_in_status'] ?? '-';
+          x.sistem_kerja.value =
+              x.date[x.index.value]['working_location_status'] ?? '-';
+
+          // Process the response data
+        } else {
+          throw Exception('Failed to load data');
+        }
+
+        // print(responseData.printError());
 
         // x.date.value = responseData['data'];
-        x.date.value = List.from(responseData['data'].reversed);
-        x.bulan.value = x.date[0]['attendance_month'].toString();
-        x.jam_masuk.value = x.date[0]['clock_in_time'] ?? '-';
-        x.jam_keluar.value = x.date[0]['clock_out_time'] ?? '-';
-        x.status.value = x.date[0]['clock_in_status'] ?? '-';
-        x.sistem_kerja.value = x.date[0]['working_location_status'] ?? '-';
-
-        if (x.date.isNotEmpty) {
-          x.index.value = x.date.length - 1;
-        }
       } catch (e) {
         print(e);
       }

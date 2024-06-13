@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
@@ -84,7 +85,9 @@ class _PicHrgsState extends State<PicHrgs> {
     // Fetch all data without limiting rows per page
     if (pageIndex == null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
           Uri.parse(
               '$apiUrl/master/hrgs/get?page=1&perPage=999999999&search=$searchQuery'),
           headers: <String, String>{
@@ -117,7 +120,9 @@ class _PicHrgsState extends State<PicHrgs> {
 
     // Continue with the current fetch implementation
     try {
-      final response = await http.get(
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response = await ioClient.get(
         Uri.parse(
             '$apiUrl/master/hrgs/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
         headers: <String, String>{
@@ -168,7 +173,9 @@ class _PicHrgsState extends State<PicHrgs> {
     });
 
     try {
-      final response = await http.get(
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response = await ioClient.get(
         Uri.parse('$apiUrl/master/entitas'),
         headers: <String, String>{
           'Content-Type': 'application/json;charset=UTF-8',
@@ -207,7 +214,9 @@ class _PicHrgsState extends State<PicHrgs> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
           Uri.parse('$apiUrl/master/hrgs/get_entitas?id=$id'),
           headers: <String, String>{
             'Content-Type': 'application/json;charset=UTF-8',
@@ -231,8 +240,10 @@ class _PicHrgsState extends State<PicHrgs> {
 
     if (token != null) {
       try {
+        final ioClient = createIOClientWithInsecureConnection();
+
         final response =
-            await http.post(Uri.parse('$apiUrl/master/hrgs/delete'),
+            await ioClient.post(Uri.parse('$apiUrl/master/hrgs/delete'),
                 headers: <String, String>{
                   'Content-Type': 'application/json;charset=UTF-8',
                   'Authorization': 'Bearer $token'
@@ -532,7 +543,9 @@ class _PicHrgsState extends State<PicHrgs> {
         'selectedItems': textFieldValueSelectedEntitas,
       });
 
-      final response = await http.post(
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response = await ioClient.post(
         Uri.parse('$apiUrl/master/hrgs/update'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -593,7 +606,9 @@ class _PicHrgsState extends State<PicHrgs> {
       _formKey.currentState!.save();
 
       try {
-        final response = await http.post(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.post(
           Uri.parse('$apiUrl/master/hrgs/add'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',

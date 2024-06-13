@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
@@ -112,7 +113,8 @@ class _FormAplikasiTrainingScreenState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse("$apiUrl/master/profile/get_all_pengajuan"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -216,7 +218,8 @@ class _FormAplikasiTrainingScreenState
       });
 
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse(
                 "$apiUrl/karyawan/dept-head?atasan=05&entitas=$entitasCode"),
             headers: <String, String>{
@@ -252,7 +255,8 @@ class _FormAplikasiTrainingScreenState
       });
 
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse("$apiUrl/master/hrgs/pic?entitas=$entitasCode"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -286,7 +290,8 @@ class _FormAplikasiTrainingScreenState
       });
 
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse(
                 "$apiUrl/karyawan/dept-head?atasan=11&entitas=$entitasCode"),
             headers: <String, String>{
@@ -471,13 +476,14 @@ class _FormAplikasiTrainingScreenState
     debugPrint('Request: ${request.files}');
 
     try {
-      var response = await request.send();
-      final responseData = await response.stream.bytesToString();
+      final ioClient = createIOClientWithInsecureConnection();
+      var streamedResponse = await ioClient.send(request);
+      final responseData = await streamedResponse.stream.bytesToString();
       final responseDataMessage = json.decode(responseData);
 
       debugPrint('Response: $responseDataMessage');
 
-      if (response.statusCode == 200) {
+      if (streamedResponse.statusCode == 200) {
         Get.snackbar('Information', responseDataMessage['message'],
             snackPosition: SnackPosition.TOP,
             backgroundColor: Colors.amber,
@@ -513,6 +519,7 @@ class _FormAplikasiTrainingScreenState
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double sizedBoxHeightShort = size.height * 0.0086;
@@ -1253,8 +1260,14 @@ class _FormAplikasiTrainingScreenState
                     Get.back();
                   },
                 ),
-                title: const Text(
+                title: Text(
                   'Form Aplikasi Training',
+                  style: TextStyle(
+                      color: const Color(primaryBlack),
+                      fontSize: textLarge,
+                      fontFamily: 'Poppins',
+                      letterSpacing: 0.6,
+                      fontWeight: FontWeight.w500),
                 ),
               ),
               body: ListView(

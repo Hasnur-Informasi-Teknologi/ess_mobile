@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/screens/user/home/home_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen.dart';
@@ -166,7 +167,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     ;
     var datanya = jsonEncode(data);
     try {
-      final response = await http.post(
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response = await ioClient.post(
           Uri.parse('$_apiUrl/edit_data_karyawan/' + user['pernr']),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
@@ -174,9 +177,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           },
           body: datanya);
       final responseData = jsonDecode(response.body);
-      print(responseData);
 
-      final user2 = await http.get(
+      final user2 = await ioClient.get(
         Uri.parse('$_apiUrl/get_profile_employee?nrp=' + user['pernr']),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',

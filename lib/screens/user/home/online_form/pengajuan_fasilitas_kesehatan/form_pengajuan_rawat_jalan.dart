@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_fasilitas_kesehatan/form_detail_pengajuan_rawat_jalan.dart';
 import 'package:mobile_ess/themes/constant.dart';
@@ -155,7 +156,9 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
 
     if (token != null) {
       try {
-        final response = await http.get(Uri.parse("$_apiUrl/master/entitas"),
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
+            Uri.parse("$_apiUrl/master/entitas"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
@@ -181,7 +184,8 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/master/cuti/atasan?entitas=$selectedValueEntitas"),
             headers: <String, String>{
@@ -206,7 +210,8 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/karyawan/dept-head?atasan=06&entitas=$selectedValueEntitasHrgs"),
             headers: <String, String>{
@@ -231,7 +236,8 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/karyawan/dept-head?atasan=11&entitas=$selectedValueEntitasKeuangan"),
             headers: <String, String>{
@@ -300,6 +306,7 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
     }
 
     File file = File(filePath!);
+    final ioClient = createIOClientWithInsecureConnection();
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('$_apiUrl/rawat/jalan/create'),
@@ -344,8 +351,8 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
       request.fields['detail[$i][keterangan]'] = allData[i]['keterangan'];
     }
 
-    var response = await request.send();
-    final responseData = await response.stream.bytesToString();
+    var streamedResponse = await ioClient.send(request);
+    final responseData = await streamedResponse.stream.bytesToString();
     final responseDataMessage = json.decode(responseData);
     Get.snackbar('Infomation', responseDataMessage['message'],
         snackPosition: SnackPosition.TOP,
@@ -368,6 +375,13 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
       });
       Get.offAllNamed('/user/main');
     }
+  }
+
+  void deleteFile(PlatformFile file) {
+    setState(() {
+      _files?.remove(file);
+      _isFileNull = _files?.isEmpty ?? true;
+    });
   }
 
   String? _validatorEntitas(dynamic value) {
@@ -1160,6 +1174,13 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                                 children: _files!.map((file) {
                                   return ListTile(
                                     title: Text(file.name),
+                                    trailing: IconButton(
+                                      icon: const Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () => deleteFile(file),
+                                    ),
                                     // subtitle: Text('${file.size} bytes'),
                                   );
                                 }).toList(),
@@ -1188,7 +1209,7 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                             horizontal: paddingHorizontalWide),
                         child: TitleWidget(
                           title: 'Diajukan Kepada',
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w700,
                           fontSize: textMedium,
                         ),
                       ),

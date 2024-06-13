@@ -15,10 +15,10 @@ class ErrorDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text(
-        'errorDialogTitle',
+        'Warning',
         textAlign: TextAlign.center,
         style: TextStyle(fontWeight: FontWeight.w500),
-      ).tr(),
+      ),
       content: SizedBox(
           width: MediaQuery.of(context).size.width,
           child: Text(

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
@@ -71,7 +72,9 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
     });
 
     try {
-      final response = await http.get(
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response = await ioClient.get(
         Uri.parse(
             '$apiUrl/master/makan-dalam/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
         headers: <String, String>{
@@ -144,7 +147,9 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse("$apiUrl/master/makan-dalam/jp"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -285,7 +290,9 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
             : DateTime.now().toString(),
       };
       try {
-        final response = await http.post(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.post(
           Uri.parse('$apiUrl/master/makan-dalam/add'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
@@ -973,13 +980,15 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
       String? token = prefs.getString('token');
       if (token != null) {
         try {
-          final response =
-              await http.post(Uri.parse("$apiUrl/master/makan-dalam/delete"),
-                  headers: <String, String>{
-                    'Content-Type': 'application/json;charset=UTF-8',
-                    'Authorization': 'Bearer $token'
-                  },
-                  body: jsonEncode({'id': id}));
+          final ioClient = createIOClientWithInsecureConnection();
+
+          final response = await ioClient.post(
+              Uri.parse("$apiUrl/master/makan-dalam/delete"),
+              headers: <String, String>{
+                'Content-Type': 'application/json;charset=UTF-8',
+                'Authorization': 'Bearer $token'
+              },
+              body: jsonEncode({'id': id}));
           final responseData = jsonDecode(response.body);
           Get.snackbar('Infomation', responseData['message'],
               snackPosition: SnackPosition.TOP,
@@ -1035,7 +1044,9 @@ class _UangMakanDalamNegeriState extends State<UangMakanDalamNegeri> {
         'tgl_berakhir': valueTglBerakhir
       };
       try {
-        final response = await http.post(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.post(
           Uri.parse('$apiUrl/master/makan-dalam/update'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',

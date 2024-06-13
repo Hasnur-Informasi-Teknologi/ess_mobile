@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
@@ -226,7 +227,8 @@ class _FormRencanaBiayaPerjalananDinasState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse("$apiUrl/rencana-perdin/master_data"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -275,7 +277,8 @@ class _FormRencanaBiayaPerjalananDinasState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse("$apiUrl/master/profile/get_employee"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -306,7 +309,8 @@ class _FormRencanaBiayaPerjalananDinasState
       });
 
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse("$apiUrl/master/daftar_karyawan?entitas=$entitasCode"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -340,7 +344,8 @@ class _FormRencanaBiayaPerjalananDinasState
       });
 
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse("$apiUrl/master/daftar_karyawan?entitas=$entitasCode"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -377,6 +382,7 @@ class _FormRencanaBiayaPerjalananDinasState
       return;
     }
 
+    final ioClient = createIOClientWithInsecureConnection();
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('$apiUrl/rencana-perdin/add'),
@@ -435,8 +441,8 @@ class _FormRencanaBiayaPerjalananDinasState
     debugPrint('Body: ${request.fields}');
 
     try {
-      var response = await request.send();
-      final responseData = await response.stream.bytesToString();
+      var streamedResponse = await ioClient.send(request);
+      final responseData = await streamedResponse.stream.bytesToString();
       final responseDataMessage = json.decode(responseData);
 
       Get.snackbar('Information', responseDataMessage['message'],
@@ -450,8 +456,7 @@ class _FormRencanaBiayaPerjalananDinasState
 
       if (responseDataMessage['status'] == 'success') {
         formDataList.clear();
-        Get.offAllNamed(
-            '/user/main/home/online_form/pengajuan_perjalanan_dinas');
+        Get.offAllNamed('/user/main');
       }
     } catch (e) {
       debugPrint('Error: $e');
@@ -1530,6 +1535,7 @@ class _FormRencanaBiayaPerjalananDinasState
     double paddingHorizontalWide = size.width * 0.0585;
     double padding5 = size.width * 0.0115;
     double padding10 = size.width * 0.023;
+    double textLarge = size.width * 0.04;
 
     return _isLoading
         ? const Scaffold(body: Center(child: CircularProgressIndicator()))
@@ -1545,8 +1551,14 @@ class _FormRencanaBiayaPerjalananDinasState
                   Get.back();
                 },
               ),
-              title: const Text(
+              title: Text(
                 'Form Internal Memo',
+                style: TextStyle(
+                    color: const Color(primaryBlack),
+                    fontSize: textLarge,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w500),
               ),
             ),
             body: ListView(

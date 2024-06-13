@@ -17,7 +17,7 @@ class ErrorDialogWidget extends StatelessWidget {
 
     return AlertDialog(
       title: const Text(
-        'errorDialogTitle',
+        'Peringatan',
         textAlign: TextAlign.center,
         style: TextStyle(fontWeight: FontWeight.w500),
       ),

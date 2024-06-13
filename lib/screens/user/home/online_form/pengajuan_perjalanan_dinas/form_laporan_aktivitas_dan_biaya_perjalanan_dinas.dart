@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
@@ -208,7 +209,8 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
           Uri.parse("$apiUrl/laporan-perdin/get_trip_number"),
           headers: <String, String>{
             'Content-Type': 'application/json;charset=UTF-8',
@@ -246,7 +248,8 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
     if (token != null) {
       try {
         // Make a GET request to the API endpoint
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
           Uri.parse(
               "$apiUrl/laporan-perdin/get_im_perdin?trip_number=$tripNumber"),
           headers: <String, String>{
@@ -644,6 +647,8 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
       return;
     }
 
+    final ioClient = createIOClientWithInsecureConnection();
+
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('$apiUrl/laporan-perdin/add'),
@@ -732,8 +737,8 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
     debugPrint('Body: ${request.fields}');
 
     try {
-      var response = await request.send();
-      final responseData = await response.stream.bytesToString();
+      var streamedResponse = await ioClient.send(request);
+      final responseData = await streamedResponse.stream.bytesToString();
       final responseDataMessage = json.decode(responseData);
       Get.snackbar('Infomation', responseDataMessage['message'],
           snackPosition: SnackPosition.TOP,
@@ -750,8 +755,7 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
       if (responseDataMessage['status'] == 'success') {
         activitiesReport.clear();
         costReport.clear();
-        Get.offAllNamed(
-            '/user/main/home/online_form/pengajuan_perjalanan_dinas');
+        Get.offAllNamed('/user/main');
       }
     } catch (e) {
       debugPrint('Error: $e');
@@ -775,6 +779,7 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
     double paddingHorizontalWide = size.width * 0.0585;
     double padding5 = size.width * 0.0115;
     double padding10 = size.width * 0.023;
+    double textLarge = size.width * 0.04;
 
     // Single Field Validation
     String? validateField(String? value, String fieldName) {
@@ -905,8 +910,14 @@ class _FormLaporanAktivitasDanBiayaPerjalananDinasState
                   Get.back();
                 },
               ),
-              title: const Text(
+              title: Text(
                 'Laporan Aktivitas & Biaya Perjalanan Dinas',
+                style: TextStyle(
+                    color: const Color(primaryBlack),
+                    fontSize: textLarge,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w500),
               ),
             ),
             body: ListView(

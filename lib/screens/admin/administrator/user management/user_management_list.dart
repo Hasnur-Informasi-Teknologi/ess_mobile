@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
@@ -66,7 +67,9 @@ class _UserManagementState extends State<UserManagement> {
     });
 
     try {
-      final response = await http.get(
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response = await ioClient.get(
         Uri.parse(
             '$apiUrl/user-management/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
         headers: <String, String>{
@@ -108,7 +111,9 @@ class _UserManagementState extends State<UserManagement> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse("$apiUrl/user-autorization/get_all"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -303,7 +308,9 @@ class _UserManagementState extends State<UserManagement> {
       _formKey.currentState!.save();
 
       try {
-        final response = await http.post(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.post(
           Uri.parse('$apiUrl/user-management/add'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
@@ -829,7 +836,9 @@ class _UserManagementState extends State<UserManagement> {
       _formKey.currentState!.save();
 
       try {
-        final response = await http.post(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.post(
           Uri.parse('$apiUrl/user-management/update'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
@@ -1413,8 +1422,10 @@ class _UserManagementState extends State<UserManagement> {
       print('ini token :  $token');
       if (token != null) {
         try {
+          final ioClient = createIOClientWithInsecureConnection();
+
           final response =
-              await http.post(Uri.parse("$apiUrl/user-management/delete"),
+              await ioClient.post(Uri.parse("$apiUrl/user-management/delete"),
                   headers: <String, String>{
                     'Content-Type': 'application/json;charset=UTF-8',
                     'Authorization': 'Bearer $token'

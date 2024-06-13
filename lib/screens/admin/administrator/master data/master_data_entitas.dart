@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
@@ -48,7 +49,9 @@ class _EntitasState extends State<Entitas> {
     });
 
     try {
-      final response = await http.get(
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response = await ioClient.get(
         Uri.parse(
             '$apiUrl/master/entity/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
         headers: <String, String>{
@@ -174,7 +177,9 @@ class _EntitasState extends State<Entitas> {
       _formKey.currentState!.save();
 
       try {
-        final response = await http.post(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.post(
           Uri.parse('$apiUrl/master/entity/add'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
@@ -427,8 +432,10 @@ class _EntitasState extends State<Entitas> {
       print('ini token :  $token');
       if (token != null) {
         try {
+          final ioClient = createIOClientWithInsecureConnection();
+
           final response =
-              await http.post(Uri.parse("$apiUrl/master/entity/delete"),
+              await ioClient.post(Uri.parse("$apiUrl/master/entity/delete"),
                   headers: <String, String>{
                     'Content-Type': 'application/json;charset=UTF-8',
                     'Authorization': 'Bearer $token'
@@ -476,7 +483,9 @@ class _EntitasState extends State<Entitas> {
       _formKey.currentState!.save();
 
       try {
-        final response = await http.post(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.post(
           Uri.parse('$apiUrl/master/entity/update'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',

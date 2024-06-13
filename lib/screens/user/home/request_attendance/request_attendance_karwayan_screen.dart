@@ -122,7 +122,7 @@ class _RequestAttendanceKaryawanScreenState
                 ),
               ],
             ),
-            Expanded(child: const RequestAttendanceTableWidget())
+            const Expanded(child: RequestAttendanceTableWidget())
           ],
         ),
       ),

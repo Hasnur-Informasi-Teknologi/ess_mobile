@@ -5,6 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/models/dokument_model.dart';
 import 'package:mobile_ess/screens/user/home/documents/documents_detail.dart';
@@ -40,7 +41,9 @@ class _RowWithThreeIconsWidgetState extends State<RowWithThreeIconsWidget> {
   Future<void> getTipeDokumen() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    final response = await http.get(
+    final ioClient = createIOClientWithInsecureConnection();
+
+    final response = await ioClient.get(
       Uri.parse("$apiUrl/dokumen-perusahaan/md_tipe_dokumen"),
       headers: <String, String>{
         'Content-Type': 'application/json;charset=UTF-8',
@@ -72,7 +75,9 @@ class _RowWithThreeIconsWidgetState extends State<RowWithThreeIconsWidget> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     try {
-      final response = await http.get(
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response = await ioClient.get(
         Uri.parse(
             "$apiUrl/dokumen-perusahaan/get?page=$currentPage&perPage=$perPage&search=&status=ALL&tipe=$selectedType"),
         headers: <String, String>{
@@ -106,7 +111,9 @@ class _RowWithThreeIconsWidgetState extends State<RowWithThreeIconsWidget> {
   }
 
   Future<void> downloadFile(String url, String fileName) async {
-    final response = await http.get(Uri.parse(url));
+    final ioClient = createIOClientWithInsecureConnection();
+
+    final response = await ioClient.get(Uri.parse(url));
     final bytes = response.bodyBytes;
 
     final dir = await getApplicationDocumentsDirectory();
@@ -228,6 +235,7 @@ class _RowWithThreeIconsWidgetState extends State<RowWithThreeIconsWidget> {
     }
 
     File file = File(filePath!);
+    final ioClient = createIOClientWithInsecureConnection();
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('$apiUrl/dokumen-perusahaan/add'),
@@ -243,8 +251,8 @@ class _RowWithThreeIconsWidgetState extends State<RowWithThreeIconsWidget> {
     request.fields['tipe_dokumen'] = selectedValueTipeDok.toString();
     request.fields['entitas'] = _entitasController.text;
 
-    var response = await request.send();
-    final responseData = await response.stream.bytesToString();
+    var streamedResponse = await ioClient.send(request);
+    final responseData = await streamedResponse.stream.bytesToString();
     final responseDataMessage = json.decode(responseData);
     Get.snackbar('Infomation', responseDataMessage['message'],
         snackPosition: SnackPosition.TOP,

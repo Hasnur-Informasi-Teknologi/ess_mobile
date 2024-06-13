@@ -209,9 +209,9 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
                             onChanged: (String? newValue) {
                               setState(() {
                                 if (newValue == '1') {
-                                  Get.toNamed('/admin/main');
+                                  Get.offAllNamed('/admin/main');
                                 } else {
-                                  Get.toNamed('/user/main');
+                                  Get.offAllNamed('/user/main');
                                 }
                                 selectionDashboard = newValue;
                               });
