@@ -8,6 +8,7 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/models/dokument_model.dart';
+import 'package:mobile_ess/models/entitas_model.dart';
 import 'package:mobile_ess/screens/user/home/documents/documents_detail.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
@@ -37,6 +38,7 @@ class _RowWithThreeIconsWidgetState extends State<RowWithThreeIconsWidget> {
   String? selectedType = '1', selectedValueTipeDok;
   late List<DokumenModel> dokumens = [];
   late List<String> tipeDokumen = [];
+  List<Item> _items = [];
 
   Future<void> getTipeDokumen() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -96,6 +98,48 @@ class _RowWithThreeIconsWidgetState extends State<RowWithThreeIconsWidget> {
       }
     } catch (e) {
       throw Exception('Error fetching data: $e');
+    }
+  }
+
+  Future<void> getDataAllEntitas() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response = await http.get(
+        Uri.parse('$apiUrl/dokumen-perusahaan/entitas'),
+        headers: <String, String>{
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = json.decode(response.body);
+        final List<dynamic> items = responseData['data'];
+        print(responseData);
+        List<Item> fetchedItems = [];
+        int index = 0;
+        for (var item in items) {
+          fetchedItems
+              .add(Item(idx: index++, kode: item['kode'], nama: item['nama']));
+        }
+        setState(() {
+          _items = fetchedItems;
+        });
+      } else {
+        throw Exception('Failed to load data from API');
+      }
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      print('Error: $e');
+      rethrow;
     }
   }
 
@@ -274,6 +318,7 @@ class _RowWithThreeIconsWidgetState extends State<RowWithThreeIconsWidget> {
     super.initState();
     getTipeDokumen();
     getDataDocuments(currentPage, selectedType);
+    getDataAllEntitas();
   }
 
   @override
@@ -394,6 +439,35 @@ class _RowWithThreeIconsWidgetState extends State<RowWithThreeIconsWidget> {
                         borderRadius: BorderRadius.circular(5),
                       ),
                     ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                SizedBox(
+                  height: 500,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _items.length,
+                    itemBuilder: (context, index) {
+                      return CheckboxListTile(
+                        title: Row(
+                          children: [
+                            Text(_items[index].kode),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Text(_items[index].nama),
+                          ],
+                        ),
+                        value: _items[index].isSelected,
+                        onChanged: (value) {
+                          setState(() {
+                            _items[index].isSelected = value!;
+                          });
+                        },
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(

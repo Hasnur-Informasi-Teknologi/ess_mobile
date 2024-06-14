@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -7,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
@@ -27,9 +27,7 @@ class _FormAplikasiTrainingScreenState
     extends State<FormAplikasiTrainingScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  bool? _isTinggiChecked = false;
-  bool? _isNormalChecked = false;
-  bool? _isRendahChecked = false;
+  String? selectecCheckboxPrioritas;
 
   late TextEditingController _tglPengajuanController;
   final _nrpController = TextEditingController();
@@ -69,8 +67,9 @@ class _FormAplikasiTrainingScreenState
       TextEditingController();
   PlatformFile? _files;
   List<Map<String, dynamic>> selectedJenisTraining = [];
-  String? selectedValueJenisTraining;
+  String? selectedValueJenisTraining = 'training';
   final TextEditingController _ikatanDinasController = TextEditingController();
+  double? _ikatanDinasInYears = 0;
 
   bool _isLoading = false;
   bool _isLoadingEntitas = false;
@@ -85,26 +84,15 @@ class _FormAplikasiTrainingScreenState
   int current = 0;
 
   final String apiUrl = API_URL;
+  Timer? _debounceTimer;
 
-  @override
-  void initState() {
-    super.initState();
-    initializeData();
-    getDataPengajuan();
-    getDataJenisTraining();
-    _ikatanDinasController.text = '1';
-    String formattedDateTime = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    _tglPengajuanController = TextEditingController(text: formattedDateTime);
-  }
-
-  void initializeData() async {
-    await getDataUser();
-    await getDataEntitas();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
+  Future<String?> validateField(String? value, String fieldName) async {
+    if (value == null || value.isEmpty) {
+      validationMessages[fieldName] = 'Field $fieldName wajib diisi!';
+      return validationMessages[fieldName];
+    }
+    validationMessages[fieldName] = null;
+    return null;
   }
 
   Future<void> getDataPengajuan() async {
@@ -113,8 +101,7 @@ class _FormAplikasiTrainingScreenState
 
     if (token != null) {
       try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
+        final response = await http.get(
             Uri.parse("$apiUrl/master/profile/get_all_pengajuan"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -218,8 +205,7 @@ class _FormAplikasiTrainingScreenState
       });
 
       try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
+        final response = await http.get(
             Uri.parse(
                 "$apiUrl/karyawan/dept-head?atasan=05&entitas=$entitasCode"),
             headers: <String, String>{
@@ -255,8 +241,7 @@ class _FormAplikasiTrainingScreenState
       });
 
       try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
+        final response = await http.get(
             Uri.parse("$apiUrl/master/hrgs/pic?entitas=$entitasCode"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -290,8 +275,7 @@ class _FormAplikasiTrainingScreenState
       });
 
       try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
+        final response = await http.get(
             Uri.parse(
                 "$apiUrl/karyawan/dept-head?atasan=11&entitas=$entitasCode"),
             headers: <String, String>{
@@ -353,6 +337,43 @@ class _FormAplikasiTrainingScreenState
     }
   }
 
+  Future<void> onCheckboxChangedKeperluan(String label, bool? newValue) async {
+    setState(() {
+      if (newValue == true) {
+        selectecCheckboxPrioritas = label;
+      } else {
+        selectecCheckboxPrioritas = null;
+      }
+    });
+  }
+
+  Future<void> _onBiayaTrainingChanged() async {
+    if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      final biayaTraining = double.tryParse(_biayaTrainingController.text) ?? 0;
+      if (biayaTraining >= 10000000) {
+        final ikatanDinasInYears = (biayaTraining / 10000000);
+        final years = ikatanDinasInYears.floor();
+        final months = ((ikatanDinasInYears - years) * 12).round();
+        setState(() {
+          _ikatanDinasInYears = ikatanDinasInYears;
+          _ikatanDinasController.text = '$years Tahun $months Bulan';
+        });
+      } else {
+        if (selectedValueJenisTraining == 'training') {
+          setState(() {
+            _ikatanDinasController.text = '0 Tahun 0 Bulan';
+          });
+        } else if (selectedValueJenisTraining == 'sertifikasi' ||
+            selectedValueJenisTraining == 'training dan sertifikasi') {
+          setState(() {
+            _ikatanDinasController.text = '1 Tahun 0 Bulan';
+          });
+        }
+      }
+    });
+  }
+
   Future<void> pickFiles() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
@@ -395,19 +416,30 @@ class _FormAplikasiTrainingScreenState
   }
 
   Future<void> _submit() async {
+    setState(() {
+      validateField(selectecCheckboxPrioritas, 'Prioritas');
+      validateField(selectedValueEntitasHCGS, 'Entitas HCGS');
+      validateField(selectedValueEntitasAtasan, 'Entitas Atasan');
+      validateField(selectedValueEntitasDirektur, 'Entitas Direktur');
+      validateField(selectedValueHCGS, 'Nama HCGS');
+      validateField(selectedValueAtasan, 'Nama Atasan');
+      validateField(selectedValueDirektur, 'Nama Direktur');
+      validateField(_judulTrainingController.text, 'Judul Training');
+      validateField(_institusiTrainingController.text, 'Institusi Training');
+      validateField(_biayaTrainingController.text, 'Biaya Training');
+      validateField(_lokasiTrainingController.text, 'Lokasi Training');
+    });
+
+    if (validationMessages.values.any((msg) => msg != null)) {
+      return;
+    }
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
     setState(() {
       _isLoading = true;
     });
-
-    if (!_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
 
     if (_files == null) {
       Get.snackbar(
@@ -453,12 +485,8 @@ class _FormAplikasiTrainingScreenState
       'nama': _namaController.text,
       'nrp': _nrpController.text,
       'pangkat': _jabatanController.text,
-      'periode_ikatan_dinas': _ikatanDinasController.text,
-      'prioritas': _isTinggiChecked == true
-          ? 'Tinggi'
-          : _isNormalChecked == true
-              ? 'Normal'
-              : 'Rendah',
+      'periode_ikatan_dinas': _ikatanDinasInYears.toString(),
+      'prioritas': selectecCheckboxPrioritas.toString(),
       'satuan_ikatan_dinas': 'Tahun',
       'status_pengajuan': 'submit',
       'tgl_training': tglTraining != null
@@ -476,14 +504,11 @@ class _FormAplikasiTrainingScreenState
     debugPrint('Request: ${request.files}');
 
     try {
-      final ioClient = createIOClientWithInsecureConnection();
-      var streamedResponse = await ioClient.send(request);
-      final responseData = await streamedResponse.stream.bytesToString();
+      var response = await request.send();
+      final responseData = await response.stream.bytesToString();
       final responseDataMessage = json.decode(responseData);
 
-      debugPrint('Response: $responseDataMessage');
-
-      if (streamedResponse.statusCode == 200) {
+      if (response.statusCode == 200) {
         Get.snackbar('Information', responseDataMessage['message'],
             snackPosition: SnackPosition.TOP,
             backgroundColor: Colors.amber,
@@ -492,7 +517,7 @@ class _FormAplikasiTrainingScreenState
               color: Colors.white,
             ),
             shouldIconPulse: false);
-        Navigator.pop(context);
+        if (mounted) Navigator.pop(context);
       } else {
         Get.snackbar(
           responseDataMessage['message'],
@@ -516,32 +541,38 @@ class _FormAplikasiTrainingScreenState
   }
 
   @override
+  void initState() {
+    super.initState();
+    initializeData();
+    getDataPengajuan();
+    getDataJenisTraining();
+    _ikatanDinasController.text = '0 Tahun 0 Bulan';
+    _biayaTrainingController.addListener(_onBiayaTrainingChanged);
+    String formattedDateTime = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    _tglPengajuanController = TextEditingController(text: formattedDateTime);
+  }
+
+  void initializeData() async {
+    await getDataUser();
+    await getDataEntitas();
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    _biayaTrainingController.removeListener(_onBiayaTrainingChanged);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
-    double textLarge = size.width * 0.04;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double sizedBoxHeightShort = size.height * 0.0086;
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding5 = size.width * 0.0115;
-
-    String? validateField(String? value, String fieldName) {
-      if (value == null || value.isEmpty) {
-        return validationMessages[fieldName] = 'Field $fieldName wajib diisi!';
-      }
-      return null;
-    }
-
-    Widget validateContainer(String? field) {
-      return Padding(
-        padding: const EdgeInsets.only(left: 10, top: 5),
-        child: Text(
-          validationMessages[field]!,
-          style: TextStyle(color: Colors.red.shade900, fontSize: 12),
-        ),
-      );
-    }
 
     Widget dropdownlistEntitasAtasan() {
       return Column(
@@ -558,14 +589,6 @@ class _FormAplikasiTrainingScreenState
               border: Border.all(color: Colors.grey),
             ),
             child: DropdownButtonFormField<String>(
-              validator: (value) {
-                String? validationResult =
-                    validateField(value, 'Entitas Atasan');
-                setState(() {
-                  validationMessages['Entitas Atasan'] = validationResult;
-                });
-                return null;
-              },
               hint: const Padding(
                 padding: EdgeInsets.only(left: 10),
                 child: Text(
@@ -615,7 +638,6 @@ class _FormAplikasiTrainingScreenState
                   selectedValueEntitasAtasan = newValue!;
                   debugPrint(
                       'selectedValueEntitasAtasan $selectedValueEntitasAtasan');
-                  validationMessages['Entitas Atasan'] = null;
                   getDataAtasan(selectedValueEntitasAtasan!);
                 });
               },
@@ -639,107 +661,7 @@ class _FormAplikasiTrainingScreenState
             ),
           ),
           if (validationMessages['Entitas Atasan'] != null)
-            validateContainer('Entitas Atasan'),
-        ],
-      );
-    }
-
-    Widget dropdownlistAtasan() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          buildLabelRequired(
-              title: 'Nama Atasan',
-              isRequired: true,
-              requireMessage: 'minimal setara dept head'),
-          SizedBox(
-            height: sizedBoxHeightShort,
-          ),
-          Container(
-            height: 45,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              border: Border.all(color: Colors.grey),
-            ),
-            child: DropdownButtonFormField<String>(
-              validator: (value) {
-                String? validationResult = validateField(value, 'Atasan');
-                setState(() {
-                  validationMessages['Atasan'] = validationResult;
-                });
-                return null;
-              },
-              hint: const Padding(
-                padding: EdgeInsets.only(left: 10),
-                child: Text(
-                  'Pilih Atasan',
-                  style: TextStyle(fontSize: 12),
-                ),
-              ),
-              menuMaxHeight: 500,
-              icon: _isLoadingAtasan
-                  ? const SizedBox(
-                      height: 15,
-                      width: 15,
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                      ),
-                    )
-                  : const Icon(Icons.arrow_drop_down),
-              value: selectedValueAtasan,
-              items: selectedAtasan.isNotEmpty
-                  ? selectedAtasan.map((value) {
-                      return DropdownMenuItem<String>(
-                        value: value["pernr"].toString(),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 10),
-                          child: Text(
-                            value["pernr"] + ' - ' + value["nama"],
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                        ),
-                      );
-                    }).toList()
-                  : [
-                      const DropdownMenuItem(
-                        value: "no-data",
-                        enabled: false,
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 10),
-                          child: Text(
-                            'No Data Available',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                        ),
-                      )
-                    ],
-              onChanged: (newValue) {
-                setState(() {
-                  selectedValueAtasan = newValue!;
-                  debugPrint('selectedValueAtasan $selectedValueAtasan');
-                  validationMessages['Atasan'] = null;
-                });
-              },
-              decoration: InputDecoration(
-                labelStyle: const TextStyle(fontSize: 12),
-                focusedBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.transparent,
-                    width: 1.0,
-                  ),
-                ),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color: selectedValueAtasan != null
-                        ? Colors.transparent
-                        : Colors.transparent,
-                    width: 1.0,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          if (validationMessages['Atasan'] != null) validateContainer('Atasan'),
+            validateContainer('Entitas Atasan')
         ],
       );
     }
@@ -759,13 +681,6 @@ class _FormAplikasiTrainingScreenState
               border: Border.all(color: Colors.grey),
             ),
             child: DropdownButtonFormField<String>(
-              validator: (value) {
-                String? validationResult = validateField(value, 'Entitas HCGS');
-                setState(() {
-                  validationMessages['Entitas HCGS'] = validationResult;
-                });
-                return null;
-              },
               hint: const Padding(
                 padding: EdgeInsets.only(left: 10),
                 child: Text(
@@ -815,7 +730,6 @@ class _FormAplikasiTrainingScreenState
                   selectedValueEntitasHCGS = newValue!;
                   debugPrint(
                       'selectedValueEntitasHCGS $selectedValueEntitasHCGS');
-                  validationMessages['Entitas HCGS'] = null;
                   getDataHCGS(selectedValueEntitasHCGS!);
                 });
               },
@@ -839,104 +753,7 @@ class _FormAplikasiTrainingScreenState
             ),
           ),
           if (validationMessages['Entitas HCGS'] != null)
-            validateContainer('Entitas HCGS'),
-        ],
-      );
-    }
-
-    Widget dropdownlistHCGS() {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          buildLabelRequired(title: 'Nama HCGS', isRequired: true),
-          SizedBox(
-            height: sizedBoxHeightShort,
-          ),
-          Container(
-            height: 45,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              border: Border.all(color: Colors.grey),
-            ),
-            child: DropdownButtonFormField<String>(
-              validator: (value) {
-                String? validationResult = validateField(value, 'HCGS');
-                setState(() {
-                  validationMessages['HCGS'] = validationResult;
-                });
-                return null;
-              },
-              hint: const Padding(
-                padding: EdgeInsets.only(left: 10),
-                child: Text(
-                  'Pilih HCGS',
-                  style: TextStyle(fontSize: 12),
-                ),
-              ),
-              menuMaxHeight: 500,
-              icon: _isLoadingHCGS
-                  ? const SizedBox(
-                      height: 15,
-                      width: 15,
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                      ),
-                    )
-                  : const Icon(Icons.arrow_drop_down),
-              value: selectedValueHCGS,
-              items: selectedHCGS.isNotEmpty
-                  ? selectedHCGS.map((value) {
-                      return DropdownMenuItem<String>(
-                        value: value["pernr"].toString(),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 10),
-                          child: Text(
-                            value["pernr"] + ' - ' + value["nama"],
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                        ),
-                      );
-                    }).toList()
-                  : [
-                      const DropdownMenuItem(
-                        value: "no-data",
-                        enabled: false,
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 10),
-                          child: Text(
-                            'No Data Available',
-                            style: TextStyle(fontSize: 12),
-                          ),
-                        ),
-                      )
-                    ],
-              onChanged: (newValue) {
-                setState(() {
-                  selectedValueHCGS = newValue!;
-                  validationMessages['HCGS'] = null;
-                  debugPrint('selectedValueHCGS $selectedValueHCGS');
-                });
-              },
-              decoration: InputDecoration(
-                labelStyle: const TextStyle(fontSize: 12),
-                focusedBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.transparent,
-                    width: 1.0,
-                  ),
-                ),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color: selectedValueHCGS != null
-                        ? Colors.transparent
-                        : Colors.transparent,
-                    width: 1.0,
-                  ),
-                ),
-              ),
-            ),
-          ),
-          if (validationMessages['HCGS'] != null) validateContainer('HCGS'),
+            validateContainer('Entitas HCGS')
         ],
       );
     }
@@ -957,15 +774,6 @@ class _FormAplikasiTrainingScreenState
               border: Border.all(color: Colors.grey),
             ),
             child: DropdownButtonFormField<String>(
-              validator: (value) {
-                String? validationResult =
-                    validateField(value, 'Entitas Direktur Keuangan');
-                setState(() {
-                  validationMessages['Entitas Direktur Keuangan'] =
-                      validationResult;
-                });
-                return null;
-              },
               hint: const Padding(
                 padding: EdgeInsets.only(left: 10),
                 child: Text(
@@ -1015,7 +823,6 @@ class _FormAplikasiTrainingScreenState
                   selectedValueEntitasDirektur = newValue!;
                   debugPrint(
                       'selectedValueEntitasDirektur $selectedValueEntitasDirektur');
-                  validationMessages['Entitas Direktur Keuangan'] = null;
                   getDataDirektur(selectedValueEntitasDirektur!);
                 });
               },
@@ -1038,8 +845,191 @@ class _FormAplikasiTrainingScreenState
               ),
             ),
           ),
-          if (validationMessages['Entitas Direktur Keuangan'] != null)
-            validateContainer('Entitas Direktur Keuangan'),
+          if (validationMessages['Entitas Direktur'] != null)
+            validateContainer('Entitas Direktur')
+        ],
+      );
+    }
+
+    Widget dropdownlistAtasan() {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          buildLabelRequired(
+              title: 'Nama Atasan',
+              isRequired: true,
+              requireMessage: 'minimal setara dept head'),
+          SizedBox(
+            height: sizedBoxHeightShort,
+          ),
+          Container(
+            height: 45,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(color: Colors.grey),
+            ),
+            child: DropdownButtonFormField<String>(
+              hint: const Padding(
+                padding: EdgeInsets.only(left: 10),
+                child: Text(
+                  'Pilih Atasan',
+                  style: TextStyle(fontSize: 12),
+                ),
+              ),
+              menuMaxHeight: 500,
+              icon: _isLoadingAtasan
+                  ? const SizedBox(
+                      height: 15,
+                      width: 15,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                      ),
+                    )
+                  : const Icon(Icons.arrow_drop_down),
+              value: selectedValueAtasan,
+              items: selectedAtasan.isNotEmpty
+                  ? selectedAtasan.map((value) {
+                      return DropdownMenuItem<String>(
+                        value: value["pernr"].toString(),
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: Text(
+                            value["pernr"] + ' - ' + value["nama"],
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      );
+                    }).toList()
+                  : [
+                      const DropdownMenuItem(
+                        value: "no-data",
+                        enabled: false,
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 10),
+                          child: Text(
+                            'No Data Available',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      )
+                    ],
+              onChanged: (newValue) {
+                setState(() {
+                  selectedValueAtasan = newValue!;
+                  debugPrint('selectedValueAtasan $selectedValueAtasan');
+                });
+              },
+              decoration: InputDecoration(
+                labelStyle: const TextStyle(fontSize: 12),
+                focusedBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.transparent,
+                    width: 1.0,
+                  ),
+                ),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: selectedValueAtasan != null
+                        ? Colors.transparent
+                        : Colors.transparent,
+                    width: 1.0,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          if (validationMessages['Nama Atasan'] != null)
+            validateContainer('Nama Atasan')
+        ],
+      );
+    }
+
+    Widget dropdownlistHCGS() {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          buildLabelRequired(title: 'Nama HCGS', isRequired: true),
+          SizedBox(
+            height: sizedBoxHeightShort,
+          ),
+          Container(
+            height: 45,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(color: Colors.grey),
+            ),
+            child: DropdownButtonFormField<String>(
+              hint: const Padding(
+                padding: EdgeInsets.only(left: 10),
+                child: Text(
+                  'Pilih HCGS',
+                  style: TextStyle(fontSize: 12),
+                ),
+              ),
+              menuMaxHeight: 500,
+              icon: _isLoadingHCGS
+                  ? const SizedBox(
+                      height: 15,
+                      width: 15,
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                      ),
+                    )
+                  : const Icon(Icons.arrow_drop_down),
+              value: selectedValueHCGS,
+              items: selectedHCGS.isNotEmpty
+                  ? selectedHCGS.map((value) {
+                      return DropdownMenuItem<String>(
+                        value: value["pernr"].toString(),
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: Text(
+                            value["pernr"] + ' - ' + value["nama"],
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      );
+                    }).toList()
+                  : [
+                      const DropdownMenuItem(
+                        value: "no-data",
+                        enabled: false,
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 10),
+                          child: Text(
+                            'No Data Available',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      )
+                    ],
+              onChanged: (newValue) {
+                setState(() {
+                  selectedValueHCGS = newValue!;
+                  debugPrint('selectedValueHCGS $selectedValueHCGS');
+                });
+              },
+              decoration: InputDecoration(
+                labelStyle: const TextStyle(fontSize: 12),
+                focusedBorder: const UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Colors.transparent,
+                    width: 1.0,
+                  ),
+                ),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                    color: selectedValueHCGS != null
+                        ? Colors.transparent
+                        : Colors.transparent,
+                    width: 1.0,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          if (validationMessages['Nama HCGS'] != null)
+            validateContainer('Nama HCGS')
         ],
       );
     }
@@ -1059,14 +1049,6 @@ class _FormAplikasiTrainingScreenState
               border: Border.all(color: Colors.grey),
             ),
             child: DropdownButtonFormField<String>(
-              validator: (value) {
-                String? validationResult =
-                    validateField(value, 'Direktur Keuangan');
-                setState(() {
-                  validationMessages['Direktur Keuangan'] = validationResult;
-                });
-                return null;
-              },
               hint: const Padding(
                 padding: EdgeInsets.only(left: 10),
                 child: Text(
@@ -1114,7 +1096,6 @@ class _FormAplikasiTrainingScreenState
               onChanged: (newValue) {
                 setState(() {
                   selectedValueDirektur = newValue!;
-                  validationMessages['Direktur Keuangan'] = null;
                   debugPrint('selectedValueDirektur $selectedValueDirektur');
                 });
               },
@@ -1137,8 +1118,8 @@ class _FormAplikasiTrainingScreenState
               ),
             ),
           ),
-          if (validationMessages['Direktur Keuangan'] != null)
-            validateContainer('Direktur Keuangan'),
+          if (validationMessages['Nama Direktur'] != null)
+            validateContainer('Nama Direktur')
         ],
       );
     }
@@ -1158,14 +1139,6 @@ class _FormAplikasiTrainingScreenState
               border: Border.all(color: Colors.grey),
             ),
             child: DropdownButtonFormField<String>(
-              validator: (value) {
-                String? validationResult =
-                    validateField(value, 'Jenis Training');
-                setState(() {
-                  validationMessages['Jenis Training'] = validationResult;
-                });
-                return null;
-              },
               hint: const Padding(
                 padding: EdgeInsets.only(left: 10),
                 child: Text(
@@ -1215,8 +1188,8 @@ class _FormAplikasiTrainingScreenState
                   selectedValueJenisTraining = newValue!;
                   debugPrint(
                       'selectedValueJenisTraining $selectedValueJenisTraining');
-                  validationMessages['Jenis Training'] = null;
                   getDataAtasan(selectedValueJenisTraining!);
+                  _onBiayaTrainingChanged();
                 });
               },
               decoration: InputDecoration(
@@ -1238,8 +1211,6 @@ class _FormAplikasiTrainingScreenState
               ),
             ),
           ),
-          if (validationMessages['Jenis Training'] != null)
-            validateContainer('Jenis Training'),
         ],
       );
     }
@@ -1260,14 +1231,8 @@ class _FormAplikasiTrainingScreenState
                     Get.back();
                   },
                 ),
-                title: Text(
+                title: const Text(
                   'Form Aplikasi Training',
-                  style: TextStyle(
-                      color: const Color(primaryBlack),
-                      fontSize: textLarge,
-                      fontFamily: 'Poppins',
-                      letterSpacing: 0.6,
-                      fontWeight: FontWeight.w500),
                 ),
               ),
               body: ListView(
@@ -1289,12 +1254,31 @@ class _FormAplikasiTrainingScreenState
                         SizedBox(
                           height: sizedBoxHeightShort,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        Column(
                           children: [
-                            buildCheckbox('Tinggi', _isTinggiChecked),
-                            buildCheckbox('Normal', _isNormalChecked),
-                            buildCheckbox('Rendah', _isRendahChecked),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                buildCheckbox('Tinggi',
+                                    selectecCheckboxPrioritas == 'Tinggi'),
+                                buildCheckbox('Normal',
+                                    selectecCheckboxPrioritas == 'Normal'),
+                                buildCheckbox('Rendah',
+                                    selectecCheckboxPrioritas == 'Rendah'),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: paddingHorizontalNarrow),
+                                  child: validationMessages['Prioritas'] != null
+                                      ? validateContainer('Prioritas')
+                                      : null,
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                         SizedBox(
@@ -1318,8 +1302,6 @@ class _FormAplikasiTrainingScreenState
                               children: [
                                 TabBar(
                                   isScrollable: true,
-                                  // indicatorSize: TabBarIndicatorSize.label,
-                                  // indicatorColor: Colors.black,
                                   labelColor: Colors.black,
                                   unselectedLabelColor: Colors.grey,
                                   labelPadding: EdgeInsets.symmetric(
@@ -1338,7 +1320,6 @@ class _FormAplikasiTrainingScreenState
                                     });
                                   },
                                 ),
-                                //Main Body
                                 Expanded(
                                   child: TabBarView(
                                     physics:
@@ -1657,12 +1638,11 @@ class _FormAplikasiTrainingScreenState
                                                 height: sizedBoxHeightTall,
                                               ),
                                               buildTextFormFieldField(
-                                                  title: 'Periode Ikatan Dinas',
-                                                  controller:
-                                                      _ikatanDinasController,
-                                                  hintText: '---',
-                                                  enabled: true,
-                                                  suffixText: 'Tahun'),
+                                                title: 'Periode Ikatan Dinas',
+                                                controller:
+                                                    _ikatanDinasController,
+                                                hintText: '---',
+                                              ),
                                               SizedBox(
                                                 height: sizedBoxHeightTall,
                                               ),
@@ -1711,6 +1691,18 @@ class _FormAplikasiTrainingScreenState
               ),
             ),
           );
+  }
+
+  Widget validateContainer(String field) {
+    return validationMessages[field] != null
+        ? Padding(
+            padding: const EdgeInsets.only(left: 10, top: 5),
+            child: Text(
+              validationMessages[field]!,
+              style: TextStyle(color: Colors.red.shade900, fontSize: 12),
+            ),
+          )
+        : const SizedBox.shrink();
   }
 
   Widget buildHeading({required String title, String subtitle = ''}) {
@@ -1829,6 +1821,7 @@ class _FormAplikasiTrainingScreenState
         keyboardType: keyboardType,
         inputFormatters: inputFormatters,
       ),
+      if (validationMessages[title] != null) validateContainer(title)
     ]);
   }
 
@@ -1840,10 +1833,9 @@ class _FormAplikasiTrainingScreenState
           value: value ?? false,
           onChanged: (newValue) {
             setState(() {
-              _isTinggiChecked = label == 'Tinggi' ? newValue : false;
-              _isNormalChecked = label == 'Normal' ? newValue : false;
-              _isRendahChecked = label == 'Rendah' ? newValue : false;
+              onCheckboxChangedKeperluan(label, newValue);
             });
+            debugPrint('selectecCheckboxPrioritas, $selectecCheckboxPrioritas');
           },
         ),
         Text(label),
