@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/models/tabIcon_data.dart';
 import 'package:mobile_ess/screens/attendance/checkout_location_screen.dart';
@@ -73,7 +74,8 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
     var entitas = karyawan['cocd'];
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
           Uri.parse(
               '$_apiUrl/attendance/get_report_hg_attendance?page=1&perPage=5&search=$nrp&entitas=$entitas&lokasi=semua&tahun=2024&status=semua&pangkat=semua'),
           headers: <String, String>{
@@ -114,12 +116,14 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
     var userData = jsonDecode(prefs.getString('userData').toString())['data'];
     try {
       Map<String, String> headers = {"Content-type": "application/json"};
-      final response =
-          await http.post(Uri.parse('https://hitfaceapi.my.id/api/face/check'),
-              headers: headers,
-              body: jsonEncode(<String, String>{
-                'id_user': userData['pernr'] as String,
-              }));
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response = await ioClient.post(
+          Uri.parse('https://hitfaceapi.my.id/api/face/check'),
+          headers: headers,
+          body: jsonEncode(<String, String>{
+            'id_user': userData['pernr'] as String,
+          }));
       final responseData = json.decode(response.body);
       if (responseData['status'] == false) {
         Get.offAll(RegisterFaceScreen());

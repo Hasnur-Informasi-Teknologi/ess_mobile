@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/screens/admin/main/dashboard.dart';
 import 'package:mobile_ess/screens/user/home/icons_profile_container_widget.dart';
@@ -47,7 +48,8 @@ class _HomeScreenState extends State<HomeScreen> {
         jsonDecode(prefs.getString('userData').toString())['data'];
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
           Uri.parse('$_apiUrl/get_data_karyawan'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
@@ -214,9 +216,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       print(newValue);
                                       setState(() {
                                         if (newValue == '1') {
-                                          Get.toNamed('/admin/main');
+                                          Get.offAllNamed('/admin/main');
                                         } else {
-                                          Get.toNamed('/user/main');
+                                          Get.offAllNamed('/user/main');
                                         }
                                         selectionDashboard = newValue;
                                       });

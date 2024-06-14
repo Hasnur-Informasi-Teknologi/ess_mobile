@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 // import 'package:mobile_ess/themes/colors.dart';
 // import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
@@ -52,7 +53,9 @@ class _RawatJalanState extends State<RawatJalan> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse("$apiUrl/user-autorization/get_all"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -390,7 +393,9 @@ class _RawatJalanState extends State<RawatJalan> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
 
-    final response = await http.get(
+    final ioClient = createIOClientWithInsecureConnection();
+
+    final response = await ioClient.get(
         Uri.parse(
             "$apiUrl/master/entity/get?page=$_pageIndex&perPage=$_rowsPerPage&search="),
         headers: <String, String>{
@@ -475,7 +480,9 @@ class _RawatJalanState extends State<RawatJalan> {
     _formKey.currentState!.save();
 
     try {
-      final response = await http.post(
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response = await ioClient.post(
         Uri.parse('$apiUrl/user-management/add'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',

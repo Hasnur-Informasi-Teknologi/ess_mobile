@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/screens/attendance/take_selfie_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
@@ -90,7 +91,8 @@ class _WFOLocationScreenState extends State<WFOLocationScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     Map<String, String> headers = {"Content-type": "application/json"};
-    final response = await http.get(
+    final ioClient = createIOClientWithInsecureConnection();
+    final response = await ioClient.get(
         Uri.parse('https://hitfaceapi.my.id/api/get/server_date'),
         headers: headers);
     print('=======TIMESTAMP ======');

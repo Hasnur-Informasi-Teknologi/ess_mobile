@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 
 import 'package:mobile_ess/themes/constant.dart';
@@ -161,7 +162,9 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
 
     if (token != null) {
       try {
-        final response = await http.get(Uri.parse("$_apiUrl/master/cuti/get"),
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
+            Uri.parse("$_apiUrl/master/cuti/get"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
@@ -185,7 +188,9 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
 
     if (token != null) {
       try {
-        final response = await http.get(Uri.parse("$_apiUrl/master/entitas"),
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
+            Uri.parse("$_apiUrl/master/entitas"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
@@ -211,7 +216,8 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/master/cuti/atasan?entitas=$selectedValueEntitas"),
             headers: <String, String>{
@@ -235,7 +241,8 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     String? token = prefs.getString('token');
 
     if (token != null) {
-      final response = await http.get(
+      final ioClient = createIOClientWithInsecureConnection();
+      final response = await ioClient.get(
           Uri.parse(
               "$_apiUrl/master/cuti/atasan-atasan?entitas=$selectedValueEntitas"),
           headers: <String, String>{
@@ -258,7 +265,8 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/master/cuti/pengganti?&entitas=$selectedValueEntitasPengganti"),
             headers: <String, String>{
@@ -283,7 +291,8 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse("$_apiUrl/master/cuti/lainnya"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -483,39 +492,42 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
         dataCutiLainnya.map((item) => item['jenis'].toString()).join(', ');
 
     try {
-      final response = await http.post(Uri.parse('$_apiUrl/pengajuan-cuti/add'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token'
-          },
-          body: jsonEncode({
-            'tgl_mulai': tanggalMulai != null
-                ? tanggalMulai.toString()
-                : DateTime.now().toString(),
-            'tgl_berakhir': tanggalBerakhir != null
-                ? tanggalBerakhir.toString()
-                : DateTime.now().toString(),
-            'tgl_kembali_kerja': tanggalKembaliKerja != null
-                ? tanggalKembaliKerja.toString()
-                : DateTime.now().toString(),
-            'dibayar': _isDiBayar,
-            'tdk_dibayar': _isTidakDiBayar,
-            'lainnya': _isIzinLainnya,
-            'kep_lainnya': kepLainnya,
-            'jml_cuti_tahunan': jmlCutiTahunan,
-            'jml_cuti_tdkdibayar':
-                int.tryParse(_cutiTidakDibayarController.text) ?? 0,
-            'jml_cuti_lainnya': totalLama,
-            'sisa_ext': 0,
-            'entitas_atasan': selectedValueEntitas.toString(),
-            'nrp_atasan': selectedValueAtasan.toString(),
-            'entitas_pengganti': selectedValueEntitasPengganti.toString(),
-            'nrp_pengganti': selectedValuePengganti.toString(),
-            'jml_cuti': totalCutiYangDiambil,
-            'keperluan': keperluanCuti.toString(),
-            'alamat_cuti': alamatCuti.toString(),
-            'no_telp': noTelepon.toString()
-          }));
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response =
+          await ioClient.post(Uri.parse('$_apiUrl/pengajuan-cuti/add'),
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+                'Authorization': 'Bearer $token'
+              },
+              body: jsonEncode({
+                'tgl_mulai': tanggalMulai != null
+                    ? tanggalMulai.toString()
+                    : DateTime.now().toString(),
+                'tgl_berakhir': tanggalBerakhir != null
+                    ? tanggalBerakhir.toString()
+                    : DateTime.now().toString(),
+                'tgl_kembali_kerja': tanggalKembaliKerja != null
+                    ? tanggalKembaliKerja.toString()
+                    : DateTime.now().toString(),
+                'dibayar': _isDiBayar,
+                'tdk_dibayar': _isTidakDiBayar,
+                'lainnya': _isIzinLainnya,
+                'kep_lainnya': kepLainnya,
+                'jml_cuti_tahunan': jmlCutiTahunan,
+                'jml_cuti_tdkdibayar':
+                    int.tryParse(_cutiTidakDibayarController.text) ?? 0,
+                'jml_cuti_lainnya': totalLama,
+                'sisa_ext': 0,
+                'entitas_atasan': selectedValueEntitas.toString(),
+                'nrp_atasan': selectedValueAtasan.toString(),
+                'entitas_pengganti': selectedValueEntitasPengganti.toString(),
+                'nrp_pengganti': selectedValuePengganti.toString(),
+                'jml_cuti': totalCutiYangDiambil,
+                'keperluan': keperluanCuti.toString(),
+                'alamat_cuti': alamatCuti.toString(),
+                'no_telp': noTelepon.toString()
+              }));
 
       final responseData = jsonDecode(response.body);
       Get.snackbar('Infomation', responseData['message'],
@@ -1949,6 +1961,18 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                                       args) {
                                                 setState(() {
                                                   tanggalMulai = args.value;
+
+                                                  if (selectedValueCutiLainnya ==
+                                                      '12') {
+                                                    _tanggalBerakhirController
+                                                            .selectedDate =
+                                                        tanggalMulai!.add(
+                                                            Duration(days: 90));
+
+                                                    tanggalBerakhir =
+                                                        tanggalMulai!.add(
+                                                            Duration(days: 90));
+                                                  }
                                                 });
                                               },
                                               selectionMode:
@@ -2020,38 +2044,41 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                                     ),
                                   ),
                                   onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          content: Container(
-                                            height: 350,
-                                            width: 350,
-                                            child: SfDateRangePicker(
-                                              controller:
-                                                  _tanggalBerakhirController,
-                                              onSelectionChanged:
-                                                  (DateRangePickerSelectionChangedArgs
-                                                      args) {
-                                                setState(() {
-                                                  tanggalBerakhir = args.value;
-                                                });
-                                              },
-                                              selectionMode:
-                                                  DateRangePickerSelectionMode
-                                                      .single,
+                                    if (selectedValueCutiLainnya != '12') {
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                            content: Container(
+                                              height: 350,
+                                              width: 350,
+                                              child: SfDateRangePicker(
+                                                controller:
+                                                    _tanggalBerakhirController,
+                                                onSelectionChanged:
+                                                    (DateRangePickerSelectionChangedArgs
+                                                        args) {
+                                                  setState(() {
+                                                    tanggalBerakhir =
+                                                        args.value;
+                                                  });
+                                                },
+                                                selectionMode:
+                                                    DateRangePickerSelectionMode
+                                                        .single,
+                                              ),
                                             ),
-                                          ),
-                                          actions: <Widget>[
-                                            TextButton(
-                                              onPressed: () =>
-                                                  Navigator.pop(context),
-                                              child: Text('OK'),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
+                                            actions: <Widget>[
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(context),
+                                                child: Text('OK'),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    }
                                   },
                                 ),
                               ],

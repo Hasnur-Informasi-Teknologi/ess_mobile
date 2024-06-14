@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
@@ -80,7 +81,9 @@ class _CutiRosterState extends State<CutiRoster> {
     });
 
     try {
-      final response = await http.get(
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response = await ioClient.get(
         Uri.parse(
             '$apiUrl/master/cuti-roster/get?page=${pageIndex ?? _pageIndex}&perPage=${rowPerPage ?? _rowsPerPage}&search=${searchQuery ?? _searchQuery}'),
         headers: <String, String>{
@@ -184,7 +187,9 @@ class _CutiRosterState extends State<CutiRoster> {
     });
 
     try {
-      final response = await http.get(
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response = await ioClient.get(
         Uri.parse(
             '$apiUrl/user-management/get?page=1&perPage=9999999&search=$_searchQuery'),
         headers: <String, String>{
@@ -405,7 +410,9 @@ class _CutiRosterState extends State<CutiRoster> {
               ? tanggalBerakhir.toString()
               : DateTime.now().toString(),
         });
-        final response = await http.post(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.post(
           Uri.parse('$apiUrl/master/cuti-roster/add'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
@@ -1092,13 +1099,15 @@ class _CutiRosterState extends State<CutiRoster> {
       print('ini token :  $token');
       if (token != null) {
         try {
-          final response =
-              await http.post(Uri.parse("$apiUrl/master/cuti-roster/delete"),
-                  headers: <String, String>{
-                    'Content-Type': 'application/json;charset=UTF-8',
-                    'Authorization': 'Bearer $token'
-                  },
-                  body: jsonEncode({'id': id}));
+          final ioClient = createIOClientWithInsecureConnection();
+
+          final response = await ioClient.post(
+              Uri.parse("$apiUrl/master/cuti-roster/delete"),
+              headers: <String, String>{
+                'Content-Type': 'application/json;charset=UTF-8',
+                'Authorization': 'Bearer $token'
+              },
+              body: jsonEncode({'id': id}));
           final responseData = jsonDecode(response.body);
           if (response.statusCode == 200) {
             Get.snackbar('Infomation', responseData['status'],
@@ -1159,7 +1168,9 @@ class _CutiRosterState extends State<CutiRoster> {
         });
         print('🚀 ~ _CutiRosterState ~ body: $body');
 
-        final response = await http.post(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.post(
           Uri.parse('$apiUrl/master/cuti-roster/update'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',

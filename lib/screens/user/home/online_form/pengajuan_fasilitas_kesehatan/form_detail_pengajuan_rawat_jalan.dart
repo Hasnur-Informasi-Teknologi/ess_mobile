@@ -4,8 +4,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/constant.dart';
+import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_number_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
@@ -80,7 +82,8 @@ class _FormDetailPengajuanRawatJalanState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse("$_apiUrl/master/jenis/penggantian/jalan"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -106,7 +109,9 @@ class _FormDetailPengajuanRawatJalanState
 
     if (token != null) {
       try {
-        final response = await http.get(Uri.parse("$_apiUrl/master/diagnosa"),
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
+            Uri.parse("$_apiUrl/master/diagnosa"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
@@ -587,7 +592,10 @@ class _FormDetailPengajuanRawatJalanState
                     decoration: InputDecoration(
                       constraints:
                           BoxConstraints(maxHeight: maxHubunganDenganKaryawan),
-                      labelStyle: TextStyle(fontSize: textMedium),
+                      labelStyle: TextStyle(
+                        fontSize: textMedium,
+                        fontFamily: 'Poppins',
+                      ),
                       focusedBorder: const UnderlineInputBorder(
                         borderSide: BorderSide(
                           color: Colors.black,
@@ -637,11 +645,10 @@ class _FormDetailPengajuanRawatJalanState
                 Padding(
                   padding:
                       EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormFieldWidget(
-                    validator: _validatorNamaPasien,
+                  child: TextFormFielDisableWidget(
+                    // validator: _validatorNamaPasien,
                     controller: _namaPasientController,
                     maxHeightConstraints: maxNamaPasien,
-                    hintText: 'Nama Pasien',
                   ),
                 ),
                 SizedBox(

@@ -109,7 +109,7 @@ class _TrackTransparencyState extends State<TrackTransparency> {
                           height: 15,
                         ),
                         Text(
-                          'ess-dev.hasnurgroup.com:8081/privacy_policy',
+                          'https://ess.hasnurgroup.com/privacy_policy',
                           style: TextStyle(
                               color: Colors.blue,
                               fontSize: 18,

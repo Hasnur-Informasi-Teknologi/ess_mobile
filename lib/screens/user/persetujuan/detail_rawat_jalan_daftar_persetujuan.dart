@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
@@ -53,6 +54,7 @@ class _DetailRawatJalanDaftarPersetujuanState
   final _catatanController = TextEditingController();
   bool _isLoadingScreen = false;
   String? selectedValueDetailPlafon;
+  int? nominalDisetujui;
 
   List<Map<String, dynamic>> selectedJenisDokumen = [
     {'jenis': 'Dokumen Lengkap'},
@@ -160,7 +162,12 @@ class _DetailRawatJalanDaftarPersetujuanState
     super.initState();
     getData();
     getDataDetailRawatJalan();
-    getDataDetailPlafon();
+  }
+
+  String formatDate(String dateStr) {
+    DateTime dateTime = DateTime.parse(dateStr);
+    DateFormat formatter = DateFormat('yyyy-MM-dd');
+    return formatter.format(dateTime);
   }
 
   Future<Map<String, dynamic>> getData() async {
@@ -169,6 +176,27 @@ class _DetailRawatJalanDaftarPersetujuanState
     final responseData = jsonDecode(userData.toString());
     x.data.value = responseData['data'];
     return responseData;
+  }
+
+  String _formatRupiah(dynamic amount) {
+    if (amount is String) {
+      double parsedAmount = double.tryParse(amount) ?? 0.0;
+      String formattedAmount =
+          NumberFormat.decimalPattern('id-ID').format(parsedAmount);
+      if (parsedAmount < 0) {
+        formattedAmount = '(${formattedAmount.substring(1)})';
+      }
+      return formattedAmount;
+    } else if (amount is int) {
+      double parsedAmount = amount.toDouble();
+      String formattedAmount =
+          NumberFormat.decimalPattern('id-ID').format(parsedAmount);
+      if (parsedAmount < 0) {
+        formattedAmount = '(${formattedAmount.substring(1)})';
+      }
+      return formattedAmount;
+    }
+    return '0';
   }
 
   int calculateTotalJumlahDisetujui(
@@ -189,7 +217,9 @@ class _DetailRawatJalanDaftarPersetujuanState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse("$_apiUrl/rawat/jalan/$id/detail"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -208,8 +238,12 @@ class _DetailRawatJalanDaftarPersetujuanState
           masterDataDetailRincianRawatJalan =
               List<Map<String, dynamic>>.from(dataDetailRincianRawatJalanApi);
 
+          print(masterDataDetailRincianRawatJalan);
+
           masterDataDetailApprovedRawatJalan =
               List<Map<String, dynamic>>.from(dataDetailApprovedRawatJalanApi);
+
+          getDataDetailPlafon();
 
           _isLoadingScreen = false;
         });
@@ -222,11 +256,13 @@ class _DetailRawatJalanDaftarPersetujuanState
   Future<void> getDataDetailPlafon() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    var nrp = x.data['pernr'];
+    var nrp = masterDataDetailRawatJalan['pernr'];
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.get(
             Uri.parse("$_apiUrl/rawat/jalan/plafon?nrp=$nrp"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -262,7 +298,9 @@ class _DetailRawatJalanDaftarPersetujuanState
 
     if (token != null) {
       try {
-        final response = await http.post(
+        final ioClient = createIOClientWithInsecureConnection();
+
+        final response = await ioClient.post(
           Uri.parse('$_apiUrl/rawat/jalan/$id/process'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
@@ -323,6 +361,14 @@ class _DetailRawatJalanDaftarPersetujuanState
     setState(() {
       _plafonDisetujuiController.text =
           masterDataDetailRincianRawatJalan[index]['jumlah'].toString();
+      selectedValueDetailPlafon =
+          masterDataDetailRincianRawatJalan[index]['md_rw_jalan']['ket'];
+
+      masterDataDetailPlafonFiltered = masterDataDetailPlafon
+          .where((item) => item['ket'] == selectedValueDetailPlafon)
+          .toList();
+      _sisaPlafonController.text =
+          _formatRupiah(masterDataDetailPlafonFiltered[0]['sisa'].toString());
     });
 
     void submitDaftarPengajuan() {
@@ -395,6 +441,9 @@ class _DetailRawatJalanDaftarPersetujuanState
                 ['tgl_kuitansi'],
             'jumlah': int.parse(_plafonDisetujuiController.text),
           });
+
+          nominalDisetujui =
+              calculateTotalJumlahDisetujui(masterDataDetailApprovedRawatJalan);
         });
       } else {
         Get.snackbar('Infomation', 'Data Tersebut Tidak Boleh Lagi!',
@@ -429,7 +478,7 @@ class _DetailRawatJalanDaftarPersetujuanState
                 RowWithSemicolonWidget(
                   textLeft: 'Jenis Pengganti',
                   textRight:
-                      '${masterDataDetailRincianRawatJalan[index!]['md_rw_jalan']['kd_rw_jalan']} - ${masterDataDetailRincianRawatJalan[index]['md_rw_jalan']['ket']}',
+                      '${masterDataDetailRincianRawatJalan[index]['md_rw_jalan']['kd_rw_jalan']} - ${masterDataDetailRincianRawatJalan[index]['md_rw_jalan']['ket']}',
                   fontSizeLeft: textMedium,
                   fontSizeRight: textMedium,
                 ),
@@ -439,7 +488,7 @@ class _DetailRawatJalanDaftarPersetujuanState
                 RowWithSemicolonWidget(
                   textLeft: 'Pasien',
                   textRight:
-                      '${masterDataDetailRincianRawatJalan[index]['nm_pasien']}',
+                      '${masterDataDetailRincianRawatJalan[index]['nm_pasien'] ?? '-'}',
                   fontSizeLeft: textMedium,
                   fontSizeRight: textMedium,
                 ),
@@ -449,7 +498,7 @@ class _DetailRawatJalanDaftarPersetujuanState
                 RowWithSemicolonWidget(
                   textLeft: 'Tanggal Kuitansi',
                   textRight:
-                      '${masterDataDetailRincianRawatJalan[index]['tgl_kuitansi']}',
+                      '${masterDataDetailRincianRawatJalan[index]['tgl_kuitansi'] ?? '-'}',
                   fontSizeLeft: textMedium,
                   fontSizeRight: textMedium,
                 ),
@@ -459,7 +508,7 @@ class _DetailRawatJalanDaftarPersetujuanState
                 RowWithSemicolonWidget(
                   textLeft: 'Detail Penggantian',
                   textRight:
-                      '${masterDataDetailRincianRawatJalan[index]['detail_penggantian']}',
+                      '${masterDataDetailRincianRawatJalan[index]['detail_penggantian'] ?? '-'}',
                   fontSizeLeft: textMedium,
                   fontSizeRight: textMedium,
                 ),
@@ -469,7 +518,7 @@ class _DetailRawatJalanDaftarPersetujuanState
                 RowWithSemicolonWidget(
                   textLeft: 'No Kuitansi',
                   textRight:
-                      '${masterDataDetailRincianRawatJalan[index]['no_kuitansi']}',
+                      '${masterDataDetailRincianRawatJalan[index]['no_kuitansi'] ?? '-'}',
                   fontSizeLeft: textMedium,
                   fontSizeRight: textMedium,
                 ),
@@ -479,7 +528,7 @@ class _DetailRawatJalanDaftarPersetujuanState
                 RowWithSemicolonWidget(
                   textLeft: 'Nominal',
                   textRight:
-                      '${masterDataDetailRincianRawatJalan[index]['jumlah_rp']}',
+                      '${masterDataDetailRincianRawatJalan[index]['jumlah_rp'] ?? '-'}',
                   fontSizeLeft: textMedium,
                   fontSizeRight: textMedium,
                 ),
@@ -515,12 +564,8 @@ class _DetailRawatJalanDaftarPersetujuanState
                           .where((item) =>
                               item['ket'] == selectedValueDetailPlafon)
                           .toList();
-
-                      print(masterDataDetailPlafon);
-                      print(selectedValueDetailPlafon);
-                      print(masterDataDetailPlafonFiltered);
-                      _sisaPlafonController.text =
-                          masterDataDetailPlafonFiltered[0]['sisa'].toString();
+                      _sisaPlafonController.text = _formatRupiah(
+                          masterDataDetailPlafonFiltered[0]['sisa'].toString());
                     });
                   },
                   items:
@@ -634,7 +679,7 @@ class _DetailRawatJalanDaftarPersetujuanState
                         height: size.height * 0.04,
                         padding: EdgeInsets.all(padding5),
                         decoration: BoxDecoration(
-                          color: const Color(primaryYellow),
+                          color: Colors.green[500],
                           borderRadius: BorderRadius.circular(5.0),
                         ),
                         child: Center(
@@ -690,7 +735,7 @@ class _DetailRawatJalanDaftarPersetujuanState
                 },
               ),
               title: Text(
-                'Detail Permintaan Rawat Jalan',
+                'Detail Persetujuan Rawat Jalan',
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: textLarge,
@@ -724,11 +769,8 @@ class _DetailRawatJalanDaftarPersetujuanState
                             ? approvalCompensationTableWithButton(context)
                             : approvalCompensationTable(context),
                         (x.data['pernr'] ==
-                                        masterDataDetailRawatJalan[
-                                            'approved_by2'] &&
                                     masterDataDetailRawatJalan[
-                                            'approved_at2'] !=
-                                        null) ||
+                                        'approved_by2']) ||
                                 (x.data['pernr'] ==
                                     masterDataDetailRawatJalan['approved_by3'])
                             ? hasilVerivikasiPicHrgsWidget(context)
@@ -1146,21 +1188,6 @@ class _DetailRawatJalanDaftarPersetujuanState
                                   ),
                                 ),
                               );
-                            } else if (column == 'submit') {
-                              return TableViewCell(
-                                child: InkWell(
-                                  onTap: () {
-                                    handleButtonAdd(context, index);
-                                  },
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.green,
-                                      borderRadius: BorderRadius.circular(2.0),
-                                    ),
-                                    child: const Center(child: Icon(Icons.add)),
-                                  ),
-                                ),
-                              );
                             } else {
                               return TableViewCell(
                                 child: Text(
@@ -1556,7 +1583,7 @@ class _DetailRawatJalanDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Nomor',
-          textRight: '${masterDataDetailRawatJalan['no_doc']}',
+          textRight: '${masterDataDetailRawatJalan['no_doc'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1565,7 +1592,7 @@ class _DetailRawatJalanDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'NRP',
-          textRight: '${masterDataDetailRawatJalan['pernr']}',
+          textRight: '${masterDataDetailRawatJalan['pernr'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1574,7 +1601,7 @@ class _DetailRawatJalanDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Nama Karyawan',
-          textRight: '${masterDataDetailRawatJalan['nama']}',
+          textRight: '${masterDataDetailRawatJalan['nama'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1583,7 +1610,7 @@ class _DetailRawatJalanDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Perusahaan',
-          textRight: '${masterDataDetailRawatJalan['pt']}',
+          textRight: '${masterDataDetailRawatJalan['pt'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1592,7 +1619,7 @@ class _DetailRawatJalanDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Lokasi Kerja',
-          textRight: '${masterDataDetailRawatJalan['lokasi']}',
+          textRight: '${masterDataDetailRawatJalan['lokasi'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1601,7 +1628,7 @@ class _DetailRawatJalanDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tanggal Pengajuan',
-          textRight: '${masterDataDetailRawatJalan['tgl_pengajuan']}',
+          textRight: '${masterDataDetailRawatJalan['tgl_pengajuan'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1610,7 +1637,7 @@ class _DetailRawatJalanDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Pangkat Karyawan',
-          textRight: '${masterDataDetailRawatJalan['pangkat']}',
+          textRight: '${masterDataDetailRawatJalan['pangkat'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1619,7 +1646,7 @@ class _DetailRawatJalanDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tanggal Masuk',
-          textRight: '${masterDataDetailRawatJalan['hire_date']}',
+          textRight: '${masterDataDetailRawatJalan['hire_date'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1628,7 +1655,7 @@ class _DetailRawatJalanDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Periode Rawat',
-          textRight: '${masterDataDetailRawatJalan['prd_rawat']}',
+          textRight: '${masterDataDetailRawatJalan['prd_rawat'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1672,25 +1699,33 @@ class _DetailRawatJalanDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tanggal Terima',
-          textRight: '${masterDataDetailRawatJalan['tgl_pengajuan']}',
+          textRight: '${masterDataDetailRawatJalan['tgl_pengajuan'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
         SizedBox(
           height: sizedBoxHeightShort,
         ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nominal Disetujui',
-          textRight: 'Rp. ${masterDataDetailRawatJalan['jumlah_setuju']}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
+        masterDataDetailRawatJalan['approved_at2'] == null
+            ? RowWithSemicolonWidget(
+                textLeft: 'Nominal Disetujui',
+                textRight: 'Rp. ${_formatRupiah(nominalDisetujui)}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              )
+            : RowWithSemicolonWidget(
+                textLeft: 'Nominal Disetujui',
+                textRight:
+                    'Rp. ${masterDataDetailRawatJalan['jumlah_setuju'] ?? '-'}',
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
         SizedBox(
           height: sizedBoxHeightShort,
         ),
         RowWithSemicolonWidget(
           textLeft: 'Catatan',
-          textRight: '${masterDataDetailRawatJalan['catatan']}',
+          textRight: '${masterDataDetailRawatJalan['catatan'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1699,7 +1734,7 @@ class _DetailRawatJalanDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Dokumen',
-          textRight: '${masterDataDetailRawatJalan['ket_doc']}',
+          textRight: '${masterDataDetailRawatJalan['ket_doc'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1708,7 +1743,7 @@ class _DetailRawatJalanDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Tanggal Payment',
-          textRight: '${masterDataDetailRawatJalan['tgl_payment']}',
+          textRight: '${masterDataDetailRawatJalan['tgl_payment'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1721,7 +1756,8 @@ class _DetailRawatJalanDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Keterangan Atasan',
-          textRight: '${masterDataDetailRawatJalan['keterangan_atasan']}',
+          textRight:
+              '${masterDataDetailRawatJalan['keterangan_atasan'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1730,7 +1766,8 @@ class _DetailRawatJalanDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Keterangan PIC HCGS',
-          textRight: '${masterDataDetailRawatJalan['keterangan_pic_hcgs']}',
+          textRight:
+              '${masterDataDetailRawatJalan['keterangan_pic_hcgs'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1739,7 +1776,7 @@ class _DetailRawatJalanDaftarPersetujuanState
         ),
         RowWithSemicolonWidget(
           textLeft: 'Keterangan Direksi',
-          textRight: masterDataDetailRawatJalan['keterangan_direksi'] ?? '',
+          textRight: masterDataDetailRawatJalan['keterangan_direksi'] ?? '-',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1765,7 +1802,7 @@ class _DetailRawatJalanDaftarPersetujuanState
         ),
         TitleCenterWithLongBadgeWidget(
           textLeft: 'Status Pengajuan',
-          textRight: '${masterDataDetailRawatJalan['status_approve']}',
+          textRight: '${masterDataDetailRawatJalan['status_approve'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
           color: Colors.yellow,
@@ -1775,7 +1812,8 @@ class _DetailRawatJalanDaftarPersetujuanState
         ),
         TitleCenterWidget(
           textLeft: 'Pada',
-          textRight: ': ${masterDataDetailRawatJalan['created_at']}',
+          textRight:
+              ': ${masterDataDetailRawatJalan['created_at'] != null ? formatDate(masterDataDetailRawatJalan['created_at']) : '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1807,7 +1845,7 @@ class _DetailRawatJalanDaftarPersetujuanState
               ),
               Center(
                 child: Text(
-                  'Modal Approve',
+                  'Approve Pengajuan Rawat Jalan',
                   style: TextStyle(
                     color: Color(primaryBlack),
                     fontSize: textLarge,
@@ -1922,7 +1960,7 @@ class _DetailRawatJalanDaftarPersetujuanState
               ),
               Center(
                 child: Text(
-                  'Modal Reject',
+                  'Reject Pengajuan Rawat Jalan',
                   style: TextStyle(
                     color: const Color(primaryBlack),
                     fontSize: textLarge,

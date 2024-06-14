@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 // import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_fasilitas_kesehatan/form_detail_pengajuan_rawat_inap.dart';
@@ -155,7 +156,9 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
 
     if (token != null) {
       try {
-        final response = await http.get(Uri.parse("$_apiUrl/master/entitas"),
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
+            Uri.parse("$_apiUrl/master/entitas"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
@@ -181,7 +184,8 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/master/cuti/atasan?entitas=$selectedValueEntitas"),
             headers: <String, String>{
@@ -206,7 +210,8 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/karyawan/dept-head?atasan=06&entitas=$selectedValueEntitasHrgs"),
             headers: <String, String>{
@@ -231,7 +236,8 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/karyawan/dept-head?atasan=11&entitas=$selectedValueEntitasKeuangan"),
             headers: <String, String>{
@@ -283,6 +289,7 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
       return;
     }
 
+    final ioClient = createIOClientWithInsecureConnection();
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('$_apiUrl/rawat/inap/create'),
@@ -334,8 +341,8 @@ class _FormPengajuanRawatInapState extends State<FormPengajuanRawatInap> {
       ));
     }
 
-    var response = await request.send();
-    final responseData = await response.stream.bytesToString();
+    var streamedResponse = await ioClient.send(request);
+    final responseData = await streamedResponse.stream.bytesToString();
     final responseDataMessage = json.decode(responseData);
     Get.snackbar('Infomation', responseDataMessage['message'],
         snackPosition: SnackPosition.TOP,

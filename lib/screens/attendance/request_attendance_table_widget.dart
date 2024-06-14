@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -29,7 +31,8 @@ class _RequestAttendanceTableWidgetState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
           Uri.parse('$_apiUrl/master/profile/get_attendance_personal_yearly'),
           headers: <String, String>{
             'Content-Type': 'application/json;charset=UTF-8',
@@ -49,6 +52,14 @@ class _RequestAttendanceTableWidgetState
     } else {
       print('tidak ada token home');
     }
+  }
+
+  String formatDate(String dateStr) {
+    DateTime date = DateTime.parse(dateStr);
+
+    String formattedDate = DateFormat('dd/MM/yyyy').format(date);
+
+    return formattedDate;
   }
 
   @override
@@ -95,7 +106,8 @@ class _RequestAttendanceTableWidgetState
                               width: size.width * 1 / 7,
                               padding: EdgeInsets.all(padding5),
                               child: Text(
-                                '${masterDataAttendance[index]['in_date']}',
+                                formatDate(
+                                    masterDataAttendance[index]['in_date']),
                                 style: TextStyle(
                                   color: Colors.grey[700],
                                   fontSize: textSmall,

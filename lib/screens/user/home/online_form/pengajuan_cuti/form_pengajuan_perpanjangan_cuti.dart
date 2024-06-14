@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 
 import 'package:mobile_ess/themes/colors.dart';
@@ -77,7 +78,8 @@ class _FormPengajuanPerpanjanganCutiState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse("$_apiUrl/master/profile/get_user"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -107,7 +109,8 @@ class _FormPengajuanPerpanjanganCutiState
 
     if (token != null) {
       try {
-        final response = await http.get(
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
             Uri.parse("$_apiUrl/master/cuti/atasan?entitas=$cocd"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
@@ -132,7 +135,9 @@ class _FormPengajuanPerpanjanganCutiState
 
     if (token != null) {
       try {
-        final response = await http.get(Uri.parse("$_apiUrl/master/cuti/get"),
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
+            Uri.parse("$_apiUrl/master/cuti/get"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
@@ -180,7 +185,9 @@ class _FormPengajuanPerpanjanganCutiState
     _formKey.currentState!.save();
 
     try {
-      final response = await http.post(
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response = await ioClient.post(
         Uri.parse('$_apiUrl/perpanjangan-cuti/add'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',

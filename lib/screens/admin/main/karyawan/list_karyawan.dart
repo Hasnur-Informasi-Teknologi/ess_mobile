@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/screens/admin/main/karyawan/data_karyawan_screen.dart';
 import 'package:mobile_ess/screens/admin/main/karyawan/karyawan_edit_screen.dart';
@@ -37,7 +38,9 @@ class _ListKaryawanState extends State<ListKaryawan> {
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     var userData = prefs.getString('userData');
-    final response = await http.get(
+
+    final ioClient = createIOClientWithInsecureConnection();
+    final response = await ioClient.get(
       Uri.parse('$_apiUrl/get_data_entitas'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -58,11 +61,12 @@ class _ListKaryawanState extends State<ListKaryawan> {
   Future getEmployees(page) async {
     x.listItem.value = [];
     x.pagination.value = [];
-    x.currentPage.value=page;
+    x.currentPage.value = page;
     final prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
     var userData = prefs.getString('userData');
-    final response = await http.get(
+    final ioClient = createIOClientWithInsecureConnection();
+    final response = await ioClient.get(
       Uri.parse(
           '$_apiUrl/get_data_karyawan?entitas=${x.entitas}&search=${x.search}&status=${x.status}&page=${page}'),
       headers: <String, String>{
@@ -77,11 +81,10 @@ class _ListKaryawanState extends State<ListKaryawan> {
         x.listItem.add(responseData['data']['data'][i]);
       }
       for (var i = 0; i < responseData['data']['last_page']; i++) {
-        x.pagination.add(i+1);
+        x.pagination.add(i + 1);
       }
     }
   }
-
 
   List<T> map<T>(List list, Function handler) {
     // CARA 4 dengan index value
@@ -326,7 +329,12 @@ class _ListKaryawanState extends State<ListKaryawan> {
                                                         onPrimary:
                                                             Colors.black87,
                                                         elevation: 5,
-                                                        primary:x.listItem[index]['terminate']=='X'?Colors.red[500]:Colors.green[500],
+                                                        primary: x.listItem[
+                                                                        index][
+                                                                    'terminate'] ==
+                                                                'X'
+                                                            ? Colors.red[500]
+                                                            : Colors.green[500],
                                                         padding: EdgeInsets
                                                             .symmetric(
                                                                 horizontal: 20),
@@ -340,7 +348,14 @@ class _ListKaryawanState extends State<ListKaryawan> {
                                                         ),
                                                       ),
                                                       onPressed: () {},
-                                                      child:  Text(x.listItem[index]['terminate']=='X'?'Tidak Aktif':'Aktif',style: TextStyle(fontSize: 12),
+                                                      child: Text(
+                                                        x.listItem[index][
+                                                                    'terminate'] ==
+                                                                'X'
+                                                            ? 'Tidak Aktif'
+                                                            : 'Aktif',
+                                                        style: TextStyle(
+                                                            fontSize: 12),
                                                       ),
                                                     ),
                                                     SizedBox(
@@ -348,7 +363,14 @@ class _ListKaryawanState extends State<ListKaryawan> {
                                                     ),
                                                     GestureDetector(
                                                       onTap: () {
-                                                        Get.to(KaryawanDataScreen(nrp: x.listItem[index]['nrp'],nama: x.listItem[index]['nama_karyawan'],));
+                                                        Get.to(
+                                                            KaryawanDataScreen(
+                                                          nrp: x.listItem[index]
+                                                              ['nrp'],
+                                                          nama: x.listItem[
+                                                                  index]
+                                                              ['nama_karyawan'],
+                                                        ));
                                                       },
                                                       child: Container(
                                                           width: 30,
@@ -373,7 +395,14 @@ class _ListKaryawanState extends State<ListKaryawan> {
                                                     ),
                                                     GestureDetector(
                                                       onTap: () {
-                                                        Get.to(KaryawanEditScreen(nrp: x.listItem[index]['nrp'],nama: x.listItem[index]['nama_karyawan'],));
+                                                        Get.to(
+                                                            KaryawanEditScreen(
+                                                          nrp: x.listItem[index]
+                                                              ['nrp'],
+                                                          nama: x.listItem[
+                                                                  index]
+                                                              ['nama_karyawan'],
+                                                        ));
                                                       },
                                                       child: Container(
                                                           width: 30,
@@ -459,16 +488,25 @@ class _ListKaryawanState extends State<ListKaryawan> {
                                         getEmployees(x.pagination[index]);
                                       },
                                       child: Container(
-                                        padding: EdgeInsets.all(5),
-                                        margin: EdgeInsets.only(left: 8),
+                                          padding: EdgeInsets.all(5),
+                                          margin: EdgeInsets.only(left: 8),
                                           decoration: BoxDecoration(
-                                            color: x.currentPage.value == x.pagination[index]?Color.fromARGB(255, 90, 232, 90):Color.fromARGB(255, 247, 251, 247),
-                                             border: Border.all(color: const Color.fromARGB(255, 23, 24, 24),width: 2), 
+                                            color: x.currentPage.value ==
+                                                    x.pagination[index]
+                                                ? Color.fromARGB(
+                                                    255, 90, 232, 90)
+                                                : Color.fromARGB(
+                                                    255, 247, 251, 247),
+                                            border: Border.all(
+                                                color: const Color.fromARGB(
+                                                    255, 23, 24, 24),
+                                                width: 2),
                                             borderRadius: BorderRadius.circular(
                                                 15), // BorderRadius -> .circular(12),all(10),only(topRight:10), vertical,horizontal
                                           ),
                                           child: Container(
-                                            child: Text(x.pagination[index].toString()),
+                                            child: Text(
+                                                x.pagination[index].toString()),
                                           )),
                                     );
                                   })),

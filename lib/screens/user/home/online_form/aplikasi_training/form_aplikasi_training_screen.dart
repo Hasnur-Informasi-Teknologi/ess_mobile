@@ -546,6 +546,7 @@ class _FormAplikasiTrainingScreenState
     initializeData();
     getDataPengajuan();
     getDataJenisTraining();
+    _ikatanDinasController.text = '0 Tahun 0 Bulan';
     _biayaTrainingController.addListener(_onBiayaTrainingChanged);
     String formattedDateTime = DateFormat('yyyy-MM-dd').format(DateTime.now());
     _tglPengajuanController = TextEditingController(text: formattedDateTime);
