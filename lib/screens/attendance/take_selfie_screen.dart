@@ -70,7 +70,7 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
         final responseData = jsonDecode(response.body);
         print(responseData);
         if (responseData["data"] != null) {
-          final responseDataApi = responseData["data"]["toleransiin"];
+          final responseDataApi = responseData["data"][0]["toleransiin"];
           print(responseDataApi);
           setState(() {
             clockInToleransi = responseDataApi;
