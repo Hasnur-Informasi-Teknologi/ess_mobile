@@ -41,6 +41,13 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
     super.initState();
   }
 
+  Future<void> getToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    print(prefs.getString('token'));
+    print(prefs.getString('nrp'));
+    print(prefs.getInt('role_id'));
+  }
+
   Future<void> getDataKaryawan() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     x.role_id.value = prefs.getInt('role_id')!.toInt();
@@ -124,12 +131,12 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
                       fontFamily: 'Quicksand'),
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.notifications),
-                onPressed: () {
-                  Get.toNamed('/admin/announcement');
-                },
-              ),
+              // IconButton(
+              //   icon: const Icon(Icons.notifications),
+              //   onPressed: () {
+              //     getToken();
+              //   },
+              // ),
             ],
           ),
         ),
@@ -148,9 +155,6 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
                       userName: x.karyawan['nama'] ?? 'Admin',
                       posision: x.karyawan['pernr'] ?? '7822000',
                       imageUrl: '',
-                      // userName: userLogin.get('user')['full_name'],
-                      // posision: userLogin.get('user')['jabatan'],
-                      // imageUrl: userLogin.get('user')['gambar'],
                       webUrl: '',
                     )),
                 Container(

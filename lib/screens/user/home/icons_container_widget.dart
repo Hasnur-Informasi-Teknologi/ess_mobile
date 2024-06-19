@@ -44,82 +44,84 @@ class _IconsContainerWidgetState extends State<IconsContainerWidget> {
     double sizedBoxHeightExtraShort = size.width * 0.02;
     double paddingHorizontalExtraNarrow = size.width * 0.02;
 
-    return Obx(() => GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            childAspectRatio: 1.2,
-          ),
-          itemCount: x.role_id == 4 ? 3 : 4, // Jumlah total item
-          itemBuilder: (BuildContext context, int index) {
-            if (x.role_id == 4) {
-              return InkWell(
-                onTap: () {
-                  handleIconTap(index);
-                },
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // SizedBox(height: sizedBoxHeightExtraTall),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(100.0),
-                      child: Container(
-                        color: const Color(primaryYellow),
-                        padding: EdgeInsets.all(paddingHorizontalExtraNarrow),
-                        child: Icon(
-                          getIcon(index),
-                          color: Colors.grey[700],
-                          size: icon,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: sizedBoxHeightExtraShort),
-                    Text(
-                      getText(index),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
+    return Obx(
+      () => GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          childAspectRatio: 1.2,
+        ),
+        itemCount: x.role_id == 4 ? 3 : 4, // Jumlah total item
+        itemBuilder: (BuildContext context, int index) {
+          if (x.role_id == 4) {
+            return InkWell(
+              onTap: () {
+                handleIconTap(index);
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // SizedBox(height: sizedBoxHeightExtraTall),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(100.0),
+                    child: Container(
+                      color: const Color(primaryYellow),
+                      padding: EdgeInsets.all(paddingHorizontalExtraNarrow),
+                      child: Icon(
+                        getIcon(index),
                         color: Colors.grey[700],
-                        fontSize: textSmall,
+                        size: icon,
                       ),
                     ),
-                  ],
-                ),
-              );
-            } else {
-              return InkWell(
-                onTap: () {
-                  handleIconTap(index);
-                },
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SizedBox(height: sizedBoxHeightExtraTall),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(100.0),
-                      child: Container(
-                        color: const Color(primaryYellow),
-                        padding: EdgeInsets.all(paddingHorizontalExtraNarrow),
-                        child: Icon(
-                          getIcon(index),
-                          color: Colors.grey[700],
-                          size: icon,
-                        ),
-                      ),
+                  ),
+                  SizedBox(height: sizedBoxHeightExtraShort),
+                  Text(
+                    getText(index),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.grey[700],
+                      fontSize: textSmall,
                     ),
-                    SizedBox(height: sizedBoxHeightExtraShort),
-                    Text(
-                      getText(index),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
+                  ),
+                ],
+              ),
+            );
+          } else {
+            return InkWell(
+              onTap: () {
+                handleIconTap(index);
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(height: sizedBoxHeightExtraTall),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(100.0),
+                    child: Container(
+                      color: const Color(primaryYellow),
+                      padding: EdgeInsets.all(paddingHorizontalExtraNarrow),
+                      child: Icon(
+                        getIcon(index),
                         color: Colors.grey[700],
-                        fontSize: textSmall,
+                        size: icon,
                       ),
                     ),
-                  ],
-                ),
-              );
-            }
-          },
-        ));
+                  ),
+                  SizedBox(height: sizedBoxHeightExtraShort),
+                  Text(
+                    getText(index),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.grey[700],
+                      fontSize: textSmall,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+        },
+      ),
+    );
   }
 
   IconData getIcon(int index) {
@@ -168,37 +170,37 @@ class _IconsContainerWidgetState extends State<IconsContainerWidget> {
         Get.toNamed('/user/main/home/online_form');
         break;
       case 1:
-        Get.toNamed('/user/main/home/documents');
-        // Get.snackbar('Infomation', 'Coming Soon',
-        //     snackPosition: SnackPosition.TOP,
-        //     backgroundColor: Colors.amber,
-        //     icon: const Icon(
-        //       Icons.info,
-        //       color: Colors.white,
-        //     ),
-        //     shouldIconPulse: false);
+        // Get.toNamed('/user/main/home/documents');
+        Get.snackbar('Infomation', 'Coming Soon',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
         break;
       case 2:
-        Get.toNamed('/user/main/home/transactions');
-        // Get.snackbar('Infomation', 'Coming Soon',
-        //     snackPosition: SnackPosition.TOP,
-        //     backgroundColor: Colors.amber,
-        //     icon: const Icon(
-        //       Icons.info,
-        //       color: Colors.white,
-        //     ),
-        //     shouldIconPulse: false);
+        // Get.toNamed('/user/main/home/transactions');
+        Get.snackbar('Infomation', 'Coming Soon',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
         break;
       case 3:
-        Get.toNamed('/admin/karyawan');
-        // Get.snackbar('Infomation', 'Coming Soon',
-        //     snackPosition: SnackPosition.TOP,
-        //     backgroundColor: Colors.amber,
-        //     icon: const Icon(
-        //       Icons.info,
-        //       color: Colors.white,
-        //     ),
-        //     shouldIconPulse: false);
+        // Get.toNamed('/admin/karyawan');
+        Get.snackbar('Infomation', 'Coming Soon',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
         break;
       case 4:
         return print('Documents');

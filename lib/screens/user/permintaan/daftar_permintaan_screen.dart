@@ -323,6 +323,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
             });
         final responseData = jsonDecode(response.body);
         final dataMasterSummaryCutiApi = responseData['data'];
+        print(dataMasterSummaryCutiApi);
 
         setState(() {
           masterDataSummaryCuti =

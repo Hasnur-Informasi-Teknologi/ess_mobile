@@ -18,7 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class Controller extends GetxController {
   var karyawan = {}.obs;
-  var role_id = 4.obs;
+  var role_id = 0.obs;
 }
 
 class HomeScreen extends StatefulWidget {
@@ -42,10 +42,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> getDataKaryawan() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    print(prefs.getInt('role_id')!.toInt());
     x.role_id.value = prefs.getInt('role_id')!.toInt();
     String? token = prefs.getString('token');
     x.karyawan.value =
         jsonDecode(prefs.getString('userData').toString())['data'];
+    // print(x.karyawan);
     if (token != null) {
       try {
         final ioClient = createIOClientWithInsecureConnection();
@@ -71,6 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     print(prefs.getString('token'));
     print(prefs.getString('nrp'));
+    print(prefs.getInt('role_id'));
   }
 
   Future<void> logout() async {
@@ -107,70 +110,73 @@ class _HomeScreenState extends State<HomeScreen> {
                         fontWeight: FontWeight.w500,
                         fontFamily: 'Quicksand'),
                   )),
-              IconButton(
-                icon: const Icon(Icons.notifications),
-                onPressed: () {
-                  getToken();
-                },
-              ),
+              // IconButton(
+              //   icon: const Icon(Icons.notifications),
+              //   onPressed: () {
+              //     getToken();
+              //   },
+              // ),
             ],
           ),
         ),
       ),
       body: ListView(
         children: [
-          Container(
-            // height: size.height * 0.43,
-            height: size.height * 0.55,
-            width: size.width,
-            decoration: const BoxDecoration(color: Colors.white),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Obx(() => HeaderProfileWidget(
+          Obx(() => Container(
+                // height: size.height * 0.43,
+                height:
+                    x.role_id == 1 ? size.height * 0.55 : size.height * 0.43,
+                width: size.width,
+                decoration: const BoxDecoration(color: Colors.white),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    HeaderProfileWidget(
                       userName: x.karyawan['nama'] ?? 'M. Abdullah Sani',
                       posision: x.karyawan['pernr'] ?? '7822000',
                       imageUrl: x.karyawan['pernr'] ?? '',
                       webUrl: '',
-                    )),
-                Container(
-                  // height: size.height * 0.23,
-                  height: size.height * 0.15,
-                  width: size.width * 0.9,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(5.0),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.grey.withOpacity(0.3),
-                          offset: const Offset(1.1, 1.1),
-                          blurRadius: 10.0),
-                    ],
-                  ),
-                  child: const IconsProfileContainerWidget(),
+                    ),
+                    Container(
+                      // height: size.height * 0.23,
+                      height: size.height * 0.15,
+                      width: size.width * 0.9,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(5.0),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              offset: const Offset(1.1, 1.1),
+                              blurRadius: 10.0),
+                        ],
+                      ),
+                      child: const IconsProfileContainerWidget(),
+                    ),
+                    SizedBox(
+                      height: padding10,
+                    ),
+                    Container(
+                      height: x.role_id == 1
+                          ? size.height * 0.23
+                          : size.height * 0.11,
+                      // height: size.height * 0.11,
+                      width: size.width * 0.9,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(5.0),
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              offset: const Offset(1.1, 1.1),
+                              blurRadius: 10.0),
+                        ],
+                      ),
+                      child: const IconsContainerWidget(),
+                    ),
+                  ],
                 ),
-                SizedBox(
-                  height: padding10,
-                ),
-                Container(
-                  height: size.height * 0.23,
-                  // height: size.height * 0.11,
-                  width: size.width * 0.9,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(5.0),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.grey.withOpacity(0.3),
-                          offset: const Offset(1.1, 1.1),
-                          blurRadius: 10.0),
-                    ],
-                  ),
-                  child: const IconsContainerWidget(),
-                ),
-              ],
-            ),
-          ),
+              )),
           Obx(
             () => x.role_id == 1
                 ? Row(
@@ -213,7 +219,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     iconSize: 24,
                                     elevation: 16,
                                     onChanged: (String? newValue) {
-                                      print(newValue);
+                                      // print(newValue);
                                       setState(() {
                                         if (newValue == '1') {
                                           Get.offAllNamed('/admin/main');

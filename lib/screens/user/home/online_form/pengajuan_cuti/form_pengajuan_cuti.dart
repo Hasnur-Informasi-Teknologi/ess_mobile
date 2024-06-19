@@ -61,13 +61,13 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
   double maxHeightAtasanDariAtasan = 60.0;
   double maxHeightEntitasKaryawanPengganti = 60.0;
   double maxHeightKaryawanPengganti = 60.0;
-  double maxHeightKeperluanCuti = 40.0;
-  double maxHeightIzinLainnya = 40.0;
-  double maxHeightCutiYangDiambil = 40.0;
-  double maxHeightAlamatCuti = 40.0;
-  double maxHeightNoTelepon = 40.0;
-  double maxHeightCutiTahunanDibayar = 40.0;
-  double maxHeightCutiTahunanTidakDibayar = 40.0;
+  double maxHeightKeperluanCuti = 50.0;
+  double maxHeightIzinLainnya = 50.0;
+  double maxHeightCutiYangDiambil = 50.0;
+  double maxHeightAlamatCuti = 50.0;
+  double maxHeightNoTelepon = 50.0;
+  double maxHeightCutiTahunanDibayar = 50.0;
+  double maxHeightCutiTahunanTidakDibayar = 50.0;
 
   bool? _isDiBayar = false;
   bool? _isTidakDiBayar = false;
@@ -641,7 +641,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     // }
 
     setState(() {
-      maxHeightCutiYangDiambil = 40.0;
+      maxHeightCutiYangDiambil = 50.0;
     });
     return null;
   }
@@ -655,7 +655,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     }
 
     setState(() {
-      maxHeightKeperluanCuti = 40.0;
+      maxHeightKeperluanCuti = 50.0;
     });
     return null;
   }
@@ -669,7 +669,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     }
 
     setState(() {
-      maxHeightAlamatCuti = 40.0;
+      maxHeightAlamatCuti = 50.0;
     });
     return null;
   }
@@ -683,7 +683,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     }
 
     setState(() {
-      maxHeightNoTelepon = 40.0;
+      maxHeightNoTelepon = 50.0;
     });
     return null;
   }

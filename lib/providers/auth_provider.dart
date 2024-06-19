@@ -37,7 +37,7 @@ class AuthProvider with ChangeNotifier {
       prefs.setString('token', responseData['token']);
       prefs.setString('nrp', nrp);
       final user = await ioClient.get(
-        Uri.parse('$_apiUrl/master/profile/get_employee?nrp=$nrp'),
+        Uri.parse('$_apiUrl/master/profile/get_employee'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
           'Authorization': "Bearer " + responseData['token']

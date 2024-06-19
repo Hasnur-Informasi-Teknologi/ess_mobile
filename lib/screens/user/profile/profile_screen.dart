@@ -553,29 +553,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        Flexible(
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              onPrimary: Colors.black87,
-              elevation: 5,
-              primary: Color.fromARGB(255, 17, 209, 27),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(8)),
-              ),
-            ),
-            onPressed: () {
-              Get.toNamed('/user/profile/edit');
-            },
-            child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [Icon(Icons.edit), Text('Edit Profile')]),
-          ),
-        ),
-        const SizedBox(
-          width: 30,
-        ),
-        Flexible(
+        // Flexible(
+        //   child: ElevatedButton(
+        //     style: ElevatedButton.styleFrom(
+        //       onPrimary: Colors.black87,
+        //       elevation: 5,
+        //       primary: Color.fromARGB(255, 17, 209, 27),
+        //       padding: const EdgeInsets.symmetric(horizontal: 16),
+        //       shape: const RoundedRectangleBorder(
+        //         borderRadius: BorderRadius.all(Radius.circular(8)),
+        //       ),
+        //     ),
+        //     onPressed: () {
+        //       Get.toNamed('/user/profile/edit');
+        //     },
+        //     child: const Row(
+        //         mainAxisAlignment: MainAxisAlignment.center,
+        //         children: [Icon(Icons.edit), Text('Edit Profile')]),
+        //   ),
+        // ),
+        // const SizedBox(
+        //   width: 30,
+        // ),
+        SizedBox(
+          width: 150,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
               onPrimary: Colors.black87,
@@ -586,13 +587,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 borderRadius: BorderRadius.all(Radius.circular(8)),
               ),
             ),
-            // onPressed: () async {
-            //   SharedPreferences prefs =
-            //       await SharedPreferences.getInstance();
-            //   prefs.remove('token');
-            //   prefs.remove('nrp');
-            //   Get.offAllNamed('/');
-            // },
             onPressed: () {
               showModal(context);
             },

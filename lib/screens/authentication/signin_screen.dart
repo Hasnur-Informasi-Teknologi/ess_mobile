@@ -27,8 +27,8 @@ class _SignInScreenState extends State<SignInScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nrpController = TextEditingController();
   final _passController = TextEditingController();
-  double maxHeight = 40.0;
-  double _maxHeightPass = 40.0;
+  double maxHeight = 50.0;
+  double _maxHeightPass = 50.0;
 
   bool _obscureText = true;
   bool _isLoading = false;
@@ -55,8 +55,12 @@ class _SignInScreenState extends State<SignInScreen> {
           .signIn(userNrp!, userPass!)
           .then((auth) {
         if (auth == 1) {
+          print('admin');
+          print(auth);
           Get.offAllNamed('/admin/main');
         } else if (auth == 4) {
+          print('user');
+          print(auth);
           Get.offAllNamed('/user/main');
         }
       });
@@ -123,7 +127,7 @@ class _SignInScreenState extends State<SignInScreen> {
       return 'Password Kosong';
     }
     setState(() {
-      maxHeight = 40.0;
+      maxHeight = 50.0;
     });
     return null;
   }
@@ -136,7 +140,7 @@ class _SignInScreenState extends State<SignInScreen> {
       return 'Password Kosong';
     }
     setState(() {
-      _maxHeightPass = 40.0;
+      _maxHeightPass = 50.0;
     });
     return null;
   }
