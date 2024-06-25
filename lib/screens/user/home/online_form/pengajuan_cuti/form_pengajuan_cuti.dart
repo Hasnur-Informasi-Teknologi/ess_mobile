@@ -77,6 +77,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
       selectedValueEntitasPengganti,
       selectedValueAtasan,
       selectedValueAtasanDariAtasan,
+      selectedValueEntitasAtasanDariAtasan,
       selectedValuePengganti,
       selectedValueCutiLainnya;
 
@@ -197,7 +198,6 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
             });
         final responseData = jsonDecode(response.body);
         final dataEntitasApi = responseData['data'];
-        print(dataEntitasApi);
 
         setState(() {
           selectedEntitas = List<Map<String, dynamic>>.from(dataEntitasApi);
@@ -213,6 +213,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
   Future<void> getDataAtasan() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
+    print(selectedValueEntitas);
 
     if (token != null) {
       try {
@@ -220,12 +221,15 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
         final response = await ioClient.get(
             Uri.parse(
                 "$_apiUrl/master/cuti/atasan?entitas=$selectedValueEntitas"),
+            // Uri.parse(
+            //     "http://ess-dev.hasnurgroup.com:8081/api/master/cuti/atasan?entitas=HU78"),
             headers: <String, String>{
               'Content-Type': 'application/json;charset=UTF-8',
               'Authorization': 'Bearer $token'
             });
         final responseData = jsonDecode(response.body);
         final dataAtasanApi = responseData['list_karyawan'];
+        print(responseData);
 
         setState(() {
           selectedAtasan = List<Map<String, dynamic>>.from(dataAtasanApi);
@@ -526,7 +530,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                 'jml_cuti': totalCutiYangDiambil,
                 'keperluan': keperluanCuti.toString(),
                 'alamat_cuti': alamatCuti.toString(),
-                'no_telp': noTelepon.toString()
+                'no_telp': noTelepon.toString(),
+                'nrp_direktur': selectedValueAtasanDariAtasan.toString(),
+                'entitas_direktur':
+                    selectedValueEntitasAtasanDariAtasan.toString()
               }));
 
       final responseData = jsonDecode(response.body);
@@ -934,6 +941,20 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           onChanged: (String? newValue) {
                             setState(() {
                               selectedValueAtasanDariAtasan = newValue ?? '';
+                              // selectedValueEntitasAtasanDariAtasan;
+                              var masterDataAtasanDariAtasan =
+                                  selectedAtasanDariAtasan
+                                      .where((item) =>
+                                          item['nrp'] ==
+                                          selectedValueAtasanDariAtasan)
+                                      .toList();
+                              if (masterDataAtasanDariAtasan.isNotEmpty) {
+                                selectedValueEntitasAtasanDariAtasan =
+                                    masterDataAtasanDariAtasan[0]['cocd'];
+                              } else {
+                                selectedValueEntitasAtasanDariAtasan =
+                                    null; // or any default value you prefer
+                              }
                             });
                           },
                           items: selectedAtasanDariAtasan

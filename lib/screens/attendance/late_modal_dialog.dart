@@ -28,7 +28,7 @@ class _LateModalDialogState extends State<LateModalDialog> {
   final String _apiUrl = API_URL;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _alasanTerlambatController = TextEditingController();
-  double maxHeightAlasan = 40.0;
+  double maxHeightAlasan = 50.0;
   bool _isLoading = false;
   XFile? _imageFile;
   bool _isFileNull = false;
@@ -103,6 +103,7 @@ class _LateModalDialogState extends State<LateModalDialog> {
     var streamedResponse = await ioClient.send(request);
     final responseData = await streamedResponse.stream.bytesToString();
     final responseDataMessage = json.decode(responseData);
+    Get.offAllNamed('/user/main');
     Get.snackbar('Infomation', responseDataMessage['message'],
         snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.amber,
@@ -114,7 +115,6 @@ class _LateModalDialogState extends State<LateModalDialog> {
     setState(() {
       _isLoading = false;
     });
-    Get.offAllNamed('/user/main');
   }
 
   Future<File> _compressImage(File imageFile) async {
@@ -136,13 +136,13 @@ class _LateModalDialogState extends State<LateModalDialog> {
   String? _validatorAlasan(dynamic value) {
     if (value == null || value.isEmpty) {
       setState(() {
-        maxHeightAlasan = 60.0;
+        maxHeightAlasan = 70.0;
       });
       return 'Field Alasan Terlambat Kosong';
     }
 
     setState(() {
-      maxHeightAlasan = 40.0;
+      maxHeightAlasan = 50.0;
     });
     return null;
   }

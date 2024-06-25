@@ -31,6 +31,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final String _apiUrl = API_URL;
   Controller x = Get.put(Controller());
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -84,6 +85,16 @@ class _HomeScreenState extends State<HomeScreen> {
     Get.offAllNamed('/');
   }
 
+  Future<void> _handleRefresh() async {
+    setState(() {
+      _isLoading = true;
+    });
+    await getDataKaryawan();
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -93,183 +104,195 @@ class _HomeScreenState extends State<HomeScreen> {
     double paddingHorizontalWide = size.width * 0.0585;
     double padding10 = size.width * 0.023;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        title: Padding(
-          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Obx(() => Text(
-                    x.karyawan['pt'] ?? 'PT Hasnur Informasi Teknologi',
-                    style: TextStyle(
-                        fontSize: textMedium,
-                        fontWeight: FontWeight.w500,
-                        fontFamily: 'Quicksand'),
-                  )),
-              // IconButton(
-              //   icon: const Icon(Icons.notifications),
-              //   onPressed: () {
-              //     getToken();
-              //   },
-              // ),
-            ],
-          ),
-        ),
-      ),
-      body: ListView(
-        children: [
-          Obx(() => Container(
-                // height: size.height * 0.43,
-                height:
-                    x.role_id == 1 ? size.height * 0.55 : size.height * 0.43,
-                width: size.width,
-                decoration: const BoxDecoration(color: Colors.white),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : Scaffold(
+            backgroundColor: Colors.white,
+            appBar: AppBar(
+              elevation: 0,
+              backgroundColor: Colors.white,
+              title: Padding(
+                padding:
+                    EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    HeaderProfileWidget(
-                      userName: x.karyawan['nama'] ?? 'M. Abdullah Sani',
-                      posision: x.karyawan['pernr'] ?? '7822000',
-                      imageUrl: x.karyawan['pernr'] ?? '',
-                      webUrl: '',
-                    ),
-                    Container(
-                      // height: size.height * 0.23,
-                      height: size.height * 0.15,
-                      width: size.width * 0.9,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(5.0),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              offset: const Offset(1.1, 1.1),
-                              blurRadius: 10.0),
-                        ],
-                      ),
-                      child: const IconsProfileContainerWidget(),
-                    ),
-                    SizedBox(
-                      height: padding10,
-                    ),
-                    Container(
-                      height: x.role_id == 1
-                          ? size.height * 0.23
-                          : size.height * 0.11,
-                      // height: size.height * 0.11,
-                      width: size.width * 0.9,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(5.0),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.grey.withOpacity(0.3),
-                              offset: const Offset(1.1, 1.1),
-                              blurRadius: 10.0),
-                        ],
-                      ),
-                      child: const IconsContainerWidget(),
-                    ),
+                    Obx(() => Text(
+                          x.karyawan['pt'] ?? 'PT Hasnur Informasi Teknologi',
+                          style: TextStyle(
+                              fontSize: textMedium,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'Quicksand'),
+                        )),
+                    // IconButton(
+                    //   icon: const Icon(Icons.notifications),
+                    //   onPressed: () {
+                    //     getToken();
+                    //   },
+                    // ),
                   ],
                 ),
-              )),
-          Obx(
-            () => x.role_id == 1
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide),
-                        child: const TitleWidget(title: 'Dashboard'),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide,
-                            vertical: padding10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
+              ),
+            ),
+            body: RefreshIndicator(
+              onRefresh: _handleRefresh,
+              child: ListView(
+                children: [
+                  Obx(() => Container(
+                        // height: size.height * 0.43,
+                        height: x.role_id == 1
+                            ? size.height * 0.55
+                            : size.height * 0.43,
+                        width: size.width,
+                        decoration: const BoxDecoration(color: Colors.white),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
+                            HeaderProfileWidget(
+                              userName:
+                                  x.karyawan['nama'] ?? 'M. Abdullah Sani',
+                              posision: x.karyawan['pernr'] ?? '7822000',
+                              imageUrl: x.karyawan['pernr'] ?? '',
+                              webUrl: '',
+                            ),
                             Container(
-                              height: 40,
-                              width: 100,
-                              padding: EdgeInsets.all(4),
-                              margin: EdgeInsets.only(left: 10),
+                              // height: size.height * 0.23,
+                              height: size.height * 0.15,
+                              width: size.width * 0.9,
                               decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: Color.fromARGB(102, 158, 158, 158),
-                                  width: 1,
-                                ),
-                                borderRadius: BorderRadius.circular(6),
+                                color: Colors.grey[100],
+                                borderRadius: BorderRadius.circular(5.0),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.grey.withOpacity(0.3),
+                                      offset: const Offset(1.1, 1.1),
+                                      blurRadius: 10.0),
+                                ],
                               ),
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 5, right: 5),
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    style: const TextStyle(
-                                      fontSize: 10,
-                                      color: Colors.black,
-                                    ),
-                                    value: selectionDashboard,
-                                    iconSize: 24,
-                                    elevation: 16,
-                                    onChanged: (String? newValue) {
-                                      // print(newValue);
-                                      setState(() {
-                                        if (newValue == '1') {
-                                          Get.offAllNamed('/admin/main');
-                                        } else {
-                                          Get.offAllNamed('/user/main');
-                                        }
-                                        selectionDashboard = newValue;
-                                      });
-                                    },
-                                    items: {'1': 'Admin', '2': 'User'}
-                                        .keys
-                                        .map<DropdownMenuItem<String>>(
-                                      (String id) {
-                                        return DropdownMenuItem<String>(
-                                          value: id,
-                                          child: Text(
-                                              {'1': 'Admin', '2': 'User'}[id]!),
-                                        );
-                                      },
-                                    ).toList(),
-                                  ),
-                                ),
+                              child: const IconsProfileContainerWidget(),
+                            ),
+                            SizedBox(
+                              height: padding10,
+                            ),
+                            Container(
+                              height: x.role_id == 1
+                                  ? size.height * 0.23
+                                  : size.height * 0.11,
+                              // height: size.height * 0.11,
+                              width: size.width * 0.9,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[100],
+                                borderRadius: BorderRadius.circular(5.0),
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: Colors.grey.withOpacity(0.3),
+                                      offset: const Offset(1.1, 1.1),
+                                      blurRadius: 10.0),
+                                ],
                               ),
-                            )
+                              child: const IconsContainerWidget(),
+                            ),
                           ],
                         ),
-                      ),
-                    ],
+                      )),
+                  Obx(
+                    () => x.role_id == 1
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalWide),
+                                child: const TitleWidget(title: 'Dashboard'),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: paddingHorizontalWide,
+                                    vertical: padding10),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      height: 40,
+                                      width: 100,
+                                      padding: EdgeInsets.all(4),
+                                      margin: EdgeInsets.only(left: 10),
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Color.fromARGB(
+                                              102, 158, 158, 158),
+                                          width: 1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 5, right: 5),
+                                        child: DropdownButtonHideUnderline(
+                                          child: DropdownButton<String>(
+                                            style: const TextStyle(
+                                              fontSize: 10,
+                                              color: Colors.black,
+                                            ),
+                                            value: selectionDashboard,
+                                            iconSize: 24,
+                                            elevation: 16,
+                                            onChanged: (String? newValue) {
+                                              // print(newValue);
+                                              setState(() {
+                                                if (newValue == '1') {
+                                                  Get.offAllNamed(
+                                                      '/admin/main');
+                                                } else {
+                                                  Get.offAllNamed('/user/main');
+                                                }
+                                                selectionDashboard = newValue;
+                                              });
+                                            },
+                                            items: {'1': 'Admin', '2': 'User'}
+                                                .keys
+                                                .map<DropdownMenuItem<String>>(
+                                              (String id) {
+                                                return DropdownMenuItem<String>(
+                                                  value: id,
+                                                  child: Text({
+                                                    '1': 'Admin',
+                                                    '2': 'User'
+                                                  }[id]!),
+                                                );
+                                              },
+                                            ).toList(),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ],
+                          )
+                        : Text(''),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalWide, vertical: padding10),
+                    child: RowWithButtonWidget(
+                      textLeft: '',
+                      textRight: 'Laporan Absensi',
+                      fontSizeLeft: textSmall,
+                      fontSizeRight: textSmall,
+                      onTab: () {
+                        Get.toNamed('/user/main/home/request_attendance');
+                      },
+                    ),
+                  ),
+                  const JadwalKerjaCardWidget(),
+                  const SizedBox(
+                    height: 100,
                   )
-                : Text(''),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: paddingHorizontalWide, vertical: padding10),
-            child: RowWithButtonWidget(
-              textLeft: '',
-              textRight: 'Laporan Absensi',
-              fontSizeLeft: textSmall,
-              fontSizeRight: textSmall,
-              onTab: () {
-                Get.toNamed('/user/main/home/request_attendance');
-              },
+                ],
+              ),
             ),
-          ),
-          const JadwalKerjaCardWidget(),
-          const SizedBox(
-            height: 100,
-          )
-        ],
-      ),
-    );
+          );
   }
 }

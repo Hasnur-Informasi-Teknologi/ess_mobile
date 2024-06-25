@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_cropper/image_cropper.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
@@ -37,6 +38,7 @@ class ProfileEditScreen extends StatefulWidget {
 class _ProfileEditScreenState extends State<ProfileEditScreen> {
   ProfileEditController x = Get.put(ProfileEditController());
   final _formKey = GlobalKey<FormState>();
+  final String _apiUrl = API_URL;
 
   String dropdownValue = 'Belum Menikah';
 
@@ -202,43 +204,94 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     getData();
   }
 
-  Future _pickImage(ImageSource source) async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: source);
-    if (pickedFile != null) {
-      return File(pickedFile.path);
+  // Future _pickImage(ImageSource source) async {
+  //   final picker = ImagePicker();
+  //   final pickedFile = await picker.pickImage(source: source);
+  //   if (pickedFile != null) {
+  //     return File(pickedFile.path);
+  //   }
+  //   return null;
+  // }
+
+  Future<XFile?> _pickImage(ImageSource source) async {
+    final ImagePicker _picker = ImagePicker();
+    return await _picker.pickImage(source: source);
+  }
+
+  Future<File?> _cropImage(String sourcePath) async {
+    final ImageCropper _cropper = ImageCropper();
+    final croppedFile = await _cropper.cropImage(
+      sourcePath: sourcePath,
+      aspectRatio: CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
+      aspectRatioPresets: [
+        CropAspectRatioPreset.square,
+      ],
+      androidUiSettings: const AndroidUiSettings(
+        toolbarTitle: 'Crop Image',
+        toolbarColor: Colors.blue,
+        toolbarWidgetColor: Colors.white,
+        initAspectRatio: CropAspectRatioPreset.square,
+        lockAspectRatio: true,
+      ),
+      iosUiSettings: const IOSUiSettings(
+        minimumAspectRatio: 1.0,
+      ),
+    );
+
+    if (croppedFile != null) {
+      return File(croppedFile.path);
+    } else {
+      return null;
     }
-    return null;
   }
 
   Future<bool> uploadImage(imageFile) async {
-    final String _apiUrl = API_URL;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var userData = prefs.getString('userData');
     final user = jsonDecode(userData.toString())['data'];
+    String nrp = user['pernr'];
     String? token = prefs.getString('token');
     try {
-      final request = http.MultipartRequest("POST",
-          Uri.parse('$_apiUrl/master/profile/add_photo?nrp=' + user['pernr']));
+      final request = http.MultipartRequest(
+          "POST", Uri.parse('$_apiUrl/master/profile/add_photo?nrp=$nrp'));
       final headers = {
         "Content-type": "multipart/form-data",
-        'Authorization': "Bearer " + token.toString()
+        'Authorization': "Bearer $token"
       };
 
       request.headers.addAll(headers);
       request.files.add(await http.MultipartFile.fromPath(
-        'image', // 'picture' here is the key for the API request
+        'image',
         imageFile.path,
       ));
 
       final response = await request.send();
+      String responseBody = await response.stream.bytesToString();
+      var responseData = json.decode(responseBody);
+      String message = responseData['message'];
       if (response.statusCode == 200) {
-        print('Image uploaded!');
         x.message.value = "Image Uploaded!";
+        Get.snackbar('Infomation', message,
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
+        Get.offAllNamed('/user/main');
         return true;
       } else {
-        print('Upload failed!');
         x.message.value = "Upload Failed!";
+        Get.snackbar('Infomation', message,
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
+        Get.offAllNamed('/user/main');
         return false;
       }
     } catch (e) {
@@ -270,7 +323,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         height: 30,
                       ),
                       const Center(
-                        child: Text("Edit Profile",
+                        child: Text("Edit Photo",
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -280,30 +333,30 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                         height: 30,
                       ),
                       uploadPhotoButton(context),
-                      const TitleWidget(title: 'Data Pribadi'),
-                      SizedBox(height: sizedBoxHeightShort),
-                      informasiPribadiFormWidget(context),
-                      SizedBox(height: sizedBoxHeightTall),
-                      informasiFisikFormWidget(context),
-                      SizedBox(height: sizedBoxHeightTall),
-                      const Divider(),
-                      const TitleWidget(title: 'Data Kepegawaian'),
-                      SizedBox(height: sizedBoxHeightShort),
-                      informasiKepegawaianFormWidget(context),
-                      SizedBox(height: sizedBoxHeightShort),
-                      informasiKontrakFormWidget(context),
-                      SizedBox(height: sizedBoxHeightTall),
-                      const Divider(),
-                      const TitleWidget(title: 'Data Kepegawaian'),
-                      SizedBox(height: sizedBoxHeightShort),
-                      informasiPendidikanFormWidget(context),
-                      const SizedBox(
-                        height: 50,
-                      ),
-                      ubahDataButton(context),
-                      const SizedBox(
-                        height: 300,
-                      ),
+                      // const TitleWidget(title: 'Data Pribadi'),
+                      // SizedBox(height: sizedBoxHeightShort),
+                      // informasiPribadiFormWidget(context),
+                      // SizedBox(height: sizedBoxHeightTall),
+                      // informasiFisikFormWidget(context),
+                      // SizedBox(height: sizedBoxHeightTall),
+                      // const Divider(),
+                      // const TitleWidget(title: 'Data Kepegawaian'),
+                      // SizedBox(height: sizedBoxHeightShort),
+                      // informasiKepegawaianFormWidget(context),
+                      // SizedBox(height: sizedBoxHeightShort),
+                      // informasiKontrakFormWidget(context),
+                      // SizedBox(height: sizedBoxHeightTall),
+                      // const Divider(),
+                      // const TitleWidget(title: 'Data Kepegawaian'),
+                      // SizedBox(height: sizedBoxHeightShort),
+                      // informasiPendidikanFormWidget(context),
+                      // const SizedBox(
+                      //   height: 50,
+                      // ),
+                      // ubahDataButton(context),
+                      // const SizedBox(
+                      //   height: 300,
+                      // ),
                     ],
                   ),
                 )),
@@ -331,14 +384,24 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               borderRadius: BorderRadius.all(Radius.circular(10)),
             ),
           ),
+          // onPressed: () async {
+          //   x.message.value = '';
+          //   final imageFile = await _pickImage(ImageSource.gallery);
+          //   if (imageFile != null) {
+          //     uploadImage(imageFile);
+          //   }
+          // },
           onPressed: () async {
             x.message.value = '';
             final imageFile = await _pickImage(ImageSource.gallery);
             if (imageFile != null) {
-              uploadImage(imageFile);
+              final croppedFile = await _cropImage(imageFile.path);
+              if (croppedFile != null) {
+                await uploadImage(File(croppedFile.path));
+              }
             }
           },
-          child: Row(children: [Text('Upload Photo ...')]),
+          child: const Row(children: [Text('Upload Photo ...')]),
         ),
       ],
     );

@@ -32,6 +32,21 @@ class WFHLocationScreen extends StatefulWidget {
 class _WFHLocationScreenState extends State<WFHLocationScreen> {
   String? lat, long, address;
   bool _isLoading = false;
+  String _timeZone = 'WIB';
+
+  @override
+  void initState() {
+    super.initState();
+    _getTimeZone();
+  }
+
+  void _getTimeZone() {
+    var now = DateTime.now();
+    var timeZoneName = now.timeZoneName;
+    setState(() {
+      _timeZone = timeZoneName;
+    });
+  }
 
   Future<void> getLocation() async {
     final locationService = LocationService();
@@ -58,11 +73,6 @@ class _WFHLocationScreenState extends State<WFHLocationScreen> {
   }
 
   Future<void> clockInProcess() async {
-    // bool isMockLocation = await TrustLocation.isMockLocation;
-    // if(isMockLocation){
-    //   _showErrorDialog('Ayo nakal yaa, ketahuan mau fake GPS ya?');
-    //   return;
-    // }
     setState(() {
       _isLoading = true;
     });
@@ -76,7 +86,7 @@ class _WFHLocationScreenState extends State<WFHLocationScreen> {
     print('=======TIMESTAMP ======');
     DateTime sdate = DateTime.parse(response.body);
     int stimestamp = sdate.millisecondsSinceEpoch;
-    var timeZone = prefs.getString('timeZone');
+    // var timeZone = prefs.getString('timeZone');
     // var timezone = await FlutterTimezone.getLocalTimezone();
     // if (timezone == 'Asia/Jakarta') {
     //   timeZone = 'WIB'; // Western Indonesia Time
@@ -87,6 +97,7 @@ class _WFHLocationScreenState extends State<WFHLocationScreen> {
     // } else {
     //   timeZone = 'Unknown'; // Unknown or not applicable
     // }
+    var timeZone = _timeZone;
     if (timeZone == 'WITA') {
       stimestamp = stimestamp + (1 * 60 * 60 * 1000);
     } else if (timeZone == 'WIT') {

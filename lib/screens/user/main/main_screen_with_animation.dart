@@ -179,6 +179,8 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
             );
           },
           changeIndex: (int index) {
+            print('main screen');
+            print(index);
             if (index == 0) {
               animationController?.reverse().then<dynamic>((data) {
                 if (!mounted) {
@@ -202,8 +204,10 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
                 if (!mounted) {
                   return;
                 }
+
                 setState(() {
                   tabBody = const DaftarPersetujuanScreen();
+                  // tabBody = const ProfileScreen();
                 });
               });
             } else if (index == 3) {

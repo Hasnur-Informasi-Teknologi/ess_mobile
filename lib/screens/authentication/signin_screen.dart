@@ -55,52 +55,52 @@ class _SignInScreenState extends State<SignInScreen> {
           .signIn(userNrp!, userPass!)
           .then((auth) {
         if (auth == 1) {
-          print('admin');
-          print(auth);
           Get.offAllNamed('/admin/main');
         } else if (auth == 4) {
-          print('user');
-          print(auth);
           Get.offAllNamed('/user/main');
         }
       });
-
-      // ;
-    } on HttpException catch (e) {
-      String errorMessage = '';
-
-      if (e.toString().contains('USER_NOT_FOUND')) {
-        errorMessage = 'USER NOT FOUND';
-      } else if (e.toString().contains('INVALID_PASSWORD')) {
-        errorMessage = 'INVALID PASSWORD';
-      } else if (e.toString().contains('USER_NOT_REGISTERED')) {
-        errorMessage = 'USER NOT REGISTERED';
-      }
-      _showErrorDialog(errorMessage);
-
-      // Future.delayed(
-      //     const Duration(seconds: 2),
-      //     () => Navigator.pushReplacement(context,
-      //         MaterialPageRoute(builder: (ctx) => const HomeScreen())));
     } catch (e) {
+      String errorMessage = '';
       print(e);
 
-      _showErrorDialog("Username atau Password Salah!");
-      print('Gagal Fetching Data');
-      // Get.offAllNamed('/user/main');
+      if (e is HttpException) {
+        errorMessage = e.message;
+      } else {
+        errorMessage = e.toString();
+      }
 
-      // _showErrorDialog('USER NOT REGISTERED');
-      // Future.delayed(
-      //   const Duration(seconds: 2),
-      //   () => Navigator.pushReplacement(
-      //     context,
-      //     MaterialPageRoute(
-      //       builder: (ctx) => const MainScreen(),
-      //     ),
-      //   ),
-      // );
+      _showErrorDialog(errorMessage);
     }
 
+    // try {
+    //   final authResponse =
+    //       await Provider.of<AuthProvider>(context, listen: false)
+    //           .signIn(userNrp!, userPass!);
+
+    //   final roleId = authResponse.roleId;
+
+    //   if (roleId == 1) {
+    //     print('admin');
+    //     print(roleId);
+    //     Get.offAllNamed('/admin/main');
+    //   } else if (roleId == 4) {
+    //     print('user');
+    //     print(roleId);
+    //     Get.offAllNamed('/user/main');
+    //   }
+    // } catch (e) {
+    //   String errorMessage = 'Authentication failed. Please try again later.';
+
+    //   if (e is HttpException) {
+    //     errorMessage = e.message; // Use the error message from responseData
+    //   } else {
+    //     errorMessage = e.toString();
+    //   }
+
+    //   _showErrorDialog(errorMessage);
+    //   print('Failed to fetch data');
+    // }
     setState(() {
       _isLoading = false;
     });

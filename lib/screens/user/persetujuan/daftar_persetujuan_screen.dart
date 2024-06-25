@@ -53,7 +53,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     {'id': '2', 'opsi': 'Bantuan Komunikasi'},
     {'id': '3', 'opsi': 'Hard/Software'},
     {'id': '4', 'opsi': 'Lembur Karyawan'},
-    {'id': '12', 'opsi': 'Summary Cuti'},
+    // {'id': '12', 'opsi': 'Summary Cuti'},
     {'id': '5', 'opsi': 'Pengajuan Cuti'},
     {'id': '8', 'opsi': 'Perpanjangan Cuti'},
     {'id': '6', 'opsi': 'Pengajuan Training'},
@@ -1157,56 +1157,58 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double sizedBoxHeightShort = 8;
 
-    return _isLoading
-        ? const Padding(
-            padding: EdgeInsets.symmetric(vertical: 200),
-            child: Center(child: CircularProgressIndicator()),
-          )
-        : Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-            child: ListView.builder(
-              itemCount: masterDataPersetujuan.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: sizedBoxHeightShort,
-                    horizontal: paddingHorizontalNarrow,
-                  ),
-                  child: selectedValueDaftarPersetujuan == '2'
-                      ? buildBantuanKomunikasi(masterDataPersetujuan[index])
-                      : selectedValueDaftarPersetujuan == '5'
-                          ? buildCuti(masterDataPersetujuan[index])
-                          : selectedValueDaftarPersetujuan == '6'
-                              ? buildPengajuanTraining(
-                                  masterDataPersetujuan[index])
-                              : selectedValueDaftarPersetujuan == '7'
-                                  ? buildImPerjalananDinas(
-                                      masterDataPersetujuan[index])
-                                  : selectedValueDaftarPersetujuan == '13'
-                                      ? buildLpjPerjalananDinas(
-                                          masterDataPersetujuan[index])
-                                      : selectedValueDaftarPersetujuan == '14'
-                                          ? buildSuratIzinKeluar(
-                                              masterDataPersetujuan[index])
-                                          : selectedValueDaftarPersetujuan ==
-                                                  '8'
-                                              ? buildPerpanjanganCuti(
-                                                  masterDataPersetujuan[index])
-                                              : selectedValueDaftarPersetujuan ==
-                                                      '9'
-                                                  ? buildRawatInap(
-                                                      masterDataPersetujuan[
-                                                          index])
-                                                  : selectedValueDaftarPersetujuan ==
-                                                          '10'
-                                                      ? buildRawatJalan(
-                                                          masterDataPersetujuan[
-                                                              index])
-                                                      : const Text('Kosong'),
-                );
-              },
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 200),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (masterDataPersetujuan.isEmpty) {
+      return const Center(child: Text('Data Kosong ...'));
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+      child: ListView.builder(
+        itemCount: masterDataPersetujuan.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: sizedBoxHeightShort,
+              horizontal: paddingHorizontalNarrow,
             ),
+            child: selectedValueDaftarPersetujuan == '2'
+                ? buildBantuanKomunikasi(masterDataPersetujuan[index])
+                : selectedValueDaftarPersetujuan == '5'
+                    ? buildCuti(masterDataPersetujuan[index])
+                    : selectedValueDaftarPersetujuan == '6'
+                        ? buildPengajuanTraining(masterDataPersetujuan[index])
+                        : selectedValueDaftarPersetujuan == '7'
+                            ? buildImPerjalananDinas(
+                                masterDataPersetujuan[index])
+                            : selectedValueDaftarPersetujuan == '13'
+                                ? buildLpjPerjalananDinas(
+                                    masterDataPersetujuan[index])
+                                : selectedValueDaftarPersetujuan == '14'
+                                    ? buildSuratIzinKeluar(
+                                        masterDataPersetujuan[index])
+                                    : selectedValueDaftarPersetujuan == '8'
+                                        ? buildPerpanjanganCuti(
+                                            masterDataPersetujuan[index])
+                                        : selectedValueDaftarPersetujuan == '9'
+                                            ? buildRawatInap(
+                                                masterDataPersetujuan[index])
+                                            : selectedValueDaftarPersetujuan ==
+                                                    '10'
+                                                ? buildRawatJalan(
+                                                    masterDataPersetujuan[
+                                                        index])
+                                                : const Text('Kosong'),
           );
+        },
+      ),
+    );
   }
 
   Widget approvedTabWidget(BuildContext context) {
@@ -1214,56 +1216,58 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double sizedBoxHeightShort = 8;
 
-    return _isLoading
-        ? const Padding(
-            padding: EdgeInsets.symmetric(vertical: 200),
-            child: Center(child: CircularProgressIndicator()),
-          )
-        : Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-            child: ListView.builder(
-              itemCount: masterDataPersetujuan.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: sizedBoxHeightShort,
-                    horizontal: paddingHorizontalNarrow,
-                  ),
-                  child: selectedValueDaftarPersetujuan == '2'
-                      ? buildBantuanKomunikasi(masterDataPersetujuan[index])
-                      : selectedValueDaftarPersetujuan == '5'
-                          ? buildCuti(masterDataPersetujuan[index])
-                          : selectedValueDaftarPersetujuan == '6'
-                              ? buildPengajuanTraining(
-                                  masterDataPersetujuan[index])
-                              : selectedValueDaftarPersetujuan == '7'
-                                  ? buildImPerjalananDinas(
-                                      masterDataPersetujuan[index])
-                                  : selectedValueDaftarPersetujuan == '13'
-                                      ? buildLpjPerjalananDinas(
-                                          masterDataPersetujuan[index])
-                                      : selectedValueDaftarPersetujuan == '14'
-                                          ? buildSuratIzinKeluar(
-                                              masterDataPersetujuan[index])
-                                          : selectedValueDaftarPersetujuan ==
-                                                  '8'
-                                              ? buildPerpanjanganCuti(
-                                                  masterDataPersetujuan[index])
-                                              : selectedValueDaftarPersetujuan ==
-                                                      '9'
-                                                  ? buildRawatInap(
-                                                      masterDataPersetujuan[
-                                                          index])
-                                                  : selectedValueDaftarPersetujuan ==
-                                                          '10'
-                                                      ? buildRawatJalan(
-                                                          masterDataPersetujuan[
-                                                              index])
-                                                      : const Text('Kosong'),
-                );
-              },
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 200),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (masterDataPersetujuan.isEmpty) {
+      return const Center(child: Text('Data Kosong ...'));
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+      child: ListView.builder(
+        itemCount: masterDataPersetujuan.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: sizedBoxHeightShort,
+              horizontal: paddingHorizontalNarrow,
             ),
+            child: selectedValueDaftarPersetujuan == '2'
+                ? buildBantuanKomunikasi(masterDataPersetujuan[index])
+                : selectedValueDaftarPersetujuan == '5'
+                    ? buildCuti(masterDataPersetujuan[index])
+                    : selectedValueDaftarPersetujuan == '6'
+                        ? buildPengajuanTraining(masterDataPersetujuan[index])
+                        : selectedValueDaftarPersetujuan == '7'
+                            ? buildImPerjalananDinas(
+                                masterDataPersetujuan[index])
+                            : selectedValueDaftarPersetujuan == '13'
+                                ? buildLpjPerjalananDinas(
+                                    masterDataPersetujuan[index])
+                                : selectedValueDaftarPersetujuan == '14'
+                                    ? buildSuratIzinKeluar(
+                                        masterDataPersetujuan[index])
+                                    : selectedValueDaftarPersetujuan == '8'
+                                        ? buildPerpanjanganCuti(
+                                            masterDataPersetujuan[index])
+                                        : selectedValueDaftarPersetujuan == '9'
+                                            ? buildRawatInap(
+                                                masterDataPersetujuan[index])
+                                            : selectedValueDaftarPersetujuan ==
+                                                    '10'
+                                                ? buildRawatJalan(
+                                                    masterDataPersetujuan[
+                                                        index])
+                                                : const Text('Kosong'),
           );
+        },
+      ),
+    );
   }
 
   Widget prossesTabWidget(BuildContext context) {
@@ -1271,56 +1275,58 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double sizedBoxHeightShort = 8;
 
-    return _isLoading
-        ? const Padding(
-            padding: EdgeInsets.symmetric(vertical: 200),
-            child: Center(child: CircularProgressIndicator()),
-          )
-        : Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-            child: ListView.builder(
-              itemCount: masterDataPersetujuan.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: sizedBoxHeightShort,
-                    horizontal: paddingHorizontalNarrow,
-                  ),
-                  child: selectedValueDaftarPersetujuan == '2'
-                      ? buildBantuanKomunikasi(masterDataPersetujuan[index])
-                      : selectedValueDaftarPersetujuan == '5'
-                          ? buildCuti(masterDataPersetujuan[index])
-                          : selectedValueDaftarPersetujuan == '6'
-                              ? buildPengajuanTraining(
-                                  masterDataPersetujuan[index])
-                              : selectedValueDaftarPersetujuan == '7'
-                                  ? buildImPerjalananDinas(
-                                      masterDataPersetujuan[index])
-                                  : selectedValueDaftarPersetujuan == '13'
-                                      ? buildLpjPerjalananDinas(
-                                          masterDataPersetujuan[index])
-                                      : selectedValueDaftarPersetujuan == '14'
-                                          ? buildSuratIzinKeluar(
-                                              masterDataPersetujuan[index])
-                                          : selectedValueDaftarPersetujuan ==
-                                                  '8'
-                                              ? buildPerpanjanganCuti(
-                                                  masterDataPersetujuan[index])
-                                              : selectedValueDaftarPersetujuan ==
-                                                      '9'
-                                                  ? buildRawatInap(
-                                                      masterDataPersetujuan[
-                                                          index])
-                                                  : selectedValueDaftarPersetujuan ==
-                                                          '10'
-                                                      ? buildRawatJalan(
-                                                          masterDataPersetujuan[
-                                                              index])
-                                                      : const Text('Kosong'),
-                );
-              },
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 200),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (masterDataPersetujuan.isEmpty) {
+      return const Center(child: Text('Data Kosong ...'));
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+      child: ListView.builder(
+        itemCount: masterDataPersetujuan.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: sizedBoxHeightShort,
+              horizontal: paddingHorizontalNarrow,
             ),
+            child: selectedValueDaftarPersetujuan == '2'
+                ? buildBantuanKomunikasi(masterDataPersetujuan[index])
+                : selectedValueDaftarPersetujuan == '5'
+                    ? buildCuti(masterDataPersetujuan[index])
+                    : selectedValueDaftarPersetujuan == '6'
+                        ? buildPengajuanTraining(masterDataPersetujuan[index])
+                        : selectedValueDaftarPersetujuan == '7'
+                            ? buildImPerjalananDinas(
+                                masterDataPersetujuan[index])
+                            : selectedValueDaftarPersetujuan == '13'
+                                ? buildLpjPerjalananDinas(
+                                    masterDataPersetujuan[index])
+                                : selectedValueDaftarPersetujuan == '14'
+                                    ? buildSuratIzinKeluar(
+                                        masterDataPersetujuan[index])
+                                    : selectedValueDaftarPersetujuan == '8'
+                                        ? buildPerpanjanganCuti(
+                                            masterDataPersetujuan[index])
+                                        : selectedValueDaftarPersetujuan == '9'
+                                            ? buildRawatInap(
+                                                masterDataPersetujuan[index])
+                                            : selectedValueDaftarPersetujuan ==
+                                                    '10'
+                                                ? buildRawatJalan(
+                                                    masterDataPersetujuan[
+                                                        index])
+                                                : const Text('Kosong'),
           );
+        },
+      ),
+    );
   }
 
   Widget rejectedTabWidget(BuildContext context) {
@@ -1328,56 +1334,58 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double sizedBoxHeightShort = 8;
 
-    return _isLoading
-        ? const Padding(
-            padding: EdgeInsets.symmetric(vertical: 200),
-            child: Center(child: CircularProgressIndicator()),
-          )
-        : Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-            child: ListView.builder(
-              itemCount: masterDataPersetujuan.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: sizedBoxHeightShort,
-                    horizontal: paddingHorizontalNarrow,
-                  ),
-                  child: selectedValueDaftarPersetujuan == '2'
-                      ? buildBantuanKomunikasi(masterDataPersetujuan[index])
-                      : selectedValueDaftarPersetujuan == '5'
-                          ? buildCuti(masterDataPersetujuan[index])
-                          : selectedValueDaftarPersetujuan == '6'
-                              ? buildPengajuanTraining(
-                                  masterDataPersetujuan[index])
-                              : selectedValueDaftarPersetujuan == '7'
-                                  ? buildImPerjalananDinas(
-                                      masterDataPersetujuan[index])
-                                  : selectedValueDaftarPersetujuan == '13'
-                                      ? buildLpjPerjalananDinas(
-                                          masterDataPersetujuan[index])
-                                      : selectedValueDaftarPersetujuan == '14'
-                                          ? buildSuratIzinKeluar(
-                                              masterDataPersetujuan[index])
-                                          : selectedValueDaftarPersetujuan ==
-                                                  '8'
-                                              ? buildPerpanjanganCuti(
-                                                  masterDataPersetujuan[index])
-                                              : selectedValueDaftarPersetujuan ==
-                                                      '9'
-                                                  ? buildRawatInap(
-                                                      masterDataPersetujuan[
-                                                          index])
-                                                  : selectedValueDaftarPersetujuan ==
-                                                          '10'
-                                                      ? buildRawatJalan(
-                                                          masterDataPersetujuan[
-                                                              index])
-                                                      : const Text('Kosong'),
-                );
-              },
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 200),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (masterDataPersetujuan.isEmpty) {
+      return const Center(child: Text('Data Kosong ...'));
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+      child: ListView.builder(
+        itemCount: masterDataPersetujuan.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: sizedBoxHeightShort,
+              horizontal: paddingHorizontalNarrow,
             ),
+            child: selectedValueDaftarPersetujuan == '2'
+                ? buildBantuanKomunikasi(masterDataPersetujuan[index])
+                : selectedValueDaftarPersetujuan == '5'
+                    ? buildCuti(masterDataPersetujuan[index])
+                    : selectedValueDaftarPersetujuan == '6'
+                        ? buildPengajuanTraining(masterDataPersetujuan[index])
+                        : selectedValueDaftarPersetujuan == '7'
+                            ? buildImPerjalananDinas(
+                                masterDataPersetujuan[index])
+                            : selectedValueDaftarPersetujuan == '13'
+                                ? buildLpjPerjalananDinas(
+                                    masterDataPersetujuan[index])
+                                : selectedValueDaftarPersetujuan == '14'
+                                    ? buildSuratIzinKeluar(
+                                        masterDataPersetujuan[index])
+                                    : selectedValueDaftarPersetujuan == '8'
+                                        ? buildPerpanjanganCuti(
+                                            masterDataPersetujuan[index])
+                                        : selectedValueDaftarPersetujuan == '9'
+                                            ? buildRawatInap(
+                                                masterDataPersetujuan[index])
+                                            : selectedValueDaftarPersetujuan ==
+                                                    '10'
+                                                ? buildRawatJalan(
+                                                    masterDataPersetujuan[
+                                                        index])
+                                                : const Text('Kosong'),
           );
+        },
+      ),
+    );
   }
 
   Widget buildBantuanKomunikasi(Map<String, dynamic> data) {

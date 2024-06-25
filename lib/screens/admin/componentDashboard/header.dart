@@ -34,11 +34,24 @@ class AdminHeaderScreen extends StatefulWidget {
 class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
   var vdata = {};
   AdminController x = Get.put(AdminController());
+  bool _isLoading = false;
 
   @override
   void initState() {
     getDataKaryawan();
     super.initState();
+  }
+
+  Future<void> _handleRefresh() async {
+    print('refresh');
+    setState(() {
+      _isLoading = true;
+    });
+    await Future.delayed(Duration(milliseconds: 500));
+    await getDataKaryawan();
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<void> getToken() async {
@@ -112,184 +125,192 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double paddingHorizontalWide = size.width * 0.0585;
     double padding10 = size.width * 0.023;
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.white,
-        title: Padding(
-          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Obx(
-                () => Text(
-                  x.karyawan['pt'] ?? 'PT Hasnur Informasi Teknologi',
-                  style: TextStyle(
-                      fontSize: textMedium,
-                      fontWeight: FontWeight.w500,
-                      fontFamily: 'Quicksand'),
-                ),
-              ),
-              // IconButton(
-              //   icon: const Icon(Icons.notifications),
-              //   onPressed: () {
-              //     getToken();
-              //   },
-              // ),
-            ],
-          ),
-        ),
-      ),
-      body: ListView(
-        children: [
-          Container(
-            // height: size.height * 0.28,
-            height: size.height * 0.38,
-            width: size.width,
-            decoration: const BoxDecoration(color: Colors.white),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Obx(() => HeaderProfileWidget(
-                      userName: x.karyawan['nama'] ?? 'Admin',
-                      posision: x.karyawan['pernr'] ?? '7822000',
-                      imageUrl: '',
-                      webUrl: '',
-                    )),
-                Container(
-                  // height: size.height * 0.13,
-                  height: size.height * 0.23,
-                  width: size.width * 0.9,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(5.0),
-                  ),
-                  child: const IconsContainerWidget(),
-                ),
-              ],
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Padding(
+    return _isLoading
+        ? const Center(child: CircularProgressIndicator())
+        : Scaffold(
+            backgroundColor: Colors.white,
+            appBar: AppBar(
+              elevation: 0,
+              backgroundColor: Colors.white,
+              title: Padding(
                 padding:
-                    EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                child: const TitleWidget(title: 'Dashboard'),
-              ),
-              // ================
-              Padding(
-                padding: EdgeInsets.symmetric(
-                    horizontal: paddingHorizontalWide, vertical: padding10),
+                    EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      height: 40,
-                      padding: EdgeInsets.all(4),
-                      margin: EdgeInsets.only(left: 10),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Color.fromARGB(
-                              102, 158, 158, 158), // Set border color
-                          width: 1, // Set border width
-                        ),
-                        borderRadius: BorderRadius.circular(
-                            6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
+                    Obx(
+                      () => Text(
+                        x.karyawan['pt'] ?? 'PT Hasnur Informasi Teknologi',
+                        style: TextStyle(
+                            fontSize: textMedium,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'Quicksand'),
                       ),
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 5, right: 5),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors
-                                  .black, // Set the font size for the dropdown items
-                            ),
-                            value: selectionDashboard,
-                            iconSize: 24,
-                            elevation: 16,
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                if (newValue == '1') {
-                                  Get.offAllNamed('/admin/main');
-                                } else {
-                                  Get.offAllNamed('/user/main');
-                                }
-                                selectionDashboard = newValue;
-                              });
-                            },
-                            items: x.selectionDashboards.keys
-                                .map<DropdownMenuItem<String>>((String id) {
-                              return DropdownMenuItem<String>(
-                                value: id,
-                                child: Text(x.selectionDashboards[id]!),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ),
-                    )
+                    ),
+                    // IconButton(
+                    //   icon: const Icon(Icons.notifications),
+                    //   onPressed: () {
+                    //     getToken();
+                    //   },
+                    // ),
                   ],
                 ),
               ),
-            ],
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: paddingHorizontalWide, vertical: padding10),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text('Kategori'),
-                Container(
-                  height: 40,
-                  padding: EdgeInsets.all(4),
-                  margin: EdgeInsets.only(left: 10),
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Color.fromARGB(
-                          102, 158, 158, 158), // Set border color
-                      width: 1, // Set border width
-                    ),
-                    borderRadius: BorderRadius.circular(
-                        6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 5, right: 5),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors
-                              .black, // Set the font size for the dropdown items
-                        ),
-                        value: selectionValue,
-                        iconSize: 24,
-                        elevation: 16,
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            selectionValue = newValue;
-                          });
-                        },
-                        items: selectionValues.keys
-                            .map<DropdownMenuItem<String>>((String id) {
-                          return DropdownMenuItem<String>(
-                            value: id,
-                            child: Text(selectionValues[id]!),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ),
-                )
-              ],
             ),
-          ),
-          _buildComponent(),
-        ],
-      ),
-    );
+            body: RefreshIndicator(
+              onRefresh: _handleRefresh,
+              child: ListView(
+                children: [
+                  Container(
+                    // height: size.height * 0.28,
+                    height: size.height * 0.38,
+                    width: size.width,
+                    decoration: const BoxDecoration(color: Colors.white),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Obx(() => HeaderProfileWidget(
+                              userName: x.karyawan['nama'] ?? 'Admin',
+                              posision: x.karyawan['pernr'] ?? '7822000',
+                              imageUrl: '',
+                              webUrl: '',
+                            )),
+                        Container(
+                          // height: size.height * 0.13,
+                          height: size.height * 0.23,
+                          width: size.width * 0.9,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(5.0),
+                          ),
+                          child: const IconsContainerWidget(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalWide),
+                        child: const TitleWidget(title: 'Dashboard'),
+                      ),
+                      // ================
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalWide,
+                            vertical: padding10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Container(
+                              height: 40,
+                              padding: EdgeInsets.all(4),
+                              margin: EdgeInsets.only(left: 10),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Color.fromARGB(
+                                      102, 158, 158, 158), // Set border color
+                                  width: 1, // Set border width
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                    6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 5, right: 5),
+                                child: DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors
+                                          .black, // Set the font size for the dropdown items
+                                    ),
+                                    value: selectionDashboard,
+                                    iconSize: 24,
+                                    elevation: 16,
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        if (newValue == '1') {
+                                          Get.offAllNamed('/admin/main');
+                                        } else {
+                                          Get.offAllNamed('/user/main');
+                                        }
+                                        selectionDashboard = newValue;
+                                      });
+                                    },
+                                    items: x.selectionDashboards.keys
+                                        .map<DropdownMenuItem<String>>(
+                                            (String id) {
+                                      return DropdownMenuItem<String>(
+                                        value: id,
+                                        child: Text(x.selectionDashboards[id]!),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalWide, vertical: padding10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text('Kategori'),
+                        Container(
+                          height: 40,
+                          padding: EdgeInsets.all(4),
+                          margin: EdgeInsets.only(left: 10),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Color.fromARGB(
+                                  102, 158, 158, 158), // Set border color
+                              width: 1, // Set border width
+                            ),
+                            borderRadius: BorderRadius.circular(
+                                6), // BorderRadius -> .circular(12),all(10),only(topRight:Radius.circular(10)), vertical,horizontal
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 5, right: 5),
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors
+                                      .black, // Set the font size for the dropdown items
+                                ),
+                                value: selectionValue,
+                                iconSize: 24,
+                                elevation: 16,
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    selectionValue = newValue;
+                                  });
+                                },
+                                items: selectionValues.keys
+                                    .map<DropdownMenuItem<String>>((String id) {
+                                  return DropdownMenuItem<String>(
+                                    value: id,
+                                    child: Text(selectionValues[id]!),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  _buildComponent(),
+                ],
+              ),
+            ),
+          );
   }
 }

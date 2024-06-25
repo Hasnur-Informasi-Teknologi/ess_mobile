@@ -42,11 +42,21 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
   var circleMarkers;
   double circleRadius = 100;
   final double radius = 0.2; // Radius dalam kilometer (100 meter = 0.1 km)
+  String _timeZone = 'WIB';
 
   @override
   void initState() {
     super.initState();
     getDataWorkSchedule();
+    _getTimeZone();
+  }
+
+  void _getTimeZone() {
+    var now = DateTime.now();
+    var timeZoneName = now.timeZoneName;
+    setState(() {
+      _timeZone = timeZoneName;
+    });
   }
 
   double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
@@ -77,9 +87,6 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
           setState(() {
             latString = responseData["data"][0]["latitude"] ?? 00.00;
             longString = responseData["data"][0]["longitude"] ?? 00.00;
-            print("Lokasi Kantor");
-            print(latString);
-            print(longString);
           });
         } else {
           print('Data is empty');
@@ -102,10 +109,6 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
 
       lat = locationData.latitude!.toStringAsFixed(7);
       long = locationData.longitude!.toStringAsFixed(7);
-
-      print("User");
-      print(lat);
-      print(long);
 
       address =
           '${placeMark?.street}, ${placeMark?.subLocality}, ${placeMark?.locality}, ${placeMark?.subAdministrativeArea}, ${placeMark?.administrativeArea}, ${placeMark?.postalCode}';
@@ -134,7 +137,8 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
           double.parse(latString), double.parse(longString));
 
       if (distance > radius) {
-        Get.snackbar('Infomation', 'Anda di luar jangkauan',
+        Get.snackbar('Infomation',
+            'Maaf, Anda berada di luar dari jangkauan lokasi kerja. Harap menghubungi HC Entitas untuk informasi lebih lanjut',
             snackPosition: SnackPosition.TOP,
             backgroundColor: Colors.red,
             icon: const Icon(
@@ -150,7 +154,9 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
             headers: headers);
         DateTime sdate = DateTime.parse(response.body);
         int stimestamp = sdate.millisecondsSinceEpoch;
-        var timeZone = prefs.getString('timeZone');
+        // var timeZone = prefs.getString('timeZone');
+        var timeZone = _timeZone;
+        print(timeZone);
         if (timeZone == 'WITA') {
           stimestamp = stimestamp + (1 * 60 * 60 * 1000);
         } else if (timeZone == 'WIT') {
@@ -178,7 +184,7 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
       }
     } else {
       Get.snackbar('Infomation',
-          'Maap, Lokasi anda atau Lokasi kerja anda tidak di temukan',
+          'Maaf, Lokasi anda atau Lokasi kerja anda tidak di temukan',
           snackPosition: SnackPosition.TOP,
           backgroundColor: Colors.red,
           icon: const Icon(

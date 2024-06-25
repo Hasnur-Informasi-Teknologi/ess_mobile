@@ -39,7 +39,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
     {'id': '2', 'opsi': 'Bantuan Komunikasi'},
     {'id': '3', 'opsi': 'Hard/Software'},
     {'id': '4', 'opsi': 'Lembur Karyawan'},
-    {'id': '12', 'opsi': 'Summary Cuti'},
+    // {'id': '12', 'opsi': 'Summary Cuti'},
     {'id': '5', 'opsi': 'Pengajuan Cuti'},
     {'id': '8', 'opsi': 'Perpanjangan Cuti'},
     {'id': '6', 'opsi': 'Pengajuan Training'},
@@ -103,6 +103,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
         setState(() {
           masterDataPermintaan =
               List<Map<String, dynamic>>.from(dataMasterCutiApi);
+
           _isLoading = false;
         });
       } catch (e) {
@@ -829,55 +830,57 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double sizedBoxHeightShort = 8;
 
-    return _isLoading
-        ? const Padding(
-            padding: EdgeInsets.symmetric(vertical: 200),
-            child: Center(child: CircularProgressIndicator()),
-          )
-        : Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-            child: ListView.builder(
-              itemCount: masterDataPermintaan.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: sizedBoxHeightShort,
-                    horizontal: paddingHorizontalNarrow,
-                  ),
-                  child: selectedValueDaftarPermintaan == '2'
-                      ? buildBantuanKomunikasi(masterDataPermintaan[index])
-                      : selectedValueDaftarPermintaan == '5'
-                          ? buildCuti(masterDataPermintaan[index])
-                          : selectedValueDaftarPermintaan == '6'
-                              ? buildPengajuanTraining(
-                                  masterDataPermintaan[index])
-                              : selectedValueDaftarPermintaan == '7'
-                                  ? buildImPerjalananDinas(
-                                      masterDataPermintaan[index])
-                                  : selectedValueDaftarPermintaan == '13'
-                                      ? buildLpjPerjalananDinas(
-                                          masterDataPermintaan[index])
-                                      : selectedValueDaftarPermintaan == '14'
-                                          ? buildSuratIzinKeluar(
-                                              masterDataPermintaan[index])
-                                          : selectedValueDaftarPermintaan == '8'
-                                              ? buildPerpanjanganCuti(
-                                                  masterDataPermintaan[index])
-                                              : selectedValueDaftarPermintaan ==
-                                                      '9'
-                                                  ? buildRawatInap(
-                                                      masterDataPermintaan[
-                                                          index])
-                                                  : selectedValueDaftarPermintaan ==
-                                                          '10'
-                                                      ? buildRawatJalan(
-                                                          masterDataPermintaan[
-                                                              index])
-                                                      : const Text('Kosong'),
-                );
-              },
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 200),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (masterDataPermintaan.isEmpty) {
+      return const Center(child: Text('Data Kosong ...'));
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+      child: ListView.builder(
+        itemCount: masterDataPermintaan.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: sizedBoxHeightShort,
+              horizontal: paddingHorizontalNarrow,
             ),
+            child: selectedValueDaftarPermintaan == '2'
+                ? buildBantuanKomunikasi(masterDataPermintaan[index])
+                : selectedValueDaftarPermintaan == '5'
+                    ? buildCuti(masterDataPermintaan[index])
+                    : selectedValueDaftarPermintaan == '6'
+                        ? buildPengajuanTraining(masterDataPermintaan[index])
+                        : selectedValueDaftarPermintaan == '7'
+                            ? buildImPerjalananDinas(
+                                masterDataPermintaan[index])
+                            : selectedValueDaftarPermintaan == '13'
+                                ? buildLpjPerjalananDinas(
+                                    masterDataPermintaan[index])
+                                : selectedValueDaftarPermintaan == '14'
+                                    ? buildSuratIzinKeluar(
+                                        masterDataPermintaan[index])
+                                    : selectedValueDaftarPermintaan == '8'
+                                        ? buildPerpanjanganCuti(
+                                            masterDataPermintaan[index])
+                                        : selectedValueDaftarPermintaan == '9'
+                                            ? buildRawatInap(
+                                                masterDataPermintaan[index])
+                                            : selectedValueDaftarPermintaan ==
+                                                    '10'
+                                                ? buildRawatJalan(
+                                                    masterDataPermintaan[index])
+                                                : const Text('Kosong'),
           );
+        },
+      ),
+    );
   }
 
   Widget approvedTabWidget(BuildContext context) {
@@ -885,55 +888,57 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double sizedBoxHeightShort = 8;
 
-    return _isLoading
-        ? const Padding(
-            padding: EdgeInsets.symmetric(vertical: 200),
-            child: Center(child: CircularProgressIndicator()),
-          )
-        : Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-            child: ListView.builder(
-              itemCount: masterDataPermintaan.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: sizedBoxHeightShort,
-                    horizontal: paddingHorizontalNarrow,
-                  ),
-                  child: selectedValueDaftarPermintaan == '2'
-                      ? buildBantuanKomunikasi(masterDataPermintaan[index])
-                      : selectedValueDaftarPermintaan == '5'
-                          ? buildCuti(masterDataPermintaan[index])
-                          : selectedValueDaftarPermintaan == '6'
-                              ? buildPengajuanTraining(
-                                  masterDataPermintaan[index])
-                              : selectedValueDaftarPermintaan == '7'
-                                  ? buildImPerjalananDinas(
-                                      masterDataPermintaan[index])
-                                  : selectedValueDaftarPermintaan == '13'
-                                      ? buildLpjPerjalananDinas(
-                                          masterDataPermintaan[index])
-                                      : selectedValueDaftarPermintaan == '14'
-                                          ? buildSuratIzinKeluar(
-                                              masterDataPermintaan[index])
-                                          : selectedValueDaftarPermintaan == '8'
-                                              ? buildPerpanjanganCuti(
-                                                  masterDataPermintaan[index])
-                                              : selectedValueDaftarPermintaan ==
-                                                      '9'
-                                                  ? buildRawatInap(
-                                                      masterDataPermintaan[
-                                                          index])
-                                                  : selectedValueDaftarPermintaan ==
-                                                          '10'
-                                                      ? buildRawatJalan(
-                                                          masterDataPermintaan[
-                                                              index])
-                                                      : const Text('Kosong'),
-                );
-              },
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 200),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (masterDataPermintaan.isEmpty) {
+      return const Center(child: Text('Data Kosong ...'));
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+      child: ListView.builder(
+        itemCount: masterDataPermintaan.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: sizedBoxHeightShort,
+              horizontal: paddingHorizontalNarrow,
             ),
+            child: selectedValueDaftarPermintaan == '2'
+                ? buildBantuanKomunikasi(masterDataPermintaan[index])
+                : selectedValueDaftarPermintaan == '5'
+                    ? buildCuti(masterDataPermintaan[index])
+                    : selectedValueDaftarPermintaan == '6'
+                        ? buildPengajuanTraining(masterDataPermintaan[index])
+                        : selectedValueDaftarPermintaan == '7'
+                            ? buildImPerjalananDinas(
+                                masterDataPermintaan[index])
+                            : selectedValueDaftarPermintaan == '13'
+                                ? buildLpjPerjalananDinas(
+                                    masterDataPermintaan[index])
+                                : selectedValueDaftarPermintaan == '14'
+                                    ? buildSuratIzinKeluar(
+                                        masterDataPermintaan[index])
+                                    : selectedValueDaftarPermintaan == '8'
+                                        ? buildPerpanjanganCuti(
+                                            masterDataPermintaan[index])
+                                        : selectedValueDaftarPermintaan == '9'
+                                            ? buildRawatInap(
+                                                masterDataPermintaan[index])
+                                            : selectedValueDaftarPermintaan ==
+                                                    '10'
+                                                ? buildRawatJalan(
+                                                    masterDataPermintaan[index])
+                                                : const Text('Kosong'),
           );
+        },
+      ),
+    );
   }
 
   Widget prossesTabWidget(BuildContext context) {
@@ -941,55 +946,57 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double sizedBoxHeightShort = 8;
 
-    return _isLoading
-        ? const Padding(
-            padding: EdgeInsets.symmetric(vertical: 200),
-            child: Center(child: CircularProgressIndicator()),
-          )
-        : Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-            child: ListView.builder(
-              itemCount: masterDataPermintaan.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: sizedBoxHeightShort,
-                    horizontal: paddingHorizontalNarrow,
-                  ),
-                  child: selectedValueDaftarPermintaan == '2'
-                      ? buildBantuanKomunikasi(masterDataPermintaan[index])
-                      : selectedValueDaftarPermintaan == '5'
-                          ? buildCuti(masterDataPermintaan[index])
-                          : selectedValueDaftarPermintaan == '6'
-                              ? buildPengajuanTraining(
-                                  masterDataPermintaan[index])
-                              : selectedValueDaftarPermintaan == '7'
-                                  ? buildImPerjalananDinas(
-                                      masterDataPermintaan[index])
-                                  : selectedValueDaftarPermintaan == '13'
-                                      ? buildLpjPerjalananDinas(
-                                          masterDataPermintaan[index])
-                                      : selectedValueDaftarPermintaan == '14'
-                                          ? buildSuratIzinKeluar(
-                                              masterDataPermintaan[index])
-                                          : selectedValueDaftarPermintaan == '8'
-                                              ? buildPerpanjanganCuti(
-                                                  masterDataPermintaan[index])
-                                              : selectedValueDaftarPermintaan ==
-                                                      '9'
-                                                  ? buildRawatInap(
-                                                      masterDataPermintaan[
-                                                          index])
-                                                  : selectedValueDaftarPermintaan ==
-                                                          '10'
-                                                      ? buildRawatJalan(
-                                                          masterDataPermintaan[
-                                                              index])
-                                                      : const Text('Kosong'),
-                );
-              },
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 200),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (masterDataPermintaan.isEmpty) {
+      return const Center(child: Text('Data Kosong ...'));
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+      child: ListView.builder(
+        itemCount: masterDataPermintaan.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: sizedBoxHeightShort,
+              horizontal: paddingHorizontalNarrow,
             ),
+            child: selectedValueDaftarPermintaan == '2'
+                ? buildBantuanKomunikasi(masterDataPermintaan[index])
+                : selectedValueDaftarPermintaan == '5'
+                    ? buildCuti(masterDataPermintaan[index])
+                    : selectedValueDaftarPermintaan == '6'
+                        ? buildPengajuanTraining(masterDataPermintaan[index])
+                        : selectedValueDaftarPermintaan == '7'
+                            ? buildImPerjalananDinas(
+                                masterDataPermintaan[index])
+                            : selectedValueDaftarPermintaan == '13'
+                                ? buildLpjPerjalananDinas(
+                                    masterDataPermintaan[index])
+                                : selectedValueDaftarPermintaan == '14'
+                                    ? buildSuratIzinKeluar(
+                                        masterDataPermintaan[index])
+                                    : selectedValueDaftarPermintaan == '8'
+                                        ? buildPerpanjanganCuti(
+                                            masterDataPermintaan[index])
+                                        : selectedValueDaftarPermintaan == '9'
+                                            ? buildRawatInap(
+                                                masterDataPermintaan[index])
+                                            : selectedValueDaftarPermintaan ==
+                                                    '10'
+                                                ? buildRawatJalan(
+                                                    masterDataPermintaan[index])
+                                                : const Text('Kosong'),
           );
+        },
+      ),
+    );
   }
 
   Widget rejectedTabWidget(BuildContext context) {
@@ -997,55 +1004,57 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double sizedBoxHeightShort = 8;
 
-    return _isLoading
-        ? const Padding(
-            padding: EdgeInsets.symmetric(vertical: 200),
-            child: Center(child: CircularProgressIndicator()),
-          )
-        : Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-            child: ListView.builder(
-              itemCount: masterDataPermintaan.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: sizedBoxHeightShort,
-                    horizontal: paddingHorizontalNarrow,
-                  ),
-                  child: selectedValueDaftarPermintaan == '2'
-                      ? buildBantuanKomunikasi(masterDataPermintaan[index])
-                      : selectedValueDaftarPermintaan == '5'
-                          ? buildCuti(masterDataPermintaan[index])
-                          : selectedValueDaftarPermintaan == '6'
-                              ? buildPengajuanTraining(
-                                  masterDataPermintaan[index])
-                              : selectedValueDaftarPermintaan == '7'
-                                  ? buildImPerjalananDinas(
-                                      masterDataPermintaan[index])
-                                  : selectedValueDaftarPermintaan == '13'
-                                      ? buildLpjPerjalananDinas(
-                                          masterDataPermintaan[index])
-                                      : selectedValueDaftarPermintaan == '14'
-                                          ? buildSuratIzinKeluar(
-                                              masterDataPermintaan[index])
-                                          : selectedValueDaftarPermintaan == '8'
-                                              ? buildPerpanjanganCuti(
-                                                  masterDataPermintaan[index])
-                                              : selectedValueDaftarPermintaan ==
-                                                      '9'
-                                                  ? buildRawatInap(
-                                                      masterDataPermintaan[
-                                                          index])
-                                                  : selectedValueDaftarPermintaan ==
-                                                          '10'
-                                                      ? buildRawatJalan(
-                                                          masterDataPermintaan[
-                                                              index])
-                                                      : const Text('Kosong'),
-                );
-              },
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 200),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (masterDataPermintaan.isEmpty) {
+      return const Center(child: Text('Data Kosong ...'));
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+      child: ListView.builder(
+        itemCount: masterDataPermintaan.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: sizedBoxHeightShort,
+              horizontal: paddingHorizontalNarrow,
             ),
+            child: selectedValueDaftarPermintaan == '2'
+                ? buildBantuanKomunikasi(masterDataPermintaan[index])
+                : selectedValueDaftarPermintaan == '5'
+                    ? buildCuti(masterDataPermintaan[index])
+                    : selectedValueDaftarPermintaan == '6'
+                        ? buildPengajuanTraining(masterDataPermintaan[index])
+                        : selectedValueDaftarPermintaan == '7'
+                            ? buildImPerjalananDinas(
+                                masterDataPermintaan[index])
+                            : selectedValueDaftarPermintaan == '13'
+                                ? buildLpjPerjalananDinas(
+                                    masterDataPermintaan[index])
+                                : selectedValueDaftarPermintaan == '14'
+                                    ? buildSuratIzinKeluar(
+                                        masterDataPermintaan[index])
+                                    : selectedValueDaftarPermintaan == '8'
+                                        ? buildPerpanjanganCuti(
+                                            masterDataPermintaan[index])
+                                        : selectedValueDaftarPermintaan == '9'
+                                            ? buildRawatInap(
+                                                masterDataPermintaan[index])
+                                            : selectedValueDaftarPermintaan ==
+                                                    '10'
+                                                ? buildRawatJalan(
+                                                    masterDataPermintaan[index])
+                                                : const Text('Kosong'),
           );
+        },
+      ),
+    );
   }
 
   Widget buildBantuanKomunikasi(Map<String, dynamic> data) {
