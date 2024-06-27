@@ -44,13 +44,6 @@ class _SplashScreenState extends State<SplashScreen> {
       deviceData = _readIosDeviceInfo(await deviceInfoPlugin.iosInfo);
     }
 
-    // if (prefs.getString('token') != null) {
-    //   setState(() {
-    //     _isUserLogin = prefs.getBool('isUserLogin')!;
-    //     deviceDataId = deviceData;
-    //   });
-    // }
-
     if (prefs.getString('token') != null) {
       // final userId = prefs.getString('userId');
       try {
@@ -61,33 +54,8 @@ class _SplashScreenState extends State<SplashScreen> {
           Future.delayed(const Duration(seconds: 2),
               () => {Get.offAllNamed('/user/main')});
         }
-
-        // await Provider.of<AuthProvider>(context, listen: false)
-        //     .checkDeviceId(
-        //         userId!,
-        //         (Platform.isAndroid)
-        //             ? deviceDataId['id']
-        //             : deviceDataId['identifierForVendor'])
-        //     .then(
-        //       (_) => Navigator.pushReplacement(
-        //         context,
-        //         MaterialPageRoute(
-        //           builder: (ctx) => const HomeScreen(),
-        //         ),
-        //       ),
-        //     );
       } catch (e) {
         Get.offAllNamed('/');
-
-        // Future.delayed(
-        //   const Duration(seconds: 1),
-        //   () => Navigator.pushReplacement(
-        //     context,
-        //     MaterialPageRoute(
-        //       builder: (ctx) => const SignInScreen(),
-        //     ),
-        //   ),
-        // );
       }
     } else {
       Future.delayed(const Duration(seconds: 2), () => {Get.offAllNamed('/')});

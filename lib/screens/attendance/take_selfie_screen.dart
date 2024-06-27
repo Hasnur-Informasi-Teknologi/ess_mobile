@@ -243,10 +243,10 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
                           color: Colors.white,
                         ),
                         shouldIconPulse: false);
+                    Get.offAllNamed('/user/main');
                     setState(() {
                       _isLoading = false;
                     });
-                    Get.offAllNamed('/user/main');
                   }
                 } else {
                   Get.snackbar('Warning', 'Toleransi Masuk Tidak Di temukan',
@@ -301,6 +301,8 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
 
               final responseDataMessage = json.decode(responseData);
               print(responseDataMessage);
+
+              // streamedResponse.statusCode;
 
               Get.snackbar('Infomation', responseDataMessage['message'],
                   snackPosition: SnackPosition.TOP,

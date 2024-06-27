@@ -63,6 +63,7 @@ class _SignInScreenState extends State<SignInScreen> {
     } catch (e) {
       String errorMessage = '';
       print(e);
+      print(HttpException);
 
       if (e is HttpException) {
         errorMessage = e.message;

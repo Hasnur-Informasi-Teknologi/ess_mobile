@@ -36,8 +36,8 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
   final String _apiUrl = API_URL;
   // String? lat, long, address;
   bool _isLoading = false;
-  var lat, long;
-  var latString, longString, address;
+  var lat, long, address;
+  var latString, longString;
   var latUser, longUser;
   var circleMarkers;
   double circleRadius = 100;
@@ -47,7 +47,6 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
   @override
   void initState() {
     super.initState();
-    getDataWorkSchedule();
     _getTimeZone();
   }
 
@@ -67,41 +66,12 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
     return 12742 * asin(sqrt(a)); // 2 * R; R = 6371 km
   }
 
-  Future<void> getDataWorkSchedule() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
-    final nrp = karyawan['pernr'];
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-          Uri.parse('$_apiUrl/get_work_schedules/$nrp'),
-          headers: <String, String>{
-            'Content-Type': 'application/json;charset=UTF-8',
-            'Authorization': 'Bearer $token'
-          },
-        );
-        final responseData = jsonDecode(response.body);
-        if (responseData["data"] != null) {
-          setState(() {
-            latString = responseData["data"][0]["latitude"] ?? 00.00;
-            longString = responseData["data"][0]["longitude"] ?? 00.00;
-          });
-        } else {
-          print('Data is empty');
-        }
-      } catch (e) {
-        print(e);
-      }
-    } else {
-      print('tidak ada token home');
-    }
-  }
-
   Future<void> getLocation() async {
     final locationService = LocationService();
     final locationData = await locationService.getLocation();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    latString = prefs.getString('latString');
+    longString = prefs.getString('longString');
 
     if (locationData != null) {
       final placeMark =
