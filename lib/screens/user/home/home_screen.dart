@@ -123,10 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       if ((_packageInfo.version != versionMobile)) {
         _isNewVersion = false;
-        print('Different versions: ${_packageInfo.version} != $versionMobile');
       } else {
-        print(
-            'Versions are the same: ${_packageInfo.version} == $versionMobile');
         _isNewVersion = true;
       }
     }
