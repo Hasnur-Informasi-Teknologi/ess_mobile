@@ -33,7 +33,7 @@ class _RequestAttendanceTableWidgetState
       try {
         final ioClient = createIOClientWithInsecureConnection();
         final response = await ioClient.get(
-          Uri.parse('$_apiUrl/master/profile/get_attendance_personal_yearly'),
+          Uri.parse('$_apiUrl/master/profile/get_attendance_mobile'),
           headers: <String, String>{
             'Content-Type': 'application/json;charset=UTF-8',
             'Authorization': 'Bearer $token'
@@ -41,6 +41,9 @@ class _RequestAttendanceTableWidgetState
         );
         final responseData = jsonDecode(response.body);
         final dataAttendanceApi = responseData['data'];
+
+        print(dataAttendanceApi);
+
         setState(() {
           masterDataAttendance =
               List<Map<String, dynamic>>.from(dataAttendanceApi);

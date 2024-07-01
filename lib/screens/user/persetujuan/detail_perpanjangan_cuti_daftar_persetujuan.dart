@@ -55,7 +55,7 @@ class _DetailPerpanjanganCutiDaftarPersetujuanState
   Future<void> getDataDetailPerpanjanganCuti() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
-    int id = arguments['id'];
+    final id = int.parse(arguments['id'].toString());
 
     if (token != null) {
       try {

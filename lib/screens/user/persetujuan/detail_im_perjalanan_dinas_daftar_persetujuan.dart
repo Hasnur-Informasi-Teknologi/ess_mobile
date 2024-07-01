@@ -82,191 +82,186 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
   }
 
   Future<void> getDataDetailImPerjalananDinas() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    int id = arguments['id'];
+    final token = await _getToken();
+    if (token == null) return;
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
+    final id = int.parse(arguments['id'].toString());
 
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/rencana-perdin/detail/$id"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataDetailImPerjalananDinasApi = responseData['parent'];
-        final dataDetailRincianImPerjalananDinasApi = responseData['child'];
-
-        setState(() {
-          masterDataDetailImPerjalananDinas =
-              Map<String, dynamic>.from(dataDetailImPerjalananDinasApi);
-
-          nrp_user = masterDataDetailImPerjalananDinas['nrp_user'];
-
-          masterDataDetailRincianImPerjalananDinas =
-              List<Map<String, dynamic>>.from(
-                  dataDetailRincianImPerjalananDinasApi);
-        });
-        getDataCostAssigment();
-      } catch (e) {
-        print(e);
+    try {
+      final response = await _fetchDataDetailImPerjalananDinas(token, id);
+      if (response.statusCode == 200) {
+        _handleSuccessResponseImPerjalananDinas(response);
+      } else {
+        _handleErrorResponse(response);
       }
+    } catch (e) {
+      print('Error fetching data: $e');
     }
+  }
+
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  Future<http.Response> _fetchDataDetailImPerjalananDinas(
+      String token, int id) {
+    final ioClient = createIOClientWithInsecureConnection();
+    final url = Uri.parse("$_apiUrl/rencana-perdin/detail/$id");
+    return ioClient.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+  }
+
+  void _handleSuccessResponseImPerjalananDinas(http.Response response) {
+    final responseData = jsonDecode(response.body);
+    final dataDetailImPerjalananDinasApi = responseData['parent'];
+    final dataDetailRincianImPerjalananDinasApi = responseData['child'];
+
+    setState(() {
+      masterDataDetailImPerjalananDinas =
+          Map<String, dynamic>.from(dataDetailImPerjalananDinasApi);
+      nrp_user = masterDataDetailImPerjalananDinas['nrp_user'];
+      masterDataDetailRincianImPerjalananDinas =
+          List<Map<String, dynamic>>.from(
+              dataDetailRincianImPerjalananDinasApi);
+    });
+    getDataCostAssigment();
+  }
+
+  void _handleErrorResponse(http.Response response) {
+    print('Failed to fetch data: ${response.statusCode}');
   }
 
   Future<void> getDataCostAssigment() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
+    final token = await _getToken();
+    if (token == null) return;
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-
-        final response = await ioClient.get(
-            Uri.parse(
-                "$_apiUrl/rencana-perdin/cost_assigment_karyawan?nrp_user=$nrp_user"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final masterDataCostAssigmentApi = responseData['data'];
-
-        setState(() {
-          masterDataCostAssigment =
-              List<Map<String, dynamic>>.from(masterDataCostAssigmentApi);
-
-          selectedValueCostAssigment =
-              masterDataCostAssigment[0]['type_cost_assign'].toString();
-
-          _noCostAssignController.text =
-              masterDataCostAssigment[0]['no_cost_assign'].toString();
-
-          _typeCostIdController.text =
-              masterDataCostAssigment[0]['type_cost_id'].toString();
-        });
-      } catch (e) {
-        print(e);
+    try {
+      final response = await _fetchDataCostAssigment(token);
+      if (response.statusCode == 200) {
+        _handleSuccessResponseCostAssigment(response);
+      } else {
+        _handleErrorResponse(response);
       }
+    } catch (e) {
+      print('Error fetching data: $e');
     }
+  }
+
+  Future<http.Response> _fetchDataCostAssigment(String token) {
+    final ioClient = createIOClientWithInsecureConnection();
+    final url = Uri.parse(
+        "$_apiUrl/rencana-perdin/cost_assigment_karyawan?nrp_user=$nrp_user");
+    return ioClient.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+  }
+
+  void _handleSuccessResponseCostAssigment(http.Response response) {
+    final responseData = jsonDecode(response.body);
+    final masterDataCostAssigmentApi = responseData['data'];
+
+    setState(() {
+      masterDataCostAssigment =
+          List<Map<String, dynamic>>.from(masterDataCostAssigmentApi);
+      selectedValueCostAssigment =
+          masterDataCostAssigment[0]['type_cost_assign'].toString();
+      _noCostAssignController.text =
+          masterDataCostAssigment[0]['no_cost_assign'].toString();
+      _typeCostIdController.text =
+          masterDataCostAssigment[0]['type_cost_id'].toString();
+    });
   }
 
   Future<void> approve(int? id) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    String? token = prefs.getString('token');
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-
-        final response =
-            await ioClient.post(Uri.parse('$_apiUrl/rencana-perdin/approve'),
-                headers: <String, String>{
-                  'Content-Type': 'application/json; charset=UTF-8',
-                  'Authorization': 'Bearer $token'
-                },
-                body: jsonEncode({
-                  'id': id.toString(),
-                  'catatan': _catatanController.text,
-                  'type_cost_id': _typeCostIdController.text,
-                  'type_cost_assign': selectedValueCostAssigment,
-                  'no_cost_assign': _noCostAssignController.text
-                }));
-
-        final responseData = jsonDecode(response.body);
-        print(responseData);
-        if (responseData['status'] == 'success') {
-          Get.offAllNamed('/user/main');
-
-          Get.snackbar('Infomation', 'Approved',
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: Colors.amber,
-              icon: const Icon(
-                Icons.info,
-                color: Colors.white,
-              ),
-              shouldIconPulse: false);
-        } else {
-          Get.snackbar('Infomation', 'Gagal',
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: Colors.amber,
-              icon: const Icon(
-                Icons.info,
-                color: Colors.white,
-              ),
-              shouldIconPulse: false);
-          setState(() {
-            _isLoading = false;
-          });
-        }
-      } catch (e) {
-        print(e);
-      }
-    }
+    await _handleApprovalOrRejection(id, 'approve');
   }
 
   Future<void> reject(int? id) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await _handleApprovalOrRejection(id, 'reject');
+  }
 
-    String? token = prefs.getString('token');
+  Future<void> _handleApprovalOrRejection(int? id, String action) async {
+    final token = await _getToken();
+    if (token == null) return;
 
     setState(() {
       _isLoading = true;
     });
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-
-        final response = await ioClient.post(
-          Uri.parse('$_apiUrl/rencana-perdin/reject'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token'
-          },
-          body: jsonEncode(
-            {
-              'id': id.toString(),
-              'catatan': _catatanController.text,
-            },
-          ),
-        );
-        final responseData = jsonDecode(response.body);
-        if (responseData['status'] == 'success') {
-          Get.offAllNamed('/user/main');
-          Get.snackbar('Infomation', 'Rejected',
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: Colors.amber,
-              icon: const Icon(
-                Icons.info,
-                color: Colors.white,
-              ),
-              shouldIconPulse: false);
-        } else {
-          Get.snackbar('Infomation', 'Gagal',
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: Colors.amber,
-              icon: const Icon(
-                Icons.info,
-                color: Colors.white,
-              ),
-              shouldIconPulse: false);
-          setState(() {
-            _isLoading = false;
-          });
-        }
-      } catch (e) {
-        print(e);
-      }
+    try {
+      final response = await _sendApprovalOrRejectionRequest(token, id, action);
+      _handleApprovalOrRejectionResponse(response, action);
+    } catch (e) {
+      print('Error during $action: $e');
     }
+  }
+
+  Future<http.Response> _sendApprovalOrRejectionRequest(
+      String token, int? id, String action) {
+    final ioClient = createIOClientWithInsecureConnection();
+    final url = Uri.parse('$_apiUrl/rencana-perdin/$action');
+
+    final requestBody = {
+      'id': id.toString(),
+      'catatan': _catatanController.text,
+    };
+
+    if (action == 'approve') {
+      requestBody.addAll({
+        'type_cost_id': _typeCostIdController.text,
+        'type_cost_assign': selectedValueCostAssigment.toString(),
+        'no_cost_assign': _noCostAssignController.text,
+      });
+    }
+
+    return ioClient.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(requestBody),
+    );
+  }
+
+  void _handleApprovalOrRejectionResponse(
+      http.Response response, String action) {
+    final responseData = jsonDecode(response.body);
+    final actionResult = action == 'approve' ? 'Approved' : 'Rejected';
+    final statusMessage =
+        responseData['status'] == 'success' ? actionResult : 'Gagal';
+
+    print(responseData);
+
+    if (responseData['status'] == 'success') {
+      Get.offAllNamed('/user/main');
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+
+    Get.snackbar(
+      'Information',
+      statusMessage,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.amber,
+      icon: const Icon(
+        Icons.info,
+        color: Colors.white,
+      ),
+      shouldIconPulse: false,
+    );
   }
 
   @override
@@ -276,9 +271,21 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
     double padding20 = size.width * 0.047;
     double paddingHorizontalWide = size.width * 0.0585;
     double sizedBoxHeightExtraTall = 20;
-    double textMedium = size.width * 0.0329;
-    double sizedBoxHeightShort = 8;
-    double sizedBoxHeightTall = 15;
+
+    bool shouldShowCostAssigment() {
+      return masterDataDetailImPerjalananDinas['level'] == '2' &&
+          x.data['pernr'] == masterDataDetailImPerjalananDinas['nrp_hrgs'];
+    }
+
+    bool shouldShowApprovalAndRejectButton() {
+      final level = masterDataDetailImPerjalananDinas['level'];
+      final pernr = x.data['pernr'];
+      final nrpAtasan = masterDataDetailImPerjalananDinas['nrp_atasan'];
+      final nrpHrgs = masterDataDetailImPerjalananDinas['nrp_hrgs'];
+
+      return (level == '1' && pernr == nrpAtasan) ||
+          (level == '2' && pernr == nrpHrgs);
+    }
 
     return _isLoading
         ? const Scaffold(body: Center(child: CircularProgressIndicator()))
@@ -315,29 +322,12 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
                     detailInternalMemoWidget(context),
                     atasanWidget(context),
                     hcgsWidget(context),
-                    ((masterDataDetailImPerjalananDinas['level'] == '2' &&
-                            x.data['pernr'] ==
-                                masterDataDetailImPerjalananDinas['nrp_hrgs']))
-                        ? costAssigmentWidget(context)
-                        : const SizedBox(
-                            height: 0,
-                          ),
+                    if (shouldShowCostAssigment()) costAssigmentWidget(context),
                     biayaPerjalananDinasTable(context),
                     footerWidget(context),
-                    ((masterDataDetailImPerjalananDinas['level'] == '1' &&
-                                x.data['pernr'] ==
-                                    masterDataDetailImPerjalananDinas[
-                                        'nrp_atasan']) ||
-                            (masterDataDetailImPerjalananDinas['level'] ==
-                                    '2' &&
-                                x.data['pernr'] ==
-                                    masterDataDetailImPerjalananDinas[
-                                        'nrp_hrgs']))
-                        ? approvalAndRejectButton(context)
-                        : Text(''),
-                    SizedBox(
-                      height: sizedBoxHeightExtraTall,
-                    ),
+                    if (shouldShowApprovalAndRejectButton())
+                      approvalAndRejectButton(context),
+                    SizedBox(height: sizedBoxHeightExtraTall),
                   ],
                 ),
               ),
@@ -350,66 +340,47 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, String>> data = [
+      {
+        'label': 'NRP',
+        'value': masterDataDetailImPerjalananDinas['nrp_user'] ?? '-'
+      },
+      {
+        'label': 'Entitas',
+        'value': masterDataDetailImPerjalananDinas['entitas_user'] ?? '-'
+      },
+      {
+        'label': 'Perihal',
+        'value': masterDataDetailImPerjalananDinas['perihal'] ?? '-'
+      },
+      {
+        'label': 'Nama',
+        'value': masterDataDetailImPerjalananDinas['nama_user'] ?? '-'
+      },
+      {
+        'label': 'Jabatan',
+        'value': masterDataDetailImPerjalananDinas['jabatan_user'] ?? '-'
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Diajukan Oleh'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nrp',
-          textRight: '${masterDataDetailImPerjalananDinas['nrp_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Entitas',
-          textRight:
-              '${masterDataDetailImPerjalananDinas['entitas_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Perihal',
-          textRight: '${masterDataDetailImPerjalananDinas['perihal'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama',
-          textRight: '${masterDataDetailImPerjalananDinas['nama_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Jabatan',
-          textRight:
-              '${masterDataDetailImPerjalananDinas['jabatan_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        const SizedBox(height: 15),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label'],
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -419,88 +390,55 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, String>> data = [
+      {
+        'label': 'Nomor Dokumen',
+        'value': masterDataDetailImPerjalananDinas['no_doc'] ?? '-'
+      },
+      {
+        'label': 'Trip Number',
+        'value': masterDataDetailImPerjalananDinas['trip_number'] ?? '-'
+      },
+      {
+        'label': 'Trip Activity',
+        'value': masterDataDetailImPerjalananDinas['trip_activity'] ?? '-'
+      },
+      {
+        'label': 'Tanggal/Jam Berangkat',
+        'value': masterDataDetailImPerjalananDinas['tgl_berangkat'] ?? '-'
+      },
+      {
+        'label': 'Tanggal/Jam Kembali',
+        'value': masterDataDetailImPerjalananDinas['tgl_kembali'] ?? '-'
+      },
+      {
+        'label': 'Tempat Tujuan',
+        'value': masterDataDetailImPerjalananDinas['tempat_tujuan'] ?? '-'
+      },
+      {
+        'label': 'Jenis Biaya',
+        'value': masterDataDetailImPerjalananDinas['nama_jenis_biaya'] ?? '-'
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Detail Internal Memo'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nomor Dokumen',
-          textRight: '${masterDataDetailImPerjalananDinas['no_doc'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Trip Number',
-          textRight:
-              '${masterDataDetailImPerjalananDinas['trip_number'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Trip Activity',
-          textRight:
-              '${masterDataDetailImPerjalananDinas['trip_activity'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal/Jam Berangkat',
-          textRight:
-              '${masterDataDetailImPerjalananDinas['tgl_berangkat'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal/Jam Kembali',
-          textRight:
-              '${masterDataDetailImPerjalananDinas['tgl_kembali'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tempat Tujuan',
-          textRight:
-              '${masterDataDetailImPerjalananDinas['tempat_tujuan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Jenis Biaya',
-          textRight:
-              '${masterDataDetailImPerjalananDinas['nama_jenis_biaya'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        const SizedBox(height: 15),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label']!,
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -510,49 +448,39 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, String>> data = [
+      {
+        'label': 'NRP Atasan',
+        'value': masterDataDetailImPerjalananDinas['nrp_atasan'] ?? '-'
+      },
+      {
+        'label': 'Nama Atasan',
+        'value': masterDataDetailImPerjalananDinas['nama_atasan'] ?? '-'
+      },
+      {
+        'label': 'Entitas Atasan',
+        'value': masterDataDetailImPerjalananDinas['entitas_atasan'] ?? '-'
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Atasan'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'NRP Atasan',
-          textRight:
-              '${masterDataDetailImPerjalananDinas['nrp_atasan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama Atasan',
-          textRight:
-              '${masterDataDetailImPerjalananDinas['nama_atasan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Entitas Atasan',
-          textRight:
-              '${masterDataDetailImPerjalananDinas['entitas_atasan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        const SizedBox(height: 15),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label']!,
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -562,47 +490,39 @@ class _DetailImPerjalananDinasDaftarPersetujuanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, String>> data = [
+      {
+        'label': 'NRP HCGS',
+        'value': masterDataDetailImPerjalananDinas['nrp_hrgs'] ?? '-'
+      },
+      {
+        'label': 'Nama HCGS',
+        'value': masterDataDetailImPerjalananDinas['nama_hrgs'] ?? '-'
+      },
+      {
+        'label': 'Entitas HCGS',
+        'value': masterDataDetailImPerjalananDinas['entitas_hrgs'] ?? '-'
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'HCGS'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'NRP HCGS',
-          textRight: '${masterDataDetailImPerjalananDinas['nrp_hrgs'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama HCGS',
-          textRight: '${masterDataDetailImPerjalananDinas['nama_hrgs'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Entitas HCGS',
-          textRight:
-              '${masterDataDetailImPerjalananDinas['entitas_hrgs'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        const SizedBox(height: 15),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label']!,
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }

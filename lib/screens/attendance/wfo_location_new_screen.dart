@@ -1,16 +1,20 @@
 // ignore_for_file: prefer_final_fields, use_build_context_synchronously
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
+import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/screens/attendance/take_selfie_screen.dart';
-import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trust_location/trust_location.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:math' show cos, sqrt, asin;
+
 // import 'package:flutter_timezone/flutter_timezone.dart';
 
 import 'package:mobile_ess/services/location_service.dart';
@@ -28,12 +32,45 @@ class WFOLocationNewScreen extends StatefulWidget {
 }
 
 class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
-  String? lat, long, address;
+  final String _apiUrl = API_URL;
+  // String? lat, long, address;
   bool _isLoading = false;
+  var lat, long, address;
+  var latString, longString;
+  var latUser, longUser;
+  var circleMarkers;
+  double circleRadius = 100;
+  final double radius = 0.2; // Radius dalam kilometer (100 meter = 0.1 km)
+  String _timeZone = 'WIB';
+
+  @override
+  void initState() {
+    super.initState();
+    _getTimeZone();
+  }
+
+  void _getTimeZone() {
+    var now = DateTime.now();
+    var timeZoneName = now.timeZoneName;
+    setState(() {
+      _timeZone = timeZoneName;
+    });
+  }
+
+  double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+    const p = 0.017453292519943295; // Pi/180
+    final a = 0.5 -
+        cos((lat2 - lat1) * p) / 2 +
+        cos(lat1 * p) * cos(lat2 * p) * (1 - cos((lon2 - lon1) * p)) / 2;
+    return 12742 * asin(sqrt(a)); // 2 * R; R = 6371 km
+  }
 
   Future<void> getLocation() async {
     final locationService = LocationService();
     final locationData = await locationService.getLocation();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    latString = prefs.getString('latString');
+    longString = prefs.getString('longString');
 
     if (locationData != null) {
       final placeMark =
@@ -56,54 +93,75 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
   }
 
   Future<void> clockInProcess() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
     setState(() {
       _isLoading = true;
     });
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (lat != null &&
+        long != null &&
+        latString != null &&
+        longString != null) {
+      double distance = calculateDistance(double.parse(lat), double.parse(long),
+          double.parse(latString), double.parse(longString));
 
-    Map<String, String> headers = {"Content-type": "application/json"};
-    final ioClient = createIOClientWithInsecureConnection();
-    final response = await ioClient.get(
-        Uri.parse('https://hitfaceapi.my.id/api/get/server_date'),
-        headers: headers);
-    DateTime sdate = DateTime.parse(response.body);
-    int stimestamp = sdate.millisecondsSinceEpoch;
-    var timeZone = prefs.getString('timeZone');
-    // var timezone = await FlutterTimezone.getLocalTimezone();
-    // if (timezone == 'Asia/Jakarta') {
-    //   timeZone = 'WIB'; // Western Indonesia Time
-    // } else if (timezone == 'Asia/Makassar') {
-    //   timeZone = 'WITA'; // Central Indonesia Time
-    // } else if (timezone == 'Asia/Jayapura') {
-    //   timeZone = 'WIT'; // Eastern Indonesia Time
-    // } else {
-    //   timeZone = 'Unknown'; // Unknown or not applicable
-    // }
-    if (timeZone == 'WITA') {
-      stimestamp = stimestamp + (1 * 60 * 60 * 1000);
-    } else if (timeZone == 'WIT') {
-      stimestamp = stimestamp + (2 * 60 * 60 * 1000);
+      if (distance > radius) {
+        Get.snackbar('Infomation',
+            'Maaf, Anda berada di luar dari jangkauan lokasi kerja. Harap menghubungi HC Entitas untuk informasi lebih lanjut',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.red,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
+      } else {
+        Map<String, String> headers = {"Content-type": "application/json"};
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
+            Uri.parse('https://hitfaceapi.my.id/api/get/server_date'),
+            headers: headers);
+        DateTime sdate = DateTime.parse(response.body);
+        int stimestamp = sdate.millisecondsSinceEpoch;
+        // var timeZone = prefs.getString('timeZone');
+        var timeZone = _timeZone;
+        print(timeZone);
+        if (timeZone == 'WITA') {
+          stimestamp = stimestamp + (1 * 60 * 60 * 1000);
+        } else if (timeZone == 'WIT') {
+          stimestamp = stimestamp + (2 * 60 * 60 * 1000);
+        }
+        var clockIn = DateFormat('yyyy-MM-dd HH:mm:ss')
+            .format(DateTime.fromMillisecondsSinceEpoch(stimestamp));
+
+        var karyawan =
+            jsonDecode(prefs.getString('userData').toString())['data'];
+        final userId = karyawan['pernr'];
+
+        Map<String, Object> clockInData = {
+          'nrp': userId.toString(),
+          'lat': lat!,
+          'long': long!,
+          'clock_in_time': clockIn,
+          'working_location': widget.workLocation,
+        };
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (ctx) => TakeSelfieScreen(
+                    clockInType: 'In', attendanceData: clockInData)));
+      }
+    } else {
+      Get.snackbar('Infomation',
+          'Maaf, Lokasi anda atau Lokasi kerja anda tidak di temukan',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.red,
+          icon: const Icon(
+            Icons.info,
+            color: Colors.white,
+          ),
+          shouldIconPulse: false);
     }
-    var clockIn = DateFormat('yyyy-MM-dd HH:mm:ss')
-        .format(DateTime.fromMillisecondsSinceEpoch(stimestamp));
-
-    var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
-    final userId = karyawan['pernr'];
-
-    Map<String, Object> clockInData = {
-      'nrp': userId.toString(),
-      'lat': lat!,
-      'long': long!,
-      'clock_in_time': clockIn,
-      'working_location': widget.workLocation,
-    };
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (ctx) => TakeSelfieScreen(
-                clockInType: 'In', attendanceData: clockInData)));
-    // Navigator.push(
-    //     context, MaterialPageRoute(builder: (ctx) => RegisterFaceScreen()));
 
     setState(() {
       _isLoading = false;
@@ -122,7 +180,7 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
       },
       child: Scaffold(
           appBar: AppBar(
-              title: const Text('Location').tr(),
+              title: const Text('Location'),
               centerTitle: true,
               backgroundColor: const Color(primaryYellow),
               leading: IconButton(
@@ -153,6 +211,41 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
                             margin: const EdgeInsets.all(0),
                             child: Column(
                               children: <Widget>[
+                                // SizedBox(
+                                //   width: double.infinity,
+                                //   height: MediaQuery.of(context).size.width,
+                                //   child: FlutterMap(
+                                //     options: MapOptions(
+                                //       center: LatLng(double.parse(lat!),
+                                //           double.parse(long!)),
+                                //       zoom: 17.0,
+                                //     ),
+                                //     children: [
+                                //       TileLayer(
+                                //         urlTemplate:
+                                //             'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+                                //         subdomains: const [
+                                //           'mt0',
+                                //           'mt1',
+                                //           'mt2',
+                                //           'mt3'
+                                //         ],
+                                //       ),
+                                //       MarkerLayer(
+                                //         markers: [
+                                //           Marker(
+                                //             width: 50.0,
+                                //             height: 50.0,
+                                //             point: LatLng(double.parse(lat!),
+                                //                 double.parse(long!)),
+                                //             builder: (ctx) => Image.asset(
+                                //                 'assets/images/logo-hasnur.png'),
+                                //           ),
+                                //         ],
+                                //       ),
+                                //     ],
+                                //   ),
+                                // ),
                                 SizedBox(
                                   width: double.infinity,
                                   height: MediaQuery.of(context).size.width,
@@ -173,15 +266,49 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
                                           'mt3'
                                         ],
                                       ),
+                                      CircleLayer(circles: [
+                                        CircleMarker(
+                                            point: LatLng(
+                                                latString != null
+                                                    ? double.parse(latString)
+                                                    : 00.00,
+                                                longString != null
+                                                    ? double.parse(longString)
+                                                    : 00.00),
+                                            color: Colors.blue.withOpacity(0.7),
+                                            borderStrokeWidth: 2,
+                                            useRadiusInMeter: true,
+                                            radius:
+                                                circleRadius // 2000 meters | 2 km
+                                            ),
+                                      ]),
                                       MarkerLayer(
                                         markers: [
                                           Marker(
                                             width: 50.0,
                                             height: 50.0,
-                                            point: LatLng(double.parse(lat!),
-                                                double.parse(long!)),
+                                            point: LatLng(
+                                                latString != null
+                                                    ? double.parse(latString)
+                                                    : 00.00,
+                                                longString != null
+                                                    ? double.parse(longString)
+                                                    : 00.00),
                                             builder: (ctx) => Image.asset(
                                                 'assets/images/logo-hasnur.png'),
+                                          ),
+                                          Marker(
+                                            width: 50.0,
+                                            height: 50.0,
+                                            point: LatLng(double.parse(lat!),
+                                                double.parse(long!)),
+                                            builder: (ctx) => Container(
+                                              child: Icon(
+                                                Icons.location_history_rounded,
+                                                size: 40.0,
+                                                color: Colors.red.shade700,
+                                              ),
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -225,9 +352,7 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
                                               style: TextStyle(
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.w500),
-                                            )..tr(namedArgs: {
-                                                'check': 'Check-In'
-                                              }),
+                                            ),
                                             const SizedBox(height: 20),
                                             Row(
                                               children: <Widget>[

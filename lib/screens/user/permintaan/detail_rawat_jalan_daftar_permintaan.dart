@@ -13,6 +13,7 @@ import 'package:mobile_ess/widgets/title_center_with_badge_long_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:scrollable_table_view/scrollable_table_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class DetailRawatJalanDaftarPermintaan extends StatefulWidget {
   const DetailRawatJalanDaftarPermintaan({super.key});
@@ -88,47 +89,53 @@ class _DetailRawatJalanDaftarPermintaanState
   }
 
   Future<void> getDataDetailRawatJalan() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    int id = arguments['id'];
+    final token = await _getToken();
+    if (token == null) return;
+    final id = int.parse(arguments['id'].toString());
+
     setState(() {
       _isLoadingScreen = true;
     });
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/rawat/jalan/$id/detail"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataDetailRawatJalanApi = responseData['data'];
-        final dataDetailRincianRawatJalanApi = responseData['data']['detail'];
-        final dataDetailApprovedRawatJalanApi =
-            responseData['data']['approved_detail'];
-
-        setState(() {
-          masterDataDetailRawatJalan =
-              Map<String, dynamic>.from(dataDetailRawatJalanApi);
-
-          masterDataDetailRincianRawatJalan =
-              List<Map<String, dynamic>>.from(dataDetailRincianRawatJalanApi);
-
-          print(masterDataDetailRincianRawatJalan);
-
-          masterDataDetailApprovedRawatJalan =
-              List<Map<String, dynamic>>.from(dataDetailApprovedRawatJalanApi);
-
-          _isLoadingScreen = false;
-        });
-      } catch (e) {
-        print(e);
-      }
+    try {
+      final ioClient = createIOClientWithInsecureConnection();
+      final response = await ioClient.get(
+        Uri.parse("$_apiUrl/rawat/jalan/$id/detail"),
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      _handleResponse(response);
+    } catch (e) {
+      print('Error fetching data: $e');
+      setState(() {
+        _isLoadingScreen = false;
+      });
     }
+  }
+
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  void _handleResponse(http.Response response) {
+    final responseData = jsonDecode(response.body);
+    final dataDetailRawatJalanApi = responseData['data'];
+    final dataDetailRincianRawatJalanApi = dataDetailRawatJalanApi['detail'];
+    final dataDetailApprovedRawatJalanApi =
+        dataDetailRawatJalanApi['approved_detail'];
+
+    setState(() {
+      masterDataDetailRawatJalan =
+          Map<String, dynamic>.from(dataDetailRawatJalanApi);
+      masterDataDetailRincianRawatJalan =
+          List<Map<String, dynamic>>.from(dataDetailRincianRawatJalanApi);
+      masterDataDetailApprovedRawatJalan =
+          List<Map<String, dynamic>>.from(dataDetailApprovedRawatJalanApi);
+      _isLoadingScreen = false;
+    });
   }
 
   @override
@@ -188,110 +195,72 @@ class _DetailRawatJalanDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'Nomor',
+        'value': '${masterDataDetailRawatJalan['no_doc'] ?? '-'}',
+      },
+      {
+        'label': 'NRP',
+        'value': '${masterDataDetailRawatJalan['pernr'] ?? '-'}',
+      },
+      {
+        'label': 'Nama Karyawan',
+        'value': '${masterDataDetailRawatJalan['nama'] ?? '-'}',
+      },
+      {
+        'label': 'Perusahaan',
+        'value': '${masterDataDetailRawatJalan['pt'] ?? '-'}',
+      },
+      {
+        'label': 'Lokasi Kerja',
+        'value': '${masterDataDetailRawatJalan['lokasi'] ?? '-'}',
+      },
+      {
+        'label': 'Tanggal Pengajuan',
+        'value': '${masterDataDetailRawatJalan['tgl_pengajuan'] ?? '-'}',
+      },
+      {
+        'label': 'Pangkat Karyawan',
+        'value': '${masterDataDetailRawatJalan['pangkat'] ?? '-'}',
+      },
+      {
+        'label': 'Tanggal Masuk',
+        'value': '${masterDataDetailRawatJalan['hire_date'] ?? '-'}',
+      },
+      {
+        'label': 'Periode Rawat',
+        'value': '${masterDataDetailRawatJalan['prd_rawat'] ?? '-'}',
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Diajukan Oleh'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nomor',
-          textRight: '${masterDataDetailRawatJalan['no_doc'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'NRP',
-          textRight: '${masterDataDetailRawatJalan['pernr'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama Karyawan',
-          textRight: '${masterDataDetailRawatJalan['nama'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Perusahaan',
-          textRight: '${masterDataDetailRawatJalan['pt'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Lokasi Kerja',
-          textRight: '${masterDataDetailRawatJalan['lokasi'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Pengajuan',
-          textRight: '${masterDataDetailRawatJalan['tgl_pengajuan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Pangkat Karyawan',
-          textRight: '${masterDataDetailRawatJalan['pangkat'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Masuk',
-          textRight: '${masterDataDetailRawatJalan['hire_date'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Periode Rawat',
-          textRight: '${masterDataDetailRawatJalan['prd_rawat'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
+        ...data.map((item) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RowWithSemicolonWidget(
+                  textLeft: item['label'],
+                  textRight: item['value'].toString(),
+                  fontSizeLeft: textMedium,
+                  fontSizeRight: textMedium,
+                ),
+                SizedBox(height: sizedBoxHeightShort),
+              ],
+            )),
         const TitleWidget(
-            title:
-                'Daftar Pengajuan Jenis Penggantian Biaya Kesehatan Rawat Jalan'),
-        SizedBox(
-          height: sizedBoxHeightShort,
+          title:
+              'Daftar Pengajuan Jenis Penggantian Biaya Kesehatan Rawat Jalan',
         ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -480,99 +449,62 @@ class _DetailRawatJalanDaftarPermintaanState
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double sizedBoxHeightTall = 15;
 
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'Tanggal Terima',
+        'value': '${masterDataDetailRawatJalan['tgl_pengajuan'] ?? '-'}',
+      },
+      {
+        'label': 'Nominal Disetujui',
+        'value': 'Rp. ${masterDataDetailRawatJalan['jumlah_setuju'] ?? '-'}',
+      },
+      {
+        'label': 'Catatan',
+        'value': '${masterDataDetailRawatJalan['catatan'] ?? '-'}',
+      },
+      {
+        'label': 'Dokumen',
+        'value': '${masterDataDetailRawatJalan['ket_doc'] ?? '-'}',
+      },
+      {
+        'label': 'Tanggal Payment',
+        'value': '${masterDataDetailRawatJalan['tgl_payment'] ?? '-'}',
+      },
+      {
+        'label': 'Keterangan Atasan',
+        'value': '${masterDataDetailRawatJalan['keterangan_atasan'] ?? '-'}',
+      },
+      {
+        'label': 'Keterangan PIC HCGS',
+        'value': '${masterDataDetailRawatJalan['keterangan_pic_hcgs'] ?? '-'}',
+      },
+      {
+        'label': 'Keterangan Direksi',
+        'value': '${masterDataDetailRawatJalan['keterangan_direksi'] ?? '-'}',
+      },
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
+        SizedBox(height: sizedBoxHeightTall),
         const TitleWidget(title: 'Hasil Verifikasi PIC HRGS'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Terima',
-          textRight: '${masterDataDetailRawatJalan['tgl_pengajuan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nominal Disetujui',
-          textRight:
-              'Rp. ${masterDataDetailRawatJalan['jumlah_setuju'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Catatan',
-          textRight: '${masterDataDetailRawatJalan['catatan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Dokumen',
-          textRight: '${masterDataDetailRawatJalan['ket_doc'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Payment',
-          textRight: '${masterDataDetailRawatJalan['tgl_payment'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Keterangan Atasan',
-          textRight:
-              '${masterDataDetailRawatJalan['keterangan_atasan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Keterangan PIC HCGS',
-          textRight:
-              '${masterDataDetailRawatJalan['keterangan_pic_hcgs'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Keterangan Direksi',
-          textRight: masterDataDetailRawatJalan['keterangan_direksi'] ?? '-',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightTall),
+        ...data.map((item) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RowWithSemicolonWidget(
+                  textLeft: item['label'],
+                  textRight: item['value'].toString(),
+                  fontSizeLeft: textMedium,
+                  fontSizeRight: textMedium,
+                ),
+                SizedBox(height: sizedBoxHeightShort),
+              ],
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -582,14 +514,11 @@ class _DetailRawatJalanDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
         TitleCenterWithLongBadgeWidget(
           textLeft: 'Status Pengajuan',
           textRight: '${masterDataDetailRawatJalan['status_approve'] ?? '-'}',
@@ -597,19 +526,15 @@ class _DetailRawatJalanDaftarPermintaanState
           fontSizeRight: textMedium,
           color: Colors.yellow,
         ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         TitleCenterWidget(
           textLeft: 'Pada',
           textRight:
-              ': ${masterDataDetailRawatJalan['created_at'] != null ? formatDate(masterDataDetailRawatJalan['created_at']) : '-'}',
+              ': ${masterDataDetailRawatJalan['created_at'] != null ? formatDate(masterDataDetailRawatJalan['created_at']) : ''}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        )
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }

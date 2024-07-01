@@ -90,49 +90,72 @@ class _DetailPengajuanTrainingDaftarPersetujuanState
   }
 
   Future<void> getDataDetailPengajuanTraining() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    int id = arguments['id'];
+    final token = await _getToken();
+    if (token == null) return;
+
+    final id = int.parse(arguments['id'].toString());
 
     setState(() {
       _isLoading = true;
     });
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/training/$id/detail"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataDetailPengajuanTrainingApi = responseData['data'];
-        print(dataDetailPengajuanTrainingApi);
-
-        setState(() {
-          masterDataDetailPengajuanTraining =
-              Map<String, dynamic>.from(dataDetailPengajuanTrainingApi);
-          _isLoading = false;
-        });
-      } catch (e) {
-        print(e);
+    try {
+      final response = await _fetchDataDetailPengajuanTraining(token, id);
+      if (response.statusCode == 200) {
+        _handleSuccessResponse(response);
+      } else {
+        _handleErrorResponse(response);
       }
+    } catch (e) {
+      print('Error fetching data: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
-  Future<void> rejectAndApprove(int? id, String status) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
 
-    String? token = prefs.getString('token');
+  Future<http.Response> _fetchDataDetailPengajuanTraining(
+      String token, int id) {
+    final ioClient = createIOClientWithInsecureConnection();
+    final url = Uri.parse("$_apiUrl/training/$id/detail");
+    return ioClient.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+  }
+
+  void _handleSuccessResponse(http.Response response) {
+    final responseData = jsonDecode(response.body);
+    final dataDetailPengajuanTrainingApi = responseData['data'];
+
+    setState(() {
+      masterDataDetailPengajuanTraining =
+          Map<String, dynamic>.from(dataDetailPengajuanTrainingApi);
+    });
+  }
+
+  void _handleErrorResponse(http.Response response) {
+    print('Failed to fetch data: ${response.statusCode}');
+  }
+
+  Future<void> rejectAndApprove(int? id, String status) async {
+    final token = await _getToken();
+    if (token == null) return;
 
     String keterangan =
-        _keteranganController.text == '' ? '-' : _keteranganController.text;
+        _keteranganController.text.isEmpty ? '-' : _keteranganController.text;
     String lainnya =
-        _lainyaController.text == '' ? '-' : _lainyaController.text;
-    String institusiTraining = _institusiTrainingController.text == ''
+        _lainyaController.text.isEmpty ? '-' : _lainyaController.text;
+    String institusiTraining = _institusiTrainingController.text.isEmpty
         ? '-'
         : _institusiTrainingController.text;
 
@@ -140,64 +163,74 @@ class _DetailPengajuanTrainingDaftarPersetujuanState
       _isLoading = true;
     });
 
-    final ioClient = createIOClientWithInsecureConnection();
-    var request = http.MultipartRequest(
-      'POST',
-      Uri.parse('$_apiUrl/training/$id/process'),
-    );
+    try {
+      final response = await _sendRejectAndApproveRequest(
+          id, status, token, keterangan, lainnya, institusiTraining);
+      final responseData = jsonDecode(response);
 
-    request.headers['Content-Type'] = 'multipart/form-data';
-    request.headers['Authorization'] = 'Bearer $token';
-    request.fields['status'] = status;
-    request.fields['institusi_training'] = institusiTraining;
-    request.fields['keterangan'] = keterangan;
-    request.fields['fungsi_training'] = selectedValueFungsiTraining.toString();
-    request.fields['tujuan_objektif'] = selectedValueTujuanObjektif.toString();
-    request.fields['penugasan_karyawan'] =
-        selectedValuePenugasanKaryawan.toString();
-    request.fields['penugasan_lainnya'] = lainnya;
-    request.fields['tgl_sharing'] = tanggalSharing.toString();
-
-    var streamedResponse = await ioClient.send(request);
-    final responseData = await streamedResponse.stream.bytesToString();
-    final responseDataMessage = json.decode(responseData);
-    Get.snackbar('Infomation', responseDataMessage['message'],
+      Get.snackbar(
+        'Information',
+        responseData['message'],
         snackPosition: SnackPosition.TOP,
         backgroundColor: Colors.amber,
         icon: const Icon(
           Icons.info,
           color: Colors.white,
         ),
-        shouldIconPulse: false);
-    setState(() {
-      _isLoading = false;
-    });
+        shouldIconPulse: false,
+      );
 
-    print('Message $responseDataMessage');
-
-    if (responseDataMessage['status'] == 'success') {
-      Get.offAllNamed('/user/main');
-      Get.snackbar('Infomation', responseDataMessage['message'],
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.amber,
-          icon: const Icon(
-            Icons.info,
-            color: Colors.white,
-          ),
-          shouldIconPulse: false);
-    } else {
-      Get.snackbar('Infomation', 'Gagal',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.amber,
-          icon: const Icon(
-            Icons.info,
-            color: Colors.white,
-          ),
-          shouldIconPulse: false);
+      if (responseData['status'] == 'success') {
+        Get.offAllNamed('/user/main');
+      }
+    } catch (e) {
+      print('Error: $e');
+      Get.snackbar(
+        'Information',
+        'Failed to process the request',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.amber,
+        icon: const Icon(
+          Icons.info,
+          color: Colors.white,
+        ),
+        shouldIconPulse: false,
+      );
+    } finally {
       setState(() {
         _isLoading = false;
       });
     }
+  }
+
+  Future<dynamic> _sendRejectAndApproveRequest(
+      int? id,
+      String status,
+      String token,
+      String keterangan,
+      String lainnya,
+      String institusiTraining) async {
+    final ioClient = createIOClientWithInsecureConnection();
+    final url = Uri.parse('$_apiUrl/training/$id/process');
+
+    final response = await ioClient.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+      body: {
+        'status': status,
+        'institusi_training': institusiTraining,
+        'keterangan': keterangan,
+        'fungsi_training': selectedValueFungsiTraining.toString(),
+        'tujuan_objektif': selectedValueTujuanObjektif.toString(),
+        'penugasan_karyawan': selectedValuePenugasanKaryawan.toString(),
+        'penugasan_lainnya': lainnya,
+        'tgl_sharing': tanggalSharing.toString(),
+      },
+    );
+
+    return response.body;
   }
 
   @override
@@ -206,6 +239,20 @@ class _DetailPengajuanTrainingDaftarPersetujuanState
     double textLarge = size.width * 0.04;
     double padding20 = size.width * 0.047;
     double paddingHorizontalWide = size.width * 0.0585;
+
+    final approvedAt1 = masterDataDetailPengajuanTraining['approved_at1'];
+    final approvedAt2 = masterDataDetailPengajuanTraining['approved_at2'];
+    final approvedAt3 = masterDataDetailPengajuanTraining['approved_at3'];
+    final approvedBy1 = masterDataDetailPengajuanTraining['approved_by1'];
+    final pernr = x.data['pernr'];
+    bool shouldShowApprovalAndRejectButton() {
+      return (approvedAt1 == null &&
+              pernr == masterDataDetailPengajuanTraining['approved_by1']) ||
+          (approvedAt2 == null &&
+              pernr == masterDataDetailPengajuanTraining['approved_by2']) ||
+          (approvedAt3 == null &&
+              pernr == masterDataDetailPengajuanTraining['approved_by3']);
+    }
 
     return _isLoading
         ? const Scaffold(body: Center(child: CircularProgressIndicator()))
@@ -241,43 +288,15 @@ class _DetailPengajuanTrainingDaftarPersetujuanState
                     headerWidget(context),
                     diajukanOlehWidget(context),
                     informasiKegiatanTrainingWidget(context),
-                    (masterDataDetailPengajuanTraining['approved_at1'] != null)
-                        ? evaluasiPraTrainingWidget(context)
-                        : const SizedBox(
-                            height: 0,
-                          ),
-                    (masterDataDetailPengajuanTraining['approved_at1'] ==
-                                null &&
-                            x.data['pernr'] ==
-                                masterDataDetailPengajuanTraining[
-                                    'approved_by1'])
-                        ? evaluasiPraTrainingForm(context)
-                        : const SizedBox(
-                            height: 0,
-                          ),
+                    if (approvedAt1 != null) evaluasiPraTrainingWidget(context),
+                    if (approvedAt1 == null && pernr == approvedBy1)
+                      evaluasiPraTrainingForm(context),
                     keteranganWidget(context),
                     footerWidget(context),
-                    (masterDataDetailPengajuanTraining['approved_at1'] ==
-                                    null &&
-                                x.data['pernr'] ==
-                                    masterDataDetailPengajuanTraining[
-                                        'approved_by1']) ||
-                            (masterDataDetailPengajuanTraining[
-                                        'approved_at2'] ==
-                                    null &&
-                                x.data['pernr'] ==
-                                    masterDataDetailPengajuanTraining[
-                                        'approved_by2']) ||
-                            (masterDataDetailPengajuanTraining[
-                                        'approved_at3'] ==
-                                    null &&
-                                x.data['pernr'] ==
-                                    masterDataDetailPengajuanTraining[
-                                        'approved_by3'])
-                        ? approvalAndRejectButton(context)
-                        : const SizedBox(
-                            height: 0,
-                          )
+                    if (shouldShowApprovalAndRejectButton())
+                      approvalAndRejectButton(context)
+                    else
+                      const SizedBox(height: 0),
                   ],
                 ),
               ),
@@ -290,39 +309,38 @@ class _DetailPengajuanTrainingDaftarPersetujuanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'Prioritas',
+        'value': '${masterDataDetailPengajuanTraining['prioritas'] ?? '-'}',
+      },
+      {
+        'label': 'Nomor Dokumen',
+        'value': '${masterDataDetailPengajuanTraining['no_doc'] ?? '-'}',
+      },
+      {
+        'label': 'Tanggal Pengajuan',
+        'value': '${masterDataDetailPengajuanTraining['tgl_sharing'] ?? '-'}',
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        RowWithSemicolonWidget(
-          textLeft: 'Prioritas',
-          textRight: '${masterDataDetailPengajuanTraining['prioritas'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nomor Dokumen',
-          textRight: '${masterDataDetailPengajuanTraining['no_doc'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Pengajuan',
-          textRight:
-              '${masterDataDetailPengajuanTraining['tgl_sharing'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        ...data.map((item) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RowWithSemicolonWidget(
+                  textLeft: item['label'],
+                  textRight: item['value'].toString(),
+                  fontSizeLeft: textMedium,
+                  fontSizeRight: textMedium,
+                ),
+                SizedBox(height: sizedBoxHeightShort),
+              ],
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -334,83 +352,56 @@ class _DetailPengajuanTrainingDaftarPersetujuanState
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double sizedBoxHeightTall = 15;
 
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'Nrp',
+        'value': '${masterDataDetailPengajuanTraining['nrp'] ?? '-'}',
+      },
+      {
+        'label': 'Nama',
+        'value': '${masterDataDetailPengajuanTraining['nama'] ?? '-'}',
+      },
+      {
+        'label': 'Jabatan',
+        'value':
+            '${masterDataDetailPengajuanTraining['jabatan']?['nm_jabatan'] ?? '-'}',
+      },
+      {
+        'label': 'Divisi/Departemen',
+        'value': '${masterDataDetailPengajuanTraining['divisi'] ?? '-'}',
+      },
+      {
+        'label': 'Entitas',
+        'value':
+            '${masterDataDetailPengajuanTraining['entitas']?['nama'] ?? '-'}',
+      },
+      {
+        'label': 'Tanggal Mulai Kerja',
+        'value': '${masterDataDetailPengajuanTraining['hire_date'] ?? '-'}',
+      },
+      {
+        'label': 'Total Mengikuti Training',
+        'value': '${masterDataDetailPengajuanTraining['total_training']} Kali',
+      },
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Diajukan Oleh'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nrp',
-          textRight: '${masterDataDetailPengajuanTraining['nrp'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama',
-          textRight: '${masterDataDetailPengajuanTraining['nama'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Jabatan',
-          textRight:
-              '${masterDataDetailPengajuanTraining['jabatan']?['nm_jabatan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Divisi/Departemen',
-          textRight: '${masterDataDetailPengajuanTraining['divisi'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Entitas',
-          textRight:
-              '${masterDataDetailPengajuanTraining['entitas']?['nama'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Mulai Kerja',
-          textRight: '${masterDataDetailPengajuanTraining['hire_date'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Total Mengikuti Training',
-          textRight:
-              '${masterDataDetailPengajuanTraining['total_training']} Kali',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
+        SizedBox(height: sizedBoxHeightTall),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label'],
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightTall),
       ],
     );
   }
@@ -419,125 +410,104 @@ class _DetailPengajuanTrainingDaftarPersetujuanState
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
-    double sizedBoxHeightExtraTall = size.height * 0.0215;
     double sizedBoxHeightTall = 15;
+
+    final tglTraining =
+        masterDataDetailPengajuanTraining['tgl_training'] ?? '-';
+    final institusiTraining =
+        masterDataDetailPengajuanTraining['institusi_training'] ?? '-';
+    final biayaTraining =
+        masterDataDetailPengajuanTraining['biaya_training'].toString();
+    final lokasiTraining =
+        masterDataDetailPengajuanTraining['lokasi_training'] ?? '-';
+    final periodeIkatanDinas =
+        masterDataDetailPengajuanTraining['periode_ikatan_dinas'] ?? '-';
+    final satuanIkatanDinas =
+        masterDataDetailPengajuanTraining['satuan_ikatan_dinas'] ?? '-';
+
+    bool shouldShowInstitusiTrainingForm =
+        masterDataDetailPengajuanTraining['approved_at1'] != null &&
+            masterDataDetailPengajuanTraining['approved_at2'] == null &&
+            masterDataDetailPengajuanTraining['approved_at3'] == null;
+
+    bool shouldShowInstitusiTraining =
+        masterDataDetailPengajuanTraining['approved_at1'] != null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Informasi Kegiatan Training'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
+        SizedBox(height: sizedBoxHeightTall),
         RowWithSemicolonWidget(
           textLeft: 'Tanggal Training',
-          textRight:
-              '${masterDataDetailPengajuanTraining['tgl_training'] ?? '-'}',
+          textRight: tglTraining,
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        (masterDataDetailPengajuanTraining['approved_at1'] != null) &&
-                (masterDataDetailPengajuanTraining['approved_at1'] != null)
-            ? Column(
+        SizedBox(height: sizedBoxHeightShort),
+        if (shouldShowInstitusiTraining)
+          Column(
+            children: [
+              RowWithSemicolonWidget(
+                textLeft: 'Institusi Training',
+                textRight: institusiTraining,
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+              SizedBox(height: sizedBoxHeightShort),
+            ],
+          ),
+        if (shouldShowInstitusiTrainingForm)
+          Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  RowWithSemicolonWidget(
-                    textLeft: 'Institusi Training',
-                    textRight:
-                        '${masterDataDetailPengajuanTraining['institusi_training'] ?? '-'}',
-                    fontSizeLeft: textMedium,
-                    fontSizeRight: textMedium,
+                  SizedBox(
+                    width: size.width * 0.4,
+                    child: TitleWidget(
+                      title: 'Institusi Training',
+                      fontWeight: FontWeight.w300,
+                      fontSize: textMedium,
+                    ),
                   ),
                   SizedBox(
-                    height: sizedBoxHeightShort,
+                    width: size.width * 0.48,
+                    child: TextFormFieldWidget(
+                      controller: _institusiTrainingController,
+                      maxHeightConstraints: 40,
+                      hintText: 'Isi Institusi',
+                    ),
                   ),
                 ],
-              )
-            : const SizedBox(
-                height: 0,
               ),
-        (masterDataDetailPengajuanTraining['approved_at1'] != null) &&
-                (masterDataDetailPengajuanTraining['approved_at2'] == null) &&
-                (masterDataDetailPengajuanTraining['approved_at3'] == null)
-            ? Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: size.width * 0.4,
-                        child: TitleWidget(
-                          title: 'Institusi Training',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        width: size.width * 0.48,
-                        child: TextFormFieldWidget(
-                          controller: _institusiTrainingController,
-                          maxHeightConstraints: 40,
-                          hintText: 'Isi Institusi',
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: sizedBoxHeightShort,
-                  ),
-                ],
-              )
-            : const SizedBox(
-                height: 0,
-              ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+              SizedBox(height: sizedBoxHeightShort),
+            ],
+          ),
+        SizedBox(height: sizedBoxHeightShort),
         RowWithSemicolonWidget(
           textLeft: 'Biaya Training',
-          textRight:
-              '${masterDataDetailPengajuanTraining['biaya_training'] ?? '-'}',
+          textRight: biayaTraining,
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         RowWithSemicolonWidget(
           textLeft: 'Lokasi Training',
-          textRight:
-              '${masterDataDetailPengajuanTraining['lokasi_training'] ?? '-'}',
+          textRight: lokasiTraining,
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        // RowWithSemicolonWidget(
-        //   textLeft: 'Lampiran',
-        //   textRight: '${masterDataDetailPengajuanTraining['lampiran'] ?? '-'}',
-        //   fontSizeLeft: textMedium,
-        //   fontSizeRight: textMedium,
-        // ),
-        // SizedBox(
-        //   height: sizedBoxHeightShort,
-        // ),
+        SizedBox(height: sizedBoxHeightShort),
         RowWithSemicolonWidget(
           textLeft: 'Ikatan Dinas',
-          textRight:
-              '${masterDataDetailPengajuanTraining['periode_ikatan_dinas'] ?? '-'} ${masterDataDetailPengajuanTraining['satuan_ikatan_dinas'] ?? '-'}',
+          textRight: '$periodeIkatanDinas $satuanIkatanDinas',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
+        SizedBox(height: sizedBoxHeightTall),
       ],
     );
   }
@@ -549,47 +519,41 @@ class _DetailPengajuanTrainingDaftarPersetujuanState
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double sizedBoxHeightTall = 15;
 
+    List<Map<String, String>> data = [
+      {
+        'label': 'Keterangan Atasan',
+        'value':
+            '${masterDataDetailPengajuanTraining['keterangan_atasan'] ?? '-'}',
+      },
+      {
+        'label': 'Keterangan HCGS',
+        'value':
+            '${masterDataDetailPengajuanTraining['keterangan_hcgs'] ?? '-'}',
+      },
+      {
+        'label': 'Keterangan Direksi',
+        'value':
+            '${masterDataDetailPengajuanTraining['keterangan_direktur'] ?? '-'}',
+      },
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Keterangan'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Keterangan Atasan',
-          textRight:
-              '${masterDataDetailPengajuanTraining['keterangan_atasan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Keterangan HCGS',
-          textRight:
-              '${masterDataDetailPengajuanTraining['keterangan_hcgs'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Keterangan Direksi',
-          textRight:
-              '${masterDataDetailPengajuanTraining['keterangan_direktur'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightTall),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label'],
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -985,67 +949,45 @@ class _DetailPengajuanTrainingDaftarPersetujuanState
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double sizedBoxHeightTall = 15;
 
+    List<Map<String, String>> data = [
+      {
+        'label': 'Fungsi Training',
+        'value':
+            '${masterDataDetailPengajuanTraining['fungsi_training'] ?? '-'}',
+      },
+      {
+        'label': 'Tujuan Objektif',
+        'value':
+            '${masterDataDetailPengajuanTraining['tujuan_objektif'] ?? '-'}',
+      },
+      {
+        'label': 'Penugasan Karyawan',
+        'value':
+            '${masterDataDetailPengajuanTraining['penugasan_karyawan'] ?? '-'}',
+      },
+      {
+        'label': 'Tanggal sharing Knowledge',
+        'value': '${masterDataDetailPengajuanTraining['tgl_sharing'] ?? '-'}',
+      },
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Evaluasi Pra Training'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Fungsi Training',
-          textRight:
-              '${masterDataDetailPengajuanTraining['fungsi_training'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tujuan Objektif',
-          textRight:
-              '${masterDataDetailPengajuanTraining['tujuan_objektif'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Penugasan Karyawan',
-          textRight:
-              '${masterDataDetailPengajuanTraining['penugasan_karyawan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Lainnya',
-          textRight:
-              '${masterDataDetailPengajuanTraining['penugasan_lainnya'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal sharing Knowledge',
-          textRight:
-              '${masterDataDetailPengajuanTraining['tgl_sharing'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightTall),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label'],
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -1055,14 +997,11 @@ class _DetailPengajuanTrainingDaftarPersetujuanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
         TitleCenterWithLongBadgeWidget(
           textLeft: 'Status Pengajuan',
           textRight:
@@ -1071,9 +1010,7 @@ class _DetailPengajuanTrainingDaftarPersetujuanState
           fontSizeRight: textMedium,
           color: Colors.yellow,
         ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         TitleCenterWidget(
           textLeft: 'Pada',
           textRight:
@@ -1081,9 +1018,7 @@ class _DetailPengajuanTrainingDaftarPersetujuanState
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }

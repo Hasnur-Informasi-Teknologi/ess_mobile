@@ -37,99 +37,95 @@ class MainScreenWithAnimation extends StatefulWidget {
 
 class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
     with TickerProviderStateMixin {
-  AnimationController? animationController;
-  List<TabIconData> tabIconsList = TabIconData.tabIconsList;
-  MainScreenController x = Get.put(MainScreenController());
+  late AnimationController animationController;
+  final MainScreenController x = Get.put(MainScreenController());
   final String _apiUrl = API_URL;
-
-  Widget tabBody = Container(
-    color: const Color(backgroundNew),
-  );
+  final List<TabIconData> tabIconsList = TabIconData.tabIconsList;
+  Widget tabBody = Container(color: const Color(backgroundNew));
 
   @override
   void initState() {
-    tabIconsList.forEach((TabIconData tab) {
-      tab.isSelected = false;
-    });
-    tabIconsList[0].isSelected = true;
+    super.initState();
+    initializeTabIcons();
     animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 10));
+      vsync: this,
+      duration: const Duration(milliseconds: 10),
+    );
     tabBody = const HomeScreen();
     _checkFaceData();
     getDataAbsenKaryawan();
-    super.initState();
   }
 
   @override
   void dispose() {
-    animationController?.dispose();
+    animationController.dispose();
     super.dispose();
   }
 
+  void initializeTabIcons() {
+    for (var tab in tabIconsList) {
+      tab.isSelected = false;
+    }
+    tabIconsList[0].isSelected = true;
+  }
+
   Future<void> getDataAbsenKaryawan() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
-    var nrp = karyawan['pernr'];
-    var entitas = karyawan['cocd'];
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    final karyawan = jsonDecode(prefs.getString('userData')!)['data'];
+    final nrp = karyawan['pernr'];
+    final entitas = karyawan['cocd'];
+
     if (token != null) {
       try {
         final ioClient = createIOClientWithInsecureConnection();
         final response = await ioClient.get(
           Uri.parse(
               '$_apiUrl/attendance/get_report_hg_attendance?page=1&perPage=5&search=$nrp&entitas=$entitas&lokasi=semua&tahun=2024&status=semua&pangkat=semua'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-          },
+          headers: {'Content-Type': 'application/json; charset=UTF-8'},
         );
+
         final responseData = jsonDecode(response.body);
-
-        DateTime today = DateTime.now();
-        String dateString = today.toString();
-        String dateOnly = dateString.substring(0, 10);
-
-        if (responseData['dataku'][0]['in_date'] == dateOnly) {
-          if (responseData['dataku'][0]['out_time'] == null) {
-            x.absenIn.value = true;
-            x.absenOut.value = false;
-          } else {
-            x.absenIn.value = true;
-            x.absenOut.value = true;
-          }
-        } else {
-          x.absenIn.value = false;
-          x.absenOut.value = false;
-        }
+        _updateAbsenStatus(responseData);
       } catch (e) {
         print(e);
       }
     } else {
-      print('tidak ada token home');
+      print('Tidak ada token home');
+    }
+  }
+
+  void _updateAbsenStatus(dynamic responseData) {
+    final today = DateTime.now();
+    final dateOnly = today.toIso8601String().substring(0, 10);
+
+    if (responseData['dataku'][0]['in_date'] == dateOnly) {
+      x.absenIn.value = true;
+      x.absenOut.value = responseData['dataku'][0]['out_time'] != null;
+    } else {
+      x.absenIn.value = false;
+      x.absenOut.value = false;
     }
   }
 
   Future<void> _checkFaceData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
+    final prefs = await SharedPreferences.getInstance();
+    final karyawan = jsonDecode(prefs.getString('userData')!)['data'];
     final userId = karyawan['pernr'];
 
-    var userData = jsonDecode(prefs.getString('userData').toString())['data'];
     try {
-      Map<String, String> headers = {"Content-type": "application/json"};
       final ioClient = createIOClientWithInsecureConnection();
-
       final response = await ioClient.post(
-          Uri.parse('https://hitfaceapi.my.id/api/face/check'),
-          headers: headers,
-          body: jsonEncode(<String, String>{
-            'id_user': userData['pernr'] as String,
-          }));
+        Uri.parse('https://hitfaceapi.my.id/api/face/check'),
+        headers: {'Content-type': 'application/json'},
+        body: jsonEncode({'id_user': userId}),
+      );
       final responseData = json.decode(response.body);
       if (responseData['status'] == false) {
         Get.offAll(RegisterFaceScreen());
-        print('push ke register wajah');
+        print('Push ke register wajah');
       } else {
-        print('skip daftar wajah');
+        print('Skip daftar wajah');
       }
     } catch (error) {
       throw error;
@@ -151,9 +147,7 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
   Widget bottomBar(BuildContext context) {
     return Column(
       children: <Widget>[
-        const Expanded(
-          child: SizedBox(),
-        ),
+        const Expanded(child: SizedBox()),
         BottomBarView(
           tabIconsList: tabIconsList,
           addClick: () {
@@ -167,147 +161,82 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
                   style: TextStyle(fontWeight: FontWeight.w500),
                 ),
                 actions: <Widget>[
-                  Column(children: <Widget>[
-                    x.absenIn == false && x.absenOut == false
-                        ? clockInWidget(context)
-                        : x.absenIn == true && x.absenOut == false
-                            ? clockOutWidget(context)
-                            : sudahAbsenWidget(context),
-                  ])
+                  Column(
+                    children: <Widget>[
+                      if (!x.absenIn.value && !x.absenOut.value)
+                        clockInWidget(context)
+                      else if (x.absenIn.value && !x.absenOut.value)
+                        clockOutWidget(context)
+                      else
+                        sudahAbsenWidget(context),
+                    ],
+                  ),
                 ],
               ),
             );
           },
           changeIndex: (int index) {
-            if (index == 0) {
-              animationController?.reverse().then<dynamic>((data) {
-                if (!mounted) {
-                  return;
-                }
-                setState(() {
-                  tabBody = const HomeScreen();
-                });
-              });
-            } else if (index == 1) {
-              animationController?.reverse().then<dynamic>((data) {
-                if (!mounted) {
-                  return;
-                }
-                setState(() {
-                  // tabBody = const DaftarPermintaanScreen();
-                });
-              });
-            } else if (index == 2) {
-              animationController?.reverse().then<dynamic>((data) {
-                if (!mounted) {
-                  return;
-                }
-                setState(() {
-                  // tabBody = const DaftarPersetujuanScreen();
-                });
-              });
-            } else if (index == 3) {
-              animationController?.reverse().then<dynamic>((data) {
-                if (!mounted) {
-                  return;
-                }
-                setState(() {
-                  tabBody = const ProfileScreen();
-                });
-              });
-            }
+            changeTab(index);
           },
         ),
       ],
     );
   }
 
+  void changeTab(int index) {
+    animationController.reverse().then<dynamic>((data) {
+      if (!mounted) return;
+      setState(() {
+        switch (index) {
+          case 0:
+            tabBody = const HomeScreen();
+            break;
+          case 1:
+            tabBody = const DaftarPermintaanScreen();
+            break;
+          case 2:
+            tabBody = const DaftarPersetujuanScreen();
+            break;
+          case 3:
+            tabBody = const ProfileScreen();
+            break;
+        }
+      });
+    });
+  }
+
   Widget clockInWidget(BuildContext context) {
     return Column(
       children: [
-        Container(
-          width: double.infinity,
-          height: 45,
-          margin: const EdgeInsets.only(bottom: 10),
-          child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Color(primaryYellow))),
-              onPressed: () {
-                print('home');
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                        builder: (ctx) => const WFHLocationScreen(
-                            workLocation: 'Home', attendanceType: 'Check-In')),
-                    (route) => false);
-              },
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Icon(Icons.home),
-                  Text('WFH',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          color: Color(primaryBlack))),
-                ],
-              )),
-        ),
-        const SizedBox(width: 10),
-        Container(
-          width: double.infinity,
-          height: 45,
-          margin: const EdgeInsets.only(bottom: 10),
-          child: OutlinedButton(
-            style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(primaryYellow))),
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                      builder: (ctx) =>
-                          const WFOLocationNewScreen(workLocation: 'Office')),
-                  (route) => false);
-            },
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Icon(Icons.work),
-                Text('WFO',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: Color(primaryBlack))),
-              ],
-            ),
+        buildOutlinedButton(
+          context,
+          icon: Icons.home,
+          label: 'WFH',
+          onPressed: () => navigateToScreen(
+            context,
+            const WFHLocationScreen(
+                workLocation: 'Home', attendanceType: 'Check-In'),
           ),
         ),
-        const SizedBox(width: 10),
-        Container(
-          width: double.infinity,
-          height: 45,
-          margin: const EdgeInsets.only(bottom: 10),
-          child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Color(primaryYellow))),
-              onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                        builder: (ctx) => const TripLocationScreen(
-                            workLocation: 'Trip', attendanceType: 'Check-In')),
-                    (route) => false);
-              },
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Icon(Icons.car_crash),
-                  Text('Bussiness Trip',
-                      style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          color: Color(primaryBlack))),
-                ],
-              )),
+        buildOutlinedButton(
+          context,
+          icon: Icons.work,
+          label: 'WFO',
+          onPressed: () => navigateToScreen(
+            context,
+            const WFOLocationNewScreen(workLocation: 'Office'),
+          ),
         ),
-        const SizedBox(width: 10),
+        buildOutlinedButton(
+          context,
+          icon: Icons.car_crash,
+          label: 'Business Trip',
+          onPressed: () => navigateToScreen(
+            context,
+            const TripLocationScreen(
+                workLocation: 'Trip', attendanceType: 'Check-In'),
+          ),
+        ),
       ],
     );
   }
@@ -315,31 +244,13 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
   Widget clockOutWidget(BuildContext context) {
     return Column(
       children: [
-        Container(
-          width: double.infinity,
-          height: 45,
-          margin: const EdgeInsets.only(bottom: 10),
-          child: OutlinedButton(
-            style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(primaryYellow))),
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(
-                      builder: (ctx) => const CheckoutLocationScreen(
-                          attendanceType: 'Check-Out')),
-                  (route) => false);
-            },
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Icon(Icons.outbound),
-                Text('Absen Pulang',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: Color(primaryBlack))),
-              ],
-            ),
+        buildOutlinedButton(
+          context,
+          icon: Icons.outbound,
+          label: 'Absen Pulang',
+          onPressed: () => navigateToScreen(
+            context,
+            const CheckoutLocationScreen(attendanceType: 'Check-Out'),
           ),
         ),
       ],
@@ -347,31 +258,77 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
   }
 
   Widget sudahAbsenWidget(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    double padding5 = size.width * 0.0115;
-
     return Column(
       children: [
-        Container(
-          height: size.height * 0.07,
-          padding: EdgeInsets.all(padding5),
-          decoration: BoxDecoration(
-            color: const Color(primaryYellow),
-            borderRadius: BorderRadius.circular(5.0),
-          ),
-          child: const Center(
-            child: Text(
-              'Sudah Absen',
-              style: TextStyle(
-                color: const Color(primaryBlack),
-                fontSize: 20,
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
+        buildContainer(
+          context,
+          label: 'Sudah Absen',
         ),
       ],
+    );
+  }
+
+  Widget buildOutlinedButton(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return Container(
+      width: double.infinity,
+      height: 45,
+      margin: const EdgeInsets.only(bottom: 10),
+      child: OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: Color(primaryYellow)),
+        ),
+        onPressed: onPressed,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(icon),
+            Text(
+              label,
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Color(primaryBlack),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildContainer(BuildContext context, {required String label}) {
+    final size = MediaQuery.of(context).size;
+    final padding5 = size.width * 0.0115;
+
+    return Container(
+      height: size.height * 0.07,
+      padding: EdgeInsets.all(padding5),
+      decoration: BoxDecoration(
+        color: const Color(primaryYellow),
+        borderRadius: BorderRadius.circular(5.0),
+      ),
+      child: Center(
+        child: Text(
+          label,
+          style: const TextStyle(
+            color: Color(primaryBlack),
+            fontSize: 20,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void navigateToScreen(BuildContext context, Widget screen) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (ctx) => screen),
     );
   }
 }

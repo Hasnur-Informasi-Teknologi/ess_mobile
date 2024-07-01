@@ -8,7 +8,6 @@ import 'package:camera/camera.dart';
 import 'package:get/get.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/screens/attendance/late_modal_dialog.dart';
-import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:http/http.dart' as http;
@@ -70,7 +69,7 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
         final responseData = jsonDecode(response.body);
         print(responseData);
         if (responseData["data"] != null) {
-          final responseDataApi = responseData["data"]["toleransiin"];
+          final responseDataApi = responseData["data"][0]["toleransiin"];
           print(responseDataApi);
           setState(() {
             clockInToleransi = responseDataApi;
@@ -107,220 +106,204 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
   Future<void> captureSelfie() async {
     setState(() => _isLoading = true);
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
-    final userId = karyawan['pernr'];
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      var karyawan = jsonDecode(prefs.getString('userData')!)['data'];
+      final userId = karyawan['pernr'];
 
-    final image = await _cameraController!.takePicture();
-    if (image != null && image.path != null) {
+      final image = await _cameraController!.takePicture();
+      if (image == null || image.path.isEmpty) {
+        throw Exception('Image capture failed');
+      }
+
       File rotatedImage =
           await FlutterExifRotation.rotateImage(path: image.path);
       File imageFile = File(rotatedImage.path);
 
-      Map<String, String> headers = {
-        'Content-Type': 'multipart/form-data',
-      };
-      Map<String, dynamic> attendanceData = widget.attendanceData;
-      var nrp = attendanceData['nrp'] ?? attendanceData['pernr'];
-      var lat = attendanceData['lat'];
-      var long = attendanceData['long'];
-
-      List<Placemark> getAlamat =
-          await placemarkFromCoordinates(double.parse(lat), double.parse(long));
-      print(getAlamat);
-      if (getAlamat.length > 2) {
-        alamat = getAlamat[2].toString();
-      } else {
-        alamat = getAlamat.isNotEmpty
-            ? getAlamat.last.toString()
-            : 'Alamat tidak ditemukan';
-      }
-
-      var request = http.MultipartRequest(
-          'POST', Uri.parse('https://hitfaceapi.my.id/api/face/recognition'));
-      request.fields['id_user'] = userId as String;
-      request.fields['force'] = 'true';
-      request.files.add(http.MultipartFile.fromBytes(
-          'file', imageFile.readAsBytesSync(),
-          filename: imageFile.path.split('/').last));
-      final ioClient = createIOClientWithInsecureConnection();
-
-      var res = await ioClient.send(request);
-      var respStr = await res.stream.bytesToString();
-
-      final result = jsonDecode(respStr) as Map<dynamic, dynamic>;
-      var status = result['status'] ?? '';
-      var message = result['message'] ?? '';
-      var confidence = result['confidence'] ?? '0';
-      var duplicate = result['duplicate'] ?? 'false';
-      var idUser = result['id_user'] ?? '';
-      print(
-          'status : $status , message : $message , confidence : $confidence , duplicate : $duplicate');
-      if (status == false) {
-        _showErrorDialog(message);
-      } else {
-        if (idUser != userId) {
-          _showErrorDialog('Wajah terdetect bukan milik user ini !');
-        } else {
-          if (confidence.round() < 55) {
-            _showErrorDialog('Confidence Data Kurang dari 50%!');
-          } else {
-            // proses absen
-            _cameraController!.dispose();
-            var clockInTime = attendanceData['clock_in_time'] ?? '';
-            var workingLocation = attendanceData['working_location'] ?? '';
-            String dateString = clockInTime.toString();
-            String clockInTimeOnly = dateString.substring(11, 19);
-            List<String> timeParts = clockInTimeOnly.split(':');
-            int timeHour = int.parse(timeParts[0]);
-            int timeMinute = int.parse(timeParts[1]);
-            int timeSecond = int.parse(timeParts[2]);
-
-            List<String>? clockInToleransiParts;
-
-            if (widget.clockInType == 'In') {
-              if (workSchedule != null) {
-                if (clockInToleransi != null) {
-                  clockInToleransiParts = clockInToleransi!.split(':');
-                  // Membandingkan hanya jam, menit, dan detik
-                  int clockInToleransiHour =
-                      int.parse(clockInToleransiParts[0]);
-                  int clockInToleransiMinute =
-                      int.parse(clockInToleransiParts[1]);
-                  int clockInToleransiSecond =
-                      int.parse(clockInToleransiParts[2]);
-
-                  if (timeHour > clockInToleransiHour ||
-                      (timeHour == clockInToleransiHour &&
-                          timeMinute > clockInToleransiMinute) ||
-                      (timeHour == clockInToleransiHour &&
-                          timeMinute == clockInToleransiMinute &&
-                          timeSecond > clockInToleransiSecond)) {
-                    // Kalau Terlambat
-
-                    Map<String, dynamic> newData = {
-                      "nrp": nrp,
-                      "lat": lat,
-                      "long": long,
-                      "clock_time": clockInTime,
-                      "working_location": workingLocation,
-                      "address": alamat.toString(),
-                      "image": imageFile,
-                    };
-
-                    Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (ctx) =>
-                                LateModalDialog(newData: newData)));
-                    setState(() {
-                      _camera = false;
-                    });
-                  } else {
-                    // Kalau Ontime
-                    final ioClient = createIOClientWithInsecureConnection();
-                    var request = http.MultipartRequest(
-                        'POST', Uri.parse('$_apiUrl/absen'))
-                      ..headers.addAll(headers)
-                      ..fields['nrp'] = nrp
-                      ..fields['lat'] = lat
-                      ..fields['long'] = long
-                      ..fields['clock_time'] = clockInTime
-                      ..fields['working_location'] = workingLocation
-                      ..fields['address'] = alamat.toString();
-
-                    var streamedResponse = await ioClient.send(request);
-                    final responseData =
-                        await streamedResponse.stream.bytesToString();
-                    final responseDataMessage = json.decode(responseData);
-                    print(responseDataMessage);
-
-                    Get.snackbar('Infomation', responseDataMessage['message'],
-                        snackPosition: SnackPosition.TOP,
-                        backgroundColor: Colors.amber,
-                        icon: const Icon(
-                          Icons.info,
-                          color: Colors.white,
-                        ),
-                        shouldIconPulse: false);
-                    setState(() {
-                      _isLoading = false;
-                    });
-                    Get.offAllNamed('/user/main');
-                  }
-                } else {
-                  Get.snackbar('Warning', 'Toleransi Masuk Tidak Di temukan',
-                      snackPosition: SnackPosition.TOP,
-                      backgroundColor: Colors.red,
-                      icon: const Icon(
-                        Icons.info,
-                        color: Colors.white,
-                      ),
-                      colorText: Colors.white,
-                      duration: Duration(seconds: 15),
-                      shouldIconPulse: false);
-                  setState(() {
-                    _isLoading = false;
-                    _camera = false;
-                  });
-                  Get.offAllNamed('/user/main');
-                }
-              } else {
-                Get.snackbar('Warning', 'Work Schedule Tidak Di temukan',
-                    snackPosition: SnackPosition.TOP,
-                    backgroundColor: Colors.red,
-                    icon: const Icon(
-                      Icons.info,
-                      color: Colors.white,
-                    ),
-                    colorText: Colors.white,
-                    duration: Duration(seconds: 15),
-                    shouldIconPulse: false);
-                setState(() {
-                  _isLoading = false;
-                  _camera = false;
-                });
-                Get.offAllNamed('/user/main');
-              }
-            } else {
-              print('out');
-              final ioClient = createIOClientWithInsecureConnection();
-              var request =
-                  http.MultipartRequest('POST', Uri.parse('$_apiUrl/absen'))
-                    ..headers.addAll(headers)
-                    ..fields['nrp'] = nrp
-                    ..fields['lat'] = lat
-                    ..fields['long'] = long
-                    ..fields['clock_time'] = clockInTime
-                    ..fields['working_location'] = workingLocation
-                    ..fields['address'] = alamat.toString();
-
-              var streamedResponse = await ioClient.send(request);
-              final responseData =
-                  await streamedResponse.stream.bytesToString();
-
-              final responseDataMessage = json.decode(responseData);
-              print(responseDataMessage);
-
-              Get.snackbar('Infomation', responseDataMessage['message'],
-                  snackPosition: SnackPosition.TOP,
-                  backgroundColor: Colors.amber,
-                  icon: const Icon(
-                    Icons.info,
-                    color: Colors.white,
-                  ),
-                  shouldIconPulse: false);
-              setState(() {
-                _isLoading = false;
-              });
-              Get.offAllNamed('/user/main');
-            }
-          }
-        }
-      }
+      await _processImage(imageFile, userId);
+    } catch (e) {
+      _showErrorDialog('An error occurred: $e');
+    } finally {
+      setState(() => _isLoading = false);
     }
+  }
 
-    setState(() => _isLoading = false);
+  Future<void> _processImage(File imageFile, String userId) async {
+    Map<String, String> headers = {'Content-Type': 'multipart/form-data'};
+    Map<String, dynamic> attendanceData = widget.attendanceData;
+    var nrp = attendanceData['nrp'] ?? attendanceData['pernr'];
+    var lat = attendanceData['lat'];
+    var long = attendanceData['long'];
+
+    List<Placemark> getAlamat =
+        await placemarkFromCoordinates(double.parse(lat), double.parse(long));
+    String alamat = getAlamat.isNotEmpty
+        ? getAlamat.last.toString()
+        : 'Alamat tidak ditemukan';
+
+    var request = http.MultipartRequest(
+        'POST', Uri.parse('https://hitfaceapi.my.id/api/face/recognition'));
+    request.fields['id_user'] = userId;
+    request.fields['force'] = 'true';
+    request.files.add(http.MultipartFile.fromBytes(
+        'file', imageFile.readAsBytesSync(),
+        filename: imageFile.path.split('/').last));
+    final ioClient = createIOClientWithInsecureConnection();
+
+    var res = await ioClient.send(request);
+    var respStr = await res.stream.bytesToString();
+    final result = jsonDecode(respStr);
+
+    await _handleFaceRecognitionResult(
+        result, userId, attendanceData, imageFile, headers, alamat);
+  }
+
+  Future<void> _handleFaceRecognitionResult(
+      Map<dynamic, dynamic> result,
+      String userId,
+      Map<String, dynamic> attendanceData,
+      File imageFile,
+      Map<String, String> headers,
+      String alamat) async {
+    var status = result['status'] ?? '';
+    var message = result['message'] ?? '';
+    var confidence = result['confidence'] ?? 0;
+    var idUser = result['id_user'] ?? '';
+
+    if (!status) {
+      _showErrorDialog(message);
+    } else if (idUser != userId) {
+      _showErrorDialog('Wajah terdetect bukan milik user ini !');
+    } else if (confidence.round() < 55) {
+      _showErrorDialog('Confidence Data Kurang dari 50%!');
+    } else {
+      await _handleAttendance(attendanceData, imageFile, headers, alamat);
+    }
+  }
+
+  Future<void> _handleAttendance(Map<String, dynamic> attendanceData,
+      File imageFile, Map<String, String> headers, String alamat) async {
+    _cameraController!.dispose();
+    var clockInTime = attendanceData['clock_in_time'] ?? '';
+    var workingLocation = attendanceData['working_location'] ?? '';
+    String dateString = clockInTime.toString();
+    String clockInTimeOnly = dateString.substring(11, 19);
+    List<String> timeParts = clockInTimeOnly.split(':');
+    int timeHour = int.parse(timeParts[0]);
+    int timeMinute = int.parse(timeParts[1]);
+    int timeSecond = int.parse(timeParts[2]);
+
+    List<String>? clockInToleransiParts;
+
+    if (widget.clockInType == 'In') {
+      await _handleClockIn(attendanceData, imageFile, headers, alamat,
+          clockInTime, workingLocation, timeHour, timeMinute, timeSecond);
+    } else {
+      await _sendClockInData(
+          attendanceData, headers, alamat, clockInTime, workingLocation);
+    }
+  }
+
+  Future<void> _handleClockIn(
+      Map<String, dynamic> attendanceData,
+      File imageFile,
+      Map<String, String> headers,
+      String alamat,
+      String clockInTime,
+      String workingLocation,
+      int timeHour,
+      int timeMinute,
+      int timeSecond) async {
+    if (workSchedule != null && clockInToleransi != null) {
+      List<String> clockInToleransiParts = clockInToleransi!.split(':');
+      int clockInToleransiHour = int.parse(clockInToleransiParts[0]);
+      int clockInToleransiMinute = int.parse(clockInToleransiParts[1]);
+      int clockInToleransiSecond = int.parse(clockInToleransiParts[2]);
+
+      bool isLate = timeHour > clockInToleransiHour ||
+          (timeHour == clockInToleransiHour &&
+              timeMinute > clockInToleransiMinute) ||
+          (timeHour == clockInToleransiHour &&
+              timeMinute == clockInToleransiMinute &&
+              timeSecond > clockInToleransiSecond);
+
+      if (isLate) {
+        Map<String, dynamic> newData = {
+          "nrp": attendanceData['nrp'] ?? attendanceData['pernr'],
+          "lat": attendanceData['lat'],
+          "long": attendanceData['long'],
+          "clock_time": clockInTime,
+          "working_location": workingLocation,
+          "address": alamat,
+          "image": imageFile,
+        };
+
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+                builder: (ctx) => LateModalDialog(newData: newData)));
+        setState(() {
+          _camera = false;
+        });
+      } else {
+        await _sendClockInData(
+            attendanceData, headers, alamat, clockInTime, workingLocation);
+      }
+    } else {
+      String message = workSchedule == null
+          ? 'Work Schedule Tidak Di temukan'
+          : 'Toleransi Masuk Tidak Di temukan';
+      Get.snackbar('Warning', message,
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.red,
+          icon: const Icon(
+            Icons.info,
+            color: Colors.white,
+          ),
+          colorText: Colors.white,
+          duration: Duration(seconds: 15),
+          shouldIconPulse: false);
+      setState(() {
+        _isLoading = false;
+        _camera = false;
+      });
+      Get.offAllNamed('/user/main');
+    }
+  }
+
+  Future<void> _sendClockInData(
+      Map<String, dynamic> attendanceData,
+      Map<String, String> headers,
+      String alamat,
+      String clockInTime,
+      String workingLocation) async {
+    final ioClient = createIOClientWithInsecureConnection();
+    var request = http.MultipartRequest('POST', Uri.parse('$_apiUrl/absen'))
+      ..headers.addAll(headers)
+      ..fields['nrp'] = attendanceData['nrp'] ?? attendanceData['pernr']
+      ..fields['lat'] = attendanceData['lat']
+      ..fields['long'] = attendanceData['long']
+      ..fields['clock_time'] = clockInTime
+      ..fields['working_location'] = workingLocation
+      ..fields['address'] = alamat;
+
+    var streamedResponse = await ioClient.send(request);
+    final responseData = await streamedResponse.stream.bytesToString();
+    final responseDataMessage = json.decode(responseData);
+    print(responseDataMessage);
+
+    Get.snackbar('Information', responseDataMessage['message'],
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.amber,
+        icon: const Icon(
+          Icons.info,
+          color: Colors.white,
+        ),
+        shouldIconPulse: false);
+    Get.offAllNamed('/user/main');
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   void _showErrorDialog(String errorMessage) {

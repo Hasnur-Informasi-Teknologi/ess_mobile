@@ -50,12 +50,12 @@ class _FormPengajuanPerpanjanganCutiState
   final _sisaCutiController = TextEditingController();
   final _alasanController = TextEditingController();
 
-  final double _maxHeightNrp = 40.0;
-  final double _maxHeightNama = 40.0;
-  final double _maxHeightEntitas = 40.0;
+  final double _maxHeightNrp = 50.0;
+  final double _maxHeightNama = 50.0;
+  final double _maxHeightEntitas = 50.0;
   double _maxHeightAtasan = 60.0;
-  final double _maxHeightSisaCuti = 40.0;
-  double _maxHeightAlasan = 40.0;
+  final double _maxHeightSisaCuti = 50.0;
+  double _maxHeightAlasan = 50.0;
 
   String? selectedValueAtasan, cocd, entitasUser;
   bool _isLoading = false;
@@ -262,7 +262,7 @@ class _FormPengajuanPerpanjanganCutiState
     }
 
     setState(() {
-      _maxHeightAlasan = 40.0;
+      _maxHeightAlasan = 50.0;
     });
     return null;
   }

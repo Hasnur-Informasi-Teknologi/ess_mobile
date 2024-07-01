@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,6 +27,44 @@ class _IconsProfileContainerWidgetState
   void initState() {
     super.initState();
     getDataKaryawan();
+  }
+
+  String calculateMasaKerja(String hireDate) {
+    final DateFormat formatter = DateFormat('yyyy-MM-dd');
+    final DateTime hireDateTime = formatter.parse(hireDate);
+    final DateTime today = DateTime.now();
+
+    int years = today.year - hireDateTime.year;
+    int months = today.month - hireDateTime.month;
+    int days = today.day - hireDateTime.day;
+
+    if (days < 0) {
+      months -= 1;
+      days += DateTime(today.year, today.month, 0).day;
+    }
+
+    if (months < 0) {
+      years -= 1;
+      months += 12;
+    }
+
+    if (months >= 12) {
+      years += months ~/ 12;
+      months = months % 12;
+    }
+
+    return '$years tahun, $months bulan, $days hari';
+  }
+
+  String formatDate(String hireDate) {
+    try {
+      final DateFormat originalFormat = DateFormat('yyyy-MM-dd');
+      final DateFormat desiredFormat = DateFormat('dd-MM-yyyy');
+      final DateTime dateTime = originalFormat.parse(hireDate);
+      return desiredFormat.format(dateTime);
+    } catch (e) {
+      return hireDate;
+    }
   }
 
   Future<void> getDataKaryawan() async {
@@ -132,9 +171,20 @@ class _IconsProfileContainerWidgetState
       case 0:
         return x.karyawan['position'] ?? '';
       case 1:
-        return x.karyawan['hire_date'] ?? '';
+        String hireDate = x.karyawan['hire_date'] ?? '';
+        if (hireDate.isNotEmpty) {
+          return formatDate(hireDate);
+        } else {
+          return '';
+        }
       case 2:
-        return x.karyawan['masa_kerja'] ?? '';
+        String hireDate = x.karyawan['hire_date'] ?? '';
+        if (hireDate.isNotEmpty) {
+          return calculateMasaKerja(hireDate);
+        } else {
+          return '';
+        }
+
       default:
         return 'Error';
     }

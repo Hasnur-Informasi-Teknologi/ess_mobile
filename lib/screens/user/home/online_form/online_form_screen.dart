@@ -159,13 +159,13 @@ class OnlineFormScreen extends StatelessWidget {
       case 0:
         Get.toNamed('/user/main/home/online_form/aplikasi_training');
         // Get.snackbar('Infomation', 'Coming Soon',
-        // snackPosition: SnackPosition.TOP,
-        // backgroundColor: Colors.amber,
-        // icon: const Icon(
-        // Icons.info,
-        // color: Colors.white,
-        // ),
-        // shouldIconPulse: false);
+        //     snackPosition: SnackPosition.TOP,
+        //     backgroundColor: Colors.amber,
+        //     icon: const Icon(
+        //       Icons.info,
+        //       color: Colors.white,
+        //     ),
+        //     shouldIconPulse: false);
         break;
       case 1:
         Get.toNamed('/user/main/home/online_form/aplikasi_recruitment');
@@ -192,17 +192,25 @@ class OnlineFormScreen extends StatelessWidget {
       case 3:
         Get.toNamed(
             '/user/main/home/online_form/pengajuan_fasilitas_kesehatan');
+        // Get.snackbar('Infomation', 'Coming Soon',
+        //     snackPosition: SnackPosition.TOP,
+        //     backgroundColor: Colors.amber,
+        //     icon: const Icon(
+        //       Icons.info,
+        //       color: Colors.white,
+        //     ),
+        //     shouldIconPulse: false);
         break;
       case 4:
         Get.toNamed('/user/main/home/online_form/pengajuan_izin');
         // Get.snackbar('Infomation', 'Coming Soon',
-        // snackPosition: SnackPosition.TOP,
-        // backgroundColor: Colors.amber,
-        // icon: const Icon(
-        // Icons.info,
-        // color: Colors.white,
-        // ),
-        // shouldIconPulse: false);
+        //     snackPosition: SnackPosition.TOP,
+        //     backgroundColor: Colors.amber,
+        //     icon: const Icon(
+        //       Icons.info,
+        //       color: Colors.white,
+        //     ),
+        //     shouldIconPulse: false);
         break;
       case 5:
         Get.toNamed(
@@ -226,7 +234,9 @@ class OnlineFormScreen extends StatelessWidget {
         //       color: Colors.white,
         //     ),
         //     shouldIconPulse: false);
-        Get.toNamed('/user/main/home/online_form/pengajuan_hardware_software');
+        break;
+      case 7:
+        Get.toNamed('/user/main/home/online_form/pengajuan_surat_keterangan');
         // Get.snackbar('Infomation', 'Coming Soon',
         //     snackPosition: SnackPosition.TOP,
         //     backgroundColor: Colors.amber,
@@ -235,17 +245,6 @@ class OnlineFormScreen extends StatelessWidget {
         //       color: Colors.white,
         //     ),
         //     shouldIconPulse: false);
-        break;
-      case 7:
-        Get.toNamed('/user/main/home/online_form/pengajuan_surat_keterangan');
-        // Get.snackbar('Infomation', 'Coming Soon',
-        // snackPosition: SnackPosition.TOP,
-        // backgroundColor: Colors.amber,
-        // icon: const Icon(
-        // Icons.info,
-        // color: Colors.white,
-        // ),
-        // shouldIconPulse: false);
         break;
       case 8:
         Get.toNamed('/user/main/home/online_form/pengajuan_cuti');

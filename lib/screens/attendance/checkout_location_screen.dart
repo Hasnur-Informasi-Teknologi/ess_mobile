@@ -6,7 +6,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/screens/attendance/take_selfie_screen.dart';
-import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 // import 'package:trust_location/trust_location.dart';
@@ -34,6 +33,13 @@ class CheckoutLocationScreen extends StatefulWidget {
 class _CheckoutLocationScreenState extends State<CheckoutLocationScreen> {
   String? lat, long, address;
   bool _isLoading = false;
+  String _timeZone = 'WIB';
+
+  @override
+  void initState() {
+    super.initState();
+    _getTimeZone();
+  }
 
   Future<void> getLocation() async {
     final locationService = LocationService();
@@ -49,6 +55,14 @@ class _CheckoutLocationScreenState extends State<CheckoutLocationScreen> {
       address =
           '${placeMark?.street}, ${placeMark?.subLocality}, ${placeMark?.locality}, ${placeMark?.subAdministrativeArea}, ${placeMark?.administrativeArea}, ${placeMark?.postalCode}';
     }
+  }
+
+  void _getTimeZone() {
+    var now = DateTime.now();
+    var timeZoneName = now.timeZoneName;
+    setState(() {
+      _timeZone = timeZoneName;
+    });
   }
 
   void _showErrorDialog(String errorMessage) {
@@ -127,17 +141,9 @@ class _CheckoutLocationScreenState extends State<CheckoutLocationScreen> {
         headers: headers);
     DateTime sdate = DateTime.parse(response.body);
     int stimestamp = sdate.millisecondsSinceEpoch;
-    var timeZone = prefs.getString('timeZone');
-    // var timezone = await FlutterTimezone.getLocalTimezone();
-    // if (timezone == 'Asia/Jakarta') {
-    //   timeZone = 'WIB'; // Western Indonesia Time
-    // } else if (timezone == 'Asia/Makassar') {
-    //   timeZone = 'WITA'; // Central Indonesia Time
-    // } else if (timezone == 'Asia/Jayapura') {
-    //   timeZone = 'WIT'; // Eastern Indonesia Time
-    // } else {
-    //   timeZone = 'Unknown'; // Unknown or not applicable
-    // }
+    // var timeZone = prefs.getString('timeZone');
+
+    var timeZone = _timeZone;
     if (timeZone == 'WITA') {
       stimestamp = stimestamp + (1 * 60 * 60 * 1000);
     } else if (timeZone == 'WIT') {
@@ -179,7 +185,7 @@ class _CheckoutLocationScreenState extends State<CheckoutLocationScreen> {
       },
       child: Scaffold(
           appBar: AppBar(
-              title: const Text('Location').tr(),
+              title: const Text('Location'),
               centerTitle: true,
               backgroundColor: const Color(primaryYellow),
               leading: IconButton(

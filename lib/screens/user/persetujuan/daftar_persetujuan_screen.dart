@@ -40,8 +40,9 @@ class DaftarPersetujuanScreen extends StatefulWidget {
 class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _alasanRejectController = TextEditingController();
-  String rawatInapPDFpath = "";
-  String pengajuanCutiPDFpath = "";
+  String pdfpath = "";
+
+  Map<String, bool> _isLoadingContent = {};
 
   final String _apiUrl = API_URL;
   final String _url = URL;
@@ -53,7 +54,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     {'id': '2', 'opsi': 'Bantuan Komunikasi'},
     {'id': '3', 'opsi': 'Hard/Software'},
     {'id': '4', 'opsi': 'Lembur Karyawan'},
-    {'id': '12', 'opsi': 'Summary Cuti'},
+    // {'id': '12', 'opsi': 'Summary Cuti'},
     {'id': '5', 'opsi': 'Pengajuan Cuti'},
     {'id': '8', 'opsi': 'Perpanjangan Cuti'},
     {'id': '6', 'opsi': 'Pengajuan Training'},
@@ -71,7 +72,6 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
   String? selectedValueDaftarPersetujuan;
   bool _isLoading = false;
-  bool _isLoadingContent = false;
   bool _isLoadingScreen = false;
 
   bool isDataEmpty = true;
@@ -106,360 +106,382 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     return responseData;
   }
 
+  Future<Map<String, dynamic>> fetchData(Uri uri, String token) async {
+    final ioClient = createIOClientWithInsecureConnection();
+    final response = await ioClient.get(
+      uri,
+      headers: <String, String>{
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Authorization': 'Bearer $token'
+      },
+    );
+
+    return jsonDecode(response.body);
+  }
+
   Future<void> getDataBantuanKomunikasi(String? statusFilter) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      setState(() {
+        _isLoading = true;
+      });
 
-    String? token = prefs.getString('token');
-    setState(() {
-      _isLoading = true;
-    });
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String token = prefs.getString('token') ?? '';
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
+      final Map<String, dynamic> queryParams = {
+        'page': page.toString(),
+        'perPage': perPage.toString(),
+        'search': search,
+        'status': statusFilter ?? '',
+        'type': type,
+      };
 
-        final response = await ioClient.get(
-            Uri.parse(
-                "$_apiUrl/bantuan-komunikasi/get?page=$page&perPage=$perPage&search=$search&status=$statusFilter&type=$type"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataMasterBantuanKomunikasiApi = responseData['dkomunikasi'];
+      final uri = Uri.parse("$_apiUrl/bantuan-komunikasi/get")
+          .replace(queryParameters: queryParams);
 
-        setState(() {
-          masterDataPersetujuan =
-              List<Map<String, dynamic>>.from(dataMasterBantuanKomunikasiApi);
-          _isLoading = false;
-        });
-      } catch (e) {
-        print(e);
-      }
+      final responseData = await fetchData(uri, token);
+
+      setState(() {
+        masterDataPersetujuan =
+            List<Map<String, dynamic>>.from(responseData['dkomunikasi']);
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   Future<void> getDataSuratIzinKeluar(String? statusFilter) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      setState(() {
+        _isLoading = true;
+      });
 
-    String? token = prefs.getString('token');
-    setState(() {
-      _isLoading = true;
-    });
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String token = prefs.getString('token') ?? '';
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
+      final queryParams = {
+        'page': page.toString(),
+        'perPage': perPage.toString(),
+        'search': search,
+        'status': statusFilter ?? '',
+        'type': type,
+      };
 
-        final response = await ioClient.get(
-            Uri.parse(
-                "$_apiUrl/izin-keluar/get?page=$page&perPage=$perPage&search=$search&status=$statusFilter&type=$type"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataMasterSuratIzinKeluarApi = responseData['data'];
+      final uri = Uri.parse("$_apiUrl/izin-keluar/get")
+          .replace(queryParameters: queryParams);
 
-        setState(() {
-          masterDataPersetujuan =
-              List<Map<String, dynamic>>.from(dataMasterSuratIzinKeluarApi);
-          _isLoading = false;
-        });
-      } catch (e) {
-        print(e);
-      }
+      final responseData = await fetchData(uri, token);
+
+      setState(() {
+        masterDataPersetujuan =
+            List<Map<String, dynamic>>.from(responseData['data']);
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   Future<void> getDataPengajuanCuti(String? statusFilter) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      setState(() {
+        _isLoading = true;
+      });
 
-    String? token = prefs.getString('token');
-    setState(() {
-      _isLoading = true;
-    });
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String token = prefs.getString('token') ?? '';
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
+      final Map<String, dynamic> queryParams = {
+        'page': page.toString(),
+        'perPage': perPage.toString(),
+        'search': search,
+        'status': statusFilter ?? '',
+        'type': type,
+        'entitas': kodeEntitas,
+        'tahun': tahunPengajuan,
+      };
 
-        final response = await ioClient.get(
-            Uri.parse(
-                "$_apiUrl/pengajuan-cuti/get?page=$page&perPage=$perPage&search=$search&status=$statusFilter&type=$type&entitas=$kodeEntitas&tahun=$tahunPengajuan"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataMasterCutiApi = responseData['dcuti'];
+      final uri = Uri.parse("$_apiUrl/pengajuan-cuti/get")
+          .replace(queryParameters: queryParams);
 
-        setState(() {
-          masterDataPersetujuan =
-              List<Map<String, dynamic>>.from(dataMasterCutiApi);
-          _isLoading = false;
-        });
-      } catch (e) {
-        print(e);
-      }
+      final responseData = await fetchData(uri, token);
+
+      setState(() {
+        masterDataPersetujuan =
+            List<Map<String, dynamic>>.from(responseData['dcuti']);
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   Future<void> getDataPerpanjanganCuti(String? statusFilter) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      setState(() {
+        _isLoading = true;
+      });
 
-    String? token = prefs.getString('token');
-    setState(() {
-      _isLoading = true;
-    });
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String token = prefs.getString('token') ?? '';
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
+      final Map<String, dynamic> queryParams = {
+        'page': page.toString(),
+        'perPage': perPage.toString(),
+        'search': search,
+        'status': statusFilter ?? '',
+        'type': type,
+      };
 
-        final response = await ioClient.get(
-            Uri.parse(
-                "$_apiUrl/perpanjangan-cuti/get?page=$page&perPage=$perPage&search=$search&status=$statusFilter&type=$type"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataMasterCutiApi = responseData['pcuti'];
+      final uri = Uri.parse("$_apiUrl/perpanjangan-cuti/get")
+          .replace(queryParameters: queryParams);
 
-        setState(() {
-          masterDataPersetujuan =
-              List<Map<String, dynamic>>.from(dataMasterCutiApi);
-          _isLoading = false;
-        });
-      } catch (e) {
-        print(e);
-      }
+      final responseData = await fetchData(uri, token);
+
+      setState(() {
+        masterDataPersetujuan =
+            List<Map<String, dynamic>>.from(responseData['pcuti']);
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   Future<void> getDataPengajuanTraining(String? statusFilter) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      setState(() {
+        _isLoading = true;
+      });
 
-    String? token = prefs.getString('token');
-    setState(() {
-      _isLoading = true;
-    });
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String token = prefs.getString('token') ?? '';
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
+      final Map<String, dynamic> queryParams = {
+        'page': page.toString(),
+        'entitas': '',
+        'search': search,
+        'status': statusFilter ?? '',
+        'limit': perPage.toString(),
+        'permintaan': '0',
+      };
 
-        final response = await ioClient.get(
-            Uri.parse(
-                "$_apiUrl/training/all?page=$page&entitas=&search=$search&status=$statusFilter&limit=$perPage&permintaan=0"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataMasterPengajuanTrainingApi = responseData['data']['data'];
+      final uri = Uri.parse("$_apiUrl/training/all")
+          .replace(queryParameters: queryParams);
 
-        setState(() {
-          masterDataPersetujuan =
-              List<Map<String, dynamic>>.from(dataMasterPengajuanTrainingApi);
-          _isLoading = false;
-        });
-      } catch (e) {
-        print(e);
-      }
+      final responseData = await fetchData(uri, token);
+
+      setState(() {
+        masterDataPersetujuan =
+            List<Map<String, dynamic>>.from(responseData['data']['data']);
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   Future<void> getDataRawatInap(String? statusFilterRawatInapJalan) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      setState(() {
+        _isLoading = true;
+      });
 
-    String? token = prefs.getString('token');
-    setState(() {
-      _isLoading = true;
-    });
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String token = prefs.getString('token') ?? '';
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
+      final Map<String, dynamic> queryParams = {
+        'page': page.toString(),
+        'limit': perPage.toString(),
+        'search': search,
+        'status': statusFilterRawatInapJalan ?? '',
+        'permintaan': '0',
+      };
 
-        final response = await ioClient.get(
-            Uri.parse(
-                "$_apiUrl/rawat/inap/all?page=$page&limit=$perPage&search=$search&status=$statusFilterRawatInapJalan&permintaan=0"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataMasterInapApi = responseData['data']['data'];
+      final uri = Uri.parse("$_apiUrl/rawat/inap/all")
+          .replace(queryParameters: queryParams);
 
-        setState(() {
-          masterDataPersetujuan =
-              List<Map<String, dynamic>>.from(dataMasterInapApi);
-          _isLoading = false;
-        });
-      } catch (e) {
-        print(e);
-      }
+      final responseData = await fetchData(uri, token);
+
+      setState(() {
+        masterDataPersetujuan =
+            List<Map<String, dynamic>>.from(responseData['data']['data']);
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   Future<void> getDataRawatJalan(String? statusFilterRawatInapJalan) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      setState(() {
+        _isLoading = true;
+      });
 
-    String? token = prefs.getString('token');
-    setState(() {
-      _isLoading = true;
-    });
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String token = prefs.getString('token') ?? '';
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
+      final Map<String, dynamic> queryParams = {
+        'page': page.toString(),
+        'limit': perPage.toString(),
+        'search': search,
+        'status': statusFilterRawatInapJalan ?? '',
+        'permintaan': '0',
+      };
 
-        final response = await ioClient.get(
-            Uri.parse(
-                "$_apiUrl/rawat/jalan/all?page=$page&limit=$perPage&search=$search&status=$statusFilterRawatInapJalan&permintaan=0"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataMasterJalanApi = responseData['data']['data'];
+      final uri = Uri.parse("$_apiUrl/rawat/jalan/all")
+          .replace(queryParameters: queryParams);
 
-        setState(() {
-          masterDataPersetujuan =
-              List<Map<String, dynamic>>.from(dataMasterJalanApi);
-          _isLoading = false;
-        });
-      } catch (e) {
-        print(e);
-      }
+      final responseData = await fetchData(uri, token);
+
+      setState(() {
+        masterDataPersetujuan =
+            List<Map<String, dynamic>>.from(responseData['data']['data']);
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   Future<void> getDataSummaryCuti() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      setState(() {
+        _isLoading = true;
+      });
 
-    String? token = prefs.getString('token');
-    setState(() {
-      _isLoading = true;
-    });
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String token = prefs.getString('token') ?? '';
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
+      final Map<String, dynamic> queryParams = {
+        'page': page.toString(),
+        'perPage': perPage.toString(),
+        'search': search,
+      };
 
-        final response = await ioClient.get(
-            Uri.parse(
-                "$_apiUrl/pengajuan-cuti/summary?page=$page&perPage=$perPage&search=$search"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataMasterSummaryCutiApi = responseData['data'];
+      final uri = Uri.parse("$_apiUrl/pengajuan-cuti/summary")
+          .replace(queryParameters: queryParams);
 
-        setState(() {
-          masterDataSummaryCuti =
-              List<Map<String, dynamic>>.from(dataMasterSummaryCutiApi);
-          _isLoading = false;
-        });
-      } catch (e) {
-        print(e);
-      }
+      final responseData = await fetchData(uri, token);
+
+      setState(() {
+        masterDataSummaryCuti =
+            List<Map<String, dynamic>>.from(responseData['data']);
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   Future<void> getMasterDataCuti() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String token = prefs.getString('token') ?? '';
 
-    String? token = prefs.getString('token');
+      if (token.isNotEmpty) {
+        final uri = Uri.parse("$_apiUrl/master/cuti/get");
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/master/cuti/get"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final masterDataCutiApi = responseData['md_cuti'];
+        final responseData = await fetchData(uri, token);
 
         setState(() {
-          masterDataCuti = Map<String, dynamic>.from(masterDataCutiApi);
+          masterDataCuti = Map<String, dynamic>.from(responseData['md_cuti']);
         });
-      } catch (e) {
-        print(e);
       }
+    } catch (e) {
+      print('Error fetching master data cuti: $e');
     }
   }
 
   Future<void> getDataImPerjalananDinas(String? statusFilter) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String token = prefs.getString('token') ?? '';
 
-    String? token = prefs.getString('token');
-    setState(() {
-      _isLoading = true;
-    });
+      if (token.isNotEmpty) {
+        final Map<String, dynamic> queryParams = {
+          'page': page.toString(),
+          'perPage': perPage.toString(),
+          'search': search,
+          'status': statusFilter ?? '',
+          'type': type,
+        };
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
+        final uri = Uri.parse("$_apiUrl/rencana-perdin/get")
+            .replace(queryParameters: queryParams);
 
-        final response = await ioClient.get(
-            Uri.parse(
-                "$_apiUrl/rencana-perdin/get?page=$page&perPage=$perPage&search=$search&status=$statusFilter&type=$type"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataImPerjalananDinasApi = responseData['dperdin'];
+        final responseData = await fetchData(uri, token);
 
         setState(() {
           masterDataPersetujuan =
-              List<Map<String, dynamic>>.from(dataImPerjalananDinasApi);
+              List<Map<String, dynamic>>.from(responseData['dperdin']);
           _isLoading = false;
         });
-      } catch (e) {
-        print(e);
       }
+    } catch (e) {
+      print('Error fetching data perjalanan dinas: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   Future<void> getDataLpjPerjalananDinas(String? statusFilter) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String token = prefs.getString('token') ?? '';
 
-    String? token = prefs.getString('token');
-    setState(() {
-      _isLoading = true;
-    });
+      if (token.isNotEmpty) {
+        final Map<String, dynamic> queryParams = {
+          'page': page.toString(),
+          'perPage': perPage.toString(),
+          'search': search,
+          'status': statusFilter ?? '',
+          'type': type,
+        };
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
+        final uri = Uri.parse("$_apiUrl/laporan-perdin/get")
+            .replace(queryParameters: queryParams);
 
-        final response = await ioClient.get(
-            Uri.parse(
-                "$_apiUrl/laporan-perdin/get?page=$page&perPage=$perPage&search=$search&status=$statusFilter&type=$type"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataLpjPerjalananDinasApi = responseData['dperdin'];
+        final responseData = await fetchData(uri, token);
 
         setState(() {
           masterDataPersetujuan =
-              List<Map<String, dynamic>>.from(dataLpjPerjalananDinasApi);
+              List<Map<String, dynamic>>.from(responseData['dperdin']);
           _isLoading = false;
         });
-      } catch (e) {
-        print(e);
       }
+    } catch (e) {
+      print('Error fetching data LPJ perjalanan dinas: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -673,307 +695,200 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     }
   }
 
-  Future<File> createPdfRawatInap(int? id) async {
+  Future<File> createPdf(String type, dynamic id) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('token');
+    String endpoint = '';
+    print(id);
 
     setState(() {
-      _isLoadingContent = true;
+      _isLoadingContent[id] = true;
     });
+
+    if (type == 'rawatInap') {
+      endpoint = "$_url/online-form/approval-rawat-inap/$id/pdf/inap$id.pdf";
+    } else if (type == 'rawatJalan') {
+      endpoint = "$_url/online-form/approval-rawat-jalan/$id/pdf/jalan$id.pdf";
+    } else if (type == 'suratIzinKeluar') {
+      endpoint =
+          "$_url/online-form/preview-pdf-izin-keluar/$id/pdf-izin-keluar-$id";
+    } else if (type == 'bantuanKomunikasi') {
+      endpoint =
+          "$_url/online-form/preview-pdf-bantuan-komunikasi/$id/pdf-bantuan-komunikasi-$id";
+    } else if (type == 'imPerjalananDinas') {
+      endpoint =
+          "$_url/online-form/preview-pdf-rencana-perdin/$id/pdf-rencana-perdin-$id";
+    } else if (type == 'lpjPerjalananDinas') {
+      endpoint =
+          "$_url/online-form/preview-pdf-laporan-perdin/$id/pdf-laporan-perdin-$id";
+    } else if (type == 'pengajuanTraining') {
+      endpoint =
+          "$_url/online-form/approval-pengajuan-training/$id/pdf-laporan-perdin-$id";
+    } else if (type == 'pengajuanCuti') {
+      // 77db6a95-85ef-4728-b9e1-466afcce073e
+      endpoint = "$_url/online-form/preview-pdf-cuti/$id/preview-pdf-cuti";
+    }
 
     Completer<File> completer = Completer();
     try {
-      // var url =
-      //     "http://ess-dev.hasnurgroup.com:8081/online-form/preview-pdf-cuti/ee55673b-be6f-4ed3-a6fc-848255dd2bf7/okee";
-      var url = "$_url/online-form/approval-rawat-inap/$id/pdf/inap$id.pdf";
+      var url = endpoint;
       final filename = url.substring(url.lastIndexOf("/") + 1);
       var request = await HttpClient().getUrl(Uri.parse(url));
       request.headers.set('Content-Type', 'application/json;charset=UTF-8');
       request.headers.set('Authorization', 'Bearer $token');
       var response = await request.close();
       var bytes = await consolidateHttpClientResponseBytes(response);
-      // var dir = await getApplicationDocumentsDirectory();
-      var dir = await getExternalStorageDirectory();
 
-      var downloadDir = Directory('${dir!.path}/Download');
-      if (!downloadDir.existsSync()) {
-        downloadDir.createSync(recursive: true);
-      }
-      setState(() {
-        _isLoadingContent = false;
-      });
-      File file = File("${dir.path}/$filename");
-
-      await file.writeAsBytes(bytes, flush: true);
-      print('File berhasil diunduh ke: ${file.path}');
-      completer.complete(file);
-
-      if (rawatInapPDFpath.isNotEmpty) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PDFScreen(path: rawatInapPDFpath),
-          ),
-        );
-      }
-    } catch (e) {
-      throw Exception('Error parsing asset file!');
-    }
-
-    return completer.future;
-  }
-
-  Future<File> createPdfPengajuanCuti(String? id) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    setState(() {
-      _isLoadingContent = true;
-    });
-
-    Completer<File> completer = Completer();
-    try {
-      var url =
-          "http://ess-dev.hasnurgroup.com:8081/online-form/preview-pdf-cuti/${id}/pengajuan-cuti-${id}";
-
-      final filename = url.substring(url.lastIndexOf("/") + 1);
-      var request = await HttpClient().getUrl(Uri.parse(url));
-      request.headers.set('Content-Type', 'application/json;charset=UTF-8');
-      request.headers.set('Authorization', 'Bearer $token');
-      var response = await request.close();
-      var bytes = await consolidateHttpClientResponseBytes(response);
-      // var dir = await getApplicationDocumentsDirectory();
-      var dir = await getExternalStorageDirectory();
-
-      var downloadDir = Directory('${dir!.path}/Download');
-      if (!downloadDir.existsSync()) {
-        downloadDir.createSync(recursive: true);
-      }
-      setState(() {
-        _isLoadingContent = false;
-      });
-      File file = File("${dir.path}/$filename");
-
-      await file.writeAsBytes(bytes, flush: true);
-      print('File berhasil diunduh ke: ${file.path}');
-      completer.complete(file);
-
-      if (pengajuanCutiPDFpath.isNotEmpty) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => PDFScreen(path: pengajuanCutiPDFpath),
-          ),
-        );
-      }
-    } catch (e) {
-      throw Exception('Error parsing asset file!');
-    }
-
-    return completer.future;
-  }
-
-  Future<File> fromAsset(String asset, String filename) async {
-    Completer<File> completer = Completer();
-
-    try {
       var dir = await getApplicationDocumentsDirectory();
-      File file = File("${dir.path}/$filename");
-      var data = await rootBundle.load(asset);
-      var bytes = data.buffer.asUint8List();
+      var downloadDir = Directory('${dir.path}/Download');
+      if (!downloadDir.existsSync()) {
+        downloadDir.createSync(recursive: true);
+      }
+
+      setState(() {
+        _isLoadingContent[id] = false;
+      });
+
+      File file = File("${dir.path}/Download/$filename");
+      print(file);
       await file.writeAsBytes(bytes, flush: true);
       completer.complete(file);
     } catch (e) {
-      throw Exception('Error parsing asset file!');
+      setState(() {
+        _isLoadingContent[id] = false;
+      });
+      print('Error creating PDF: $e');
+      throw Exception('Error creating PDF file!');
     }
 
     return completer.future;
   }
 
-  Future<void> _downloadRawatInap(int? id) async {
-    createPdfRawatInap(id).then((f) {
-      setState(() {
-        rawatInapPDFpath = f.path;
-      });
+  void _downloadPdf(String type, dynamic id) {
+    setState(() {
+      _isLoadingContent[id] = true;
     });
 
-    if (rawatInapPDFpath.isNotEmpty) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PDFScreen(path: rawatInapPDFpath),
-        ),
-      );
-    } else {
-      createPdfRawatInap(id).then((f) {
-        setState(() {
-          rawatInapPDFpath = f.path;
-        });
-      });
-    }
-  }
-
-  Future<void> _downloadPengajuanCuti(String? id) async {
-    createPdfPengajuanCuti(id).then((f) {
+    createPdf(type, id).then((file) {
       setState(() {
-        pengajuanCutiPDFpath = f.path;
+        _isLoadingContent[id] = false;
+        pdfpath = file.path;
       });
+      if (pdfpath.isNotEmpty) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PDFScreen(path: pdfpath),
+          ),
+        );
+      }
+    }).catchError((e) {
+      setState(() {
+        _isLoadingContent[id] = false;
+      });
+      print('Error downloading PDF: $e');
     });
-
-    if (pengajuanCutiPDFpath.isNotEmpty) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PDFScreen(path: pengajuanCutiPDFpath),
-        ),
-      );
-    } else {
-      createPdfPengajuanCuti(id).then((f) {
-        setState(() {
-          pengajuanCutiPDFpath = f.path;
-        });
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightShort = size.height * 0.0086;
     double paddingHorizontalNarrow = size.width * 0.035;
     double paddingHorizontalWide = size.width * 0.0585;
 
-    return _isLoadingScreen
-        ? const Scaffold(body: Center(child: CircularProgressIndicator()))
-        : DefaultTabController(
-            length: 4,
-            child: SafeArea(
-              child: Scaffold(
-                backgroundColor: Colors.white,
-                body: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: sizedBoxHeightTall,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                          horizontal: paddingHorizontalWide),
-                      child: const TitleWidget(title: 'Daftar Persetujuan'),
-                    ),
-                    SizedBox(
-                      height: sizedBoxHeightTall,
-                    ),
-                    formSearchWidget(context),
-                    SizedBox(
-                      height: sizedBoxHeightShort,
-                    ),
-                    selectedValueDaftarPersetujuan == '12'
-                        ? summaryCutiWidget(context)
-                        : Expanded(
-                            child: Column(
+    final tabTitles = ['Semua', 'Disetujui', 'Proses', 'Ditolak'];
+    final statusFilters = ['ALL', 'V', 'P', 'X'];
+    final statusFiltersRawatInapJalan = [
+      'ALL',
+      'APPROVED',
+      'PROCESS',
+      'REJECTED'
+    ];
+
+    void updateData(int index) {
+      setState(() {
+        current = index;
+        statusFilter = statusFilters[index];
+        statusFilterRawatInapJalan = statusFiltersRawatInapJalan[index];
+      });
+
+      final dataFetchers = {
+        '2': () => getDataBantuanKomunikasi(statusFilter),
+        '5': () => getDataPengajuanCuti(statusFilter),
+        '6': () => getDataPengajuanTraining(statusFilterRawatInapJalan),
+        '7': () => getDataImPerjalananDinas(statusFilter),
+        '8': () => getDataPerpanjanganCuti(statusFilter),
+        '13': () => getDataLpjPerjalananDinas(statusFilter),
+        '9': () => getDataRawatInap(statusFilterRawatInapJalan),
+        '10': () => getDataRawatJalan(statusFilterRawatInapJalan),
+        '14': () => getDataSuratIzinKeluar(statusFilter),
+      };
+
+      dataFetchers[selectedValueDaftarPersetujuan]?.call() ??
+          setState(() {
+            masterDataPersetujuan = [];
+          });
+    }
+
+    return DefaultTabController(
+      length: tabTitles.length,
+      child: SafeArea(
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: sizedBoxHeightTall),
+              Padding(
+                padding:
+                    EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+                child: const TitleWidget(title: 'Daftar Persetujuan'),
+              ),
+              SizedBox(height: sizedBoxHeightTall),
+              formSearchWidget(context),
+              SizedBox(height: sizedBoxHeightShort),
+              selectedValueDaftarPersetujuan == '12'
+                  ? summaryCutiWidget(context)
+                  : Expanded(
+                      child: Column(
+                        children: [
+                          TabBar(
+                            indicatorSize: TabBarIndicatorSize.label,
+                            tabAlignment: TabAlignment.center,
+                            isScrollable: true,
+                            indicatorColor: Colors.black,
+                            labelColor: Colors.black,
+                            unselectedLabelColor: Colors.grey,
+                            labelPadding: EdgeInsets.symmetric(
+                                horizontal: paddingHorizontalNarrow),
+                            tabs: tabTitles
+                                .map((title) => Tab(text: title))
+                                .toList(),
+                            onTap: updateData,
+                          ),
+                          Expanded(
+                            child: TabBarView(
+                              physics: const NeverScrollableScrollPhysics(),
                               children: [
-                                TabBar(
-                                  indicatorSize: TabBarIndicatorSize.label,
-                                  tabAlignment: TabAlignment.center,
-                                  isScrollable: true,
-                                  indicatorColor: Colors.black,
-                                  labelColor: Colors.black,
-                                  unselectedLabelColor: Colors.grey,
-                                  labelPadding: EdgeInsets.symmetric(
-                                      horizontal: paddingHorizontalNarrow),
-                                  tabs: const [
-                                    Tab(
-                                      text: 'Semua',
-                                    ),
-                                    Tab(
-                                      text: 'Disetujui',
-                                    ),
-                                    Tab(
-                                      text: 'Proses',
-                                    ),
-                                    Tab(
-                                      text: 'Ditolak',
-                                    ),
-                                  ],
-                                  onTap: (index) {
-                                    setState(() {
-                                      current = index;
-                                      if (index == 0) {
-                                        statusFilter = 'ALL';
-                                        statusFilterRawatInapJalan = 'ALL';
-                                      } else if (index == 1) {
-                                        statusFilter = 'V';
-                                        statusFilterRawatInapJalan = 'APPROVED';
-                                      } else if (index == 2) {
-                                        statusFilter = 'P';
-                                        statusFilterRawatInapJalan = 'PROCESS';
-                                      } else {
-                                        statusFilter = 'X';
-                                        statusFilterRawatInapJalan = 'REJECTED';
-                                      }
-                                    });
-                                    if (selectedValueDaftarPersetujuan == '2') {
-                                      getDataBantuanKomunikasi(statusFilter);
-                                    } else if (selectedValueDaftarPersetujuan ==
-                                        '5') {
-                                      getDataPengajuanCuti(statusFilter);
-                                    } else if (selectedValueDaftarPersetujuan ==
-                                        '6') {
-                                      getDataPengajuanTraining(
-                                          statusFilterRawatInapJalan);
-                                    } else if (selectedValueDaftarPersetujuan ==
-                                        '7') {
-                                      getDataImPerjalananDinas(statusFilter);
-                                    } else if (selectedValueDaftarPersetujuan ==
-                                        '8') {
-                                      getDataPerpanjanganCuti(statusFilter);
-                                    } else if (selectedValueDaftarPersetujuan ==
-                                        '13') {
-                                      getDataLpjPerjalananDinas(statusFilter);
-                                    } else if (selectedValueDaftarPersetujuan ==
-                                        '9') {
-                                      getDataRawatInap(
-                                          statusFilterRawatInapJalan);
-                                    } else if (selectedValueDaftarPersetujuan ==
-                                        '10') {
-                                      getDataRawatJalan(
-                                          statusFilterRawatInapJalan);
-                                    } else if (selectedValueDaftarPersetujuan ==
-                                        '14') {
-                                      getDataSuratIzinKeluar(statusFilter);
-                                    } else {
-                                      setState(() {
-                                        masterDataPersetujuan = [];
-                                      });
-                                    }
-                                  },
-                                ),
-                                //Main Body
-                                Expanded(
-                                  child: TabBarView(
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    children: [
-                                      allTabWidget(context),
-                                      approvedTabWidget(context),
-                                      prossesTabWidget(context),
-                                      rejectedTabWidget(context),
-                                    ],
-                                  ),
-                                ),
+                                allTabWidget(context),
+                                approvedTabWidget(context),
+                                prossesTabWidget(context),
+                                rejectedTabWidget(context),
                               ],
                             ),
                           ),
-                    const SizedBox(
-                      height: 75,
+                          const SizedBox(height: 75),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-          );
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget formSearchWidget(BuildContext context) {
@@ -982,14 +897,36 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     double paddingHorizontalWide = size.width * 0.0585;
     double sizedBoxHeightTall = size.height * 0.0163;
 
+    void onDropdownChanged(String? newValue) {
+      setState(() {
+        selectedValueDaftarPersetujuan = newValue ?? '';
+
+        final dataFetchers = {
+          '2': () => getDataBantuanKomunikasi(statusFilter),
+          '5': () => getDataPengajuanCuti(statusFilter),
+          '6': () => getDataPengajuanTraining(statusFilterRawatInapJalan),
+          '7': () => getDataImPerjalananDinas(statusFilter),
+          '8': () => getDataPerpanjanganCuti(statusFilter),
+          '9': () => getDataRawatInap(statusFilterRawatInapJalan),
+          '10': () => getDataRawatJalan(statusFilterRawatInapJalan),
+          '12': getDataSummaryCuti,
+          '13': () => getDataLpjPerjalananDinas(statusFilter),
+          '14': () => getDataSuratIzinKeluar(statusFilter),
+        };
+
+        dataFetchers[selectedValueDaftarPersetujuan]?.call() ??
+            setState(() {
+              masterDataPersetujuan = [];
+            });
+      });
+    }
+
     return Form(
+      key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        key: _formKey,
         children: [
-          SizedBox(
-            height: sizedBoxHeightTall,
-          ),
+          SizedBox(height: sizedBoxHeightTall),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
             child: TitleWidget(
@@ -1011,36 +948,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                       ),
                     )
                   : const Icon(Icons.arrow_drop_down),
-              onChanged: (String? newValue) {
-                setState(() {
-                  selectedValueDaftarPersetujuan = newValue ?? '';
-                  if (selectedValueDaftarPersetujuan == '2') {
-                    getDataBantuanKomunikasi(statusFilter);
-                  } else if (selectedValueDaftarPersetujuan == '5') {
-                    getDataPengajuanCuti(statusFilter);
-                  } else if (selectedValueDaftarPersetujuan == '6') {
-                    getDataPengajuanTraining(statusFilterRawatInapJalan);
-                  } else if (selectedValueDaftarPersetujuan == '7') {
-                    getDataImPerjalananDinas(statusFilter);
-                  } else if (selectedValueDaftarPersetujuan == '13') {
-                    getDataLpjPerjalananDinas(statusFilter);
-                  } else if (selectedValueDaftarPersetujuan == '8') {
-                    getDataPerpanjanganCuti(statusFilter);
-                  } else if (selectedValueDaftarPersetujuan == '9') {
-                    getDataRawatInap(statusFilterRawatInapJalan);
-                  } else if (selectedValueDaftarPersetujuan == '10') {
-                    getDataRawatJalan(statusFilterRawatInapJalan);
-                  } else if (selectedValueDaftarPersetujuan == '12') {
-                    getDataSummaryCuti();
-                  } else if (selectedValueDaftarPersetujuan == '14') {
-                    getDataSuratIzinKeluar(statusFilter);
-                  } else {
-                    setState(() {
-                      masterDataPersetujuan = [];
-                    });
-                  }
-                });
-              },
+              onChanged: onDropdownChanged,
               items:
                   selectedDaftarPersetujuan.map((Map<String, dynamic> value) {
                 return DropdownMenuItem<String>(
@@ -1076,9 +984,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
               ),
             ),
           ),
-          SizedBox(
-            height: sizedBoxHeightTall,
-          ),
+          SizedBox(height: sizedBoxHeightTall),
         ],
       ),
     );
@@ -1095,37 +1001,26 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            height: sizedBoxHeightShort,
-          ),
+          SizedBox(height: sizedBoxHeightShort),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
             child: const LineWidget(),
           ),
-          SizedBox(
-            height: sizedBoxHeightShort,
-          ),
-          SizedBox(
-            height: 20,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-              child: TitleWidget(
-                title: 'Periode Rawat',
-                fontWeight: FontWeight.w500,
-                fontSize: textMedium,
-              ),
+          SizedBox(height: sizedBoxHeightShort),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+            child: TitleWidget(
+              title: 'Periode Rawat',
+              fontWeight: FontWeight.w500,
+              fontSize: textMedium,
             ),
           ),
-          SizedBox(
-            height: sizedBoxHeightShort,
-          ),
+          SizedBox(height: sizedBoxHeightShort),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
             child: const LineWidget(),
           ),
-          SizedBox(
-            height: sizedBoxHeightShort,
-          ),
+          SizedBox(height: sizedBoxHeightShort),
           Expanded(
             child: Padding(
               padding:
@@ -1144,9 +1039,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
               ),
             ),
           ),
-          const SizedBox(
-            height: 75,
-          ),
+          const SizedBox(height: 75),
         ],
       ),
     );
@@ -1157,56 +1050,57 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double sizedBoxHeightShort = 8;
 
-    return _isLoading
-        ? const Padding(
-            padding: EdgeInsets.symmetric(vertical: 200),
-            child: Center(child: CircularProgressIndicator()),
-          )
-        : Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-            child: ListView.builder(
-              itemCount: masterDataPersetujuan.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: sizedBoxHeightShort,
-                    horizontal: paddingHorizontalNarrow,
-                  ),
-                  child: selectedValueDaftarPersetujuan == '2'
-                      ? buildBantuanKomunikasi(masterDataPersetujuan[index])
-                      : selectedValueDaftarPersetujuan == '5'
-                          ? buildCuti(masterDataPersetujuan[index])
-                          : selectedValueDaftarPersetujuan == '6'
-                              ? buildPengajuanTraining(
-                                  masterDataPersetujuan[index])
-                              : selectedValueDaftarPersetujuan == '7'
-                                  ? buildImPerjalananDinas(
-                                      masterDataPersetujuan[index])
-                                  : selectedValueDaftarPersetujuan == '13'
-                                      ? buildLpjPerjalananDinas(
-                                          masterDataPersetujuan[index])
-                                      : selectedValueDaftarPersetujuan == '14'
-                                          ? buildSuratIzinKeluar(
-                                              masterDataPersetujuan[index])
-                                          : selectedValueDaftarPersetujuan ==
-                                                  '8'
-                                              ? buildPerpanjanganCuti(
-                                                  masterDataPersetujuan[index])
-                                              : selectedValueDaftarPersetujuan ==
-                                                      '9'
-                                                  ? buildRawatInap(
-                                                      masterDataPersetujuan[
-                                                          index])
-                                                  : selectedValueDaftarPersetujuan ==
-                                                          '10'
-                                                      ? buildRawatJalan(
-                                                          masterDataPersetujuan[
-                                                              index])
-                                                      : const Text('Kosong'),
-                );
-              },
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 200),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (masterDataPersetujuan.isEmpty) {
+      return const Center(child: Text('Data Kosong ...'));
+    }
+
+    Widget buildItem(Map<String, dynamic> data) {
+      switch (selectedValueDaftarPersetujuan) {
+        case '2':
+          return buildBantuanKomunikasi(data);
+        case '5':
+          return buildCuti(data);
+        case '6':
+          return buildPengajuanTraining(data);
+        case '7':
+          return buildImPerjalananDinas(data);
+        case '13':
+          return buildLpjPerjalananDinas(data);
+        case '14':
+          return buildSuratIzinKeluar(data);
+        case '8':
+          return buildPerpanjanganCuti(data);
+        case '9':
+          return buildRawatInap(data);
+        case '10':
+          return buildRawatJalan(data);
+        default:
+          return const Text('Kosong');
+      }
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+      child: ListView.builder(
+        itemCount: masterDataPersetujuan.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: sizedBoxHeightShort,
+              horizontal: paddingHorizontalNarrow,
             ),
+            child: buildItem(masterDataPersetujuan[index]),
           );
+        },
+      ),
+    );
   }
 
   Widget approvedTabWidget(BuildContext context) {
@@ -1214,56 +1108,57 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double sizedBoxHeightShort = 8;
 
-    return _isLoading
-        ? const Padding(
-            padding: EdgeInsets.symmetric(vertical: 200),
-            child: Center(child: CircularProgressIndicator()),
-          )
-        : Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-            child: ListView.builder(
-              itemCount: masterDataPersetujuan.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: sizedBoxHeightShort,
-                    horizontal: paddingHorizontalNarrow,
-                  ),
-                  child: selectedValueDaftarPersetujuan == '2'
-                      ? buildBantuanKomunikasi(masterDataPersetujuan[index])
-                      : selectedValueDaftarPersetujuan == '5'
-                          ? buildCuti(masterDataPersetujuan[index])
-                          : selectedValueDaftarPersetujuan == '6'
-                              ? buildPengajuanTraining(
-                                  masterDataPersetujuan[index])
-                              : selectedValueDaftarPersetujuan == '7'
-                                  ? buildImPerjalananDinas(
-                                      masterDataPersetujuan[index])
-                                  : selectedValueDaftarPersetujuan == '13'
-                                      ? buildLpjPerjalananDinas(
-                                          masterDataPersetujuan[index])
-                                      : selectedValueDaftarPersetujuan == '14'
-                                          ? buildSuratIzinKeluar(
-                                              masterDataPersetujuan[index])
-                                          : selectedValueDaftarPersetujuan ==
-                                                  '8'
-                                              ? buildPerpanjanganCuti(
-                                                  masterDataPersetujuan[index])
-                                              : selectedValueDaftarPersetujuan ==
-                                                      '9'
-                                                  ? buildRawatInap(
-                                                      masterDataPersetujuan[
-                                                          index])
-                                                  : selectedValueDaftarPersetujuan ==
-                                                          '10'
-                                                      ? buildRawatJalan(
-                                                          masterDataPersetujuan[
-                                                              index])
-                                                      : const Text('Kosong'),
-                );
-              },
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 200),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (masterDataPersetujuan.isEmpty) {
+      return const Center(child: Text('Data Kosong ...'));
+    }
+
+    Widget buildItem(Map<String, dynamic> data) {
+      switch (selectedValueDaftarPersetujuan) {
+        case '2':
+          return buildBantuanKomunikasi(data);
+        case '5':
+          return buildCuti(data);
+        case '6':
+          return buildPengajuanTraining(data);
+        case '7':
+          return buildImPerjalananDinas(data);
+        case '13':
+          return buildLpjPerjalananDinas(data);
+        case '14':
+          return buildSuratIzinKeluar(data);
+        case '8':
+          return buildPerpanjanganCuti(data);
+        case '9':
+          return buildRawatInap(data);
+        case '10':
+          return buildRawatJalan(data);
+        default:
+          return const Text('Kosong');
+      }
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+      child: ListView.builder(
+        itemCount: masterDataPersetujuan.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: sizedBoxHeightShort,
+              horizontal: paddingHorizontalNarrow,
             ),
+            child: buildItem(masterDataPersetujuan[index]),
           );
+        },
+      ),
+    );
   }
 
   Widget prossesTabWidget(BuildContext context) {
@@ -1271,56 +1166,57 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double sizedBoxHeightShort = 8;
 
-    return _isLoading
-        ? const Padding(
-            padding: EdgeInsets.symmetric(vertical: 200),
-            child: Center(child: CircularProgressIndicator()),
-          )
-        : Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-            child: ListView.builder(
-              itemCount: masterDataPersetujuan.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: sizedBoxHeightShort,
-                    horizontal: paddingHorizontalNarrow,
-                  ),
-                  child: selectedValueDaftarPersetujuan == '2'
-                      ? buildBantuanKomunikasi(masterDataPersetujuan[index])
-                      : selectedValueDaftarPersetujuan == '5'
-                          ? buildCuti(masterDataPersetujuan[index])
-                          : selectedValueDaftarPersetujuan == '6'
-                              ? buildPengajuanTraining(
-                                  masterDataPersetujuan[index])
-                              : selectedValueDaftarPersetujuan == '7'
-                                  ? buildImPerjalananDinas(
-                                      masterDataPersetujuan[index])
-                                  : selectedValueDaftarPersetujuan == '13'
-                                      ? buildLpjPerjalananDinas(
-                                          masterDataPersetujuan[index])
-                                      : selectedValueDaftarPersetujuan == '14'
-                                          ? buildSuratIzinKeluar(
-                                              masterDataPersetujuan[index])
-                                          : selectedValueDaftarPersetujuan ==
-                                                  '8'
-                                              ? buildPerpanjanganCuti(
-                                                  masterDataPersetujuan[index])
-                                              : selectedValueDaftarPersetujuan ==
-                                                      '9'
-                                                  ? buildRawatInap(
-                                                      masterDataPersetujuan[
-                                                          index])
-                                                  : selectedValueDaftarPersetujuan ==
-                                                          '10'
-                                                      ? buildRawatJalan(
-                                                          masterDataPersetujuan[
-                                                              index])
-                                                      : const Text('Kosong'),
-                );
-              },
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 200),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (masterDataPersetujuan.isEmpty) {
+      return const Center(child: Text('Data Kosong ...'));
+    }
+
+    Widget buildItem(Map<String, dynamic> data) {
+      switch (selectedValueDaftarPersetujuan) {
+        case '2':
+          return buildBantuanKomunikasi(data);
+        case '5':
+          return buildCuti(data);
+        case '6':
+          return buildPengajuanTraining(data);
+        case '7':
+          return buildImPerjalananDinas(data);
+        case '13':
+          return buildLpjPerjalananDinas(data);
+        case '14':
+          return buildSuratIzinKeluar(data);
+        case '8':
+          return buildPerpanjanganCuti(data);
+        case '9':
+          return buildRawatInap(data);
+        case '10':
+          return buildRawatJalan(data);
+        default:
+          return const Text('Kosong');
+      }
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+      child: ListView.builder(
+        itemCount: masterDataPersetujuan.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: sizedBoxHeightShort,
+              horizontal: paddingHorizontalNarrow,
             ),
+            child: buildItem(masterDataPersetujuan[index]),
           );
+        },
+      ),
+    );
   }
 
   Widget rejectedTabWidget(BuildContext context) {
@@ -1328,56 +1224,57 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double sizedBoxHeightShort = 8;
 
-    return _isLoading
-        ? const Padding(
-            padding: EdgeInsets.symmetric(vertical: 200),
-            child: Center(child: CircularProgressIndicator()),
-          )
-        : Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-            child: ListView.builder(
-              itemCount: masterDataPersetujuan.length,
-              itemBuilder: (BuildContext context, int index) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(
-                    vertical: sizedBoxHeightShort,
-                    horizontal: paddingHorizontalNarrow,
-                  ),
-                  child: selectedValueDaftarPersetujuan == '2'
-                      ? buildBantuanKomunikasi(masterDataPersetujuan[index])
-                      : selectedValueDaftarPersetujuan == '5'
-                          ? buildCuti(masterDataPersetujuan[index])
-                          : selectedValueDaftarPersetujuan == '6'
-                              ? buildPengajuanTraining(
-                                  masterDataPersetujuan[index])
-                              : selectedValueDaftarPersetujuan == '7'
-                                  ? buildImPerjalananDinas(
-                                      masterDataPersetujuan[index])
-                                  : selectedValueDaftarPersetujuan == '13'
-                                      ? buildLpjPerjalananDinas(
-                                          masterDataPersetujuan[index])
-                                      : selectedValueDaftarPersetujuan == '14'
-                                          ? buildSuratIzinKeluar(
-                                              masterDataPersetujuan[index])
-                                          : selectedValueDaftarPersetujuan ==
-                                                  '8'
-                                              ? buildPerpanjanganCuti(
-                                                  masterDataPersetujuan[index])
-                                              : selectedValueDaftarPersetujuan ==
-                                                      '9'
-                                                  ? buildRawatInap(
-                                                      masterDataPersetujuan[
-                                                          index])
-                                                  : selectedValueDaftarPersetujuan ==
-                                                          '10'
-                                                      ? buildRawatJalan(
-                                                          masterDataPersetujuan[
-                                                              index])
-                                                      : const Text('Kosong'),
-                );
-              },
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 200),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (masterDataPersetujuan.isEmpty) {
+      return const Center(child: Text('Data Kosong ...'));
+    }
+
+    Widget buildItem(Map<String, dynamic> data) {
+      switch (selectedValueDaftarPersetujuan) {
+        case '2':
+          return buildBantuanKomunikasi(data);
+        case '5':
+          return buildCuti(data);
+        case '6':
+          return buildPengajuanTraining(data);
+        case '7':
+          return buildImPerjalananDinas(data);
+        case '13':
+          return buildLpjPerjalananDinas(data);
+        case '14':
+          return buildSuratIzinKeluar(data);
+        case '8':
+          return buildPerpanjanganCuti(data);
+        case '9':
+          return buildRawatInap(data);
+        case '10':
+          return buildRawatJalan(data);
+        default:
+          return const Text('Kosong');
+      }
+    }
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+      child: ListView.builder(
+        itemCount: masterDataPersetujuan.length,
+        itemBuilder: (BuildContext context, int index) {
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: sizedBoxHeightShort,
+              horizontal: paddingHorizontalNarrow,
             ),
+            child: buildItem(masterDataPersetujuan[index]),
           );
+        },
+      ),
+    );
   }
 
   Widget buildBantuanKomunikasi(Map<String, dynamic> data) {
@@ -1387,6 +1284,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding5 = size.width * 0.0188;
+
+    String id = data['id'].toString();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1404,167 +1303,42 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                RowWidget(
-                  textLeft: 'Diajukan Oleh',
-                  textRight: '${data['nrp_user']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
+                _buildRowWidget(
+                    'Diajukan Oleh',
+                    '${data['nrp_user'] ?? '-'} - ',
+                    '${data['nama_user'] ?? '-'}'),
+                _buildRowWidget(
+                    'Diberikan Kepada (penerima)',
+                    '${data['nrp_penerima'] ?? '-'} - ',
+                    '${data['nama_penerima'] ?? '-'}'),
+                _buildRowWidget('Jabatan (penerima)',
+                    '${data['pangkat_penerima'] ?? '-'}', ''),
+                _buildRowWidget('Entitas (penerima)',
+                    '${data['entitas_penerima'] ?? '-'}', ''),
+                _buildRowWidget('Jenis Fasilitas',
+                    _getJenisFasilitas(data['id_jenis_fasilitas']), ''),
+                _buildRowWidget(
+                    'Prioritas', _getPrioritas(data['prioritas']), ''),
+                _buildRowWidget(
+                    'Tanggal Pengajuan', '${data['tgl_pengajuan'] ?? '-'}', ''),
+                _buildStatusWidget(data['full_approve']),
+                SizedBox(height: sizedBoxHeightShort),
+                _buildActionButtons(
+                  id,
+                  () {
+                    Get.toNamed(
+                      '/user/main/daftar_persetujuan/detail_bantuan_komunikasi',
+                      arguments: {'id': id},
+                    );
+                  },
+                  () {
+                    _downloadPdf('bantuanKomunikasi', id);
+                  },
                 ),
-                RowWidget(
-                  textLeft: '',
-                  textRight: '${data['nama_user']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Diberikan Kepada (penerima)',
-                  textRight: '${data['nrp_penerima']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: '',
-                  textRight: '${data['nama_penerima']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Jabatan (penerima)',
-                  textRight: '${data['pangkat_penerima']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Entitas (penerima)',
-                  textRight: '${data['entitas_penerima']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Jenis Fasilitas',
-                  textRight: data['id_jenis_fasilitas'] == 1
-                      ? 'Mobile Phone'
-                      : data['id_jenis_fasilitas'] == 2
-                          ? 'Biaya Pulsa'
-                          : 'Kouta Internet',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Prioritas',
-                  textRight: data['prioritas'] == '0'
-                      ? 'Rendah'
-                      : data['prioritas'] == '1'
-                          ? 'Sedang'
-                          : 'Tinggi',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Tanggal Pengajuan',
-                  textRight: '${data['tgl_pengajuan']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                TitleCenterWithBadgeWidget(
-                  textLeft: 'Status',
-                  textRight: data['full_approve'] == 'V'
-                      ? 'Disetujui'
-                      : data['full_approve'] == 'X'
-                          ? 'Ditolak'
-                          : 'Proses',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                  color: data['full_approve'] == 'V'
-                      ? Colors.green
-                      : data['full_approve'] == 'X'
-                          ? Colors.red[600]
-                          : Colors.grey,
-                ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Get.toNamed(
-                          '/user/main/daftar_persetujuan/detail_bantuan_komunikasi',
-                          arguments: {'id': data['id']},
-                        );
-                      },
-                      child: Container(
-                        width: size.width * 0.38,
-                        height: size.height * 0.04,
-                        padding: EdgeInsets.all(padding5),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              const Icon(Icons.details_sharp),
-                              Text(
-                                'Detail',
-                                style: TextStyle(
-                                  color: Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        Get.snackbar('Infomation', 'Coming Soon',
-                            snackPosition: SnackPosition.TOP,
-                            backgroundColor: Colors.amber,
-                            icon: const Icon(
-                              Icons.info,
-                              color: Colors.white,
-                            ),
-                            shouldIconPulse: false);
-                      },
-                      child: Container(
-                        width: size.width * 0.38,
-                        height: size.height * 0.04,
-                        padding: EdgeInsets.all(padding5),
-                        decoration: BoxDecoration(
-                          color: const Color(primaryYellow),
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Icon(Icons.download_rounded),
-                              Text(
-                                'Unduhan',
-                                style: TextStyle(
-                                  color: Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                )
               ],
             ),
           ),
-        )
+        ),
       ],
     );
   }
@@ -1577,6 +1351,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding5 = size.width * 0.0188;
 
+    String id = data['uuid'].toString();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1593,157 +1369,32 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                RowWidget(
-                  textLeft: 'Pemohon',
-                  textRight: '${data['nama_user']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Entitas',
-                  textRight: '${data['pt_user']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Atasan',
-                  textRight: '${data['nama_atasan']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Pengganti',
-                  textRight: '${data['nama_pengganti']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Tanggal Pengajuan',
-                  textRight: '${data['tgl_pengajuan']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Tanggal Mulai',
-                  textRight: '${data['tgl_mulai']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Jumlah Cuti',
-                  textRight: '${data['jml_cuti']} Hari',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Keperluan',
-                  textRight: '${data['keperluan']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                TitleCenterWithBadgeWidget(
-                  textLeft: 'Status',
-                  textRight: data['full_approve'] == 'V'
-                      ? 'Disetujui'
-                      : data['full_approve'] == 'X'
-                          ? 'Ditolak'
-                          : 'Proses',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                  color: data['full_approve'] == 'V'
-                      ? Colors.green
-                      : data['full_approve'] == 'X'
-                          ? Colors.red[600]
-                          : Colors.grey,
-                ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Get.toNamed(
-                          '/user/main/daftar_persetujuan/detail_pengajuan_cuti',
-                          arguments: {'id': data['uuid']},
-                        );
-                      },
-                      child: Container(
-                        width: size.width * 0.38,
-                        height: size.height * 0.04,
-                        padding: EdgeInsets.all(padding5),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Icon(Icons.details_sharp),
-                              Text(
-                                'Detail',
-                                style: TextStyle(
-                                  color: Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        _downloadPengajuanCuti(data['uuid']);
-                      },
-                      child: Container(
-                        width: size.width * 0.38,
-                        height: size.height * 0.04,
-                        padding: EdgeInsets.all(padding5),
-                        decoration: BoxDecoration(
-                          color: const Color(primaryYellow),
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: _isLoadingContent
-                            ? Center(
-                                child: SizedBox(
-                                  width: size.height * 0.025,
-                                  height: size.height * 0.025,
-                                  child: const CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                ),
-                              )
-                            : Center(
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Icon(Icons.download_rounded),
-                                    Text(
-                                      'Unduhan',
-                                      style: TextStyle(
-                                        color: Color(primaryBlack),
-                                        fontSize: textMedium,
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                      ),
-                    ),
-                  ],
-                ),
+                _buildRowWidget('Pemohon', '${data['nama_user'] ?? '-'}', ''),
+                _buildRowWidget('Entitas', '${data['pt_user'] ?? '-'}', ''),
+                _buildRowWidget('Atasan', '${data['nama_atasan'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Pengganti', '${data['nama_pengganti'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Tanggal Pengajuan', '${data['tgl_pengajuan'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Tanggal Mulai', '${data['tgl_mulai'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Jumlah Cuti', '${data['jml_cuti'] ?? '-'} Hari', ''),
+                _buildRowWidget('Keperluan', '${data['keperluan'] ?? '-'}', ''),
+                _buildStatusWidget(data['full_approve']),
+                SizedBox(height: sizedBoxHeightShort),
+                _buildActionButtons(id, () {
+                  Get.toNamed(
+                    '/user/main/daftar_persetujuan/detail_pengajuan_cuti',
+                    arguments: {'id': id},
+                  );
+                }, () {
+                  _downloadPdf('pengajuanCuti', id);
+                }),
               ],
             ),
           ),
-        )
+        ),
       ],
     );
   }
@@ -1981,6 +1632,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding5 = size.width * 0.0188;
 
+    String id = data['id'].toString();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1997,126 +1650,30 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                RowWidget(
-                  textLeft: 'No Dokumen',
-                  textRight: '${data['no_doc']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Pemohon',
-                  textRight: '${data['nrp']} - ${data['nama']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Tanggal Pengajuan',
-                  textRight: '${data['created_at']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Tanggal Training',
-                  textRight: '${data['tgl_training']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Judul Training',
-                  textRight: '${data['judul_training']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Status',
-                  textRight: '${data['status_approve']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Get.toNamed(
-                          '/user/main/daftar_persetujuan/detail_pengajuan_training',
-                          arguments: {'id': data['id']},
-                        );
-                      },
-                      child: Container(
-                        width: size.width * 0.38,
-                        height: size.height * 0.04,
-                        padding: EdgeInsets.all(padding5),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Icon(Icons.details_sharp),
-                              Text(
-                                'Detail',
-                                style: TextStyle(
-                                  color: Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        Get.snackbar('Infomation', 'Coming Soon',
-                            snackPosition: SnackPosition.TOP,
-                            backgroundColor: Colors.amber,
-                            icon: const Icon(
-                              Icons.info,
-                              color: Colors.white,
-                            ),
-                            shouldIconPulse: false);
-                      },
-                      child: Container(
-                        width: size.width * 0.38,
-                        height: size.height * 0.04,
-                        padding: EdgeInsets.all(padding5),
-                        decoration: BoxDecoration(
-                          color: const Color(primaryYellow),
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Icon(Icons.download_rounded),
-                              Text(
-                                'Unduhan',
-                                style: TextStyle(
-                                  color: Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                )
+                _buildRowWidget('No Dokumen', '${data['no_doc'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Pemohon', '${data['nrp']} - ', '${data['nama'] ?? '-'}'),
+                _buildRowWidget(
+                    'Tanggal Pengajuan', '${data['created_at'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Tanggal Training', '${data['tgl_training'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Judul Training', '${data['judul_training'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Status', '${data['status_approve'] ?? '-'}', ''),
+                SizedBox(height: sizedBoxHeightShort),
+                _buildActionButtons(id, () {
+                  Get.toNamed(
+                    '/user/main/daftar_persetujuan/detail_pengajuan_training',
+                    arguments: {'id': id},
+                  );
+                }, () {
+                  _downloadPdf('pengajuanTraining', id);
+                }),
               ],
             ),
           ),
-        )
+        ),
       ],
     );
   }
@@ -2129,12 +1686,14 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding5 = size.width * 0.0188;
 
+    String id = data['id'].toString();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           margin: EdgeInsets.symmetric(vertical: sizedBoxHeightExtraTall),
-          height: size.height * 0.35,
+          height: size.height * 0.3,
           width: size.width * 0.9,
           decoration: BoxDecoration(
             color: Colors.grey[100],
@@ -2145,156 +1704,39 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                RowWidget(
-                  textLeft: 'No Dokumen',
-                  textRight: '${data['no_doc'] ?? '-'}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Nrp (Pemohon)',
-                  textRight: '${data['nrp_user'] ?? '-'}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Nama (Pemohon)',
-                  textRight: '${data['nama_user'] ?? '-'}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Nama Atasan',
-                  textRight: '${data['nama_atasan'] ?? '-'}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Nama HRGS',
-                  textRight: '${data['nama_hrgs'] ?? '-'}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Tanggal Izin',
-                  textRight: '${data['tgl_izin'] ?? '-'}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Jam Keluar',
-                  textRight: '${data['tgl_izin'] ?? '-'}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Jam Kembali',
-                  textRight: '${data['tgl_izin'] ?? '-'}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Keperluan',
-                  textRight: '${data['tgl_izin'] ?? '-'}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Tanggal Pengajuan',
-                  textRight: '${data['tgl_izin'] ?? '-'}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Status',
-                  textRight: '${data['status_approve'] ?? '-'}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Get.toNamed(
-                          '/user/main/daftar_persetujuan/detail_surat_izin_keluar',
-                          arguments: {'id': data['id']},
-                        );
-                      },
-                      child: Container(
-                        width: size.width * 0.38,
-                        height: size.height * 0.04,
-                        padding: EdgeInsets.all(padding5),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Icon(Icons.details_sharp),
-                              Text(
-                                'Detail',
-                                style: TextStyle(
-                                  color: Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        Get.snackbar('Infomation', 'Coming Soon',
-                            snackPosition: SnackPosition.TOP,
-                            backgroundColor: Colors.amber,
-                            icon: const Icon(
-                              Icons.info,
-                              color: Colors.white,
-                            ),
-                            shouldIconPulse: false);
-                      },
-                      child: Container(
-                        width: size.width * 0.38,
-                        height: size.height * 0.04,
-                        padding: EdgeInsets.all(padding5),
-                        decoration: BoxDecoration(
-                          color: const Color(primaryYellow),
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Icon(Icons.download_rounded),
-                              Text(
-                                'Unduhan',
-                                style: TextStyle(
-                                  color: Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                )
+                _buildRowWidget('No Dokumen', '${data['no_doc'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Nrp (Pemohon)', '${data['nrp_user'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Nama (Pemohon)', '${data['nama_user'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Nama Atasan', '${data['nama_atasan'] ?? '-'}', ''),
+                _buildRowWidget('Nama HRGS', '${data['nama_hrgs'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Tanggal Izin', '${data['tgl_izin'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Jam Keluar', '${data['jam_keluar'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Jam Kembali', '${data['jam_kembali'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Keperluan', '${data['kep_pribadi'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Tanggal Pengajuan', '${data['tgl_pengajuan'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Status', '${data['status_approve'] ?? '-'}', ''),
+                SizedBox(height: sizedBoxHeightShort),
+                _buildActionButtons(id, () {
+                  Get.toNamed(
+                    '/user/main/daftar_persetujuan/detail_surat_izin_keluar',
+                    arguments: {'id': id},
+                  );
+                }, () {
+                  _downloadPdf('suratIzinKeluar', id);
+                }),
               ],
             ),
           ),
-        )
+        ),
       ],
     );
   }
@@ -2307,12 +1749,14 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding5 = size.width * 0.0188;
 
+    String id = data['id'].toString();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           margin: EdgeInsets.symmetric(vertical: sizedBoxHeightExtraTall),
-          height: size.height * 0.25,
+          height: size.height * 0.3,
           width: size.width * 0.9,
           decoration: BoxDecoration(
             color: Colors.grey[100],
@@ -2323,208 +1767,56 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                RowWidget(
-                  textLeft: 'Tanggal Pengajuan',
-                  textRight: '${data['tgl_pengajuan']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Nama Penerima',
-                  textRight: '${data['nama_user']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Jumlah Extend',
-                  textRight: '${data['jth_extend']} Hari',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Tanggal Mulai',
-                  textRight: '${data['start_date']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Tanggal Kadaluarsa',
-                  textRight: '${data['expired_date']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                TitleCenterWithBadgeWidget(
-                  textLeft: 'Status',
-                  textRight: data['full_approve'] == 'V'
-                      ? 'Disetujui'
-                      : data['full_approve'] == 'X'
-                          ? 'Ditolak'
-                          : 'Proses',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                  color: data['full_approve'] == 'V'
-                      ? Colors.green
-                      : data['full_approve'] == 'X'
-                          ? Colors.red[600]
-                          : Colors.grey,
-                ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    data['full_approve'] == null &&
-                            data['nrp_atasan'] == x.data['pernr']
-                        ? InkWell(
-                            onTap: () {
-                              Get.toNamed(
-                                '/user/main/daftar_persetujuan/detail_perpanjangan_cuti',
-                                arguments: {'id': data['id']},
-                              );
-                            },
-                            child: Container(
-                              width: size.width * 0.25,
-                              height: size.height * 0.04,
-                              padding: EdgeInsets.all(padding5),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(5.0),
-                              ),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Icon(Icons.details_sharp),
-                                    Text(
-                                      'Detail',
-                                      style: TextStyle(
-                                        color: Color(primaryBlack),
-                                        fontSize: textMedium,
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                        : InkWell(
-                            onTap: () {
-                              Get.toNamed(
-                                '/user/main/daftar_persetujuan/detail_perpanjangan_cuti',
-                                arguments: {'id': data['id']},
-                              );
-                            },
-                            child: Container(
-                              width: size.width * 0.77,
-                              height: size.height * 0.04,
-                              padding: EdgeInsets.all(padding5),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(5.0),
-                              ),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Icon(Icons.details_sharp),
-                                    Text(
-                                      'Detail',
-                                      style: TextStyle(
-                                        color: Color(primaryBlack),
-                                        fontSize: textMedium,
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                _buildRowWidget(
+                    'Tanggal Pengajuan', '${data['tgl_pengajuan'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Nama Penerima', '${data['nama_user'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Jumlah Extend', '${data['jth_extend'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Tanggal Mulai', '${data['start_date'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Tanggal Kadaluarsa', '${data['expired_date'] ?? '-'}', ''),
+                _buildStatusWidget(data['full_approve']),
+                SizedBox(height: sizedBoxHeightShort),
+                InkWell(
+                  onTap: () {
+                    Get.toNamed(
+                      '/user/main/daftar_persetujuan/detail_perpanjangan_cuti',
+                      arguments: {'id': data['id']},
+                    );
+                  },
+                  child: Container(
+                    width: size.width * 0.38,
+                    height: size.height * 0.04,
+                    padding: EdgeInsets.all(padding5),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Icon(Icons.details_sharp),
+                          Text(
+                            'Detail',
+                            style: TextStyle(
+                              color: Color(primaryBlack),
+                              fontSize: textMedium,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                    data['full_approve'] == null &&
-                            data['nrp_atasan'] == x.data['pernr']
-                        ? InkWell(
-                            onTap: () {
-                              showRejectPerpanjanganCutiModal(
-                                  context, data['id']);
-                            },
-                            child: Container(
-                              width: size.width * 0.25,
-                              height: size.height * 0.04,
-                              padding: EdgeInsets.all(padding5),
-                              decoration: BoxDecoration(
-                                color: Colors.red[400],
-                                borderRadius: BorderRadius.circular(5.0),
-                              ),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Icon(Icons.delete),
-                                    Text(
-                                      'Reject',
-                                      style: TextStyle(
-                                        color: Color(primaryBlack),
-                                        fontSize: textMedium,
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                        : Text(''),
-                    data['full_approve'] == null &&
-                            data['nrp_atasan'] == x.data['pernr']
-                        ? InkWell(
-                            onTap: () {
-                              // approvePerpanjanganCuti(data['id']);
-                              showApprovePerpanjanganCutiModal(
-                                  context, data['id']);
-                            },
-                            child: Container(
-                              width: size.width * 0.25,
-                              height: size.height * 0.04,
-                              padding: EdgeInsets.all(padding5),
-                              decoration: BoxDecoration(
-                                color: Colors.green[600],
-                                borderRadius: BorderRadius.circular(5.0),
-                              ),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Icon(Icons.approval),
-                                    Text(
-                                      'Approve',
-                                      style: TextStyle(
-                                        color: Color(primaryBlack),
-                                        fontSize: textMedium,
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          )
-                        : Text(''),
-                  ],
-                ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
               ],
             ),
           ),
-        )
+        ),
       ],
     );
   }
@@ -2762,6 +2054,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding5 = size.width * 0.0188;
 
+    String id = data['id_rawat_inap'].toString();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -2778,130 +2072,29 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                RowWidget(
-                  textLeft: 'Nomor Dokumen',
-                  textRight: '${data['kode_rawat_inap']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Pemohon',
-                  textRight: '${data['pernr']} - ${data['nama']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Tanggal Pengajuan',
-                  textRight: '${data['created_at']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Perusahaan',
-                  textRight: '${data['pt']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Lokasi',
-                  textRight: '${data['lokasi']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Status',
-                  textRight: '${data['status_approve']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Get.toNamed(
-                          '/user/main/daftar_persetujuan/detail_rawat_inap',
-                          arguments: {'id': data['id_rawat_inap']},
-                        );
-                      },
-                      child: Container(
-                        width: size.width * 0.38,
-                        height: size.height * 0.04,
-                        padding: EdgeInsets.all(padding5),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Icon(Icons.details_sharp),
-                              Text(
-                                'Detail',
-                                style: TextStyle(
-                                  color: Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        _downloadRawatInap(data['id_rawat_inap']);
-                      },
-                      child: Container(
-                        width: size.width * 0.38,
-                        height: size.height * 0.04,
-                        padding: EdgeInsets.all(padding5),
-                        decoration: BoxDecoration(
-                          color: const Color(primaryYellow),
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: _isLoadingContent
-                            ? Center(
-                                child: SizedBox(
-                                  width: size.height * 0.025,
-                                  height: size.height * 0.025,
-                                  child: const CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                ),
-                              )
-                            : Center(
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Icon(Icons.download_rounded),
-                                    Text(
-                                      'Unduhan',
-                                      style: TextStyle(
-                                        color: Color(primaryBlack),
-                                        fontSize: textMedium,
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                      ),
-                    ),
-                  ],
-                )
+                _buildRowWidget(
+                    'No Dokumen', '${data['kode_rawat_inap'] ?? '-'}', ''),
+                _buildRowWidget('Pemohon', '${data['pernr'] ?? '-'} - ',
+                    '${data['nama'] ?? '-'}'),
+                _buildRowWidget(
+                    'Tanggal Pengajuan', '${data['created_at'] ?? '-'}', ''),
+                _buildRowWidget('Perusahaan', '${data['pt'] ?? '-'}', ''),
+                _buildRowWidget('Lokasi', '${data['lokasi'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Status', '${data['status_approve'] ?? '-'}', ''),
+                SizedBox(height: sizedBoxHeightShort),
+                _buildActionButtons(id, () {
+                  Get.toNamed(
+                    '/user/main/daftar_persetujuan/detail_rawat_inap',
+                    arguments: {'id': id},
+                  );
+                }, () {
+                  _downloadPdf('rawatInap', id);
+                }),
               ],
             ),
           ),
-        )
+        ),
       ],
     );
   }
@@ -2914,6 +2107,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding5 = size.width * 0.0188;
 
+    String id = data['id'].toString();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -2930,126 +2125,29 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                RowWidget(
-                  textLeft: 'Nomor Dokumen',
-                  textRight: '${data['no_doc']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Pemohon',
-                  textRight: '${data['pernr']} - ${data['nama']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Tanggal Pengajuan',
-                  textRight: '${data['tgl_pengajuan']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Perusahaan',
-                  textRight: '${data['pt']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Lokasi',
-                  textRight: '${data['lokasi']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Status',
-                  textRight: '${data['status_approve']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Get.toNamed(
-                          '/user/main/daftar_persetujuan/detail_rawat_jalan',
-                          arguments: {'id': data['id']},
-                        );
-                      },
-                      child: Container(
-                        width: size.width * 0.38,
-                        height: size.height * 0.04,
-                        padding: EdgeInsets.all(padding5),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Icon(Icons.details_sharp),
-                              Text(
-                                'Detail',
-                                style: TextStyle(
-                                  color: Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        Get.snackbar('Infomation', 'Coming Soon',
-                            snackPosition: SnackPosition.TOP,
-                            backgroundColor: Colors.amber,
-                            icon: const Icon(
-                              Icons.info,
-                              color: Colors.white,
-                            ),
-                            shouldIconPulse: false);
-                      },
-                      child: Container(
-                        width: size.width * 0.38,
-                        height: size.height * 0.04,
-                        padding: EdgeInsets.all(padding5),
-                        decoration: BoxDecoration(
-                          color: const Color(primaryYellow),
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Icon(Icons.download_rounded),
-                              Text(
-                                'Unduhan',
-                                style: TextStyle(
-                                  color: Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                )
+                _buildRowWidget(
+                    'Nomor Dokumen', '${data['no_doc'] ?? '-'}', ''),
+                _buildRowWidget('Pemohon', '${data['pernr'] ?? '-'} - ',
+                    '${data['nama'] ?? '-'}'),
+                _buildRowWidget(
+                    'Tanggal Pengajuan', '${data['tgl_pengajuan'] ?? '-'}', ''),
+                _buildRowWidget('Perusahaan', '${data['pt'] ?? '-'}', ''),
+                _buildRowWidget('Lokasi', '${data['lokasi'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Status', '${data['status_approve'] ?? '-'}', ''),
+                SizedBox(height: sizedBoxHeightShort),
+                _buildActionButtons(id, () {
+                  Get.toNamed(
+                    '/user/main/daftar_persetujuan/detail_rawat_jalan',
+                    arguments: {'id': id},
+                  );
+                }, () {
+                  _downloadPdf('rawatJalan', id);
+                }),
               ],
             ),
           ),
-        )
+        ),
       ],
     );
   }
@@ -3062,6 +2160,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding5 = size.width * 0.0188;
 
+    String id = data['id'].toString();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -3078,148 +2178,34 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                RowWidget(
-                  textLeft: 'Nomor Dokumen',
-                  textRight: '${data['no_doc']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Pemohon',
-                  textRight: '${data['nrp_user']} - ${data['nama_user']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Nama Atasan',
-                  textRight: '${data['nama_atasan']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Nama HRGS',
-                  textRight: '${data['nama_hrgs']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Tempat Tujuan',
-                  textRight: '${data['tempat_tujuan']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Perihal',
-                  textRight: '${data['catatan_atasan']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Tanggal Pengajuan',
-                  textRight: '${data['tgl_pengajuan']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Tanggal Posting',
-                  textRight: data['status_sap'] ?? '',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Status',
-                  textRight: '${data['status_approve']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Get.toNamed(
-                          '/user/main/daftar_persetujuan/detail_im_perjalanan_dinas',
-                          arguments: {'id': data['id']},
-                        );
-                      },
-                      child: Container(
-                        width: size.width * 0.38,
-                        height: size.height * 0.04,
-                        padding: EdgeInsets.all(padding5),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              const Icon(Icons.details_sharp),
-                              Text(
-                                'Detail',
-                                style: TextStyle(
-                                  color: Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        // _downloadRawatInap(data['id_rawat_inap']);
-                      },
-                      child: Container(
-                        width: size.width * 0.38,
-                        height: size.height * 0.04,
-                        padding: EdgeInsets.all(padding5),
-                        decoration: BoxDecoration(
-                          color: const Color(primaryYellow),
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: _isLoadingContent
-                            ? Center(
-                                child: SizedBox(
-                                  width: size.height * 0.025,
-                                  height: size.height * 0.025,
-                                  child: const CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                ),
-                              )
-                            : Center(
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    const Icon(Icons.download_rounded),
-                                    Text(
-                                      'Unduhan',
-                                      style: TextStyle(
-                                        color: const Color(primaryBlack),
-                                        fontSize: textMedium,
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                      ),
-                    ),
-                  ],
-                )
+                _buildRowWidget(
+                    'Nomor Dokumen', '${data['no_doc'] ?? '-'}', ''),
+                _buildRowWidget('Pemohon', '${data['nrp_user'] ?? '-'}',
+                    '${data['nama_user'] ?? '-'}'),
+                _buildRowWidget(
+                    'Nama Atasan', '${data['nama_atasan'] ?? '-'}', ''),
+                _buildRowWidget('Nama HRGS', '${data['nama_hrgs'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Tempat Tujuan', '${data['tempat_tujuan'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Perihal', '${data['catatan_atasan'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Tanggal Pengajuan', '${data['tgl_pengajuan'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Status', '${data['status_approve'] ?? '-'}', ''),
+                SizedBox(height: sizedBoxHeightShort),
+                _buildActionButtons(id, () {
+                  Get.toNamed(
+                    '/user/main/daftar_persetujuan/detail_im_perjalanan_dinas',
+                    arguments: {'id': id},
+                  );
+                }, () {
+                  _downloadPdf('imPerjalananDinas', id);
+                }),
               ],
             ),
           ),
-        )
+        ),
       ],
     );
   }
@@ -3232,6 +2218,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding5 = size.width * 0.0188;
 
+    String id = data['id'].toString();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -3248,142 +2236,34 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                RowWidget(
-                  textLeft: 'Nomor Dokumen',
-                  textRight: '${data['no_doc']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Pemohon',
-                  textRight: '${data['nrp_user']} - ${data['nama_user']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Nama Atasan',
-                  textRight: '${data['nama_atasan']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Nama HRGS',
-                  textRight: '${data['nama_hrgs']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Tempat Tujuan',
-                  textRight: '${data['tempat_tujuan']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Tanggal Kembali',
-                  textRight: '${data['tgl_aktual_kembali']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Tanggal Pengajuan LPJ',
-                  textRight: data['tgl_pengajuan_lpj'] ?? '',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Status',
-                  textRight: '${data['status_approve']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Get.toNamed(
-                          '/user/main/daftar_persetujuan/detail_lpj_perjalanan_dinas',
-                          arguments: {'id': data['id']},
-                        );
-                      },
-                      child: Container(
-                        width: size.width * 0.38,
-                        height: size.height * 0.04,
-                        padding: EdgeInsets.all(padding5),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              const Icon(Icons.details_sharp),
-                              Text(
-                                'Detail',
-                                style: TextStyle(
-                                  color: Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        // _downloadRawatInap(data['id_rawat_inap']);
-                      },
-                      child: Container(
-                        width: size.width * 0.38,
-                        height: size.height * 0.04,
-                        padding: EdgeInsets.all(padding5),
-                        decoration: BoxDecoration(
-                          color: const Color(primaryYellow),
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: _isLoadingContent
-                            ? Center(
-                                child: SizedBox(
-                                  width: size.height * 0.025,
-                                  height: size.height * 0.025,
-                                  child: const CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                ),
-                              )
-                            : Center(
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    const Icon(Icons.download_rounded),
-                                    Text(
-                                      'Unduhan',
-                                      style: TextStyle(
-                                        color: const Color(primaryBlack),
-                                        fontSize: textMedium,
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                      ),
-                    ),
-                  ],
-                )
+                _buildRowWidget(
+                    'Nomor Dokumen', '${data['no_doc'] ?? '-'}', ''),
+                _buildRowWidget('Pemohon', '${data['nrp_user'] ?? '-'}',
+                    '${data['nama_user'] ?? '-'}'),
+                _buildRowWidget(
+                    'Nama Atasan', '${data['nama_atasan'] ?? '-'}', ''),
+                _buildRowWidget('Nama HRGS', '${data['nama_hrgs'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Tempat Tujuan', '${data['tempat_tujuan'] ?? '-'}', ''),
+                _buildRowWidget('Tanggal Kembali',
+                    '${data['tgl_aktual_kembali'] ?? '-'}', ''),
+                _buildRowWidget('Tanggal Pengajuan LPJ',
+                    '${data['tgl_pengajuan_lpj'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Status', '${data['status_approve'] ?? '-'}', ''),
+                SizedBox(height: sizedBoxHeightShort),
+                _buildActionButtons(id, () {
+                  Get.toNamed(
+                    '/user/main/daftar_persetujuan/detail_lpj_perjalanan_dinas',
+                    arguments: {'id': id},
+                  );
+                }, () {
+                  _downloadPdf('lpjPerjalananDinas', id);
+                }),
               ],
             ),
           ),
-        )
+        ),
       ],
     );
   }
@@ -3396,6 +2276,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding5 = size.width * 0.0188;
 
+    String id = data['id'].toString();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -3412,149 +2294,169 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                RowWidget(
-                  textLeft: 'Jenis Pengajuan',
-                  textRight: '${data['jenis_pengajuan']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Tanggal Mulai',
-                  textRight: '${data['tgl_mulai']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Tanggal Berakhir',
-                  textRight: '${data['tgl_berakhir']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Keterangan',
-                  textRight: '${data['deskripsi']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Total Cuti Diambil',
-                  textRight: '${data['jml_hari']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Cuti Bersama',
-                  textRight: '${data['jml_cuti_bersama']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Cuti Dibayar',
-                  textRight: '${data['jml_cuti_tahunan']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Cuti Tidak Dibayar',
-                  textRight: '${data['jml_cuti_tdkdibayar']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Cuti Lainnya',
-                  textRight: '${data['jml_cuti_lainnya']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                RowWidget(
-                  textLeft: 'Status',
-                  textRight: '${data['status']}',
-                  fontWeightLeft: FontWeight.w300,
-                  fontWeightRight: FontWeight.w300,
-                ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                _buildRowWidget(
+                    'Jenis Pengajuan', '${data['jenis_pengajuan'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Tanggal Mulai', '${data['tgl_mulai'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Tanggal Berakhir', '${data['tgl_berakhir'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Keterangan', '${data['deskripsi'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Total Cuti Diambil', '${data['jml_hari'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Cuti Bersama', '${data['jml_cuti_bersama'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Cuti Dibayar', '${data['jml_cuti_tahunan'] ?? '-'}', ''),
+                _buildRowWidget('Cuti Tidak Dibayar',
+                    '${data['jml_cuti_tdkdibayar'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Cuti Lainnya', '${data['jml_cuti_lainnya'] ?? '-'}', ''),
+                _buildRowWidget('Status', '${data['status'] ?? '-'}', ''),
+                // SizedBox(height: sizedBoxHeightShort),
+                // _buildActionButtons(id, () {
+                //   Get.toNamed(
+                //     '/user/main/daftar_permintaan/detail_rawat_jalan',
+                //     arguments: {'id': id},
+                //   );
+                // }, () {
+                //   _downloadPdf('rawatJalan', id);
+                // }),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRowWidget(
+      String leftText, String rightText1, String rightText2) {
+    return Column(
+      children: [
+        RowWidget(
+          textLeft: leftText,
+          textRight: rightText1,
+          fontWeightLeft: FontWeight.w300,
+          fontWeightRight: FontWeight.w300,
+        ),
+        if (rightText2.isNotEmpty)
+          RowWidget(
+            textLeft: '',
+            textRight: rightText2,
+            fontWeightLeft: FontWeight.w300,
+            fontWeightRight: FontWeight.w300,
+          ),
+      ],
+    );
+  }
+
+  Widget _buildStatusWidget(String? status) {
+    Color? statusColor;
+    String statusText = '';
+
+    if (status == 'V') {
+      statusColor = Colors.green;
+      statusText = 'Disetujui';
+    } else if (status == 'X') {
+      statusColor = Colors.red[600];
+      statusText = 'Ditolak';
+    } else {
+      statusColor = Colors.grey;
+      statusText = 'Proses';
+    }
+
+    return TitleCenterWithBadgeWidget(
+      textLeft: 'Status',
+      textRight: statusText,
+      fontWeightLeft: FontWeight.w300,
+      fontWeightRight: FontWeight.w300,
+      color: statusColor ?? Colors.grey,
+    );
+  }
+
+  Widget _buildActionButtons(
+      String id, Function() onTapDetail, Function() onTapPreview) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _buildButton('Detail', onTapDetail, false),
+        _buildButton('Preview', onTapPreview, _isLoadingContent[id] ?? false),
+      ],
+    );
+  }
+
+  Widget _buildButton(String label, Function() onTap, bool isLoading) {
+    Size size = MediaQuery.of(context).size;
+    double padding5 = size.width * 0.0188;
+    double textMedium = size.width * 0.0329;
+
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        width: size.width * 0.38,
+        height: size.height * 0.04,
+        padding: EdgeInsets.all(padding5),
+        decoration: BoxDecoration(
+          color: label == 'Preview' ? const Color(primaryYellow) : Colors.white,
+          borderRadius: BorderRadius.circular(5.0),
+        ),
+        child: Center(
+          child: isLoading
+              ? SizedBox(
+                  width: size.height * 0.025,
+                  height: size.height * 0.025,
+                  child: const CircularProgressIndicator(
+                    strokeWidth: 2,
+                  ),
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    InkWell(
-                      onTap: () {
-                        Get.toNamed(
-                            '/user/main/submition/aplikasi_training/detail_aplikasi_training');
-                      },
-                      child: Container(
-                        width: size.width * 0.38,
-                        height: size.height * 0.04,
-                        padding: EdgeInsets.all(padding5),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Icon(Icons.details_sharp),
-                              Text(
-                                'Detail',
-                                style: TextStyle(
-                                  color: Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: () {
-                        Get.snackbar('Infomation', 'Coming Soon',
-                            snackPosition: SnackPosition.TOP,
-                            backgroundColor: Colors.amber,
-                            icon: const Icon(
-                              Icons.info,
-                              color: Colors.white,
-                            ),
-                            shouldIconPulse: false);
-                      },
-                      child: Container(
-                        width: size.width * 0.38,
-                        height: size.height * 0.04,
-                        padding: EdgeInsets.all(padding5),
-                        decoration: BoxDecoration(
-                          color: const Color(primaryYellow),
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Icon(Icons.download_rounded),
-                              Text(
-                                'Unduhan',
-                                style: TextStyle(
-                                  color: Color(primaryBlack),
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                    Icon(label == 'Preview'
+                        ? Icons.download_rounded
+                        : Icons.details_sharp),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        color: label == 'Preview'
+                            ? const Color(primaryBlack)
+                            : Colors.black,
+                        fontSize: textMedium,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-        )
-      ],
+        ),
+      ),
     );
+  }
+
+  String _getJenisFasilitas(int? idJenis) {
+    if (idJenis == null) return '';
+
+    switch (idJenis) {
+      case 1:
+        return 'Mobile Phone';
+      case 2:
+        return 'Biaya Pulsa';
+      default:
+        return 'Kouta Internet';
+    }
+  }
+
+  String _getPrioritas(String? prioritas) {
+    if (prioritas == null) return '';
+
+    switch (prioritas) {
+      case '0':
+        return 'Rendah';
+      case '1':
+        return 'Sedang';
+      default:
+        return 'Tinggi';
+    }
   }
 }
