@@ -34,36 +34,60 @@ class _DetailPengajuanCutiDaftarPermintaanState
   }
 
   Future<void> getDataDetailPengajuanCuti() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    String id = arguments['id'];
+    final token = await _getToken();
+    if (token == null) return;
+
+    final id = arguments['id'];
 
     setState(() {
       _isLoadingScreen = true;
     });
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/pengajuan-cuti/detail/$id"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataDetailPengajuanCutiApi = responseData['dcuti'];
-
-        setState(() {
-          masterDataDetailPengajuanCuti =
-              Map<String, dynamic>.from(dataDetailPengajuanCutiApi);
-          _isLoadingScreen = false;
-        });
-      } catch (e) {
-        print(e);
+    try {
+      final response = await _fetchDataDetailPengajuanCuti(token, id);
+      if (response.statusCode == 200) {
+        _handleSuccessResponse(response);
+      } else {
+        _handleErrorResponse(response);
       }
+    } catch (e) {
+      print('Error fetching data: $e');
+    } finally {
+      setState(() {
+        _isLoadingScreen = false;
+      });
     }
+  }
+
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  Future<http.Response> _fetchDataDetailPengajuanCuti(String token, String id) {
+    final ioClient = createIOClientWithInsecureConnection();
+    final url = Uri.parse("$_apiUrl/pengajuan-cuti/detail/$id");
+    return ioClient.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+  }
+
+  void _handleSuccessResponse(http.Response response) {
+    final responseData = jsonDecode(response.body);
+    final dataDetailPengajuanCutiApi = responseData['dcuti'];
+
+    setState(() {
+      masterDataDetailPengajuanCuti =
+          Map<String, dynamic>.from(dataDetailPengajuanCutiApi);
+    });
+  }
+
+  void _handleErrorResponse(http.Response response) {
+    print('Failed to fetch data: ${response.statusCode}');
   }
 
   @override
@@ -125,64 +149,48 @@ class _DetailPengajuanCutiDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+    double sizedBoxHeightTall = size.height * 0.015;
+
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'NRP',
+        'value': masterDataDetailPengajuanCuti['nrp_user'] ?? '-',
+      },
+      {
+        'label': 'Nama',
+        'value': masterDataDetailPengajuanCuti['nama_user'] ?? '-',
+      },
+      {
+        'label': 'Perusahaan',
+        'value': masterDataDetailPengajuanCuti['entitas_user'] ?? '-',
+      },
+      {
+        'label': 'Jabatan',
+        'value': masterDataDetailPengajuanCuti['posisi_user'] ?? '-',
+      },
+      {
+        'label': 'Lokasi Kerja',
+        'value': masterDataDetailPengajuanCuti['lokasi_user'] ?? '-',
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Diajukan Oleh'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'NRP',
-          textRight: '${masterDataDetailPengajuanCuti['nrp_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama',
-          textRight: '${masterDataDetailPengajuanCuti['nama_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Perusahaan',
-          textRight: '${masterDataDetailPengajuanCuti['entitas_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Jabatan',
-          textRight: '${masterDataDetailPengajuanCuti['posisi_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Lokasi Kerja',
-          textRight: '${masterDataDetailPengajuanCuti['lokasi_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightTall),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label'],
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -192,65 +200,47 @@ class _DetailPengajuanCutiDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'Tanggal Mulai',
+        'value': masterDataDetailPengajuanCuti['tgl_mulai'] ?? '-',
+      },
+      {
+        'label': 'Tanggal Berakhir',
+        'value': masterDataDetailPengajuanCuti['tgl_berakhir'] ?? '-',
+      },
+      {
+        'label': 'Tanggal Kembali Kerja',
+        'value': masterDataDetailPengajuanCuti['tgl_kembali_kerja'] ?? '-',
+      },
+      {
+        'label': 'Alamat',
+        'value': masterDataDetailPengajuanCuti['alamat_cuti'] ?? '-',
+      },
+      {
+        'label': 'No Telpon',
+        'value': masterDataDetailPengajuanCuti['no_telp'] ?? '-',
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Tanggal Pengajuan Cuti'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Mulai',
-          textRight: '${masterDataDetailPengajuanCuti['tgl_mulai'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Berakhir',
-          textRight: '${masterDataDetailPengajuanCuti['tgl_berakhir'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Kembali Kerja',
-          textRight:
-              '${masterDataDetailPengajuanCuti['tgl_kembali_kerja'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Alamat',
-          textRight: '${masterDataDetailPengajuanCuti['alamat_cuti'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'No Telpon',
-          textRight: '${masterDataDetailPengajuanCuti['no_telp'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label'],
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -260,34 +250,35 @@ class _DetailPengajuanCutiDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    String jenisCuti = _getJenisCutiLabel();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Keterangan Cuti'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
         RowWithSemicolonWidget(
           textLeft: 'Jenis Cuti',
-          textRight: masterDataDetailPengajuanCuti['dibayar'] == 'X'
-              ? 'Cuti Tahunan Dibayar'
-              : masterDataDetailPengajuanCuti['tdk_dibayar'] == 'X'
-                  ? 'Cuti Tahunan Tidak Dibayar'
-                  : 'Cuti Lainnya',
+          textRight: jenisCuti,
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
+  }
+
+  String _getJenisCutiLabel() {
+    if (masterDataDetailPengajuanCuti['dibayar'] == 'X') {
+      return 'Cuti Tahunan Dibayar';
+    } else if (masterDataDetailPengajuanCuti['tdk_dibayar'] == 'X') {
+      return 'Cuti Tahunan Tidak Dibayar';
+    } else {
+      return 'Cuti Lainnya';
+    }
   }
 
   Widget atasanWidget(BuildContext context) {
@@ -295,39 +286,35 @@ class _DetailPengajuanCutiDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'Atasan',
+        'value': masterDataDetailPengajuanCuti['nama_atasan'] ?? '-',
+      },
+      {
+        'label': 'Atasan Dari Atasan',
+        'value': masterDataDetailPengajuanCuti['nama_direktur'] ?? '-',
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Atasan'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Atasan',
-          textRight: '${masterDataDetailPengajuanCuti['nama_atasan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Atasan Dari Atasan',
-          textRight: masterDataDetailPengajuanCuti['nama_direktur'] == 'null'
-              ? masterDataDetailPengajuanCuti['nama_direktur']
-              : '-',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label'],
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -337,46 +324,39 @@ class _DetailPengajuanCutiDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'Nomor Dokumen',
+        'value': masterDataDetailPengajuanCuti['no_doc'] ?? '-',
+      },
+      {
+        'label': 'Keperluan Cuti',
+        'value': masterDataDetailPengajuanCuti['keperluan'] ?? '-',
+      },
+      {
+        'label': 'Total Cuti Yang Diambil',
+        'value': masterDataDetailPengajuanCuti['jml_cuti'] ?? '-',
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Catatan Cuti'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nomor Dokumen',
-          textRight: '${masterDataDetailPengajuanCuti['no_doc'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Keperluan Cuti',
-          textRight: '${masterDataDetailPengajuanCuti['keperluan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Total Cuti Yang Diambil',
-          textRight: '${masterDataDetailPengajuanCuti['jml_cuti'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label'],
+                textRight: item['value'].toString().toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -386,39 +366,36 @@ class _DetailPengajuanCutiDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+    double sizedBoxHeightTall = size.height * 0.015;
+
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'Nama',
+        'value': masterDataDetailPengajuanCuti['nama_pengganti'] ?? '-',
+      },
+      {
+        'label': 'Jabatan',
+        'value': masterDataDetailPengajuanCuti['posisi_pengganti'] ?? '-',
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Karyawan Pengganti'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama',
-          textRight:
-              '${masterDataDetailPengajuanCuti['nama_pengganti'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Jabatan',
-          textRight:
-              '${masterDataDetailPengajuanCuti['posisi_pengganti'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightTall),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label'],
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -427,30 +404,31 @@ class _DetailPengajuanCutiDaftarPermintaanState
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+
+    String statusApprove =
+        masterDataDetailPengajuanCuti['status_approve'] ?? '-';
+    String createdAt = masterDataDetailPengajuanCuti['created_at'] ?? '-';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        SizedBox(height: sizedBoxHeightExtraTall),
         TitleCenterWithLongBadgeWidget(
           textLeft: 'Status Pengajuan',
-          textRight:
-              '${masterDataDetailPengajuanCuti['status_approve'] ?? '-'}',
+          textRight: statusApprove,
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
           color: Colors.yellow,
         ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         TitleCenterWidget(
           textLeft: 'Pada',
-          textRight: ': ${masterDataDetailPengajuanCuti['created_at'] ?? '-'}',
+          textRight: ': $createdAt',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
       ],
     );
   }

@@ -35,37 +35,55 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
   }
 
   Future<void> getDataDetailBantuanKomunikasi() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    int? nominal;
-    int id = arguments['id'];
+    final token = await _getToken();
+    if (token == null) return;
 
-    print(id);
+    final id = int.parse(arguments['id'].toString());
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/bantuan-komunikasi/detail/$id"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataDetailBantuanKomunikasiApi = responseData['dkomunikasi'];
-
-        setState(() {
-          masterDataDetailBantuanKomunikasi =
-              Map<String, dynamic>.from(dataDetailBantuanKomunikasiApi);
-          nominal = masterDataDetailBantuanKomunikasi['nominal'];
-          nominalFormated =
-              NumberFormat.decimalPattern('id-ID').format(nominal);
-        });
-      } catch (e) {
-        print(e);
+    try {
+      final response = await _fetchDataDetailBantuanKomunikasi(token, id);
+      if (response.statusCode == 200) {
+        _handleSuccessResponse(response);
+      } else {
+        _handleErrorResponse(response);
       }
+    } catch (e) {
+      print('Error fetching data: $e');
     }
+  }
+
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  Future<http.Response> _fetchDataDetailBantuanKomunikasi(
+      String token, int id) {
+    final ioClient = createIOClientWithInsecureConnection();
+
+    final url = Uri.parse("$_apiUrl/bantuan-komunikasi/detail/$id");
+    return ioClient.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+  }
+
+  void _handleSuccessResponse(http.Response response) {
+    final responseData = jsonDecode(response.body);
+    final dataDetailBantuanKomunikasiApi = responseData['dkomunikasi'];
+    setState(() {
+      masterDataDetailBantuanKomunikasi =
+          Map<String, dynamic>.from(dataDetailBantuanKomunikasiApi);
+      final nominal = masterDataDetailBantuanKomunikasi['nominal'];
+      nominalFormated = NumberFormat.decimalPattern('id-ID').format(nominal);
+    });
+  }
+
+  void _handleErrorResponse(http.Response response) {
+    print('Failed to fetch data: ${response.statusCode}');
   }
 
   @override
@@ -126,47 +144,39 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, String>> data = [
+      {
+        'label': 'NRP',
+        'value': masterDataDetailBantuanKomunikasi['nrp_user'] ?? '-'
+      },
+      {
+        'label': 'Nama',
+        'value': masterDataDetailBantuanKomunikasi['nama_user'] ?? '-'
+      },
+      {
+        'label': 'Tanggal Pengajuan',
+        'value': masterDataDetailBantuanKomunikasi['tgl_pengajuan'] ?? '-'
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Diajukan Oleh'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'NRP',
-          textRight: '${masterDataDetailBantuanKomunikasi['nrp_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama',
-          textRight: '${masterDataDetailBantuanKomunikasi['nama_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Pengajuan',
-          textRight:
-              '${masterDataDetailBantuanKomunikasi['tgl_pengajuan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        const SizedBox(height: 15),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label'],
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -176,69 +186,47 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, String>> data = [
+      {
+        'label': 'NRP',
+        'value': masterDataDetailBantuanKomunikasi['nrp_penerima'] ?? '-'
+      },
+      {
+        'label': 'Nama',
+        'value': masterDataDetailBantuanKomunikasi['nama_penerima'] ?? '-'
+      },
+      {
+        'label': 'Jabatan',
+        'value': masterDataDetailBantuanKomunikasi['jabatan_penerima'] ?? '-'
+      },
+      {
+        'label': 'Entitas',
+        'value': masterDataDetailBantuanKomunikasi['entitas_penerima'] ?? '-'
+      },
+      {
+        'label': 'Pangkat',
+        'value': masterDataDetailBantuanKomunikasi['pangkat_penerima'] ?? '-'
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Diberikan Kepada'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'NRP',
-          textRight:
-              '${masterDataDetailBantuanKomunikasi['nrp_penerima'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama',
-          textRight:
-              '${masterDataDetailBantuanKomunikasi['nama_penerima'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Jabatan',
-          textRight:
-              '${masterDataDetailBantuanKomunikasi['jabatan_penerima'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Entitas',
-          textRight:
-              '${masterDataDetailBantuanKomunikasi['entitas_penerima'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Pangkat',
-          textRight:
-              '${masterDataDetailBantuanKomunikasi['pangkat_penerima'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        const SizedBox(height: 15),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label'],
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -250,115 +238,75 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double sizedBoxHeightTall = 15;
 
+    List<Map<String, String>> data = [
+      {
+        'label': 'Kelompok Jabatan',
+        'value': masterDataDetailBantuanKomunikasi['pangkat_komunikasi'] ?? '-'
+      },
+      {'label': 'Nominal (IDR)', 'value': nominalFormated ?? '-'},
+      {
+        'label': 'Jenis Fasilitas',
+        'value': masterDataDetailBantuanKomunikasi['nama_fasilitas'] ?? '-'
+      },
+      {
+        'label': 'Jenis Mobile Phone',
+        'value': masterDataDetailBantuanKomunikasi['jenis_phone_name'] ?? '-'
+      },
+      if (masterDataDetailBantuanKomunikasi['merek_phone'] != null)
+        {
+          'label': 'Merek Mobile Phone',
+          'value': masterDataDetailBantuanKomunikasi['merek_phone'] ?? '-'
+        },
+      {
+        'label': 'Prioritas',
+        'value': getPrioritas(masterDataDetailBantuanKomunikasi['prioritas'])
+      },
+      {
+        'label': 'Tujuan Komunikasi Internal',
+        'value': masterDataDetailBantuanKomunikasi['tujuan_internal'] ?? '-'
+      },
+      {
+        'label': 'Tujuan Komunikasi Eksternal',
+        'value': masterDataDetailBantuanKomunikasi['tujuan_eksternal'] ?? '-'
+      },
+      {
+        'label': 'Keterangan',
+        'value': masterDataDetailBantuanKomunikasi['keterangan'] ?? '-'
+      },
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Detail Fasilitas Komunikasi'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Kelompok Jabatan',
-          textRight:
-              '${masterDataDetailBantuanKomunikasi['pangkat_komunikasi'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nominal (IDR)',
-          textRight: '${nominalFormated}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Jenis Fasilitas',
-          textRight:
-              '${masterDataDetailBantuanKomunikasi['nama_fasilitas'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Jenis Mobile Phone',
-          textRight:
-              '${masterDataDetailBantuanKomunikasi['jenis_phone_name'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        (masterDataDetailBantuanKomunikasi['merek_phone'] != null)
-            ? RowWithSemicolonWidget(
-                textLeft: 'Merek Mobile Phone',
-                textRight:
-                    '${masterDataDetailBantuanKomunikasi['merek_phone'] ?? '-'}',
+        SizedBox(height: sizedBoxHeightTall),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label'],
+                textRight: item['value'].toString(),
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
-              )
-            : const SizedBox(
-                height: 0,
               ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Prioritas',
-          textRight: masterDataDetailBantuanKomunikasi['prioritas'] == '0'
-              ? 'Rendah'
-              : masterDataDetailBantuanKomunikasi['prioritas'] == '1'
-                  ? 'Sedang'
-                  : 'Tinggi',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tujuan Komunikasi Internal',
-          textRight:
-              '${masterDataDetailBantuanKomunikasi['tujuan_internal'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tujuan Komunikasi Eksternal',
-          textRight:
-              '${masterDataDetailBantuanKomunikasi['tujuan_eksternal'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Keterangan',
-          textRight:
-              '${masterDataDetailBantuanKomunikasi['keterangan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
+  }
+
+  String getPrioritas(String? prioritas) {
+    switch (prioritas) {
+      case '0':
+        return 'Rendah';
+      case '1':
+        return 'Sedang';
+      case '2':
+        return 'Tinggi';
+      default:
+        return '-';
+    }
   }
 
   Widget keteranganWidget(BuildContext context) {
@@ -368,42 +316,40 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double sizedBoxHeightTall = 15;
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      const TitleWidget(title: 'Keterangan'),
-      SizedBox(
-        height: sizedBoxHeightShort,
-      ),
-      const LineWidget(),
-      SizedBox(
-        height: sizedBoxHeightTall,
-      ),
-      RowWithSemicolonWidget(
-        textLeft: 'Tujuan Komunikasi Internal',
-        textRight:
-            '${masterDataDetailBantuanKomunikasi['tujuan_internal'] ?? '-'}',
-        fontSizeLeft: textMedium,
-        fontSizeRight: textMedium,
-      ),
-      SizedBox(
-        height: sizedBoxHeightShort,
-      ),
-      RowWithSemicolonWidget(
-        textLeft: 'Tujuan Komunikasi Ekternal',
-        textRight:
-            '${masterDataDetailBantuanKomunikasi['tujuan_eksternal'] ?? '-'}',
-        fontSizeLeft: textMedium,
-        fontSizeRight: textMedium,
-      ),
-      SizedBox(
-        height: sizedBoxHeightShort,
-      ),
-      RowWithSemicolonWidget(
-        textLeft: 'Keterangan',
-        textRight: '${masterDataDetailBantuanKomunikasi['keterangan'] ?? '-'}',
-        fontSizeLeft: textMedium,
-        fontSizeRight: textMedium,
-      ),
-    ]);
+    List<Map<String, String>> data = [
+      {
+        'label': 'Tujuan Komunikasi Internal',
+        'value': masterDataDetailBantuanKomunikasi['tujuan_internal'] ?? '-'
+      },
+      {
+        'label': 'Tujuan Komunikasi Eksternal',
+        'value': masterDataDetailBantuanKomunikasi['tujuan_eksternal'] ?? '-'
+      },
+      {
+        'label': 'Keterangan',
+        'value': masterDataDetailBantuanKomunikasi['keterangan'] ?? '-'
+      },
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const TitleWidget(title: 'Keterangan'),
+        SizedBox(height: sizedBoxHeightShort),
+        const LineWidget(),
+        SizedBox(height: sizedBoxHeightTall),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label']!,
+                textRight: item['value'].toString()!,
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
+      ],
+    );
   }
 
   Widget footerWidget(BuildContext context) {
@@ -412,33 +358,31 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightTall = 15;
 
+    Map<String, String> data = {
+      'Status Pengajuan':
+          masterDataDetailBantuanKomunikasi['status_approve'] ?? '-',
+      'Pada': ': ${masterDataDetailBantuanKomunikasi['created_at'] ?? '-'}',
+    };
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
+        SizedBox(height: sizedBoxHeightTall),
         TitleCenterWithLongBadgeWidget(
           textLeft: 'Status Pengajuan',
-          textRight:
-              '${masterDataDetailBantuanKomunikasi['status_approve'] ?? '-'}',
+          textRight: data['Status Pengajuan']!,
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
           color: Colors.yellow,
         ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         TitleCenterWidget(
           textLeft: 'Pada',
-          textRight:
-              ': ${masterDataDetailBantuanKomunikasi['created_at'] ?? '-'}',
+          textRight: data['Pada']!,
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
       ],
     );
   }

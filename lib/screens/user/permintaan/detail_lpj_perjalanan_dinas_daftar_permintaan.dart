@@ -72,41 +72,61 @@ class _DetailLpjPerjalananDinasDaftarPermintaanState
   }
 
   Future<void> getDataDetailLpjPerjalananDinas() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    int id = arguments['id'];
+    final token = await _getToken();
+    if (token == null) return;
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
+    final id = int.parse(arguments['id'].toString());
 
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/laporan-perdin/detail/$id"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataDetailLpjPerjalananDinasApi = responseData['parent'];
-        final dataLaporanAktivitasPerjalananDinasApi =
-            responseData['child_aktivitas_lpj'];
-        final dataLaporanBiayaPerjalananDinasApi =
-            responseData['child_biaya_lpj'];
-
-        setState(() {
-          masterDataDetailLpjPerjalananDinas =
-              Map<String, dynamic>.from(dataDetailLpjPerjalananDinasApi);
-          masterDataLaporanAktivitasPerjalananDinas =
-              List<Map<String, dynamic>>.from(
-                  dataLaporanAktivitasPerjalananDinasApi);
-          masterDataLaporanBiayaPerjalananDinas =
-              List<Map<String, dynamic>>.from(
-                  dataLaporanBiayaPerjalananDinasApi);
-        });
-      } catch (e) {
-        print(e);
+    try {
+      final response = await _fetchDataDetailLpjPerjalananDinas(token, id);
+      if (response.statusCode == 200) {
+        _handleSuccessResponse(response);
+      } else {
+        _handleErrorResponse(response);
       }
+    } catch (e) {
+      print('Error fetching data: $e');
     }
+  }
+
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  Future<http.Response> _fetchDataDetailLpjPerjalananDinas(
+      String token, int id) async {
+    final ioClient = createIOClientWithInsecureConnection();
+    final url = Uri.parse("$_apiUrl/laporan-perdin/detail/$id");
+    return ioClient.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+  }
+
+  void _handleSuccessResponse(http.Response response) {
+    final responseData = jsonDecode(response.body);
+    final dataDetailLpjPerjalananDinasApi = responseData['parent'];
+    final dataLaporanAktivitasPerjalananDinasApi =
+        responseData['child_aktivitas_lpj'];
+    final dataLaporanBiayaPerjalananDinasApi = responseData['child_biaya_lpj'];
+
+    setState(() {
+      masterDataDetailLpjPerjalananDinas =
+          Map<String, dynamic>.from(dataDetailLpjPerjalananDinasApi);
+      masterDataLaporanAktivitasPerjalananDinas =
+          List<Map<String, dynamic>>.from(
+              dataLaporanAktivitasPerjalananDinasApi);
+      masterDataLaporanBiayaPerjalananDinas =
+          List<Map<String, dynamic>>.from(dataLaporanBiayaPerjalananDinasApi);
+    });
+  }
+
+  void _handleErrorResponse(http.Response response) {
+    print('Failed to fetch data: ${response.statusCode}');
   }
 
   @override
@@ -342,67 +362,46 @@ class _DetailLpjPerjalananDinasDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'Nrp',
+        'value': masterDataDetailLpjPerjalananDinas['nrp_user'] ?? '-',
+      },
+      {
+        'label': 'Entitas',
+        'value': masterDataDetailLpjPerjalananDinas['entitas_user'] ?? '-',
+      },
+      {
+        'label': 'Perihal',
+        'value': masterDataDetailLpjPerjalananDinas['perihal'] ?? '-',
+      },
+      {
+        'label': 'Nama',
+        'value': masterDataDetailLpjPerjalananDinas['nama_user'] ?? '-',
+      },
+      {
+        'label': 'Jabatan',
+        'value': masterDataDetailLpjPerjalananDinas['jabatan_user'] ?? '-',
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Diajukan Oleh'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nrp',
-          textRight: '${masterDataDetailLpjPerjalananDinas['nrp_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Entitas',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['entitas_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Perihal',
-          textRight: '${masterDataDetailLpjPerjalananDinas['perihal'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['nama_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Jabatan',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['jabatan_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label'],
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
       ],
     );
   }
@@ -412,49 +411,38 @@ class _DetailLpjPerjalananDinasDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'NRP Atasan',
+        'value': masterDataDetailLpjPerjalananDinas['nrp_atasan'] ?? '-',
+      },
+      {
+        'label': 'Nama Atasan',
+        'value': masterDataDetailLpjPerjalananDinas['nama_atasan'] ?? '-',
+      },
+      {
+        'label': 'Entitas Atasan',
+        'value': masterDataDetailLpjPerjalananDinas['entitas_atasan'] ?? '-',
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Atasan'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'NRP Atasan',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['nrp_atasan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama Atasan',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['nama_atasan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Entitas Atasan',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['entitas_atasan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label'],
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
       ],
     );
   }
@@ -464,48 +452,38 @@ class _DetailLpjPerjalananDinasDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'NRP HCGS',
+        'value': masterDataDetailLpjPerjalananDinas['nrp_hrgs'] ?? '-',
+      },
+      {
+        'label': 'Nama HCGS',
+        'value': masterDataDetailLpjPerjalananDinas['nama_hrgs'] ?? '-',
+      },
+      {
+        'label': 'Entitas HCGS',
+        'value': masterDataDetailLpjPerjalananDinas['entitas_hrgs'] ?? '-',
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'HCGS'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'NRP HCGS',
-          textRight: '${masterDataDetailLpjPerjalananDinas['nrp_hrgs'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama HCGS',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['nama_hrgs'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Entitas HCGS',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['entitas_hrgs'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label'],
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
       ],
     );
   }
@@ -515,39 +493,36 @@ class _DetailLpjPerjalananDinasDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+    double sizedBoxHeightTall = size.height * 0.015;
+
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'Catatan Atasan',
+        'value': masterDataDetailLpjPerjalananDinas['catatan_atasan'] ?? '-',
+      },
+      {
+        'label': 'Catatan HCGS',
+        'value': masterDataDetailLpjPerjalananDinas['catatan_hrgs'] ?? '-',
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Catatan Approver'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Catatan Atasan',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['catatan_atasan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Catatan HCGS',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['catatan_hrgs'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightTall),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label'],
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -557,119 +532,70 @@ class _DetailLpjPerjalananDinasDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'Trip Number',
+        'value': masterDataDetailLpjPerjalananDinas['trip_number'] ?? '-',
+      },
+      {
+        'label': 'Cost Assigment',
+        'value': masterDataDetailLpjPerjalananDinas['type_cost_assign'] ?? '-',
+      },
+      {
+        'label': 'Nomor Dokumen LPJ',
+        'value': masterDataDetailLpjPerjalananDinas['no_doc_lpj'] ?? '-',
+      },
+      {
+        'label': 'Nomor Dokumen IM',
+        'value': masterDataDetailLpjPerjalananDinas['no_doc_im'] ?? '-',
+      },
+      {
+        'label': 'Tanggal Pengajuan Berangkat',
+        'value': masterDataDetailLpjPerjalananDinas['tgl_berangkat'] ?? '-',
+      },
+      {
+        'label': 'Tanggal Pengajuan Pulang',
+        'value': masterDataDetailLpjPerjalananDinas['tgl_kembali'] ?? '-',
+      },
+      {
+        'label': 'Lama Pengajuan Perjalanan Dinas',
+        'value':
+            masterDataDetailLpjPerjalananDinas['lama_rencana_perdin'] ?? '-',
+      },
+      {
+        'label': 'Tanggal Aktual Berangkat',
+        'value':
+            masterDataDetailLpjPerjalananDinas['tgl_aktual_berangkat'] ?? '-',
+      },
+      {
+        'label': 'Tanggal Aktual Pulang',
+        'value':
+            masterDataDetailLpjPerjalananDinas['tgl_aktual_kembali'] ?? '-',
+      },
+      {
+        'label': 'Lama Aktual Perjalanan Dinas',
+        'value':
+            masterDataDetailLpjPerjalananDinas['lama_aktual_perdin'] ?? '-',
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Detail Laporan Perjalanan Dinas'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Trip Number',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['trip_number'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Cost Assigment',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['type_cost_assign'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nomor Dokumen LPJ',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['no_doc_lpj'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nomor Dokumen IM',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['no_doc_im'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Pengajuan Berangkat',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['tgl_berangkat'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Pengajuan Pulang',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['tgl_kembali'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Lama Pengajuan Perjalanan Dinas',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['lama_rencana_perdin'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Aktual Berangkat',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['tgl_aktual_berangkat'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Aktual Pulang',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['tgl_aktual_kembali'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Lama Aktual Perjalanan Dinas',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['lama_aktual_perdin'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightExtraTall),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label'],
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
       ],
     );
   }
@@ -680,62 +606,50 @@ class _DetailLpjPerjalananDinasDaftarPermintaanState
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
 
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'Jumlah Kas Diterima',
+        'value':
+            '${masterDataDetailLpjPerjalananDinas['jml_kas_diterima'] ?? '-'}',
+      },
+      {
+        'label': 'Jumlah Pengeluaran',
+        'value':
+            '${masterDataDetailLpjPerjalananDinas['jml_pengeluaran'] ?? '-'}',
+      },
+      {
+        'label': 'Kelebihan Kas',
+        'value':
+            '${masterDataDetailLpjPerjalananDinas['jml_kelebihan_kas'] ?? '-'}',
+      },
+      {
+        'label': 'Kekurangan Kas',
+        'value':
+            '${masterDataDetailLpjPerjalananDinas['jml_kekurangan_kas'] ?? '-'}',
+      },
+      {
+        'label': 'Catatan',
+        'value':
+            '${masterDataDetailLpjPerjalananDinas['catatan_biaya'] ?? '-'}',
+      },
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Jumlah Kas Diterima',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['jml_kas_diterima'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Jumlah Pengeluaran',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['jml_pengeluaran'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Kelebihan Kas',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['jml_kelebihan_kas'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Kekurangan Kas',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['jml_kekurangan_kas'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Catatan',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['catatan_biaya'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
+        ...data.map((item) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RowWithSemicolonWidget(
+                  textLeft: item['label'],
+                  textRight: item['value'].toString(),
+                  fontSizeLeft: textMedium,
+                  fontSizeRight: textMedium,
+                ),
+                SizedBox(height: sizedBoxHeightShort),
+              ],
+            )),
       ],
     );
   }
@@ -746,33 +660,29 @@ class _DetailLpjPerjalananDinasDaftarPermintaanState
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
 
+    String statusApprove =
+        masterDataDetailLpjPerjalananDinas['status_approve'] ?? '-';
+    String createdAt = masterDataDetailLpjPerjalananDinas['created_at'] ?? '-';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
         TitleCenterWithLongBadgeWidget(
           textLeft: 'Status Pengajuan',
-          textRight:
-              '${masterDataDetailLpjPerjalananDinas['status_approve'] ?? '-'}',
+          textRight: statusApprove,
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
           color: Colors.yellow,
         ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         TitleCenterWidget(
           textLeft: 'Pada',
-          textRight:
-              ': ${masterDataDetailLpjPerjalananDinas['created_at'] ?? '-'}',
+          textRight: ': $createdAt',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
       ],
     );
   }

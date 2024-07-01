@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
@@ -57,6 +58,12 @@ class _DetailSuratIzinKeluarDaftarPersetujuanState
     getData();
   }
 
+  String formatDate(String dateStr) {
+    DateTime dateTime = DateTime.parse(dateStr);
+    DateFormat formatter = DateFormat('yyyy-MM-dd');
+    return formatter.format(dateTime);
+  }
+
   Future<Map<String, dynamic>> getData() async {
     final prefs = await SharedPreferences.getInstance();
     var userData = prefs.getString('userData');
@@ -66,144 +73,113 @@ class _DetailSuratIzinKeluarDaftarPersetujuanState
   }
 
   Future<void> getDataDetailSuratIzinKeluar() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    int id = arguments['id'];
+    final token = await _getToken();
+    if (token == null) return;
+    final id = int.parse(arguments['id'].toString());
 
     setState(() {
       _isLoading = true;
     });
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/izin-keluar/detail/${id}"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataDetailSuratIzinKeluarApi = responseData['parent'];
-        final dataDetailChildSuratIzinKeluarApi = responseData['child'];
-
-        setState(() {
-          masterDataParentSuratIzinKeluar =
-              Map<String, dynamic>.from(dataDetailSuratIzinKeluarApi);
-          masterDataChildSuratIzinKeluar = List<Map<String, dynamic>>.from(
-              dataDetailChildSuratIzinKeluarApi);
-          print(masterDataChildSuratIzinKeluar);
-          _isLoading = false;
-        });
-      } catch (e) {
-        print(e);
-      }
+    try {
+      final ioClient = createIOClientWithInsecureConnection();
+      final response = await ioClient.get(
+        Uri.parse("$_apiUrl/izin-keluar/detail/$id"),
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      _handleResponse(response);
+    } catch (e) {
+      print('Error fetching data: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
+  }
+
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  void _handleResponse(http.Response response) {
+    final responseData = jsonDecode(response.body);
+    final dataDetailSuratIzinKeluarApi = responseData['parent'];
+    final dataDetailChildSuratIzinKeluarApi = responseData['child'];
+
+    setState(() {
+      masterDataParentSuratIzinKeluar =
+          Map<String, dynamic>.from(dataDetailSuratIzinKeluarApi);
+      masterDataChildSuratIzinKeluar =
+          List<Map<String, dynamic>>.from(dataDetailChildSuratIzinKeluarApi);
+      _isLoading = false;
+    });
   }
 
   Future<void> approve(int? id) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    String? token = prefs.getString('token');
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-
-        final response =
-            await ioClient.post(Uri.parse('$_apiUrl/izin-keluar/approve'),
-                headers: <String, String>{
-                  'Content-Type': 'application/json; charset=UTF-8',
-                  'Authorization': 'Bearer $token'
-                },
-                body: jsonEncode({'id': id.toString()}));
-        final responseData = jsonDecode(response.body);
-        print(responseData);
-        if (responseData['status'] == 'success') {
-          Get.offAllNamed('/user/main');
-
-          Get.snackbar('Infomation', 'Approved',
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: Colors.amber,
-              icon: const Icon(
-                Icons.info,
-                color: Colors.white,
-              ),
-              shouldIconPulse: false);
-        } else {
-          Get.snackbar('Infomation', 'Gagal',
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: Colors.amber,
-              icon: const Icon(
-                Icons.info,
-                color: Colors.white,
-              ),
-              shouldIconPulse: false);
-          setState(() {
-            _isLoading = false;
-          });
-        }
-      } catch (e) {
-        print(e);
-      }
-    }
+    await _handleApprovalAction(id, 'approve');
   }
 
   Future<void> reject(int? id) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await _handleApprovalAction(id, 'reject');
+  }
 
-    String? token = prefs.getString('token');
+  Future<void> _handleApprovalAction(int? id, String action) async {
+    final token = await _getToken();
+    if (token == null) return;
 
     setState(() {
       _isLoading = true;
     });
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
+    try {
+      final ioClient = createIOClientWithInsecureConnection();
+      final response = await ioClient.post(
+        Uri.parse('$_apiUrl/izin-keluar/$action'),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Authorization': 'Bearer $token'
+        },
+        body: jsonEncode({'id': id.toString()}),
+      );
 
-        final response = await ioClient.post(
-          Uri.parse('$_apiUrl/izin-keluar/reject'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token'
-          },
-          body: jsonEncode(
-            {'id': id.toString()},
+      _handleApprovalResponse(response, action);
+    } catch (e) {
+      print('Error during $action: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _handleApprovalResponse(http.Response response, String action) {
+    final responseData = jsonDecode(response.body);
+    final status = responseData['status'];
+
+    if (status == 'success') {
+      Get.offAllNamed('/user/main');
+      Get.snackbar('Information', action.toUpperCase(),
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.amber,
+          icon: const Icon(
+            Icons.info,
+            color: Colors.white,
           ),
-        );
-        final responseData = jsonDecode(response.body);
-        if (responseData['status'] == 'success') {
-          Get.offAllNamed('/user/main');
-          Get.snackbar('Infomation', 'Rejected',
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: Colors.amber,
-              icon: const Icon(
-                Icons.info,
-                color: Colors.white,
-              ),
-              shouldIconPulse: false);
-        } else {
-          Get.snackbar('Infomation', 'Gagal',
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: Colors.amber,
-              icon: const Icon(
-                Icons.info,
-                color: Colors.white,
-              ),
-              shouldIconPulse: false);
-          setState(() {
-            _isLoading = false;
-          });
-        }
-      } catch (e) {
-        print(e);
-      }
+          shouldIconPulse: false);
+    } else {
+      Get.snackbar('Information', 'Gagal',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.amber,
+          icon: const Icon(
+            Icons.info,
+            color: Colors.white,
+          ),
+          shouldIconPulse: false);
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
@@ -215,6 +191,16 @@ class _DetailSuratIzinKeluarDaftarPersetujuanState
     double padding20 = size.width * 0.047;
     double paddingHorizontalWide = size.width * 0.0585;
     double sizedBoxHeightExtraTall = 20;
+
+    bool shouldShowApprovalAndRejectButton() {
+      final level = masterDataParentSuratIzinKeluar['level'];
+      final pernr = x.data['pernr'];
+
+      return (level == '1' &&
+              pernr == masterDataParentSuratIzinKeluar['nrp_atasan']) ||
+          (level == '2' &&
+              pernr == masterDataParentSuratIzinKeluar['nrp_hrgs']);
+    }
 
     return _isLoading
         ? const Scaffold(body: Center(child: CircularProgressIndicator()))
@@ -253,16 +239,10 @@ class _DetailSuratIzinKeluarDaftarPersetujuanState
                     detailIzinKeluarWidget(context),
                     diberikanKepadaTable(context),
                     footerWidget(context),
-                    ((masterDataParentSuratIzinKeluar['level'] == '1' &&
-                                x.data['pernr'] ==
-                                    masterDataParentSuratIzinKeluar[
-                                        'nrp_atasan']) ||
-                            (masterDataParentSuratIzinKeluar['level'] == '2' &&
-                                x.data['pernr'] ==
-                                    masterDataParentSuratIzinKeluar[
-                                        'nrp_hrgs']))
-                        ? approvalAndRejectButton(context)
-                        : Text(''),
+                    if (shouldShowApprovalAndRejectButton())
+                      approvalAndRejectButton(context)
+                    else
+                      const SizedBox(),
                     SizedBox(
                       height: sizedBoxHeightExtraTall,
                     ),
@@ -280,44 +260,41 @@ class _DetailSuratIzinKeluarDaftarPersetujuanState
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double sizedBoxHeightTall = 15;
 
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'NRP',
+        'value': '${masterDataParentSuratIzinKeluar['nrp_user'] ?? '-'}',
+      },
+      {
+        'label': 'Nama',
+        'value': '${masterDataParentSuratIzinKeluar['nama_user'] ?? '-'}',
+      },
+      {
+        'label': 'Tanggal Pengajuan',
+        'value': '${masterDataParentSuratIzinKeluar['created_at'] ?? '-'}',
+      },
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Diajukan Oleh'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'NRP',
-          textRight: '${masterDataParentSuratIzinKeluar['nrp_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama',
-          textRight: '${masterDataParentSuratIzinKeluar['nama_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Pengajuan',
-          textRight: '${masterDataParentSuratIzinKeluar['created_at'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightTall),
+        ...data.map((item) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RowWithSemicolonWidget(
+                  textLeft: item['label'],
+                  textRight: item['value'].toString(),
+                  fontSizeLeft: textMedium,
+                  fontSizeRight: textMedium,
+                ),
+                SizedBox(height: sizedBoxHeightShort),
+              ],
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -329,45 +306,41 @@ class _DetailSuratIzinKeluarDaftarPersetujuanState
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double sizedBoxHeightTall = 15;
 
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'NRP Atasan',
+        'value': '${masterDataParentSuratIzinKeluar['nrp_atasan'] ?? '-'}',
+      },
+      {
+        'label': 'Nama Atasan',
+        'value': '${masterDataParentSuratIzinKeluar['nama_atasan'] ?? '-'}',
+      },
+      {
+        'label': 'Entitas Atasan',
+        'value': '${masterDataParentSuratIzinKeluar['entitas_atasan'] ?? '-'}',
+      },
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Atasan'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'NRP Atasan',
-          textRight: '${masterDataParentSuratIzinKeluar['nrp_atasan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama Atasan',
-          textRight: '${masterDataParentSuratIzinKeluar['nama_atasan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Entitas Atasan',
-          textRight:
-              '${masterDataParentSuratIzinKeluar['entitas_atasan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightTall),
+        ...data.map((item) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RowWithSemicolonWidget(
+                  textLeft: item['label'],
+                  textRight: item['value'].toString(),
+                  fontSizeLeft: textMedium,
+                  fontSizeRight: textMedium,
+                ),
+                SizedBox(height: sizedBoxHeightShort),
+              ],
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -379,45 +352,41 @@ class _DetailSuratIzinKeluarDaftarPersetujuanState
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double sizedBoxHeightTall = 15;
 
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'NRP HCGS',
+        'value': '${masterDataParentSuratIzinKeluar['nrp_hrgs'] ?? '-'}',
+      },
+      {
+        'label': 'Nama HCGS',
+        'value': '${masterDataParentSuratIzinKeluar['nama_hrgs'] ?? '-'}',
+      },
+      {
+        'label': 'Entitas HCGS',
+        'value': '${masterDataParentSuratIzinKeluar['entitas_hrgs'] ?? '-'}',
+      },
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'HCGS'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'NRP HCGS',
-          textRight: '${masterDataParentSuratIzinKeluar['nrp_hrgs'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama HCGS',
-          textRight: '${masterDataParentSuratIzinKeluar['nama_hrgs'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Entitas HCGS',
-          textRight:
-              '${masterDataParentSuratIzinKeluar['entitas_hrgs'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightTall),
+        ...data.map((item) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RowWithSemicolonWidget(
+                  textLeft: item['label'],
+                  textRight: item['value'].toString(),
+                  fontSizeLeft: textMedium,
+                  fontSizeRight: textMedium,
+                ),
+                SizedBox(height: sizedBoxHeightShort),
+              ],
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -429,72 +398,53 @@ class _DetailSuratIzinKeluarDaftarPersetujuanState
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double sizedBoxHeightTall = 15;
 
+    List<Map<String, String>> data = [
+      {
+        'label': 'Tanggal Izin',
+        'value': '${masterDataParentSuratIzinKeluar['tgl_izin'] ?? '-'}',
+      },
+      {
+        'label': 'Jam Keluar',
+        'value': '${masterDataParentSuratIzinKeluar['jam_keluar'] ?? '-'}',
+      },
+      {
+        'label': 'Keperluan',
+        'value': '${masterDataParentSuratIzinKeluar['keperluan'] ?? '-'}',
+      },
+      {
+        'label': 'Entitas',
+        'value': '${masterDataParentSuratIzinKeluar['entitas_user'] ?? '-'}',
+      },
+      {
+        'label': 'Jenis Izin Keluar',
+        'value': '${masterDataParentSuratIzinKeluar['jenis_izin'] ?? '-'}',
+      },
+      {
+        'label': 'Jam Kembali',
+        'value': '${masterDataParentSuratIzinKeluar['jam_kembali'] ?? '-'}',
+      },
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Detail Izin Keluar'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Izin',
-          textRight: '${masterDataParentSuratIzinKeluar['tgl_izin'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Jam Keluar',
-          textRight: '${masterDataParentSuratIzinKeluar['jam_keluar'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Keperluan',
-          textRight: '${masterDataParentSuratIzinKeluar['keperluan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Entitas',
-          textRight:
-              '${masterDataParentSuratIzinKeluar['entitas_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Jenis Izin Keluar',
-          textRight: '${masterDataParentSuratIzinKeluar['jenis_izin'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Jam Kembali',
-          textRight: '${masterDataParentSuratIzinKeluar['jam_kembali'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightTall),
+        ...data.map((item) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RowWithSemicolonWidget(
+                  textLeft: item['label'],
+                  textRight: item['value'],
+                  fontSizeLeft: textMedium,
+                  fontSizeRight: textMedium,
+                ),
+                SizedBox(height: sizedBoxHeightShort),
+              ],
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -585,10 +535,12 @@ class _DetailSuratIzinKeluarDaftarPersetujuanState
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        SizedBox(height: sizedBoxHeightExtraTall),
         TitleCenterWithLongBadgeWidget(
           textLeft: 'Status Pengajuan',
           textRight:
@@ -597,19 +549,15 @@ class _DetailSuratIzinKeluarDaftarPersetujuanState
           fontSizeRight: textMedium,
           color: Colors.yellow,
         ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         TitleCenterWidget(
           textLeft: 'Pada',
           textRight:
-              ': ${masterDataParentSuratIzinKeluar['created_at'] ?? '-'}',
+              ': ${masterDataParentSuratIzinKeluar['created_at'] != null ? formatDate(masterDataParentSuratIzinKeluar['created_at']) : ''}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }

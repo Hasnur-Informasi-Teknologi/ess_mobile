@@ -58,36 +58,58 @@ class _DetailImPerjalananDinasDaftarPermintaanState
   }
 
   Future<void> getDataDetailImPerjalananDinas() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    int id = arguments['id'];
+    final token = await _getToken();
+    if (token == null) return;
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
+    final id = int.parse(arguments['id'].toString());
 
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/rencana-perdin/detail/$id"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataDetailImPerjalananDinasApi = responseData['parent'];
-        final dataDetailRincianImPerjalananDinasApi = responseData['child'];
-
-        setState(() {
-          masterDataDetailImPerjalananDinas =
-              Map<String, dynamic>.from(dataDetailImPerjalananDinasApi);
-
-          masterDataDetailRincianImPerjalananDinas =
-              List<Map<String, dynamic>>.from(
-                  dataDetailRincianImPerjalananDinasApi);
-        });
-      } catch (e) {
-        print(e);
+    try {
+      final response = await _fetchDataDetailImPerjalananDinas(token, id);
+      if (response.statusCode == 200) {
+        _handleSuccessResponse(response);
+      } else {
+        _handleErrorResponse(response);
       }
+    } catch (e) {
+      print('Error fetching data: $e');
     }
+  }
+
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  Future<http.Response> _fetchDataDetailImPerjalananDinas(
+      String token, int id) {
+    final ioClient = createIOClientWithInsecureConnection();
+
+    final url = Uri.parse("$_apiUrl/rencana-perdin/detail/$id");
+    return ioClient.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+  }
+
+  void _handleSuccessResponse(http.Response response) {
+    final responseData = jsonDecode(response.body);
+    final dataDetailImPerjalananDinasApi = responseData['parent'];
+    final dataDetailRincianImPerjalananDinasApi = responseData['child'];
+
+    setState(() {
+      masterDataDetailImPerjalananDinas =
+          Map<String, dynamic>.from(dataDetailImPerjalananDinasApi);
+      masterDataDetailRincianImPerjalananDinas =
+          List<Map<String, dynamic>>.from(
+              dataDetailRincianImPerjalananDinasApi);
+    });
+  }
+
+  void _handleErrorResponse(http.Response response) {
+    print('Failed to fetch data: ${response.statusCode}');
   }
 
   @override
@@ -146,66 +168,47 @@ class _DetailImPerjalananDinasDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, String>> data = [
+      {
+        'label': 'NRP',
+        'value': masterDataDetailImPerjalananDinas['nrp_user'] ?? '-'
+      },
+      {
+        'label': 'Entitas',
+        'value': masterDataDetailImPerjalananDinas['entitas_user'] ?? '-'
+      },
+      {
+        'label': 'Perihal',
+        'value': masterDataDetailImPerjalananDinas['perihal'] ?? '-'
+      },
+      {
+        'label': 'Nama',
+        'value': masterDataDetailImPerjalananDinas['nama_user'] ?? '-'
+      },
+      {
+        'label': 'Jabatan',
+        'value': masterDataDetailImPerjalananDinas['jabatan_user'] ?? '-'
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Diajukan Oleh'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nrp',
-          textRight: '${masterDataDetailImPerjalananDinas['nrp_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Entitas',
-          textRight:
-              '${masterDataDetailImPerjalananDinas['entitas_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Perihal',
-          textRight: '${masterDataDetailImPerjalananDinas['perihal'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama',
-          textRight: '${masterDataDetailImPerjalananDinas['nama_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Jabatan',
-          textRight:
-              '${masterDataDetailImPerjalananDinas['jabatan_user'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        const SizedBox(height: 15),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label'],
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -215,88 +218,55 @@ class _DetailImPerjalananDinasDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, String>> data = [
+      {
+        'label': 'Nomor Dokumen',
+        'value': masterDataDetailImPerjalananDinas['no_doc'] ?? '-'
+      },
+      {
+        'label': 'Trip Number',
+        'value': masterDataDetailImPerjalananDinas['trip_number'] ?? '-'
+      },
+      {
+        'label': 'Trip Activity',
+        'value': masterDataDetailImPerjalananDinas['trip_activity'] ?? '-'
+      },
+      {
+        'label': 'Tanggal/Jam Berangkat',
+        'value': masterDataDetailImPerjalananDinas['tgl_berangkat'] ?? '-'
+      },
+      {
+        'label': 'Tanggal/Jam Kembali',
+        'value': masterDataDetailImPerjalananDinas['tgl_kembali'] ?? '-'
+      },
+      {
+        'label': 'Tempat Tujuan',
+        'value': masterDataDetailImPerjalananDinas['tempat_tujuan'] ?? '-'
+      },
+      {
+        'label': 'Jenis Biaya',
+        'value': masterDataDetailImPerjalananDinas['nama_jenis_biaya'] ?? '-'
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Detail Internal Memo'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nomor Dokumen',
-          textRight: '${masterDataDetailImPerjalananDinas['no_doc'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Trip Number',
-          textRight:
-              '${masterDataDetailImPerjalananDinas['trip_number'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Trip Activity',
-          textRight:
-              '${masterDataDetailImPerjalananDinas['trip_activity'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal/Jam Berangkat',
-          textRight:
-              '${masterDataDetailImPerjalananDinas['tgl_berangkat'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal/Jam Kembali',
-          textRight:
-              '${masterDataDetailImPerjalananDinas['tgl_kembali'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tempat Tujuan',
-          textRight:
-              '${masterDataDetailImPerjalananDinas['tempat_tujuan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Jenis Biaya',
-          textRight:
-              '${masterDataDetailImPerjalananDinas['nama_jenis_biaya'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        const SizedBox(height: 15),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label']!,
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -306,46 +276,39 @@ class _DetailImPerjalananDinasDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, String>> data = [
+      {
+        'label': 'NRP Atasan',
+        'value': masterDataDetailImPerjalananDinas['nrp_atasan'] ?? '-'
+      },
+      {
+        'label': 'Nama Atasan',
+        'value': masterDataDetailImPerjalananDinas['nama_atasan'] ?? '-'
+      },
+      {
+        'label': 'Entitas Atasan',
+        'value': masterDataDetailImPerjalananDinas['entitas_atasan'] ?? '-'
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Atasan'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'NRP Atasan',
-          textRight: '${masterDataDetailImPerjalananDinas['nrp_atasan']}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama Atasan',
-          textRight: '${masterDataDetailImPerjalananDinas['nama_atasan']}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Entitas Atasan',
-          textRight: '${masterDataDetailImPerjalananDinas['entitas_atasan']}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        const SizedBox(height: 15),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label']!,
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -355,46 +318,39 @@ class _DetailImPerjalananDinasDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, String>> data = [
+      {
+        'label': 'NRP HCGS',
+        'value': masterDataDetailImPerjalananDinas['nrp_hrgs'] ?? '-'
+      },
+      {
+        'label': 'Nama HCGS',
+        'value': masterDataDetailImPerjalananDinas['nama_hrgs'] ?? '-'
+      },
+      {
+        'label': 'Entitas HCGS',
+        'value': masterDataDetailImPerjalananDinas['entitas_hrgs'] ?? '-'
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'HCGS'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'NRP HCGS',
-          textRight: '${masterDataDetailImPerjalananDinas['nrp_hrgs']}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama HCGS',
-          textRight: '${masterDataDetailImPerjalananDinas['nama_hrgs']}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Entitas HCGS',
-          textRight: '${masterDataDetailImPerjalananDinas['entitas_hrgs']}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        const SizedBox(height: 15),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label']!,
+                textRight: item['value'].toString(),
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -404,37 +360,35 @@ class _DetailImPerjalananDinasDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, String>> data = [
+      {
+        'label': 'Catatan Atasan',
+        'value': masterDataDetailImPerjalananDinas['catatan_atasan'] ?? '-'
+      },
+      {
+        'label': 'Catatan HCGS',
+        'value': masterDataDetailImPerjalananDinas['catatan_hrgs'] ?? '-'
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Catatan Approver'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Catatan Atasan',
-          textRight: '${masterDataDetailImPerjalananDinas['catatan_atasan']}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Catatan HCGS',
-          textRight: '${masterDataDetailImPerjalananDinas['catatan_hrgs']}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        const SizedBox(height: 15),
+        ...data.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
+              child: RowWithSemicolonWidget(
+                textLeft: item['label']!,
+                textRight: item['value'].toString()!,
+                fontSizeLeft: textMedium,
+                fontSizeRight: textMedium,
+              ),
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -560,33 +514,30 @@ class _DetailImPerjalananDinasDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    String statusApprove =
+        masterDataDetailImPerjalananDinas['status_approve'] ?? '-';
+    String createdAt = masterDataDetailImPerjalananDinas['created_at'] ?? '-';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
         TitleCenterWithLongBadgeWidget(
           textLeft: 'Status Pengajuan',
-          textRight: '${masterDataDetailImPerjalananDinas['status_approve']}',
+          textRight: statusApprove,
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
           color: Colors.yellow,
         ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         TitleCenterWidget(
           textLeft: 'Pada',
-          textRight: ': ${masterDataDetailImPerjalananDinas['created_at']}',
+          textRight: ': $createdAt',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
       ],
     );
   }
