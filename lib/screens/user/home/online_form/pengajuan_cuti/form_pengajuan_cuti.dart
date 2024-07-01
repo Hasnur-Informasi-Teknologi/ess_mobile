@@ -105,7 +105,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
   @override
   void dispose() {
     _cutiDibayarController.removeListener(updateTotalCuti);
-    _cutiTidakDibayarController.addListener(updateTotalCuti);
+    _cutiTidakDibayarController.removeListener(updateTotalCuti);
     super.dispose();
   }
 
@@ -156,164 +156,106 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     return double.tryParse(value) != null;
   }
 
-  Future<void> getMasterDataCuti() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
 
-    String? token = prefs.getString('token');
+  Future<void> _fetchData(
+    String endpoint,
+    Function(Map<String, dynamic>) onSuccess, {
+    Map<String, String>? queryParams,
+  }) async {
+    final token = await _getToken();
+    if (token == null) return;
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/master/cuti/get"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final masterDataCutiApi = responseData['md_cuti'];
+    try {
+      final ioClient = createIOClientWithInsecureConnection();
 
-        setState(() {
-          sisaCutiMaster = masterDataCutiApi['sisa_cuti'] ?? 0;
-        });
-      } catch (e) {
-        print(e);
-      }
+      final url =
+          Uri.parse("$_apiUrl/$endpoint").replace(queryParameters: queryParams);
+
+      final response = await ioClient.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      final responseData = jsonDecode(response.body);
+      onSuccess(responseData);
+    } catch (e) {
+      print('Error fetching data from $endpoint: $e');
     }
+  }
+
+  Future<void> getMasterDataCuti() async {
+    await _fetchData("master/cuti/get", (data) {
+      final masterDataCutiApi = data['md_cuti'];
+      setState(() {
+        sisaCutiMaster = masterDataCutiApi['sisa_cuti'] ?? 0;
+      });
+    });
   }
 
   Future<void> getDataEntitas() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    String? token = prefs.getString('token');
-
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/master/entitas"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataEntitasApi = responseData['data'];
-
-        setState(() {
-          selectedEntitas = List<Map<String, dynamic>>.from(dataEntitasApi);
-          selectedEntitasPengganti =
-              List<Map<String, dynamic>>.from(dataEntitasApi);
-        });
-      } catch (e) {
-        print(e);
-      }
-    }
+    await _fetchData("master/entitas", (data) {
+      final dataEntitasApi = data['data'];
+      setState(() {
+        selectedEntitas = List<Map<String, dynamic>>.from(dataEntitasApi);
+        selectedEntitasPengganti =
+            List<Map<String, dynamic>>.from(dataEntitasApi);
+      });
+    });
   }
 
   Future<void> getDataAtasan() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    print(selectedValueEntitas);
-
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-            Uri.parse(
-                "$_apiUrl/master/cuti/atasan?entitas=$selectedValueEntitas"),
-            // Uri.parse(
-            //     "http://ess-dev.hasnurgroup.com:8081/api/master/cuti/atasan?entitas=HU78"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataAtasanApi = responseData['list_karyawan'];
-        print(responseData);
-
-        setState(() {
-          selectedAtasan = List<Map<String, dynamic>>.from(dataAtasanApi);
-        });
-      } catch (e) {
-        print(e);
-      }
-    }
+    await _fetchData("master/cuti/atasan", (data) {
+      final dataAtasanApi = data['list_karyawan'];
+      setState(() {
+        selectedAtasan = List<Map<String, dynamic>>.from(dataAtasanApi);
+      });
+    }, queryParams: {
+      'entitas': selectedValueEntitas.toString(),
+    });
   }
 
   Future<void> getDataAtasanDariAtasan() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    if (token != null) {
-      final ioClient = createIOClientWithInsecureConnection();
-      final response = await ioClient.get(
-          Uri.parse(
-              "$_apiUrl/master/cuti/atasan-atasan?entitas=$selectedValueEntitas"),
-          headers: <String, String>{
-            'Content-Type': 'application/json;charset=UTF-8',
-            'Authorization': 'Bearer $token'
-          });
-      final responseData = jsonDecode(response.body);
-      final dataAtasanDariAtasanApi = responseData['list_karyawan'];
-
+    await _fetchData("master/cuti/atasan-atasan", (data) {
+      final dataAtasanDariAtasanApi = data['list_karyawan'];
       setState(() {
         selectedAtasanDariAtasan =
             List<Map<String, dynamic>>.from(dataAtasanDariAtasanApi);
       });
-    }
+    }, queryParams: {
+      'entitas': selectedValueEntitas.toString(),
+    });
   }
 
   Future<void> getDataPengganti() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-            Uri.parse(
-                "$_apiUrl/master/cuti/pengganti?&entitas=$selectedValueEntitasPengganti"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataPenggantiApi = responseData['list_karyawan'];
-
-        setState(() {
-          selectedPengganti = List<Map<String, dynamic>>.from(dataPenggantiApi);
-        });
-      } catch (e) {
-        print(e);
-      }
-    }
+    await _fetchData("master/cuti/pengganti", (data) {
+      final dataPenggantiApi = data['list_karyawan'];
+      setState(() {
+        selectedPengganti = List<Map<String, dynamic>>.from(dataPenggantiApi);
+      });
+    }, queryParams: {
+      'entitas': selectedValueEntitasPengganti.toString(),
+    });
   }
 
   Future<void> getDataCutiLainnya() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
+    await _fetchData("master/cuti/lainnya", (data) {
+      final dataCutiLainnyaApi = data['cuti_lainnya'];
+      SharedPreferences.getInstance().then((prefs) {
+        prefs.setString('cutiLainnya', jsonEncode(data));
+      });
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/master/cuti/lainnya"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataCutiLainnyaApi = responseData['cuti_lainnya'];
-        prefs.setString('cutiLainnya', response.body);
-
-        setState(() {
-          selectedCutiLainnya =
-              List<Map<String, dynamic>>.from(dataCutiLainnyaApi);
-        });
-      } catch (e) {
-        print(e);
-      }
-    }
+      setState(() {
+        selectedCutiLainnya =
+            List<Map<String, dynamic>>.from(dataCutiLainnyaApi);
+      });
+    });
   }
 
   Future<void> updateJumlahCutiLainnya(String value) async {
@@ -326,8 +268,8 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
         orElse: () => {});
 
     if (cuti.isNotEmpty) {
-      int id = cuti['id'];
-      String jenis = cuti['jenis'];
+      // int id = cuti['id'];
+      // String jenis = cuti['jenis'];
       int lama = cuti['lama'];
 
       setState(() {
@@ -344,8 +286,9 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
         jsonDecode(prefs.getString('cutiLainnya').toString())['cuti_lainnya'];
 
     var cuti = cutiLainnya.firstWhere(
-        (element) => element['id'].toString() == selectedValueCutiLainnya,
-        orElse: () => {});
+      (element) => element['id'].toString() == selectedValueCutiLainnya,
+      orElse: () => {},
+    );
 
     var canMore = [17, 18, 19];
 
@@ -357,14 +300,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
           : cuti['lama'];
 
       if (lama > cuti['lama'] && !canMore.contains(cuti['id'])) {
-        Get.snackbar('Infomation', 'Jumlah yang diambil terlalu banyak ',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.amber,
-            icon: const Icon(
-              Icons.info,
-              color: Colors.white,
-            ),
-            shouldIconPulse: false);
+        _showSnackbar('Infomation', 'Jumlah yang diambil terlalu banyak');
       } else {
         bool idExists = dataCutiLainnya.any((element) => element['id'] == id);
 
@@ -386,14 +322,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                 cutiDibayarTambahCutiTidakDibayar + totalLama;
           });
         } else {
-          Get.snackbar('Infomation', 'Data Tersebut Tidak Boleh Lagi!',
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: Colors.amber,
-              icon: const Icon(
-                Icons.info,
-                color: Colors.white,
-              ),
-              shouldIconPulse: false);
+          _showSnackbar('Infomation', 'Data Tersebut Tidak Boleh Lagi!');
         }
       }
     } else {
@@ -402,90 +331,17 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
   }
 
   Future<void> _submit() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
+    final token = await _getToken();
+
+    if (!_validateForm()) {
+      return;
+    }
 
     setState(() {
       _isLoading = true;
     });
 
-    if (tanggalMulai == null ||
-        tanggalBerakhir == null ||
-        tanggalKembaliKerja == null) {
-      Get.snackbar('Infomation', 'Tanggal Wajib Diisi',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.amber,
-          icon: const Icon(
-            Icons.info,
-            color: Colors.white,
-          ),
-          shouldIconPulse: false);
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
-
-    if (tanggalMulai!.isAfter(tanggalBerakhir!) ||
-        tanggalMulai!.isAfter(tanggalKembaliKerja!)) {
-      Get.snackbar('Infomation', 'Tanggal tidak Valid',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.amber,
-          icon: const Icon(
-            Icons.info,
-            color: Colors.white,
-          ),
-          shouldIconPulse: false);
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
-
-    if (tanggalKembaliKerja!.isBefore(tanggalMulai!) ||
-        tanggalKembaliKerja!.isAtSameMomentAs(tanggalMulai!) ||
-        tanggalKembaliKerja!.isBefore(tanggalBerakhir!) ||
-        tanggalKembaliKerja!.isAtSameMomentAs(tanggalBerakhir!)) {
-      Get.snackbar('Infomation', 'Tanggal Kembali tidak Valid',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.amber,
-          icon: const Icon(
-            Icons.info,
-            color: Colors.white,
-          ),
-          shouldIconPulse: false);
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
-
-    int sisaCutiTahunan = sisaCutiMaster ?? 0;
     int jmlCutiTahunan = int.tryParse(_cutiDibayarController.text) ?? 0;
-
-    if (jmlCutiTahunan > sisaCutiTahunan) {
-      Get.snackbar('Infomation', 'Cuti Tahunan Dibayar Melebihi Batas',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.amber,
-          icon: const Icon(
-            Icons.info,
-            color: Colors.white,
-          ),
-          shouldIconPulse: false);
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
-
-    if (_formKey.currentState!.validate() == false) {
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
-
-    _formKey.currentState!.save();
 
     cutiYangDiambil = _cutiYangDiambilController.text;
     sisaCuti = _sisaCutiController.text;
@@ -537,14 +393,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
               }));
 
       final responseData = jsonDecode(response.body);
-      Get.snackbar('Infomation', responseData['message'],
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.amber,
-          icon: const Icon(
-            Icons.info,
-            color: Colors.white,
-          ),
-          shouldIconPulse: false);
+      _showSnackbar('Infomation', responseData['message']);
       print(responseData);
 
       if (responseData['status'] == 'success') {
@@ -552,12 +401,78 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
       }
     } catch (e) {
       print(e);
-      throw e;
+      _showSnackbar('Error', 'Terjadi kesalahan saat mengajukan cuti.');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  bool _validateForm() {
+    if (tanggalMulai == null ||
+        tanggalBerakhir == null ||
+        tanggalKembaliKerja == null) {
+      _showSnackbar('Infomation', 'Tanggal Wajib Diisi');
+      setState(() {
+        _isLoading = false;
+      });
+      return false;
     }
 
-    setState(() {
-      _isLoading = false;
-    });
+    if (tanggalMulai!.isAfter(tanggalBerakhir!) ||
+        tanggalMulai!.isAfter(tanggalKembaliKerja!)) {
+      _showSnackbar('Infomation', 'Tanggal tidak Valid');
+      setState(() {
+        _isLoading = false;
+      });
+      return false;
+    }
+
+    if (tanggalKembaliKerja!.isBefore(tanggalMulai!) ||
+        tanggalKembaliKerja!.isAtSameMomentAs(tanggalMulai!) ||
+        tanggalKembaliKerja!.isBefore(tanggalBerakhir!) ||
+        tanggalKembaliKerja!.isAtSameMomentAs(tanggalBerakhir!)) {
+      _showSnackbar('Infomation', 'Tanggal Kembali tidak Valid');
+      setState(() {
+        _isLoading = false;
+      });
+      return false;
+    }
+
+    int sisaCutiTahunan = sisaCutiMaster ?? 0;
+    int jmlCutiTahunan = int.tryParse(_cutiDibayarController.text) ?? 0;
+
+    if (jmlCutiTahunan > sisaCutiTahunan) {
+      _showSnackbar('Infomation', 'Cuti Tahunan Dibayar Melebihi Batas');
+      setState(() {
+        _isLoading = false;
+      });
+      return false;
+    }
+
+    if (_formKey.currentState!.validate() == false) {
+      setState(() {
+        _isLoading = false;
+      });
+      return false;
+    }
+
+    return true;
+  }
+
+  void _showSnackbar(String title, String message) {
+    Get.snackbar(
+      title,
+      message,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.amber,
+      icon: const Icon(
+        Icons.info,
+        color: Colors.white,
+      ),
+      shouldIconPulse: false,
+    );
   }
 
   String? _validatorEntitas(dynamic value) {

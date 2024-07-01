@@ -71,87 +71,71 @@ class _FormPengajuanPerpanjanganCutiState
     getMasterDataCuti();
   }
 
-  Future<void> getData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
 
-    String? token = prefs.getString('token');
+  Future<void> _fetchData(
+    String endpoint,
+    Function(Map<String, dynamic>) onSuccess, {
+    Map<String, String>? queryParams,
+  }) async {
+    final token = await _getToken();
+    if (token == null) return;
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/master/profile/get_user"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final masterDataApi = responseData['data'];
-        getDataAtasan();
+    try {
+      final ioClient = createIOClientWithInsecureConnection();
 
-        setState(() {
-          cocd = masterDataApi['cocd'] ?? '';
-          _nrpController.text = masterDataApi['nrp'] ?? '';
-          _namaController.text = masterDataApi['nama'] ?? '';
-          _entitasController.text = masterDataApi['nama_entitas'] ?? '';
-          _hireDateController.text = masterDataApi['tgl_masuk'] ?? '';
-        });
-      } catch (e) {
-        print(e);
-      }
+      final url =
+          Uri.parse("$_apiUrl/$endpoint").replace(queryParameters: queryParams);
+
+      final response = await ioClient.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      final responseData = jsonDecode(response.body);
+      onSuccess(responseData);
+    } catch (e) {
+      print('Error fetching data from $endpoint: $e');
     }
+  }
+
+  Future<void> getData() async {
+    await _fetchData("master/profile/get_user", (data) {
+      final masterDataApi = data['data'];
+      setState(() {
+        cocd = masterDataApi['cocd'] ?? '';
+        _nrpController.text = masterDataApi['nrp'] ?? '';
+        _namaController.text = masterDataApi['nama'] ?? '';
+        _entitasController.text = masterDataApi['nama_entitas'] ?? '';
+        _hireDateController.text = masterDataApi['tgl_masuk'] ?? '';
+      });
+
+      getDataAtasan();
+    });
   }
 
   Future<void> getDataAtasan() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    String? token = prefs.getString('token');
-
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/master/cuti/atasan?entitas=$cocd"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataAtasanApi = responseData['list_karyawan'];
-
-        setState(() {
-          selectedAtasan = List<Map<String, dynamic>>.from(dataAtasanApi);
-        });
-      } catch (e) {
-        print(e);
-      }
-    }
+    await _fetchData("master/cuti/atasan", (data) {
+      final dataAtasanApi = data['list_karyawan'];
+      setState(() {
+        selectedAtasan = List<Map<String, dynamic>>.from(dataAtasanApi);
+      });
+    }, queryParams: {'entitas': cocd.toString()});
   }
 
   Future<void> getMasterDataCuti() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    String? token = prefs.getString('token');
-
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/master/cuti/get"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final masterDataCutiApi = responseData['md_cuti'];
-
-        setState(() {
-          _sisaCutiController.text = masterDataCutiApi['sisa_cuti'].toString();
-        });
-      } catch (e) {
-        print(e);
-      }
-    }
+    await _fetchData("master/cuti/get", (data) {
+      final masterDataCutiApi = data['md_cuti'];
+      setState(() {
+        _sisaCutiController.text = masterDataCutiApi['sisa_cuti'].toString();
+      });
+    });
   }
 
   Future<void> _submit() async {

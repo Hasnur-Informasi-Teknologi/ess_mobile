@@ -184,10 +184,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    // prefs.remove('token');
-    // prefs.remove('nrp');
-    // prefs.remove('userData');
-    // prefs.remove('role_id');
 
     Set<String> keys = prefs.getKeys();
     for (String key in keys) {

@@ -37,59 +37,72 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
     getDataKaryawan();
   }
 
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  Future<void> _fetchData(
+    String endpoint,
+    Function(Map<String, dynamic>) onSuccess, {
+    Map<String, String>? queryParams,
+  }) async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    try {
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final url =
+          Uri.parse("$_apiUrl/$endpoint").replace(queryParameters: queryParams);
+
+      final response = await ioClient.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      final responseData = jsonDecode(response.body);
+      onSuccess(responseData);
+    } catch (e) {
+      print('Error fetching data from $endpoint: $e');
+    }
+  }
+
   Future<void> getDataTransaksi() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
+    final nrpString = prefs.getString('nrp');
+    final nrp = int.tryParse(nrpString ?? '');
 
-    String? token = prefs.getString('token');
-    String? nrpString = prefs.getString('nrp');
-    int? nrp = int.tryParse(nrpString ?? '');
+    await _fetchData(
+      "get_data_detail_plafon",
+      (data) {
+        final dataPlafonApi = data['dataku'];
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-            Uri.parse(
-                "$_apiUrl/get_data_detail_plafon?page=1&perPage=5&nrp=$nrp&search="),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataPlafonApi = responseData['dataku'];
         setState(() {
           dataPlafon = List<Map<String, dynamic>>.from(dataPlafonApi);
           print(dataPlafon.length);
         });
-      } catch (e) {
-        print(e);
-      }
-    }
+      },
+      queryParams: {
+        'page': '1',
+        'perPage': '5',
+        'nrp': nrp.toString(),
+        'search': '',
+      },
+    );
   }
 
   Future<void> getDataKaryawan() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-          Uri.parse('$_apiUrl/get_data_karyawan'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token',
-          },
-        );
+    await _fetchData("get_data_karyawan", (data) {
+      final dataKaryawanApi = data['data']['data'];
 
-        final responseData = jsonDecode(response.body);
-        final dataKaryawanApi = responseData['data']['data'];
-
-        setState(() {
-          dataKaryawan = List<Map<String, dynamic>>.from(dataKaryawanApi);
-        });
-      } catch (e) {}
-    } else {
-      print('tidak ada token home');
-    }
+      setState(() {
+        dataKaryawan = List<Map<String, dynamic>>.from(dataKaryawanApi);
+      });
+    });
   }
 
   int current = 0;
