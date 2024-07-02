@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
@@ -78,6 +79,12 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
   void initState() {
     super.initState();
     getMasterDataCuti();
+  }
+
+  String formatDate(String dateStr) {
+    DateTime dateTime = DateTime.parse(dateStr);
+    DateFormat formatter = DateFormat('yyyy-MM-dd');
+    return formatter.format(dateTime);
   }
 
   Future<Map<String, dynamic>> fetchData(Uri uri, String token) async {
@@ -1257,7 +1264,11 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                   '${data['nama'] ?? '-'}',
                 ),
                 _buildRowWidget(
-                    'Tanggal Pengajuan', '${data['created_at'] ?? '-'}', ''),
+                    'Tanggal Pengajuan',
+                    data['created_at'] != null
+                        ? formatDate(data['created_at'])
+                        : '-',
+                    ''),
                 _buildRowWidget('Perusahaan', '${data['cocd'] ?? '-'}', ''),
                 _buildRowWidget('Lokasi', '${data['lokasi_kerja'] ?? '-'}', ''),
                 _buildRowWidget(
@@ -1332,7 +1343,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                   id,
                   () {
                     Get.toNamed(
-                      '/user/main/daftar_persetujuan/detail_bantuan_komunikasi',
+                      '/user/main/daftar_permintaan/detail_lembur_karyawan',
                       arguments: {'id': id},
                     );
                   },
@@ -1397,7 +1408,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                 InkWell(
                   onTap: () {
                     Get.toNamed(
-                      '/user/main/daftar_persetujuan/detail_perpanjangan_cuti',
+                      '/user/main/daftar_permintaan/detail_surat_keterangan',
                       arguments: {'id': data['id']},
                     );
                   },
@@ -1432,7 +1443,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                 //   id,
                 //   () {
                 //     Get.toNamed(
-                //       '/user/main/daftar_persetujuan/detail_bantuan_komunikasi',
+                //       '/user/main/daftar_permintaan/detail_surat_keterangan',
                 //       arguments: {'id': id},
                 //     );
                 //   },

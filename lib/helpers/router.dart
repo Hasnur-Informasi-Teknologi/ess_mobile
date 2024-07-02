@@ -49,14 +49,18 @@ import 'package:mobile_ess/screens/user/home/transactions/transactions_screen.da
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_hardware_software_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_im_perjalanan_dinas_daftar_permintaan.dart';
+import 'package:mobile_ess/screens/user/permintaan/detail_lembur_karyawan_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_lpj_perjalanan_dinas_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_pengajuan_cuti_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_pengajuan_training_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_rawat_inap_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_rawat_jalan_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_surat_izin_keluar_daftar_permintaan.dart';
+import 'package:mobile_ess/screens/user/permintaan/detail_surat_keterangan_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_bantuan_komunikasi_daftar_persetujuan.dart';
+import 'package:mobile_ess/screens/user/persetujuan/detail_hardware_software_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_im_perjalanan_dinas_daftar_persetujuan.dart';
+import 'package:mobile_ess/screens/user/persetujuan/detail_lembur_karyawan_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_lpj_perjalanan_dinas_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_pengajuan_cuti_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_pengajuan_training_daftar_persetujuan.dart';
@@ -64,6 +68,7 @@ import 'package:mobile_ess/screens/user/persetujuan/detail_perpanjangan_cuti_daf
 import 'package:mobile_ess/screens/user/persetujuan/detail_rawat_inap_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_rawat_jalan_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_surat_izin_keluar_daftar_persetujuan.dart';
+import 'package:mobile_ess/screens/user/persetujuan/detail_surat_keterangan_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/profile/profile_edit_screen.dart';
 import 'package:mobile_ess/screens/user/profile/profile_screen.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_bantuan_komunikasi_daftar_permintaan.dart';
@@ -147,6 +152,10 @@ Map<String, Widget Function(BuildContext)> routers() {
         const DetailSuratIzinKeluarDaftarPermintaan(),
     '/user/main/daftar_permintaan/detail_hardware_software': (context) =>
         const DetailHardwareSoftwareDaftarPermintaan(),
+    '/user/main/daftar_permintaan/detail_lembur_karyawan': (context) =>
+        const DetailLemburKaryawanDaftarPermintaan(),
+    '/user/main/daftar_permintaan/detail_surat_keterangan': (context) =>
+        const DetailSuratKeteranganDaftarPermintaan(),
     '/user/main/daftar_persetujuan/detail_rawat_inap': (context) =>
         const DetailRawatInapDaftarPersetujuan(),
     '/user/main/daftar_persetujuan/detail_rawat_jalan': (context) =>
@@ -165,6 +174,12 @@ Map<String, Widget Function(BuildContext)> routers() {
         const DetailPengajuanTrainingDaftarPersetujuan(),
     '/user/main/daftar_persetujuan/detail_surat_izin_keluar': (context) =>
         const DetailSuratIzinKeluarDaftarPersetujuan(),
+    '/user/main/daftar_persetujuan/detail_hardware_software': (context) =>
+        const DetailHardwareSoftwareDaftarPersetujuan(),
+    '/user/main/daftar_persetujuan/detail_lembur_karyawan': (context) =>
+        const DetailLemburKaryawanDaftarPersetujuan(),
+    '/user/main/daftar_persetujuan/detail_surat_keterangan': (context) =>
+        const DetailSuratKeteranganDaftarPersetujuan(),
 
     // '/user/main/submition/aplikasi_training/detail_aplikasi_training':
     //     (context) => const DetailFormPengajuanLembur(),
