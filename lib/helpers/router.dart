@@ -169,7 +169,7 @@ Map<String, Widget Function(BuildContext)> routers() {
     // '/user/main/submition/aplikasi_training/detail_aplikasi_training':
     //     (context) => const DetailFormPengajuanLembur(),
     '/user/main/home/transactions': (context) => const TransactionsScreen(),
-    '/user/main/home/documents': (context) => const DocomentsScreen(),
+    '/user/main/home/documents': (context) => const DocumentsScreen(),
     // =================== ADMIN ====================
     '/admin/main': (context) => const AdminMainScreen(),
     '/admin/karyawan': (context) => const ListKaryawan(),
