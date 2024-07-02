@@ -47,6 +47,7 @@ import 'package:mobile_ess/screens/user/home/request_attendance/request_attendan
 import 'package:mobile_ess/screens/user/home/request_attendance/ubah_data_kehadiran_screen.dart';
 import 'package:mobile_ess/screens/user/home/transactions/transactions_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
+import 'package:mobile_ess/screens/user/permintaan/detail_hardware_software_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_im_perjalanan_dinas_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_lpj_perjalanan_dinas_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_pengajuan_cuti_daftar_permintaan.dart';
@@ -144,6 +145,8 @@ Map<String, Widget Function(BuildContext)> routers() {
         const DetailPengajuanTrainingDaftarPermintaan(),
     '/user/main/daftar_permintaan/detail_surat_izin_keluar': (context) =>
         const DetailSuratIzinKeluarDaftarPermintaan(),
+    '/user/main/daftar_permintaan/detail_hardware_software': (context) =>
+        const DetailHardwareSoftwareDaftarPermintaan(),
     '/user/main/daftar_persetujuan/detail_rawat_inap': (context) =>
         const DetailRawatInapDaftarPersetujuan(),
     '/user/main/daftar_persetujuan/detail_rawat_jalan': (context) =>

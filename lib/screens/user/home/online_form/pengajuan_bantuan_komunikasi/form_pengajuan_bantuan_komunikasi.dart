@@ -124,117 +124,89 @@ class _FormPengajuanBantuanKomunikasiState
     getDataPenerima();
   }
 
-  Future<void> getData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
 
-    String? token = prefs.getString('token');
+  Future<void> _fetchData(
+    String endpoint,
+    Function(Map<String, dynamic>) onSuccess, {
+    Map<String, String>? queryParams,
+  }) async {
+    final token = await _getToken();
+    if (token == null) return;
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/master/profile/get_user"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final masterDataApi = responseData['data'];
+    try {
+      final ioClient = createIOClientWithInsecureConnection();
 
-        setState(() {
-          _nrpController.text = masterDataApi['nrp'] ?? '';
-          _namaController.text = masterDataApi['nama'] ?? '';
-          _hireDateController.text = masterDataApi['tgl_masuk'] ?? '';
-          _pangkatController.text = masterDataApi['nama_pangkat'] ?? '';
-          _entitasUserController.text = masterDataApi['cocd'] ?? '';
-        });
-      } catch (e) {
-        print(e);
-      }
+      final url =
+          Uri.parse("$_apiUrl/$endpoint").replace(queryParameters: queryParams);
+
+      final response = await ioClient.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      final responseData = jsonDecode(response.body);
+      onSuccess(responseData);
+    } catch (e) {
+      print('Error fetching data from $endpoint: $e');
     }
+  }
+
+  Future<void> getData() async {
+    await _fetchData("master/profile/get_user", (data) {
+      final masterDataApi = data['data'];
+      setState(() {
+        _nrpController.text = masterDataApi['nrp'] ?? '';
+        _namaController.text = masterDataApi['nama'] ?? '';
+        _hireDateController.text = masterDataApi['tgl_masuk'] ?? '';
+        _pangkatController.text = masterDataApi['nama_pangkat'] ?? '';
+        _entitasUserController.text = masterDataApi['cocd'] ?? '';
+      });
+    });
   }
 
   Future<void> getMDBantuanKomunikasi() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    String? token = prefs.getString('token');
-
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/bantuan-komunikasi/master_data"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final mdBiayaKomunikasiApi = responseData['md_biaya_komunikasi'];
-        final mdJfKomunikasiApi = responseData['md_jf_komunikasi'];
-
-        setState(() {
-          selectedMdBiayaKomunikasi =
-              List<Map<String, dynamic>>.from(mdBiayaKomunikasiApi);
-          selectedJfKomunikasi =
-              List<Map<String, dynamic>>.from(mdJfKomunikasiApi);
-        });
-      } catch (e) {
-        print(e);
-      }
-    }
+    await _fetchData("bantuan-komunikasi/master_data", (data) {
+      final mdBiayaKomunikasiApi = data['md_biaya_komunikasi'];
+      final mdJfKomunikasiApi = data['md_jf_komunikasi'];
+      setState(() {
+        selectedMdBiayaKomunikasi =
+            List<Map<String, dynamic>>.from(mdBiayaKomunikasiApi);
+        selectedJfKomunikasi =
+            List<Map<String, dynamic>>.from(mdJfKomunikasiApi);
+      });
+    });
   }
 
   Future<void> getDataEntitas() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await _fetchData("master/entitas", (data) {
+      final dataEntitasApi = data['data'];
 
-    String? token = prefs.getString('token');
-
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/master/entitas"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataEntitasApi = responseData['data'];
-
-        setState(() {
-          selectedEntitas = List<Map<String, dynamic>>.from(dataEntitasApi);
-          selectedEntitasAtasan =
-              List<Map<String, dynamic>>.from(dataEntitasApi);
-          selectedEntitasDirektur =
-              List<Map<String, dynamic>>.from(dataEntitasApi);
-          selectedEntitasHcgs = List<Map<String, dynamic>>.from(dataEntitasApi);
-          selectedEntitasDirekturKeuangan =
-              List<Map<String, dynamic>>.from(dataEntitasApi);
-          selectedEntitasPresidenDirektur =
-              List<Map<String, dynamic>>.from(dataEntitasApi);
-        });
-      } catch (e) {
-        print(e);
-      }
-    }
+      setState(() {
+        selectedEntitas = List<Map<String, dynamic>>.from(dataEntitasApi);
+        selectedEntitasAtasan = List<Map<String, dynamic>>.from(dataEntitasApi);
+        selectedEntitasDirektur =
+            List<Map<String, dynamic>>.from(dataEntitasApi);
+        selectedEntitasHcgs = List<Map<String, dynamic>>.from(dataEntitasApi);
+        selectedEntitasDirekturKeuangan =
+            List<Map<String, dynamic>>.from(dataEntitasApi);
+        selectedEntitasPresidenDirektur =
+            List<Map<String, dynamic>>.from(dataEntitasApi);
+      });
+    });
   }
 
   Future<void> getDataPenerima() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-            Uri.parse(
-                "$_apiUrl/bantuan-komunikasi/karyawan?entitas=$selectedValueEntitas&kategori=penerima"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataPenerimaApi = responseData['karyawan'];
+    await _fetchData(
+      "bantuan-komunikasi/karyawan",
+      (data) {
+        final dataPenerimaApi = data['karyawan'];
 
         final filteredDataPenerimaApi = selectedValueMdBiayaKomunikasi == '5'
             ? dataPenerimaApi
@@ -252,142 +224,99 @@ class _FormPengajuanBantuanKomunikasiState
           selectedPenerima =
               List<Map<String, dynamic>>.from(filteredDataPenerimaApi);
         });
-      } catch (e) {
-        print(e);
-      }
-    }
+      },
+      queryParams: {
+        'entitas': selectedValueEntitas.toString(),
+        'kategori': 'penerima',
+      },
+    );
   }
 
   Future<void> getDataAtasan() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-            Uri.parse(
-                "$_apiUrl/bantuan-komunikasi/karyawan?entitas=$selectedValueEntitasAtasan&kategori=atasan"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataAtasanApi = responseData['karyawan'];
+    await _fetchData(
+      "bantuan-komunikasi/karyawan",
+      (data) {
+        final dataAtasanApi = data['karyawan'];
 
         setState(() {
           selectedAtasan = List<Map<String, dynamic>>.from(dataAtasanApi);
         });
-      } catch (e) {
-        print(e);
-      }
-    }
+      },
+      queryParams: {
+        'entitas': selectedValueEntitasAtasan.toString(),
+        'kategori': 'atasan',
+      },
+    );
   }
 
   Future<void> getDataDirektur() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-            Uri.parse(
-                "$_apiUrl/bantuan-komunikasi/karyawan?entitas=$selectedValueEntitasDirektur&kategori=direktur"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataDirekturApi = responseData['karyawan'];
+    await _fetchData(
+      "bantuan-komunikasi/karyawan",
+      (data) {
+        final dataDirekturApi = data['karyawan'];
 
         setState(() {
           selectedDirektur = List<Map<String, dynamic>>.from(dataDirekturApi);
         });
-      } catch (e) {
-        print(e);
-      }
-    }
+      },
+      queryParams: {
+        'entitas': selectedValueEntitasDirektur.toString(),
+        'kategori': 'direktur',
+      },
+    );
   }
 
   Future<void> getDataHcgs() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-            Uri.parse(
-                "$_apiUrl/bantuan-komunikasi/karyawan?entitas=$selectedValueEntitasHcgs&kategori=hrgs"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataHcgsApi = responseData['karyawan'];
+    await _fetchData(
+      "bantuan-komunikasi/karyawan",
+      (data) {
+        final dataHcgsApi = data['karyawan'];
 
         setState(() {
           selectedHcgs = List<Map<String, dynamic>>.from(dataHcgsApi);
         });
-      } catch (e) {
-        print(e);
-      }
-    }
+      },
+      queryParams: {
+        'entitas': selectedValueEntitasHcgs.toString(),
+        'kategori': 'hrgs',
+      },
+    );
   }
 
   Future<void> getDataDirekturKeuangan() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-            Uri.parse(
-                "$_apiUrl/bantuan-komunikasi/karyawan?entitas=$selectedValueEntitasDirekturKeuangan&kategori=keuangan"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataDirekturKeuanganApi = responseData['karyawan'];
+    await _fetchData(
+      "bantuan-komunikasi/karyawan",
+      (data) {
+        final dataDirekturKeuanganApi = data['karyawan'];
 
         setState(() {
           selectedDirekturKeuangan =
               List<Map<String, dynamic>>.from(dataDirekturKeuanganApi);
         });
-      } catch (e) {
-        print(e);
-      }
-    }
+      },
+      queryParams: {
+        'entitas': selectedValueEntitasDirekturKeuangan.toString(),
+        'kategori': 'keuangan',
+      },
+    );
   }
 
   Future<void> getDataPresidenDirektur() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-            Uri.parse(
-                "$_apiUrl/bantuan-komunikasi/karyawan?entitas=$selectedValueEntitasPresidenDirektur&kategori=presiden"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataPresidenDirekturApi = responseData['karyawan'];
+    await _fetchData(
+      "bantuan-komunikasi/karyawan",
+      (data) {
+        final dataPresidenDirekturApi = data['karyawan'];
 
         setState(() {
           selectedPresidenDirektur =
               List<Map<String, dynamic>>.from(dataPresidenDirekturApi);
         });
-      } catch (e) {
-        print(e);
-      }
-    }
+      },
+      queryParams: {
+        'entitas': selectedValueEntitasPresidenDirektur.toString(),
+        'kategori': 'presiden',
+      },
+    );
   }
 
   Future<void> _submit() async {

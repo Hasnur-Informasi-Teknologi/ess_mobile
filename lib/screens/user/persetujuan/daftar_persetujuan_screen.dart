@@ -106,6 +106,11 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     return responseData;
   }
 
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
   Future<Map<String, dynamic>> fetchData(Uri uri, String token) async {
     final ioClient = createIOClientWithInsecureConnection();
     final response = await ioClient.get(
@@ -120,13 +125,13 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   }
 
   Future<void> getDataBantuanKomunikasi(String? statusFilter) async {
+    final token = await _getToken();
+    if (token == null) return;
+
     try {
       setState(() {
         _isLoading = true;
       });
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final String token = prefs.getString('token') ?? '';
 
       final Map<String, dynamic> queryParams = {
         'page': page.toString(),
@@ -155,13 +160,13 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   }
 
   Future<void> getDataSuratIzinKeluar(String? statusFilter) async {
+    final token = await _getToken();
+    if (token == null) return;
+
     try {
       setState(() {
         _isLoading = true;
       });
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final String token = prefs.getString('token') ?? '';
 
       final queryParams = {
         'page': page.toString(),
@@ -190,13 +195,13 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   }
 
   Future<void> getDataPengajuanCuti(String? statusFilter) async {
+    final token = await _getToken();
+    if (token == null) return;
+
     try {
       setState(() {
         _isLoading = true;
       });
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final String token = prefs.getString('token') ?? '';
 
       final Map<String, dynamic> queryParams = {
         'page': page.toString(),
@@ -227,13 +232,13 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   }
 
   Future<void> getDataPerpanjanganCuti(String? statusFilter) async {
+    final token = await _getToken();
+    if (token == null) return;
+
     try {
       setState(() {
         _isLoading = true;
       });
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final String token = prefs.getString('token') ?? '';
 
       final Map<String, dynamic> queryParams = {
         'page': page.toString(),
@@ -262,13 +267,13 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   }
 
   Future<void> getDataPengajuanTraining(String? statusFilter) async {
+    final token = await _getToken();
+    if (token == null) return;
+
     try {
       setState(() {
         _isLoading = true;
       });
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final String token = prefs.getString('token') ?? '';
 
       final Map<String, dynamic> queryParams = {
         'page': page.toString(),
@@ -298,13 +303,13 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   }
 
   Future<void> getDataRawatInap(String? statusFilterRawatInapJalan) async {
+    final token = await _getToken();
+    if (token == null) return;
+
     try {
       setState(() {
         _isLoading = true;
       });
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final String token = prefs.getString('token') ?? '';
 
       final Map<String, dynamic> queryParams = {
         'page': page.toString(),
@@ -333,13 +338,13 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   }
 
   Future<void> getDataRawatJalan(String? statusFilterRawatInapJalan) async {
+    final token = await _getToken();
+    if (token == null) return;
+
     try {
       setState(() {
         _isLoading = true;
       });
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final String token = prefs.getString('token') ?? '';
 
       final Map<String, dynamic> queryParams = {
         'page': page.toString(),
@@ -368,13 +373,13 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   }
 
   Future<void> getDataSummaryCuti() async {
+    final token = await _getToken();
+    if (token == null) return;
+
     try {
       setState(() {
         _isLoading = true;
       });
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final String token = prefs.getString('token') ?? '';
 
       final Map<String, dynamic> queryParams = {
         'page': page.toString(),
@@ -401,49 +406,45 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   }
 
   Future<void> getMasterDataCuti() async {
+    final token = await _getToken();
+    if (token == null) return;
+
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final String token = prefs.getString('token') ?? '';
+      final uri = Uri.parse("$_apiUrl/master/cuti/get");
 
-      if (token.isNotEmpty) {
-        final uri = Uri.parse("$_apiUrl/master/cuti/get");
+      final responseData = await fetchData(uri, token);
 
-        final responseData = await fetchData(uri, token);
-
-        setState(() {
-          masterDataCuti = Map<String, dynamic>.from(responseData['md_cuti']);
-        });
-      }
+      setState(() {
+        masterDataCuti = Map<String, dynamic>.from(responseData['md_cuti']);
+      });
     } catch (e) {
       print('Error fetching master data cuti: $e');
     }
   }
 
   Future<void> getDataImPerjalananDinas(String? statusFilter) async {
+    final token = await _getToken();
+    if (token == null) return;
+
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final String token = prefs.getString('token') ?? '';
+      final Map<String, dynamic> queryParams = {
+        'page': page.toString(),
+        'perPage': perPage.toString(),
+        'search': search,
+        'status': statusFilter ?? '',
+        'type': type,
+      };
 
-      if (token.isNotEmpty) {
-        final Map<String, dynamic> queryParams = {
-          'page': page.toString(),
-          'perPage': perPage.toString(),
-          'search': search,
-          'status': statusFilter ?? '',
-          'type': type,
-        };
+      final uri = Uri.parse("$_apiUrl/rencana-perdin/get")
+          .replace(queryParameters: queryParams);
 
-        final uri = Uri.parse("$_apiUrl/rencana-perdin/get")
-            .replace(queryParameters: queryParams);
+      final responseData = await fetchData(uri, token);
 
-        final responseData = await fetchData(uri, token);
-
-        setState(() {
-          masterDataPersetujuan =
-              List<Map<String, dynamic>>.from(responseData['dperdin']);
-          _isLoading = false;
-        });
-      }
+      setState(() {
+        masterDataPersetujuan =
+            List<Map<String, dynamic>>.from(responseData['dperdin']);
+        _isLoading = false;
+      });
     } catch (e) {
       print('Error fetching data perjalanan dinas: $e');
       setState(() {
@@ -453,32 +454,125 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   }
 
   Future<void> getDataLpjPerjalananDinas(String? statusFilter) async {
+    final token = await _getToken();
+    if (token == null) return;
+
     try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      final String token = prefs.getString('token') ?? '';
+      final Map<String, dynamic> queryParams = {
+        'page': page.toString(),
+        'perPage': perPage.toString(),
+        'search': search,
+        'status': statusFilter ?? '',
+        'type': type,
+      };
 
-      if (token.isNotEmpty) {
-        final Map<String, dynamic> queryParams = {
-          'page': page.toString(),
-          'perPage': perPage.toString(),
-          'search': search,
-          'status': statusFilter ?? '',
-          'type': type,
-        };
+      final uri = Uri.parse("$_apiUrl/laporan-perdin/get")
+          .replace(queryParameters: queryParams);
 
-        final uri = Uri.parse("$_apiUrl/laporan-perdin/get")
-            .replace(queryParameters: queryParams);
+      final responseData = await fetchData(uri, token);
 
-        final responseData = await fetchData(uri, token);
-
-        setState(() {
-          masterDataPersetujuan =
-              List<Map<String, dynamic>>.from(responseData['dperdin']);
-          _isLoading = false;
-        });
-      }
+      setState(() {
+        masterDataPersetujuan =
+            List<Map<String, dynamic>>.from(responseData['dperdin']);
+        _isLoading = false;
+      });
     } catch (e) {
       print('Error fetching data LPJ perjalanan dinas: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> getDataLembur(String? statusFilter) async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    try {
+      final Map<String, dynamic> queryParams = {
+        'page': page.toString(),
+        'perPage': perPage.toString(),
+        'search': search,
+        'status': statusFilter ?? '',
+        'type': type,
+      };
+
+      final uri = Uri.parse("$_apiUrl/perintah-lembur/get")
+          .replace(queryParameters: queryParams);
+
+      final responseData = await fetchData(uri, token);
+
+      setState(() {
+        masterDataPersetujuan =
+            List<Map<String, dynamic>>.from(responseData['dlembur']);
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching data Lembur : $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> getDataSuratKeterangan(String? statusFilter) async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    try {
+      final Map<String, dynamic> queryParams = {
+        'page': page.toString(),
+        'perPage': perPage.toString(),
+        'search': search,
+        'status': statusFilter ?? '',
+        'type': type,
+      };
+
+      final uri = Uri.parse("$_apiUrl/surat-keterangan/get")
+          .replace(queryParameters: queryParams);
+
+      final responseData = await fetchData(uri, token);
+
+      setState(() {
+        masterDataPersetujuan =
+            List<Map<String, dynamic>>.from(responseData['data']);
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching data Lembur : $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> getDataHardwareSoftware(String? statusFilter) async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    try {
+      final Map<String, dynamic> queryParams = {
+        'page': page.toString(),
+        'entitas': '',
+        'search': search,
+        'status': statusFilter ?? '',
+        'limit': perPage.toString(),
+        'permintaan': '0'
+      };
+
+      final uri = Uri.parse("$_apiUrl/permintaan-hardware-software/all")
+          .replace(queryParameters: queryParams);
+
+      final responseData = await fetchData(uri, token);
+
+      setState(() {
+        masterDataPersetujuan =
+            List<Map<String, dynamic>>.from(responseData['data']['data']);
+        print(masterDataPersetujuan);
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching data Lembur : $e');
       setState(() {
         _isLoading = false;
       });
@@ -710,23 +804,25 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     } else if (type == 'rawatJalan') {
       endpoint = "$_url/online-form/approval-rawat-jalan/$id/pdf/jalan$id.pdf";
     } else if (type == 'suratIzinKeluar') {
-      endpoint =
-          "$_url/online-form/preview-pdf-izin-keluar/$id/pdf-izin-keluar-$id";
+      endpoint = "$_url/online-form/preview-pdf-izin-keluar/$id/pdf";
     } else if (type == 'bantuanKomunikasi') {
-      endpoint =
-          "$_url/online-form/preview-pdf-bantuan-komunikasi/$id/pdf-bantuan-komunikasi-$id";
+      endpoint = "$_url/online-form/preview-pdf-bantuan-komunikasi/$id/pdf";
     } else if (type == 'imPerjalananDinas') {
-      endpoint =
-          "$_url/online-form/preview-pdf-rencana-perdin/$id/pdf-rencana-perdin-$id";
+      endpoint = "$_url/online-form/preview-pdf-rencana-perdin/$id/pdf";
     } else if (type == 'lpjPerjalananDinas') {
-      endpoint =
-          "$_url/online-form/preview-pdf-laporan-perdin/$id/pdf-laporan-perdin-$id";
+      endpoint = "$_url/online-form/preview-pdf-laporan-perdin/$id/pdf";
     } else if (type == 'pengajuanTraining') {
-      endpoint =
-          "$_url/online-form/approval-pengajuan-training/$id/pdf-laporan-perdin-$id";
+      endpoint = "$_url/online-form/approval-pengajuan-training/$id/pdf";
     } else if (type == 'pengajuanCuti') {
       // 77db6a95-85ef-4728-b9e1-466afcce073e
-      endpoint = "$_url/online-form/preview-pdf-cuti/$id/preview-pdf-cuti";
+      endpoint = "$_url/online-form/preview-pdf-cuti/$id/pdf";
+    } else if (type == 'lemburKaryawan') {
+      endpoint = "$_url/online-form/preview-pdf-perintah-lembur/$id/pdf";
+    } else if (type == 'hardwareSoftware') {
+      endpoint =
+          "$_url/online-form/preview-pdf-permintaan-hardware-software/$id/pdf";
+    } else if (type == 'suratKeterangan') {
+      endpoint = "$_url/online-form/approval-surat-keterangan/$id";
     }
 
     Completer<File> completer = Completer();
@@ -817,6 +913,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
       final dataFetchers = {
         '2': () => getDataBantuanKomunikasi(statusFilter),
+        '3': () => getDataHardwareSoftware(statusFilterRawatInapJalan),
+        '4': () => getDataLembur(statusFilter),
         '5': () => getDataPengajuanCuti(statusFilter),
         '6': () => getDataPengajuanTraining(statusFilterRawatInapJalan),
         '7': () => getDataImPerjalananDinas(statusFilter),
@@ -824,6 +922,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
         '13': () => getDataLpjPerjalananDinas(statusFilter),
         '9': () => getDataRawatInap(statusFilterRawatInapJalan),
         '10': () => getDataRawatJalan(statusFilterRawatInapJalan),
+        '11': () => getDataSuratKeterangan(statusFilter),
         '14': () => getDataSuratIzinKeluar(statusFilter),
       };
 
@@ -903,12 +1002,15 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
         final dataFetchers = {
           '2': () => getDataBantuanKomunikasi(statusFilter),
+          '3': () => getDataHardwareSoftware(statusFilterRawatInapJalan),
+          '4': () => getDataLembur(statusFilter),
           '5': () => getDataPengajuanCuti(statusFilter),
           '6': () => getDataPengajuanTraining(statusFilterRawatInapJalan),
           '7': () => getDataImPerjalananDinas(statusFilter),
           '8': () => getDataPerpanjanganCuti(statusFilter),
           '9': () => getDataRawatInap(statusFilterRawatInapJalan),
           '10': () => getDataRawatJalan(statusFilterRawatInapJalan),
+          '11': () => getDataSuratKeterangan(statusFilter),
           '12': getDataSummaryCuti,
           '13': () => getDataLpjPerjalananDinas(statusFilter),
           '14': () => getDataSuratIzinKeluar(statusFilter),
@@ -1065,6 +1167,10 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
       switch (selectedValueDaftarPersetujuan) {
         case '2':
           return buildBantuanKomunikasi(data);
+        case '3':
+          return buildHardwareSoftware(data);
+        case '4':
+          return buildLemburKaryawan(data);
         case '5':
           return buildCuti(data);
         case '6':
@@ -1081,6 +1187,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
           return buildRawatInap(data);
         case '10':
           return buildRawatJalan(data);
+        case '11':
+          return buildSuratKeterangan(data);
         default:
           return const Text('Kosong');
       }
@@ -1123,6 +1231,10 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
       switch (selectedValueDaftarPersetujuan) {
         case '2':
           return buildBantuanKomunikasi(data);
+        case '3':
+          return buildHardwareSoftware(data);
+        case '4':
+          return buildLemburKaryawan(data);
         case '5':
           return buildCuti(data);
         case '6':
@@ -1139,6 +1251,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
           return buildRawatInap(data);
         case '10':
           return buildRawatJalan(data);
+        case '11':
+          return buildSuratKeterangan(data);
         default:
           return const Text('Kosong');
       }
@@ -1181,6 +1295,10 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
       switch (selectedValueDaftarPersetujuan) {
         case '2':
           return buildBantuanKomunikasi(data);
+        case '3':
+          return buildHardwareSoftware(data);
+        case '4':
+          return buildLemburKaryawan(data);
         case '5':
           return buildCuti(data);
         case '6':
@@ -1197,6 +1315,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
           return buildRawatInap(data);
         case '10':
           return buildRawatJalan(data);
+        case '11':
+          return buildSuratKeterangan(data);
         default:
           return const Text('Kosong');
       }
@@ -1239,6 +1359,10 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
       switch (selectedValueDaftarPersetujuan) {
         case '2':
           return buildBantuanKomunikasi(data);
+        case '3':
+          return buildHardwareSoftware(data);
+        case '4':
+          return buildLemburKaryawan(data);
         case '5':
           return buildCuti(data);
         case '6':
@@ -1255,6 +1379,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
           return buildRawatInap(data);
         case '10':
           return buildRawatJalan(data);
+        case '11':
+          return buildSuratKeterangan(data);
         default:
           return const Text('Kosong');
       }
@@ -1333,6 +1459,232 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
                   },
                   () {
                     _downloadPdf('bantuanKomunikasi', id);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildLemburKaryawan(Map<String, dynamic> data) {
+    Size size = MediaQuery.of(context).size;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalNarrow = size.width * 0.035;
+
+    String id = data['id'].toString();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(vertical: sizedBoxHeightExtraTall),
+          height: size.height * 0.3,
+          width: size.width * 0.9,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(paddingHorizontalNarrow),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildRowWidget(
+                  'Nomor Dokumen',
+                  '${data['no_doc'] ?? '-'}',
+                  '',
+                ),
+                _buildRowWidget(
+                  'NRP (pemohon)',
+                  '${data['nrp_user'] ?? '-'}',
+                  '',
+                ),
+                _buildRowWidget(
+                    'Nama (pemohon)', '${data['nama_user'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Nama Atasan', '${data['nama_atasan'] ?? '-'}', ''),
+                _buildRowWidget('Nama HRGS', '${data['nama_hrgs'] ?? '-'}', ''),
+                _buildRowWidget('Aktivitas', '${data['aktivitas'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Tanggal Pengajuan', '${data['tgl_pengajuan'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Status', '${data['status_approve'] ?? '-'}', ''),
+                SizedBox(height: sizedBoxHeightShort),
+                _buildActionButtons(
+                  id,
+                  () {
+                    Get.toNamed(
+                      '/user/main/daftar_persetujuan/detail_bantuan_komunikasi',
+                      arguments: {'id': id},
+                    );
+                  },
+                  () {
+                    _downloadPdf('lemburKaryawan', id);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildSuratKeterangan(Map<String, dynamic> data) {
+    Size size = MediaQuery.of(context).size;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double textMedium = size.width * 0.0329;
+    double padding5 = size.width * 0.0188;
+
+    String id = data['id'].toString();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(vertical: sizedBoxHeightExtraTall),
+          height: size.height * 0.3,
+          width: size.width * 0.9,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(paddingHorizontalNarrow),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildRowWidget(
+                  'Nomor Dokumen',
+                  '${data['no_doc'] ?? '-'}',
+                  '',
+                ),
+                _buildRowWidget(
+                  'NRP (pemohon)',
+                  '${data['nrp_user'] ?? '-'}',
+                  '',
+                ),
+                _buildRowWidget(
+                    'Nama (pemohon)', '${data['nama_user'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Nama Atasan', '${data['nama_atasan'] ?? '-'}', ''),
+                _buildRowWidget('Nama HRGS', '${data['nama_hrgs'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Tanggal Pengajuan', '${data['tgl_pengajuan'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Status', '${data['status_approve'] ?? '-'}', ''),
+                SizedBox(height: sizedBoxHeightShort),
+                InkWell(
+                  onTap: () {
+                    Get.toNamed(
+                      '/user/main/daftar_persetujuan/detail_perpanjangan_cuti',
+                      arguments: {'id': data['id']},
+                    );
+                  },
+                  child: Container(
+                    width: size.width * 0.38,
+                    height: size.height * 0.04,
+                    padding: EdgeInsets.all(padding5),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Icon(Icons.details_sharp),
+                          Text(
+                            'Detail',
+                            style: TextStyle(
+                              color: Color(primaryBlack),
+                              fontSize: textMedium,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+                // _buildActionButtons(
+                //   id,
+                //   () {
+                //     Get.toNamed(
+                //       '/user/main/daftar_persetujuan/detail_bantuan_komunikasi',
+                //       arguments: {'id': id},
+                //     );
+                //   },
+                //   () {
+                //     _downloadPdf('suratKeterangan', id);
+                //   },
+                // ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildHardwareSoftware(Map<String, dynamic> data) {
+    Size size = MediaQuery.of(context).size;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalNarrow = size.width * 0.035;
+
+    String id = data['id'].toString();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(vertical: sizedBoxHeightExtraTall),
+          height: size.height * 0.3,
+          width: size.width * 0.9,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(paddingHorizontalNarrow),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildRowWidget(
+                  'Nomor Dokumen',
+                  '${data['no_doc'] ?? '-'}',
+                  '',
+                ),
+                _buildRowWidget(
+                  'Pemohon',
+                  '${data['pernr'] ?? '-'} - ',
+                  '${data['nama'] ?? '-'}',
+                ),
+                _buildRowWidget(
+                    'Tanggal Pengajuan', '${data['created_at'] ?? '-'}', ''),
+                _buildRowWidget('Perusahaan', '${data['cocd'] ?? '-'}', ''),
+                _buildRowWidget('Lokasi', '${data['lokasi_kerja'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Status', '${data['status_approve'] ?? '-'}', ''),
+                SizedBox(height: sizedBoxHeightShort),
+                _buildActionButtons(
+                  id,
+                  () {
+                    Get.toNamed(
+                      '/user/main/daftar_persetujuan/detail_bantuan_komunikasi',
+                      arguments: {'id': id},
+                    );
+                  },
+                  () {
+                    _downloadPdf('hardwareSoftware', id);
                   },
                 ),
               ],
