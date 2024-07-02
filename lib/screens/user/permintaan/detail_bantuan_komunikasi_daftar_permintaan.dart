@@ -90,10 +90,10 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
 
-    double textMedium = size.width * 0.0329; // 14 px
-    double textLarge = size.width * 0.04; // 18 px
-    double padding20 = size.width * 0.047; // 20 px
-    double paddingHorizontalWide = size.width * 0.0585; // 25 px
+    double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
+    double padding20 = size.width * 0.047;
+    double paddingHorizontalWide = size.width * 0.0585;
     const double sizedBoxHeightTall = 15;
     const double sizedBoxHeightShort = 8;
     const double sizedBoxHeightExtraTall = 20;

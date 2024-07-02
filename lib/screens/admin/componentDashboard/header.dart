@@ -52,8 +52,8 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
   @override
   void initState() {
     super.initState();
-    getDataWorkSchedule();
     getDataKaryawan();
+    getDataWorkSchedule();
     fetchDataAndCompareVersions();
   }
 
@@ -89,32 +89,6 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
       _packageInfo = info;
       currantVersionMobile = info.version;
     });
-  }
-
-  Future<String?> _getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
-  }
-
-  Future<void> _fetchData(
-    String endpoint,
-    Function(Map<String, dynamic>) onSuccess, {
-    Map<String, String>? headers,
-  }) async {
-    try {
-      final ioClient = createIOClientWithInsecureConnection();
-      final url = Uri.parse("$_apiUrl/$endpoint");
-
-      final response = await ioClient.get(
-        url,
-        headers: headers,
-      );
-
-      final responseData = jsonDecode(response.body);
-      onSuccess(responseData);
-    } catch (e) {
-      print('Error fetching data from $endpoint: $e');
-    }
   }
 
   Future<void> getVersionMobile() async {
@@ -167,34 +141,34 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
   }
 
   Future<void> getDataWorkSchedule() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = await _getToken();
-    final karyawanData =
-        jsonDecode(prefs.getString('userData').toString())['data'];
-    final nrp = karyawanData['pernr'];
-
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+    var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
+    final nrp = karyawan['pernr'];
     if (token != null) {
-      await _fetchData(
-        "get_work_schedules/$nrp",
-        (data) {
-          if (data["data"] != null && data["data"].isNotEmpty) {
-            setState(() {
-              latString = data["data"][0]["latitude"] ?? "00.00";
-              longString = data["data"][0]["longitude"] ?? "00.00";
-              prefs.setString('latString', latString);
-              prefs.setString('longString', longString);
-              print("latString $latString");
-              print("longString $longString");
-            });
-          } else {
-            print('Data is empty');
-          }
-        },
-        headers: {
-          'Content-Type': 'application/json;charset=UTF-8',
-          'Authorization': 'Bearer $token'
-        },
-      );
+      try {
+        final ioClient = createIOClientWithInsecureConnection();
+        final response = await ioClient.get(
+          Uri.parse('$_apiUrl/get_work_schedules/$nrp'),
+          headers: <String, String>{
+            'Content-Type': 'application/json;charset=UTF-8',
+            'Authorization': 'Bearer $token'
+          },
+        );
+        final responseData = jsonDecode(response.body);
+        if (responseData["data"] != null) {
+          setState(() {
+            latString = responseData["data"][0]["latitude"] ?? 00.00;
+            longString = responseData["data"][0]["longitude"] ?? 00.00;
+            prefs.setString('latString', latString);
+            prefs.setString('longString', longString);
+          });
+        } else {
+          print('Data is empty');
+        }
+      } catch (e) {
+        print(e);
+      }
     } else {
       print('tidak ada token home');
     }
@@ -205,12 +179,16 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
       _isLoading = true;
     });
     await Future.delayed(Duration(milliseconds: 500));
-    await getDataWorkSchedule();
     await getDataKaryawan();
+    await getDataWorkSchedule();
     setState(() {
       _isLoading = false;
     });
   }
+
+  // Future<void> getToken() async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  // }
 
   Future<void> getDataKaryawan() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
