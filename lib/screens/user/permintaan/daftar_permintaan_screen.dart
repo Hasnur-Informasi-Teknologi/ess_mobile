@@ -446,6 +446,102 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
     }
   }
 
+  Future<void> getDataHardwareSoftware(String? statusFilter) async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    try {
+      final Map<String, dynamic> queryParams = {
+        'page': page.toString(),
+        'entitas': '',
+        'search': search,
+        'status': statusFilter ?? '',
+        'limit': perPage.toString(),
+        'permintaan': '1'
+      };
+
+      final uri = Uri.parse("$_apiUrl/permintaan-hardware-software/all")
+          .replace(queryParameters: queryParams);
+
+      final responseData = await fetchData(uri, token);
+
+      setState(() {
+        masterDataPermintaan =
+            List<Map<String, dynamic>>.from(responseData['data']['data']);
+        print(masterDataPermintaan);
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching data Lembur : $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> getDataLembur(String? statusFilter) async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    try {
+      final Map<String, dynamic> queryParams = {
+        'page': page.toString(),
+        'perPage': perPage.toString(),
+        'search': search,
+        'status': statusFilter ?? '',
+        'type': type,
+      };
+
+      final uri = Uri.parse("$_apiUrl/perintah-lembur/get")
+          .replace(queryParameters: queryParams);
+
+      final responseData = await fetchData(uri, token);
+
+      setState(() {
+        masterDataPermintaan =
+            List<Map<String, dynamic>>.from(responseData['dlembur']);
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching data Lembur : $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> getDataSuratKeterangan(String? statusFilter) async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    try {
+      final Map<String, dynamic> queryParams = {
+        'page': page.toString(),
+        'perPage': perPage.toString(),
+        'search': search,
+        'status': statusFilter ?? '',
+        'type': type,
+      };
+
+      final uri = Uri.parse("$_apiUrl/surat-keterangan/get")
+          .replace(queryParameters: queryParams);
+
+      final responseData = await fetchData(uri, token);
+
+      setState(() {
+        masterDataPermintaan =
+            List<Map<String, dynamic>>.from(responseData['data']);
+        print(masterDataPermintaan);
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching data Lembur : $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   Future<File> createPdf(String type, dynamic id) async {
     final String? token = await _getToken();
 
@@ -477,6 +573,11 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
           "$_url/online-form/approval-pengajuan-training/$id/approval-pengajuan-training-$id";
     } else if (type == 'pengajuanCuti') {
       endpoint = "$_url/online-form/preview-pdf-cuti/$id/preview-pdf-cuti-$id";
+    } else if (type == 'hardwareSoftware') {
+      endpoint =
+          "$_url/online-form/preview-pdf-permintaan-hardware-software/$id/pdf";
+    } else if (type == 'lemburKaryawan') {
+      endpoint = "$_url/online-form/preview-pdf-perintah-lembur/$id/pdf";
     }
 
     Completer<File> completer = Completer();
@@ -566,6 +667,8 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
 
       final dataFetchers = {
         '2': () => getDataBantuanKomunikasi(statusFilter),
+        '3': () => getDataHardwareSoftware(statusFilterRawatInapJalan),
+        '4': () => getDataLembur(statusFilter),
         '5': () => getDataPengajuanCuti(statusFilter),
         '6': () => getDataPengajuanTraining(statusFilterRawatInapJalan),
         '7': () => getDataImPerjalananDinas(statusFilter),
@@ -573,6 +676,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
         '13': () => getDataLpjPerjalananDinas(statusFilter),
         '9': () => getDataRawatInap(statusFilterRawatInapJalan),
         '10': () => getDataRawatJalan(statusFilterRawatInapJalan),
+        '11': () => getDataSuratKeterangan(statusFilter),
         '14': () => getDataSuratIzinKeluar(statusFilter),
       };
 
@@ -652,6 +756,8 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
 
         final dataFetchers = {
           '2': () => getDataBantuanKomunikasi(statusFilter),
+          '3': () => getDataHardwareSoftware(statusFilterRawatInapJalan),
+          '4': () => getDataLembur(statusFilter),
           '5': () => getDataPengajuanCuti(statusFilter),
           '6': () => getDataPengajuanTraining(statusFilterRawatInapJalan),
           '7': () => getDataImPerjalananDinas(statusFilter),
@@ -659,6 +765,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
           '9': () => getDataRawatInap(statusFilterRawatInapJalan),
           '10': () => getDataRawatJalan(statusFilterRawatInapJalan),
           '12': getDataSummaryCuti,
+          '11': () => getDataSuratKeterangan(statusFilter),
           '13': () => getDataLpjPerjalananDinas(statusFilter),
           '14': () => getDataSuratIzinKeluar(statusFilter),
         };
@@ -813,6 +920,10 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
       switch (selectedValueDaftarPermintaan) {
         case '2':
           return buildBantuanKomunikasi(data);
+        case '3':
+          return buildHardwareSoftware(data);
+        case '4':
+          return buildLemburKaryawan(data);
         case '5':
           return buildCuti(data);
         case '6':
@@ -829,6 +940,8 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
           return buildRawatInap(data);
         case '10':
           return buildRawatJalan(data);
+        case '11':
+          return buildSuratKeterangan(data);
         default:
           return const Text('Kosong');
       }
@@ -871,6 +984,10 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
       switch (selectedValueDaftarPermintaan) {
         case '2':
           return buildBantuanKomunikasi(data);
+        case '3':
+          return buildHardwareSoftware(data);
+        case '4':
+          return buildLemburKaryawan(data);
         case '5':
           return buildCuti(data);
         case '6':
@@ -887,6 +1004,8 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
           return buildRawatInap(data);
         case '10':
           return buildRawatJalan(data);
+        case '11':
+          return buildSuratKeterangan(data);
         default:
           return const Text('Kosong');
       }
@@ -929,6 +1048,10 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
       switch (selectedValueDaftarPermintaan) {
         case '2':
           return buildBantuanKomunikasi(data);
+        case '3':
+          return buildHardwareSoftware(data);
+        case '4':
+          return buildLemburKaryawan(data);
         case '5':
           return buildCuti(data);
         case '6':
@@ -945,6 +1068,8 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
           return buildRawatInap(data);
         case '10':
           return buildRawatJalan(data);
+        case '11':
+          return buildSuratKeterangan(data);
         default:
           return const Text('Kosong');
       }
@@ -987,6 +1112,10 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
       switch (selectedValueDaftarPermintaan) {
         case '2':
           return buildBantuanKomunikasi(data);
+        case '3':
+          return buildHardwareSoftware(data);
+        case '4':
+          return buildLemburKaryawan(data);
         case '5':
           return buildCuti(data);
         case '6':
@@ -1003,6 +1132,8 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
           return buildRawatInap(data);
         case '10':
           return buildRawatJalan(data);
+        case '11':
+          return buildSuratKeterangan(data);
         default:
           return const Text('Kosong');
       }
@@ -1083,6 +1214,232 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                     _downloadPdf('bantuanKomunikasi', id);
                   },
                 ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildHardwareSoftware(Map<String, dynamic> data) {
+    Size size = MediaQuery.of(context).size;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalNarrow = size.width * 0.035;
+
+    String id = data['id'].toString();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(vertical: sizedBoxHeightExtraTall),
+          height: size.height * 0.3,
+          width: size.width * 0.9,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(paddingHorizontalNarrow),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildRowWidget(
+                  'Nomor Dokumen',
+                  '${data['no_doc'] ?? '-'}',
+                  '',
+                ),
+                _buildRowWidget(
+                  'Pemohon',
+                  '${data['pernr'] ?? '-'} - ',
+                  '${data['nama'] ?? '-'}',
+                ),
+                _buildRowWidget(
+                    'Tanggal Pengajuan', '${data['created_at'] ?? '-'}', ''),
+                _buildRowWidget('Perusahaan', '${data['cocd'] ?? '-'}', ''),
+                _buildRowWidget('Lokasi', '${data['lokasi_kerja'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Status', '${data['status_approve'] ?? '-'}', ''),
+                SizedBox(height: sizedBoxHeightShort),
+                _buildActionButtons(
+                  id,
+                  () {
+                    Get.toNamed(
+                      '/user/main/daftar_permintaan/detail_hardware_software',
+                      arguments: {'id': id},
+                    );
+                  },
+                  () {
+                    _downloadPdf('hardwareSoftware', id);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildLemburKaryawan(Map<String, dynamic> data) {
+    Size size = MediaQuery.of(context).size;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalNarrow = size.width * 0.035;
+
+    String id = data['id'].toString();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(vertical: sizedBoxHeightExtraTall),
+          height: size.height * 0.3,
+          width: size.width * 0.9,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(paddingHorizontalNarrow),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildRowWidget(
+                  'Nomor Dokumen',
+                  '${data['no_doc'] ?? '-'}',
+                  '',
+                ),
+                _buildRowWidget(
+                  'NRP (pemohon)',
+                  '${data['nrp_user'] ?? '-'}',
+                  '',
+                ),
+                _buildRowWidget(
+                    'Nama (pemohon)', '${data['nama_user'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Nama Atasan', '${data['nama_atasan'] ?? '-'}', ''),
+                _buildRowWidget('Nama HRGS', '${data['nama_hrgs'] ?? '-'}', ''),
+                _buildRowWidget('Aktivitas', '${data['aktivitas'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Tanggal Pengajuan', '${data['tgl_pengajuan'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Status', '${data['status_approve'] ?? '-'}', ''),
+                SizedBox(height: sizedBoxHeightShort),
+                _buildActionButtons(
+                  id,
+                  () {
+                    Get.toNamed(
+                      '/user/main/daftar_persetujuan/detail_bantuan_komunikasi',
+                      arguments: {'id': id},
+                    );
+                  },
+                  () {
+                    _downloadPdf('lemburKaryawan', id);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildSuratKeterangan(Map<String, dynamic> data) {
+    Size size = MediaQuery.of(context).size;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double textMedium = size.width * 0.0329;
+    double padding5 = size.width * 0.0188;
+
+    String id = data['id'].toString();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(vertical: sizedBoxHeightExtraTall),
+          height: size.height * 0.3,
+          width: size.width * 0.9,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(paddingHorizontalNarrow),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildRowWidget(
+                  'Nomor Dokumen',
+                  '${data['no_doc'] ?? '-'}',
+                  '',
+                ),
+                _buildRowWidget(
+                  'NRP (pemohon)',
+                  '${data['nrp_user'] ?? '-'}',
+                  '',
+                ),
+                _buildRowWidget(
+                    'Nama (pemohon)', '${data['nama_user'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Nama Atasan', '${data['nama_atasan'] ?? '-'}', ''),
+                _buildRowWidget('Nama HRGS', '${data['nama_hrgs'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Tanggal Pengajuan', '${data['tgl_pengajuan'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Status', '${data['status_approve'] ?? '-'}', ''),
+                SizedBox(height: sizedBoxHeightShort),
+                InkWell(
+                  onTap: () {
+                    Get.toNamed(
+                      '/user/main/daftar_persetujuan/detail_perpanjangan_cuti',
+                      arguments: {'id': data['id']},
+                    );
+                  },
+                  child: Container(
+                    width: size.width * 0.38,
+                    height: size.height * 0.04,
+                    padding: EdgeInsets.all(padding5),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Icon(Icons.details_sharp),
+                          Text(
+                            'Detail',
+                            style: TextStyle(
+                              color: Color(primaryBlack),
+                              fontSize: textMedium,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+                // _buildActionButtons(
+                //   id,
+                //   () {
+                //     Get.toNamed(
+                //       '/user/main/daftar_persetujuan/detail_bantuan_komunikasi',
+                //       arguments: {'id': id},
+                //     );
+                //   },
+                //   () {
+                //     _downloadPdf('suratKeterangan', id);
+                //   },
+                // ),
               ],
             ),
           ),
