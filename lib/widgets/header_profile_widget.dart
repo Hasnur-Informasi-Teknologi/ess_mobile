@@ -1,9 +1,13 @@
 // ignore_for_file: unused_field, must_be_immutable
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class HeaderProfileWidget extends StatelessWidget {
+class HeaderProfileWidget extends StatefulWidget {
   final String? _userName;
   final String? _posision;
   final String? _imageUrl;
@@ -22,12 +26,58 @@ class HeaderProfileWidget extends StatelessWidget {
         super(key: key);
 
   @override
+  State<HeaderProfileWidget> createState() => _HeaderProfileWidgetState();
+}
+
+class _HeaderProfileWidgetState extends State<HeaderProfileWidget> {
+  final String _apiUrl = API_URL;
+  Uint8List? _imageBytes;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _fetchImage();
+  }
+
+  Future<void> _fetchImage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    final ioClient = createIOClientWithInsecureConnection();
+
+    final response = await ioClient.get(
+      Uri.parse('$_apiUrl/master/profile/get_photo'),
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      setState(() {
+        _imageBytes = response.bodyBytes;
+      });
+    } else {
+      throw Exception('Failed to load image');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final String _apiUrl = API_URL;
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double textLarge = size.width * 0.04;
     double padding20 = size.width * 0.047;
+
+    ImageProvider<Object>? imageProvider;
+
+    if (_imageBytes == null) {
+      imageProvider =
+          const AssetImage('assets/images/user-profile-default.png');
+    } else {
+      imageProvider = MemoryImage(_imageBytes!);
+    }
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: padding20, vertical: padding20),
@@ -40,7 +90,7 @@ class HeaderProfileWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _userName!.toUpperCase(),
+                  widget._userName!.toUpperCase(),
                   style: TextStyle(
                       color: Color(primaryBlack),
                       fontSize: textLarge,
@@ -50,7 +100,7 @@ class HeaderProfileWidget extends StatelessWidget {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  '$_posision',
+                  '${widget._posision}',
                   style: TextStyle(
                       color: Color(primaryBlack),
                       fontSize: textMedium,
@@ -67,12 +117,7 @@ class HeaderProfileWidget extends StatelessWidget {
             child: CircleAvatar(
                 backgroundColor: Colors.white,
                 maxRadius: 30,
-                backgroundImage: _imageUrl == ''
-                    ? const AssetImage('assets/images/user-profile-default.png')
-                        as ImageProvider
-                    : NetworkImage(
-                        '$_apiUrl/get_photo2?nrp=$_imageUrl',
-                      )),
+                backgroundImage: imageProvider),
           )
         ],
       ),

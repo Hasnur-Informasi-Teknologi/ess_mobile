@@ -59,57 +59,62 @@ class _DetailRawatInapDaftarPermintaanState
   }
 
   Future<void> getDataDetailRawatInap() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    int id = arguments['id'];
+    final token = await _getToken();
+    if (token == null) return;
+    final id = int.parse(arguments['id'].toString());
 
     setState(() {
       _isLoadingScreen = true;
     });
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/rawat/inap/$id/detail"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataDetailRawatInapApi = responseData['data'];
-        final dataDetailRincianRawatInapApi = responseData['data']['detail'];
-
-        setState(() {
-          masterDataDetailRawatInap =
-              Map<String, dynamic>.from(dataDetailRawatInapApi);
-
-          masterDataDetailRincianRawatInap =
-              List<Map<String, dynamic>>.from(dataDetailRincianRawatInapApi);
-
-          String? totalPengajuanString =
-              dataDetailRawatInapApi['total_pengajuan'];
-          int totalPengajuan = int.tryParse(totalPengajuanString ?? '') ?? 0;
-          totalPengajuanFormated =
-              NumberFormat.decimalPattern('id-ID').format(totalPengajuan);
-
-          String? selisihString = dataDetailRawatInapApi['total_pengajuan'];
-          int selisih = int.tryParse(selisihString ?? '') ?? 0;
-          selisihFormated =
-              NumberFormat.decimalPattern('id-ID').format(selisih);
-
-          String? totalDigantiString = dataDetailRawatInapApi['total_diganti'];
-          int totalDiganti = int.tryParse(totalDigantiString ?? '') ?? 0;
-          totalDigantiFormated =
-              NumberFormat.decimalPattern('id-ID').format(totalDiganti);
-
-          _isLoadingScreen = false;
-        });
-      } catch (e) {
-        print(e);
-      }
+    try {
+      final ioClient = createIOClientWithInsecureConnection();
+      final response = await ioClient.get(
+        Uri.parse("$_apiUrl/rawat/inap/$id/detail"),
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      _handleResponse(response);
+    } catch (e) {
+      print('Error fetching data: $e');
+      setState(() {
+        _isLoadingScreen = false;
+      });
     }
+  }
+
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  void _handleResponse(http.Response response) {
+    final responseData = jsonDecode(response.body);
+    final dataDetailRawatInapApi = responseData['data'];
+    final dataDetailRincianRawatInapApi = dataDetailRawatInapApi['detail'];
+
+    setState(() {
+      masterDataDetailRawatInap =
+          Map<String, dynamic>.from(dataDetailRawatInapApi);
+      masterDataDetailRincianRawatInap =
+          List<Map<String, dynamic>>.from(dataDetailRincianRawatInapApi);
+
+      totalPengajuanFormated =
+          _formatCurrency(dataDetailRawatInapApi['total_pengajuan']);
+      selisihFormated =
+          _formatCurrency(dataDetailRawatInapApi['total_pengajuan']);
+      totalDigantiFormated =
+          _formatCurrency(dataDetailRawatInapApi['total_diganti']);
+
+      _isLoadingScreen = false;
+    });
+  }
+
+  String _formatCurrency(String? amount) {
+    int value = int.tryParse(amount ?? '') ?? 0;
+    return NumberFormat.decimalPattern('id-ID').format(value);
   }
 
   @override
@@ -261,135 +266,81 @@ class _DetailRawatInapDaftarPermintaanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'Kode',
+        'value': '${masterDataDetailRawatInap['kode_rawat_inap'] ?? '-'}',
+      },
+      {
+        'label': 'Tanggal Pengajuan',
+        'value': '${masterDataDetailRawatInap['tgl_pengajuan'] ?? '-'}',
+      },
+      {
+        'label': 'Nrp',
+        'value': '${masterDataDetailRawatInap['pernr'] ?? '-'}',
+      },
+      {
+        'label': 'Nama Karyawan',
+        'value': '${masterDataDetailRawatInap['nama'] ?? '-'}',
+      },
+      {
+        'label': 'Perusahaan',
+        'value': '${masterDataDetailRawatInap['pt'] ?? '-'}',
+      },
+      {
+        'label': 'Lokasi Kerja',
+        'value': '${masterDataDetailRawatInap['lokasi'] ?? '-'}',
+      },
+      {
+        'label': 'Pangkat Karyawan',
+        'value': '${masterDataDetailRawatInap['pangkat'] ?? '-'}',
+      },
+      {
+        'label': 'Tanggal Masuk',
+        'value': '${masterDataDetailRawatInap['hire_date'] ?? '-'}',
+      },
+      {
+        'label': 'Periode Rawat (Mulai)',
+        'value': '${masterDataDetailRawatInap['prd_rawat_mulai'] ?? '-'}',
+      },
+      {
+        'label': 'Periode Rawat (Berakhir)',
+        'value': '${masterDataDetailRawatInap['prd_rawat_akhir'] ?? '-'}',
+      },
+      {
+        'label': 'Nama Pasien',
+        'value': '${masterDataDetailRawatInap['nm_pasien'] ?? '-'}',
+      },
+      {
+        'label': 'Hubungan Dengan Karyawan',
+        'value': '${masterDataDetailRawatInap['hub_karyawan'] ?? '-'}',
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Diajukan Oleh'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Kode',
-          textRight: '${masterDataDetailRawatInap['kode_rawat_inap'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Pengajuan',
-          textRight: '${masterDataDetailRawatInap['tgl_pengajuan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nrp',
-          textRight: '${masterDataDetailRawatInap['pernr'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama Karyawan',
-          textRight: '${masterDataDetailRawatInap['nama'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Perusahaan',
-          textRight: '${masterDataDetailRawatInap['pt'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Lokasi Kerja',
-          textRight: '${masterDataDetailRawatInap['lokasi'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Pangkat Karyawan',
-          textRight: '${masterDataDetailRawatInap['pangkat'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Masuk',
-          textRight: '${masterDataDetailRawatInap['hire_date'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Periode Rawat (Mulai)',
-          textRight: '${masterDataDetailRawatInap['prd_rawat_mulai'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Periode Rawat (Berakhir)',
-          textRight: '${masterDataDetailRawatInap['prd_rawat_akhir'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama Pasien',
-          textRight: '${masterDataDetailRawatInap['nm_pasien'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Hubungan Dengan Karyawan',
-          textRight: '${masterDataDetailRawatInap['hub_karyawan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
+        ...data.map((item) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RowWithSemicolonWidget(
+                  textLeft: item['label'],
+                  textRight: item['value'].toString(),
+                  fontSizeLeft: textMedium,
+                  fontSizeRight: textMedium,
+                ),
+                SizedBox(height: sizedBoxHeightShort),
+              ],
+            )),
         const TitleWidget(title: 'Daftar Pengajuan'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -401,101 +352,65 @@ class _DetailRawatInapDaftarPermintaanState
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double sizedBoxHeightTall = 15;
 
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'Tanggal Terima',
+        'value': masterDataDetailRawatInap['approved_date2'] ?? '-',
+      },
+      {
+        'label': 'Total Pengajuan',
+        'value': 'Rp. $totalPengajuanFormated',
+      },
+      {
+        'label': 'Selisih',
+        'value': 'Rp. $selisihFormated',
+      },
+      {
+        'label': 'Catatan',
+        'value': masterDataDetailRawatInap['catatan'] ?? '-',
+      },
+      {
+        'label': 'Keterangan Atasan',
+        'value': masterDataDetailRawatInap['keterangan_atasan'] ?? '-',
+      },
+      {
+        'label': 'Keterangan PIC HCGS',
+        'value': masterDataDetailRawatInap['keterangan_pic_hcgs'] ?? '-',
+      },
+      {
+        'label': 'Keterangan Direksi',
+        'value': masterDataDetailRawatInap['keterangan_direksi'] ?? '-',
+      },
+      {
+        'label': 'Dokumen',
+        'value': masterDataDetailRawatInap['dokumen'] ?? '-',
+      },
+      {
+        'label': 'Total Diganti Perusahaan',
+        'value': 'Rp. $totalDigantiFormated',
+      },
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
         const TitleWidget(title: 'Hasil Verifikasi PIC HCGS'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Terima',
-          textRight: masterDataDetailRawatInap['approved_date2'] ?? '-',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Total Pengajuan',
-          textRight: 'Rp. $totalPengajuanFormated',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Selisih',
-          textRight: 'Rp. $selisihFormated',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Catatan',
-          textRight: masterDataDetailRawatInap['catatan'] ?? '-',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Keterangan Atasan',
-          textRight: masterDataDetailRawatInap['keterangan_atasan'] ?? '-',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Keterangan PIC HCGS',
-          textRight: masterDataDetailRawatInap['keterangan_pic_hcgs'] ?? '-',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Keterangan Direksi',
-          textRight: masterDataDetailRawatInap['keterangan_direksi'] ?? '-',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Dokumen',
-          textRight: masterDataDetailRawatInap['dokumen'] ?? '-',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Total Diganti Perusahaan',
-          textRight: 'Rp. $totalDigantiFormated',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightTall),
+        ...data.map((item) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RowWithSemicolonWidget(
+                  textLeft: item['label'],
+                  textRight: item['value'].toString(),
+                  fontSizeLeft: textMedium,
+                  fontSizeRight: textMedium,
+                ),
+                SizedBox(height: sizedBoxHeightShort),
+              ],
+            )),
       ],
     );
   }
@@ -506,30 +421,28 @@ class _DetailRawatInapDaftarPermintaanState
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
 
+    String statusApprove = masterDataDetailRawatInap['status_approve'] ?? '-';
+    String createdAt = masterDataDetailRawatInap['created_at'] ?? '-';
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
         TitleCenterWithLongBadgeWidget(
           textLeft: 'Status Pengajuan',
-          textRight: '${masterDataDetailRawatInap['status_approve'] ?? '-'}',
+          textRight: statusApprove,
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
           color: Colors.yellow,
         ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         TitleCenterWidget(
           textLeft: 'Pada',
-          textRight: ': ${masterDataDetailRawatInap['created_at'] ?? '-'}',
+          textRight: ': $createdAt',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
       ],
     );
   }

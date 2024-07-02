@@ -179,24 +179,20 @@ class _DetailRawatJalanDaftarPersetujuanState
   }
 
   String _formatRupiah(dynamic amount) {
+    double parsedAmount = 0.0;
+
     if (amount is String) {
-      double parsedAmount = double.tryParse(amount) ?? 0.0;
-      String formattedAmount =
-          NumberFormat.decimalPattern('id-ID').format(parsedAmount);
-      if (parsedAmount < 0) {
-        formattedAmount = '(${formattedAmount.substring(1)})';
-      }
-      return formattedAmount;
+      parsedAmount = double.tryParse(amount) ?? 0.0;
     } else if (amount is int) {
-      double parsedAmount = amount.toDouble();
-      String formattedAmount =
-          NumberFormat.decimalPattern('id-ID').format(parsedAmount);
-      if (parsedAmount < 0) {
-        formattedAmount = '(${formattedAmount.substring(1)})';
-      }
-      return formattedAmount;
+      parsedAmount = amount.toDouble();
     }
-    return '0';
+
+    String formattedAmount =
+        NumberFormat.decimalPattern('id-ID').format(parsedAmount);
+    if (parsedAmount < 0) {
+      formattedAmount = '(${formattedAmount.substring(1)})';
+    }
+    return formattedAmount;
   }
 
   int calculateTotalJumlahDisetujui(
@@ -208,144 +204,201 @@ class _DetailRawatJalanDaftarPersetujuanState
   }
 
   Future<void> getDataDetailRawatJalan() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    int id = arguments['id'];
+    final token = await _getToken();
+    if (token == null) return;
+
+    final id = int.parse(arguments['id'].toString());
+
     setState(() {
       _isLoadingScreen = true;
     });
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/rawat/jalan/$id/detail"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataDetailRawatJalanApi = responseData['data'];
-        final dataDetailRincianRawatJalanApi = responseData['data']['detail'];
-        final dataDetailApprovedRawatJalanApi =
-            responseData['data']['approved_detail'];
-
-        setState(() {
-          masterDataDetailRawatJalan =
-              Map<String, dynamic>.from(dataDetailRawatJalanApi);
-
-          masterDataDetailRincianRawatJalan =
-              List<Map<String, dynamic>>.from(dataDetailRincianRawatJalanApi);
-
-          print(masterDataDetailRincianRawatJalan);
-
-          masterDataDetailApprovedRawatJalan =
-              List<Map<String, dynamic>>.from(dataDetailApprovedRawatJalanApi);
-
-          getDataDetailPlafon();
-
-          _isLoadingScreen = false;
-        });
-      } catch (e) {
-        print(e);
+    try {
+      final response = await _fetchDataDetailRawatJalan(token, id);
+      if (response.statusCode == 200) {
+        _handleSuccessResponseDetailRawatJalan(response);
+        await getDataDetailPlafon();
+      } else {
+        _handleErrorResponseDetailRawatJalan(response);
       }
+    } catch (e) {
+      print('Error fetching data rawat jalan: $e');
+    } finally {
+      setState(() {
+        _isLoadingScreen = false;
+      });
     }
+  }
+
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  Future<http.Response> _fetchDataDetailRawatJalan(String token, int id) {
+    final ioClient = createIOClientWithInsecureConnection();
+    final url = Uri.parse("$_apiUrl/rawat/jalan/$id/detail");
+    return ioClient.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+  }
+
+  void _handleSuccessResponseDetailRawatJalan(http.Response response) {
+    final responseData = jsonDecode(response.body);
+    final dataDetailRawatJalanApi = responseData['data'];
+    final dataDetailRincianRawatJalanApi = responseData['data']['detail'];
+    final dataDetailApprovedRawatJalanApi =
+        responseData['data']['approved_detail'];
+
+    setState(() {
+      masterDataDetailRawatJalan =
+          Map<String, dynamic>.from(dataDetailRawatJalanApi);
+      masterDataDetailRincianRawatJalan =
+          List<Map<String, dynamic>>.from(dataDetailRincianRawatJalanApi);
+      masterDataDetailApprovedRawatJalan =
+          List<Map<String, dynamic>>.from(dataDetailApprovedRawatJalanApi);
+    });
+  }
+
+  void _handleErrorResponseDetailRawatJalan(http.Response response) {
+    print('Failed to fetch data detail rawat jalan: ${response.statusCode}');
   }
 
   Future<void> getDataDetailPlafon() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
     var nrp = masterDataDetailRawatJalan['pernr'];
+    final token = await _getToken();
+    if (token == null) return;
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/rawat/jalan/plafon?nrp=$nrp"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataDetailPlafonApi = responseData['data'];
-
-        setState(() {
-          masterDataDetailPlafon =
-              List<Map<String, dynamic>>.from(dataDetailPlafonApi);
-        });
-      } catch (e) {
-        print(e);
+    try {
+      final response = await _fetchDataDetailPlafon(token, nrp);
+      if (response.statusCode == 200) {
+        _handleSuccessResponseDetailPlafon(response);
+      } else {
+        _handleErrorResponseDetailPlafon(response);
       }
+    } catch (e) {
+      print('Error fetching data plafon: $e');
     }
   }
 
+  Future<http.Response> _fetchDataDetailPlafon(String token, var nrp) {
+    final ioClient = createIOClientWithInsecureConnection();
+    final url = Uri.parse("$_apiUrl/rawat/jalan/plafon?nrp=$nrp");
+    return ioClient.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+  }
+
+  void _handleSuccessResponseDetailPlafon(http.Response response) {
+    final responseData = jsonDecode(response.body);
+    final dataDetailPlafonApi = responseData['data'];
+
+    setState(() {
+      masterDataDetailPlafon =
+          List<Map<String, dynamic>>.from(dataDetailPlafonApi);
+    });
+  }
+
+  void _handleErrorResponseDetailPlafon(http.Response response) {
+    print('Failed to fetch data detail plafon: ${response.statusCode}');
+  }
+
   Future<void> rejectAndApprove(int? id, String? status) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final token = await _getToken();
+    if (token == null) return;
 
-    String? token = prefs.getString('token');
-
-    String keterangan = _keteranganController.text;
-    String catatan = _catatanController.text;
-    String tglPayment = tanggalPayment.toString();
-    int jumlahSetuju =
+    final keterangan = _keteranganController.text;
+    final catatan = _catatanController.text;
+    final tglPayment = tanggalPayment.toString();
+    final jumlahSetuju =
         calculateTotalJumlahDisetujui(masterDataDetailApprovedRawatJalan);
 
     setState(() {
       _isLoadingScreen = true;
     });
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
+    try {
+      final response = await _sendRejectApproveRequest(
+          token, id, status, keterangan, catatan, tglPayment, jumlahSetuju);
+      _handleResponse(response);
+    } catch (e) {
+      print('Error rejecting/approving: $e');
+    } finally {
+      setState(() {
+        _isLoadingScreen = false;
+      });
+    }
+  }
 
-        final response = await ioClient.post(
-          Uri.parse('$_apiUrl/rawat/jalan/$id/process'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token'
-          },
-          body: jsonEncode(
-            {
-              'status': status,
-              'keterangan': keterangan,
-              'catatan': catatan,
-              'ket_doc': selectedValueJenisDokumen,
-              'tgl_payment': tglPayment,
-              'approve_detail': approveDetail,
-              'jumlah_setuju': jumlahSetuju,
-              'sisa_plafon': 0
-            },
-          ),
-        );
-        final responseData = jsonDecode(response.body);
-        if (responseData['status'] == 'success') {
-          Get.offAllNamed('/user/main');
-          Get.snackbar('Infomation', responseData['message'],
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: Colors.amber,
-              icon: const Icon(
-                Icons.info,
-                color: Colors.white,
-              ),
-              shouldIconPulse: false);
-        } else {
-          Get.snackbar('Infomation', 'Gagal',
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: Colors.amber,
-              icon: const Icon(
-                Icons.info,
-                color: Colors.white,
-              ),
-              shouldIconPulse: false);
-          setState(() {
-            _isLoadingScreen = false;
-          });
-        }
-      } catch (e) {
-        print(e);
-      }
+  Future<http.Response> _sendRejectApproveRequest(
+    String token,
+    int? id,
+    String? status,
+    String keterangan,
+    String catatan,
+    String tglPayment,
+    int jumlahSetuju,
+  ) async {
+    final ioClient = createIOClientWithInsecureConnection();
+
+    final response = await ioClient.post(
+      Uri.parse('$_apiUrl/rawat/jalan/$id/process'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token'
+      },
+      body: jsonEncode(
+        {
+          'status': status,
+          'keterangan': keterangan,
+          'catatan': catatan,
+          'ket_doc': selectedValueJenisDokumen,
+          'tgl_payment': tglPayment,
+          'approve_detail': approveDetail,
+          'jumlah_setuju': jumlahSetuju,
+          'sisa_plafon': 0
+        },
+      ),
+    );
+
+    return response;
+  }
+
+  void _handleResponse(http.Response response) {
+    final responseData = jsonDecode(response.body);
+    if (responseData['status'] == 'success') {
+      Get.offAllNamed('/user/main');
+      Get.snackbar(
+        'Information',
+        responseData['message'],
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.amber,
+        icon: const Icon(
+          Icons.info,
+          color: Colors.white,
+        ),
+        shouldIconPulse: false,
+      );
+    } else {
+      Get.snackbar(
+        'Information',
+        'Gagal',
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.amber,
+        icon: const Icon(
+          Icons.info,
+          color: Colors.white,
+        ),
+        shouldIconPulse: false,
+      );
     }
   }
 
@@ -372,81 +425,12 @@ class _DetailRawatJalanDaftarPersetujuanState
     });
 
     void submitDaftarPengajuan() {
-      bool idExists = approveDetail.any((element) =>
+      final idExists = approveDetail.any((element) =>
           element['id_jp_rawat_jalan'] ==
           masterDataDetailRincianRawatJalan[index]['id_jp_rawat_jalan']);
 
-      if (!idExists) {
-        setState(() {
-          approveDetail.add({
-            'id_jp_rawat_jalan': masterDataDetailRincianRawatJalan[index]
-                ['id_jp_rawat_jalan'],
-            'benefit_type': masterDataDetailRincianRawatJalan[index]
-                ['benefit_type'],
-            'created_at': masterDataDetailRincianRawatJalan[index]
-                ['created_at'],
-            'detail_penggantian': masterDataDetailRincianRawatJalan[index]
-                ['detail_penggantian'],
-            'hub_karyawan': masterDataDetailRincianRawatJalan[index]
-                ['hub_karyawan'],
-            'id_diagnosa': masterDataDetailRincianRawatJalan[index]
-                ['id_diagnosa'],
-            'id_md_jp_rawat_jalan': masterDataDetailRincianRawatJalan[index]
-                ['id_md_jp_rawat_jalan'],
-            'jenis_penggantian': null,
-            'jumlah': masterDataDetailRincianRawatJalan[index]['jumlah'],
-            'jumlah_rp': masterDataDetailRincianRawatJalan[index]['jumlah_rp'],
-            'keterangan': masterDataDetailRincianRawatJalan[index]
-                ['keterangan'],
-            'message': masterDataDetailRincianRawatJalan[index]['message'],
-            'nm_pasien': masterDataDetailRincianRawatJalan[index]['nm_pasien'],
-            'no_doc': masterDataDetailRincianRawatJalan[index]['no_doc'],
-            'no_kuitansi': masterDataDetailRincianRawatJalan[index]
-                ['no_kuitansi'],
-            'plafon_type':
-                masterDataDetailPlafonFiltered[0]['type_plafon'].toString(),
-            'sap_sync_state': masterDataDetailRincianRawatJalan[index]
-                ['sap_sync_state'],
-            'status': masterDataDetailRincianRawatJalan[index]['status'],
-            'tgl_kuitansi': masterDataDetailRincianRawatJalan[index]
-                ['tgl_kuitansi'],
-            'updated_at': masterDataDetailRincianRawatJalan[index]
-                ['updated_at'],
-            'md_rw_jalan': {
-              'created_at': masterDataDetailRincianRawatJalan[index]
-                  ['md_rw_jalan']['created_at'],
-              'id': masterDataDetailRincianRawatJalan[index]['md_rw_jalan']
-                  ['id'],
-              'kd_rw_jalan': masterDataDetailRincianRawatJalan[index]
-                  ['md_rw_jalan']['kd_rw_jalan'],
-              'ket': masterDataDetailRincianRawatJalan[index]['md_rw_jalan']
-                  ['ket'],
-              'updated_at': masterDataDetailRincianRawatJalan[index]
-                  ['md_rw_jalan']['updated_at'],
-            },
-          });
-
-          masterDataDetailApprovedRawatJalan.add({
-            'plafon_type':
-                masterDataDetailPlafonFiltered[0]['type_plafon'].toString(),
-            'plafon_name': masterDataDetailPlafonFiltered[0]['ket'],
-            'detail_penggantian': masterDataDetailRincianRawatJalan[index]
-                ['detail_penggantian'],
-            'nm_pasien': masterDataDetailRincianRawatJalan[index]['nm_pasien'],
-            'hub_karyawan': masterDataDetailRincianRawatJalan[index]
-                ['hub_karyawan'],
-            'no_kuitansi': masterDataDetailRincianRawatJalan[index]
-                ['no_kuitansi'],
-            'tgl_kuitansi': masterDataDetailRincianRawatJalan[index]
-                ['tgl_kuitansi'],
-            'jumlah': int.parse(_plafonDisetujuiController.text),
-          });
-
-          nominalDisetujui =
-              calculateTotalJumlahDisetujui(masterDataDetailApprovedRawatJalan);
-        });
-      } else {
-        Get.snackbar('Infomation', 'Data Tersebut Tidak Boleh Lagi!',
+      if (idExists) {
+        Get.snackbar('Information', 'Data Tersebut Tidak Boleh Lagi!',
             snackPosition: SnackPosition.TOP,
             backgroundColor: Colors.amber,
             icon: const Icon(
@@ -454,7 +438,72 @@ class _DetailRawatJalanDaftarPersetujuanState
               color: Colors.white,
             ),
             shouldIconPulse: false);
+        return;
       }
+
+      final newDetail = {
+        'id_jp_rawat_jalan': masterDataDetailRincianRawatJalan[index]
+            ['id_jp_rawat_jalan'],
+        'benefit_type': masterDataDetailRincianRawatJalan[index]
+            ['benefit_type'],
+        'created_at': masterDataDetailRincianRawatJalan[index]['created_at'],
+        'detail_penggantian': masterDataDetailRincianRawatJalan[index]
+            ['detail_penggantian'],
+        'hub_karyawan': masterDataDetailRincianRawatJalan[index]
+            ['hub_karyawan'],
+        'id_diagnosa': masterDataDetailRincianRawatJalan[index]['id_diagnosa'],
+        'id_md_jp_rawat_jalan': masterDataDetailRincianRawatJalan[index]
+            ['id_md_jp_rawat_jalan'],
+        'jenis_penggantian': null,
+        'jumlah': masterDataDetailRincianRawatJalan[index]['jumlah'],
+        'jumlah_rp': masterDataDetailRincianRawatJalan[index]['jumlah_rp'],
+        'keterangan': masterDataDetailRincianRawatJalan[index]['keterangan'],
+        'message': masterDataDetailRincianRawatJalan[index]['message'],
+        'nm_pasien': masterDataDetailRincianRawatJalan[index]['nm_pasien'],
+        'no_doc': masterDataDetailRincianRawatJalan[index]['no_doc'],
+        'no_kuitansi': masterDataDetailRincianRawatJalan[index]['no_kuitansi'],
+        'plafon_type': masterDataDetailPlafonFiltered.isNotEmpty
+            ? masterDataDetailPlafonFiltered[0]['type_plafon'].toString()
+            : '',
+        'sap_sync_state': masterDataDetailRincianRawatJalan[index]
+            ['sap_sync_state'],
+        'status': masterDataDetailRincianRawatJalan[index]['status'],
+        'tgl_kuitansi': masterDataDetailRincianRawatJalan[index]
+            ['tgl_kuitansi'],
+        'updated_at': masterDataDetailRincianRawatJalan[index]['updated_at'],
+        'md_rw_jalan': {
+          'created_at': masterDataDetailRincianRawatJalan[index]['md_rw_jalan']
+              ['created_at'],
+          'id': masterDataDetailRincianRawatJalan[index]['md_rw_jalan']['id'],
+          'kd_rw_jalan': masterDataDetailRincianRawatJalan[index]['md_rw_jalan']
+              ['kd_rw_jalan'],
+          'ket': masterDataDetailRincianRawatJalan[index]['md_rw_jalan']['ket'],
+          'updated_at': masterDataDetailRincianRawatJalan[index]['md_rw_jalan']
+              ['updated_at'],
+        },
+      };
+
+      setState(() {
+        approveDetail.add(newDetail);
+
+        masterDataDetailApprovedRawatJalan.add({
+          'plafon_type': masterDataDetailPlafonFiltered.isNotEmpty
+              ? masterDataDetailPlafonFiltered[0]['type_plafon'].toString()
+              : '',
+          'plafon_name': masterDataDetailPlafonFiltered.isNotEmpty
+              ? masterDataDetailPlafonFiltered[0]['ket']
+              : '',
+          'detail_penggantian': newDetail['detail_penggantian'],
+          'nm_pasien': newDetail['nm_pasien'],
+          'hub_karyawan': newDetail['hub_karyawan'],
+          'no_kuitansi': newDetail['no_kuitansi'],
+          'tgl_kuitansi': newDetail['tgl_kuitansi'],
+          'jumlah': int.parse(_plafonDisetujuiController.text),
+        });
+
+        nominalDisetujui =
+            calculateTotalJumlahDisetujui(masterDataDetailApprovedRawatJalan);
+      });
     }
 
     return showModalBottomSheet(
@@ -754,71 +803,79 @@ class _DetailRawatJalanDaftarPersetujuanState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         diajukanOlehWidget(context),
-                        (x.data['pernr'] ==
-                                    masterDataDetailRawatJalan[
-                                        'approved_by2'] &&
-                                masterDataDetailRawatJalan['approved_at2'] ==
-                                    null)
-                            ? daftarPengajuanTableWithButton(context)
-                            : daftarPengajuanTable(context),
-                        (x.data['pernr'] ==
-                                    masterDataDetailRawatJalan[
-                                        'approved_by2'] &&
-                                masterDataDetailRawatJalan['approved_at2'] ==
-                                    null)
-                            ? approvalCompensationTableWithButton(context)
-                            : approvalCompensationTable(context),
-                        (x.data['pernr'] ==
-                                    masterDataDetailRawatJalan[
-                                        'approved_by2']) ||
-                                (x.data['pernr'] ==
-                                    masterDataDetailRawatJalan['approved_by3'])
-                            ? hasilVerivikasiPicHrgsWidget(context)
-                            : const SizedBox(
-                                height: 0,
-                              ),
+                        buildDaftarPengajuanTable(context),
+                        buildApprovalCompensationTable(context),
+                        buildHasilVerifikasiPicHrgsWidget(context),
                       ],
                     ),
                   ),
-                  (x.data['pernr'] ==
-                              masterDataDetailRawatJalan['approved_by2'] &&
-                          masterDataDetailRawatJalan['approved_at2'] == null)
-                      ? secondApprovalForm(context)
-                      : const SizedBox(
-                          height: 0,
-                        ),
+                  buildSecondApprovalForm(context),
                   Padding(
                     padding:
                         EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-                    child: Column(children: [
-                      footerWidget(context),
-                      (masterDataDetailRawatJalan['approved_at1'] == null &&
-                                  x.data['pernr'] ==
-                                      masterDataDetailRawatJalan[
-                                          'approved_by1']) ||
-                              (masterDataDetailRawatJalan['approved_at2'] ==
-                                      null &&
-                                  x.data['pernr'] ==
-                                      masterDataDetailRawatJalan[
-                                          'approved_by2']) ||
-                              (masterDataDetailRawatJalan['approved_at3'] ==
-                                      null &&
-                                  x.data['pernr'] ==
-                                      masterDataDetailRawatJalan[
-                                          'approved_by3'])
-                          ? approvalAndRejectButton(context)
-                          : const SizedBox(
-                              height: 0,
-                            ),
-                      const SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                    ]),
+                    child: Column(
+                      children: [
+                        footerWidget(context),
+                        buildApprovalAndRejectButton(context),
+                        const SizedBox(
+                          height: sizedBoxHeightExtraTall,
+                        ),
+                      ],
+                    ),
                   )
                 ],
               ),
             ),
           );
+  }
+
+  Widget buildDaftarPengajuanTable(BuildContext context) {
+    if (x.data['pernr'] == masterDataDetailRawatJalan['approved_by2'] &&
+        masterDataDetailRawatJalan['approved_at2'] == null) {
+      return daftarPengajuanTableWithButton(context);
+    } else {
+      return daftarPengajuanTable(context);
+    }
+  }
+
+  Widget buildApprovalCompensationTable(BuildContext context) {
+    if (x.data['pernr'] == masterDataDetailRawatJalan['approved_by2'] &&
+        masterDataDetailRawatJalan['approved_at2'] == null) {
+      return approvalCompensationTableWithButton(context);
+    } else {
+      return approvalCompensationTable(context);
+    }
+  }
+
+  Widget buildHasilVerifikasiPicHrgsWidget(BuildContext context) {
+    if (x.data['pernr'] == masterDataDetailRawatJalan['approved_by2'] ||
+        x.data['pernr'] == masterDataDetailRawatJalan['approved_by3']) {
+      return hasilVerivikasiPicHrgsWidget(context);
+    } else {
+      return const SizedBox(height: 0);
+    }
+  }
+
+  Widget buildSecondApprovalForm(BuildContext context) {
+    if (x.data['pernr'] == masterDataDetailRawatJalan['approved_by2'] &&
+        masterDataDetailRawatJalan['approved_at2'] == null) {
+      return secondApprovalForm(context);
+    } else {
+      return const SizedBox(height: 0);
+    }
+  }
+
+  Widget buildApprovalAndRejectButton(BuildContext context) {
+    if ((masterDataDetailRawatJalan['approved_at1'] == null &&
+            x.data['pernr'] == masterDataDetailRawatJalan['approved_by1']) ||
+        (masterDataDetailRawatJalan['approved_at2'] == null &&
+            x.data['pernr'] == masterDataDetailRawatJalan['approved_by2']) ||
+        (masterDataDetailRawatJalan['approved_at3'] == null &&
+            x.data['pernr'] == masterDataDetailRawatJalan['approved_by3'])) {
+      return approvalAndRejectButton(context);
+    } else {
+      return const SizedBox(height: 0);
+    }
   }
 
   Widget daftarPengajuanTableWithButton(BuildContext context) {
@@ -1568,110 +1625,73 @@ class _DetailRawatJalanDaftarPersetujuanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'Nomor',
+        'value': '${masterDataDetailRawatJalan['no_doc'] ?? '-'}',
+      },
+      {
+        'label': 'NRP',
+        'value': '${masterDataDetailRawatJalan['pernr'] ?? '-'}',
+      },
+      {
+        'label': 'Nama Karyawan',
+        'value': '${masterDataDetailRawatJalan['nama'] ?? '-'}',
+      },
+      {
+        'label': 'Perusahaan',
+        'value': '${masterDataDetailRawatJalan['pt'] ?? '-'}',
+      },
+      {
+        'label': 'Lokasi Kerja',
+        'value': '${masterDataDetailRawatJalan['lokasi'] ?? '-'}',
+      },
+      {
+        'label': 'Tanggal Pengajuan',
+        'value': '${masterDataDetailRawatJalan['tgl_pengajuan'] ?? '-'}',
+      },
+      {
+        'label': 'Pangkat Karyawan',
+        'value': '${masterDataDetailRawatJalan['pangkat'] ?? '-'}',
+      },
+      {
+        'label': 'Tanggal Masuk',
+        'value': '${masterDataDetailRawatJalan['hire_date'] ?? '-'}',
+      },
+      {
+        'label': 'Periode Rawat',
+        'value': '${masterDataDetailRawatJalan['prd_rawat'] ?? '-'}',
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Diajukan Oleh'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nomor',
-          textRight: '${masterDataDetailRawatJalan['no_doc'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'NRP',
-          textRight: '${masterDataDetailRawatJalan['pernr'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama Karyawan',
-          textRight: '${masterDataDetailRawatJalan['nama'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Perusahaan',
-          textRight: '${masterDataDetailRawatJalan['pt'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Lokasi Kerja',
-          textRight: '${masterDataDetailRawatJalan['lokasi'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Pengajuan',
-          textRight: '${masterDataDetailRawatJalan['tgl_pengajuan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Pangkat Karyawan',
-          textRight: '${masterDataDetailRawatJalan['pangkat'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Masuk',
-          textRight: '${masterDataDetailRawatJalan['hire_date'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Periode Rawat',
-          textRight: '${masterDataDetailRawatJalan['prd_rawat'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
+        ...data.map((item) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RowWithSemicolonWidget(
+                  textLeft: item['label'],
+                  textRight: item['value'].toString(),
+                  fontSizeLeft: textMedium,
+                  fontSizeRight: textMedium,
+                ),
+                SizedBox(height: sizedBoxHeightShort),
+              ],
+            )),
+        SizedBox(height: sizedBoxHeightShort),
         const TitleWidget(
-            title:
-                'Daftar Pengajuan Jenis Penggantian Biaya Kesehatan Rawat Jalan'),
-        SizedBox(
-          height: sizedBoxHeightShort,
+          title:
+              'Daftar Pengajuan Jenis Penggantian Biaya Kesehatan Rawat Jalan',
         ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -1683,106 +1703,64 @@ class _DetailRawatJalanDaftarPersetujuanState
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double sizedBoxHeightTall = 15;
 
+    List<Map<String, String>> data = [
+      {
+        'label': 'Tanggal Terima',
+        'value': masterDataDetailRawatJalan['tgl_pengajuan'] ?? '-',
+      },
+      {
+        'label': 'Nominal Disetujui',
+        'value': masterDataDetailRawatJalan['approved_at2'] == null
+            ? 'Rp. ${_formatRupiah(nominalDisetujui)}'
+            : 'Rp. ${masterDataDetailRawatJalan['jumlah_setuju'] ?? '-'}',
+      },
+      {
+        'label': 'Catatan',
+        'value': masterDataDetailRawatJalan['catatan'] ?? '-',
+      },
+      {
+        'label': 'Dokumen',
+        'value': masterDataDetailRawatJalan['ket_doc'] ?? '-',
+      },
+      {
+        'label': 'Tanggal Payment',
+        'value': masterDataDetailRawatJalan['tgl_payment'] ?? '-',
+      },
+      {
+        'label': 'Keterangan Atasan',
+        'value': masterDataDetailRawatJalan['keterangan_atasan'] ?? '-',
+      },
+      {
+        'label': 'Keterangan PIC HCGS',
+        'value': masterDataDetailRawatJalan['keterangan_pic_hcgs'] ?? '-',
+      },
+      {
+        'label': 'Keterangan Direksi',
+        'value': masterDataDetailRawatJalan['keterangan_direksi'] ?? '-',
+      },
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
+        SizedBox(height: sizedBoxHeightTall),
         const TitleWidget(title: 'Hasil Verifikasi PIC HRGS'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Terima',
-          textRight: '${masterDataDetailRawatJalan['tgl_pengajuan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        masterDataDetailRawatJalan['approved_at2'] == null
-            ? RowWithSemicolonWidget(
-                textLeft: 'Nominal Disetujui',
-                textRight: 'Rp. ${_formatRupiah(nominalDisetujui)}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              )
-            : RowWithSemicolonWidget(
-                textLeft: 'Nominal Disetujui',
-                textRight:
-                    'Rp. ${masterDataDetailRawatJalan['jumlah_setuju'] ?? '-'}',
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Catatan',
-          textRight: '${masterDataDetailRawatJalan['catatan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Dokumen',
-          textRight: '${masterDataDetailRawatJalan['ket_doc'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Payment',
-          textRight: '${masterDataDetailRawatJalan['tgl_payment'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Keterangan Atasan',
-          textRight:
-              '${masterDataDetailRawatJalan['keterangan_atasan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Keterangan PIC HCGS',
-          textRight:
-              '${masterDataDetailRawatJalan['keterangan_pic_hcgs'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Keterangan Direksi',
-          textRight: masterDataDetailRawatJalan['keterangan_direksi'] ?? '-',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightTall),
+        ...data.map((item) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RowWithSemicolonWidget(
+                  textLeft: item['label'],
+                  textRight: item['value']!,
+                  fontSizeLeft: textMedium,
+                  fontSizeRight: textMedium,
+                ),
+                SizedBox(height: sizedBoxHeightShort),
+              ],
+            )),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -1792,14 +1770,11 @@ class _DetailRawatJalanDaftarPersetujuanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
         TitleCenterWithLongBadgeWidget(
           textLeft: 'Status Pengajuan',
           textRight: '${masterDataDetailRawatJalan['status_approve'] ?? '-'}',
@@ -1807,19 +1782,15 @@ class _DetailRawatJalanDaftarPersetujuanState
           fontSizeRight: textMedium,
           color: Colors.yellow,
         ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         TitleCenterWidget(
           textLeft: 'Pada',
           textRight:
-              ': ${masterDataDetailRawatJalan['created_at'] != null ? formatDate(masterDataDetailRawatJalan['created_at']) : '-'}',
+              ': ${masterDataDetailRawatJalan['created_at'] != null ? formatDate(masterDataDetailRawatJalan['created_at']) : ''}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        )
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }

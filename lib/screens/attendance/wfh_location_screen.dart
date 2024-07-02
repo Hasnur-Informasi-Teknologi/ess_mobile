@@ -5,7 +5,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/screens/attendance/take_selfie_screen.dart';
-import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trust_location/trust_location.dart';
@@ -32,6 +31,21 @@ class WFHLocationScreen extends StatefulWidget {
 class _WFHLocationScreenState extends State<WFHLocationScreen> {
   String? lat, long, address;
   bool _isLoading = false;
+  String _timeZone = 'WIB';
+
+  @override
+  void initState() {
+    super.initState();
+    _getTimeZone();
+  }
+
+  void _getTimeZone() {
+    var now = DateTime.now();
+    var timeZoneName = now.timeZoneName;
+    setState(() {
+      _timeZone = timeZoneName;
+    });
+  }
 
   Future<void> getLocation() async {
     final locationService = LocationService();
@@ -58,11 +72,6 @@ class _WFHLocationScreenState extends State<WFHLocationScreen> {
   }
 
   Future<void> clockInProcess() async {
-    // bool isMockLocation = await TrustLocation.isMockLocation;
-    // if(isMockLocation){
-    //   _showErrorDialog('Ayo nakal yaa, ketahuan mau fake GPS ya?');
-    //   return;
-    // }
     setState(() {
       _isLoading = true;
     });
@@ -76,7 +85,7 @@ class _WFHLocationScreenState extends State<WFHLocationScreen> {
     print('=======TIMESTAMP ======');
     DateTime sdate = DateTime.parse(response.body);
     int stimestamp = sdate.millisecondsSinceEpoch;
-    var timeZone = prefs.getString('timeZone');
+    // var timeZone = prefs.getString('timeZone');
     // var timezone = await FlutterTimezone.getLocalTimezone();
     // if (timezone == 'Asia/Jakarta') {
     //   timeZone = 'WIB'; // Western Indonesia Time
@@ -87,6 +96,7 @@ class _WFHLocationScreenState extends State<WFHLocationScreen> {
     // } else {
     //   timeZone = 'Unknown'; // Unknown or not applicable
     // }
+    var timeZone = _timeZone;
     if (timeZone == 'WITA') {
       stimestamp = stimestamp + (1 * 60 * 60 * 1000);
     } else if (timeZone == 'WIT') {
@@ -130,7 +140,7 @@ class _WFHLocationScreenState extends State<WFHLocationScreen> {
       },
       child: Scaffold(
           appBar: AppBar(
-              title: const Text('Location').tr(),
+              title: const Text('Location'),
               centerTitle: true,
               backgroundColor: const Color(primaryYellow),
               leading: IconButton(

@@ -28,26 +28,27 @@ class AuthProvider with ChangeNotifier {
           }));
 
       final responseData = jsonDecode(response.body);
-
-      if (responseData['status'] != true) {
-        throw HttpException(responseData['status']);
+      if (response.statusCode != 200) {
+        throw HttpException(responseData['message'] ?? 'Unknown error');
       }
+
+      String? token = responseData['token'];
 
       final prefs = await SharedPreferences.getInstance();
       prefs.setString('token', responseData['token']);
       prefs.setString('nrp', nrp);
       final user = await ioClient.get(
-        Uri.parse('$_apiUrl/master/profile/get_employee?nrp=$nrp'),
+        Uri.parse('$_apiUrl/master/profile/get_employee'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': "Bearer " + responseData['token']
+          'Authorization': 'Bearer $token'
         },
       );
       final user_auth = await ioClient.get(
         Uri.parse('$_apiUrl/master/profile/get_user?nrp=$nrp'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': "Bearer " + responseData['token']
+          'Authorization': 'Bearer $token'
         },
       );
 
@@ -58,7 +59,12 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return jsonDecode(user_auth.body)['data']['role_id'];
     } catch (e) {
-      throw e;
+      // throw e;
+      if (e is HttpException) {
+        throw e;
+      } else {
+        throw HttpException('Authentication failed. Please try again later.');
+      }
     }
   }
 

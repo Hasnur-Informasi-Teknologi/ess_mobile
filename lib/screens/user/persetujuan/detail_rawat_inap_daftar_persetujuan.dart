@@ -185,153 +185,210 @@ class _DetailRawatInapDaftarPersetujuanState
   }
 
   Future<void> getDataDetailRawatInap() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    int id = arguments['id'];
+    final token = await _getToken();
+    if (token == null) return;
+
+    final id = int.parse(arguments['id'].toString());
 
     setState(() {
       _isLoadingScreen = true;
     });
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
-
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/rawat/inap/$id/detail"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataDetailRawatInapApi = responseData['data'];
-        final dataDetailRincianRawatInapApi = responseData['data']['detail'];
-        final dataDetailApprovedRawatInapApi =
-            responseData['data']['approved_detail'];
-
-        setState(() {
-          masterDataDetailRawatInap =
-              Map<String, dynamic>.from(dataDetailRawatInapApi);
-
-          masterDataDetailRincianRawatInap =
-              List<Map<String, dynamic>>.from(dataDetailRincianRawatInapApi);
-
-          masterDataDetailApprovedRawatInap =
-              List<Map<String, dynamic>>.from(dataDetailApprovedRawatInapApi);
-
-          _kelasKamarController.text =
-              masterDataDetailRawatInap['kls_kamar_ajukan'].toString();
-          _totalPengajuanController.text =
-              calculateTotalJumlah(masterDataDetailRincianRawatInap).toString();
-          _totalDigantiController.text =
-              masterDataDetailRawatInap['total_diganti'];
-          _selisihController.text = masterDataDetailRawatInap['selisih'];
-          _isLoadingScreen = false;
-        });
-      } catch (e) {
-        print(e);
+    try {
+      final response = await _fetchDataDetailRawatInap(token, id);
+      if (response.statusCode == 200) {
+        _handleSuccessResponseDetailRawatJalan(response);
+      } else {
+        _handleErrorResponseDetailRawatJalan(response);
       }
+    } catch (e) {
+      print('Error fetching data rawat jalan: $e');
+    } finally {
+      setState(() {
+        _isLoadingScreen = false;
+      });
     }
+  }
+
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('token');
+  }
+
+  Future<http.Response> _fetchDataDetailRawatInap(String token, int id) {
+    final ioClient = createIOClientWithInsecureConnection();
+    final url = Uri.parse("$_apiUrl/rawat/inap/$id/detail");
+    return ioClient.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+  }
+
+  void _handleSuccessResponseDetailRawatJalan(http.Response response) {
+    final responseData = jsonDecode(response.body);
+    final dataDetailRawatInapApi = responseData['data'];
+    final dataDetailRincianRawatInapApi = responseData['data']['detail'];
+    final dataDetailApprovedRawatInapApi =
+        responseData['data']['approved_detail'];
+
+    setState(() {
+      masterDataDetailRawatInap =
+          Map<String, dynamic>.from(dataDetailRawatInapApi);
+      masterDataDetailRincianRawatInap =
+          List<Map<String, dynamic>>.from(dataDetailRincianRawatInapApi);
+      masterDataDetailApprovedRawatInap =
+          List<Map<String, dynamic>>.from(dataDetailApprovedRawatInapApi);
+
+      _kelasKamarController.text =
+          masterDataDetailRawatInap['kls_kamar_ajukan'].toString();
+      _totalPengajuanController.text =
+          calculateTotalJumlah(masterDataDetailRincianRawatInap).toString();
+      _totalDigantiController.text = masterDataDetailRawatInap['total_diganti'];
+      _selisihController.text = masterDataDetailRawatInap['selisih'];
+    });
+  }
+
+  void _handleErrorResponseDetailRawatJalan(http.Response response) {
+    print('Failed to fetch data detail rawat jalan: ${response.statusCode}');
   }
 
   Future<void> getDataDetailPlafon() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-    var nrp = x.data['pernr'];
+    final token = await _getToken();
+    if (token == null) return;
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
+    final nrp = x.data['pernr'];
 
-        final response = await ioClient.get(
-            Uri.parse("$_apiUrl/rawat/inap/plafon?nrp=$nrp"),
-            headers: <String, String>{
-              'Content-Type': 'application/json;charset=UTF-8',
-              'Authorization': 'Bearer $token'
-            });
-        final responseData = jsonDecode(response.body);
-        final dataDetailPlafonApi = responseData['data']['detail'];
+    try {
+      final response = await _fetchDataDetailPlafon(token, nrp);
 
-        setState(() {
-          masterDataDetailPlafon =
-              List<Map<String, dynamic>>.from(dataDetailPlafonApi);
-        });
-      } catch (e) {
-        print(e);
+      print(response.body);
+      if (response.statusCode == 200) {
+        print('success');
+        _handleSuccessResponseDetailPlafon(response);
+      } else {
+        print('gagal');
+        _handleErrorResponseDetailPlafon(response);
       }
+    } catch (e) {
+      print('Error fetching data plafon: $e');
     }
   }
 
-  Future<void> rejectAndApprove(int? id, String? status) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  Future<http.Response> _fetchDataDetailPlafon(String token, String nrp) {
+    final ioClient = createIOClientWithInsecureConnection();
+    final url = Uri.parse("$_apiUrl/rawat/inap/plafon?nrp=$nrp");
+    return ioClient.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+  }
 
-    String? token = prefs.getString('token');
-
-    String keterangan = _keteranganController.text;
-    String catatan = _catatanController.text;
-    String klsKamarAjukan = _kelasKamarController.text;
-    int selisih = int.parse(_selisihController.text);
-    String tglPayment = tanggalPayment.toString();
-    String totalDiganti = _totalDigantiController.text;
-    int totalPengajuan = int.parse(_totalPengajuanController.text);
+  void _handleSuccessResponseDetailPlafon(http.Response response) {
+    final responseData = jsonDecode(response.body);
+    final dataDetailPlafonApi = responseData['data']['manfaat_setahun'];
 
     setState(() {
-      _isLoadingScreen = true;
+      masterDataDetailPlafon =
+          List<Map<String, dynamic>>.from(dataDetailPlafonApi);
     });
+  }
 
-    if (token != null) {
-      try {
-        final ioClient = createIOClientWithInsecureConnection();
+  void _handleErrorResponseDetailPlafon(http.Response response) {
+    print('Failed to fetch data detail plafon: ${response.statusCode}');
+  }
 
-        final response = await ioClient.post(
-          Uri.parse('$_apiUrl/rawat/inap/$id/process'),
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
-            'Authorization': 'Bearer $token'
-          },
-          body: jsonEncode(
-            {
-              'status': status,
-              'keterangan': keterangan,
-              'catatan': catatan,
-              'dokumen': selectedValueJenisDokumen,
-              'kls_kamar_ajukan': klsKamarAjukan,
-              'selisih': selisih,
-              'tgl_payment': tglPayment,
-              'total_diganti': totalDiganti,
-              'total_pengajuan': totalPengajuan,
-              'approve_detail': approveDetail
-            },
-          ),
-        );
-        final responseData = jsonDecode(response.body);
-        if (responseData['status'] == 'success') {
-          Get.offAllNamed('/user/main');
-          Get.snackbar('Infomation', responseData['message'],
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: Colors.amber,
-              icon: const Icon(
-                Icons.info,
-                color: Colors.white,
-              ),
-              shouldIconPulse: false);
-        } else {
-          Get.snackbar('Infomation', 'Gagal',
-              snackPosition: SnackPosition.TOP,
-              backgroundColor: Colors.amber,
-              icon: const Icon(
-                Icons.info,
-                color: Colors.white,
-              ),
-              shouldIconPulse: false);
-          setState(() {
-            _isLoadingScreen = false;
-          });
-        }
-      } catch (e) {
-        print(e);
+  Future<void> rejectAndApprove(int? id, String? status) async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    final requestBody = _createRequestBody(status);
+    _setLoadingState(true);
+
+    try {
+      final response = await _sendRequest(id, token, requestBody);
+      final responseData = jsonDecode(response.body);
+
+      if (responseData['status'] == 'success') {
+        _handleSuccess(responseData['message']);
+      } else {
+        _handleFailure();
       }
+    } catch (e) {
+      print('Error processing request: $e');
+    } finally {
+      _setLoadingState(false);
     }
+  }
+
+  Map<String, dynamic> _createRequestBody(String? status) {
+    return {
+      'status': status,
+      'keterangan': _keteranganController.text,
+      'catatan': _catatanController.text,
+      'dokumen': selectedValueJenisDokumen,
+      'kls_kamar_ajukan': _kelasKamarController.text,
+      'selisih': int.parse(_selisihController.text),
+      'tgl_payment': tanggalPayment.toString(),
+      'total_diganti': _totalDigantiController.text,
+      'total_pengajuan': int.parse(_totalPengajuanController.text),
+      'approve_detail': approveDetail,
+    };
+  }
+
+  Future<http.Response> _sendRequest(
+      int? id, String token, Map<String, dynamic> body) {
+    final ioClient = createIOClientWithInsecureConnection();
+    final url = Uri.parse('$_apiUrl/rawat/inap/$id/process');
+
+    return ioClient.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(body),
+    );
+  }
+
+  void _handleSuccess(String message) {
+    Get.offAllNamed('/user/main');
+    Get.snackbar(
+      'Information',
+      message,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.amber,
+      icon: const Icon(
+        Icons.info,
+        color: Colors.white,
+      ),
+      shouldIconPulse: false,
+    );
+  }
+
+  void _handleFailure() {
+    Get.snackbar(
+      'Information',
+      'Gagal',
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.amber,
+      icon: const Icon(
+        Icons.info,
+        color: Colors.white,
+      ),
+      shouldIconPulse: false,
+    );
+  }
+
+  void _setLoadingState(bool isLoading) {
+    setState(() {
+      _isLoadingScreen = isLoading;
+    });
   }
 
   Future<void> handleButtonAdd(BuildContext context, int? index) {
@@ -355,116 +412,93 @@ class _DetailRawatInapDaftarPersetujuanState
           masterDataDetailPlafonFilted[0]['nominal'].toString();
     });
 
-    void submitDaftarPengajuan() {
-      bool idExists = approveDetail.any((element) =>
+    bool isIdExists() {
+      return approveDetail.any((element) =>
           element['id_jp_rawat_inap'] ==
           masterDataDetailRincianRawatInap[index!]['id_jp_rawat_inap']);
+    }
 
-      if (!idExists) {
-        setState(() {
-          approveDetail.add({
-            'id_jp_rawat_inap': masterDataDetailRincianRawatInap[index!]
-                ['id_jp_rawat_inap'],
-            'kode_rawat_inap': masterDataDetailRincianRawatInap[index]
-                ['kode_rawat_inap'],
-            'id_md_jp_rawat_inap': masterDataDetailRincianRawatInap[index]
-                ['id_md_jp_rawat_inap'],
-            'detail_penggantian': masterDataDetailRincianRawatInap[index]
-                ['detail_penggantian'],
-            'no_kuitansi': masterDataDetailRincianRawatInap[index]
-                ['no_kuitansi'],
-            'tgl_kuitansi': masterDataDetailRincianRawatInap[index]
-                ['tgl_kuitansi'],
-            'keterangan': masterDataDetailRincianRawatInap[index]['keterangan'],
-            'lampiran_pembayaran': masterDataDetailRincianRawatInap[index]
-                ['lampiran_pembayaran'],
-            'created_at': masterDataDetailRincianRawatInap[index]['created_at'],
-            'updated_at': masterDataDetailRincianRawatInap[index]['updated_at'],
-            'jumlah': masterDataDetailRincianRawatInap[index]['jumlah'],
-            'status': masterDataDetailRincianRawatInap[index]['status'],
-            'file_type': masterDataDetailRincianRawatInap[index]['file_type'],
-            'sap_sync_state': masterDataDetailRincianRawatInap[index]
-                ['sap_sync_state'],
-            'benefit_type': masterDataDetailRincianRawatInap[index]
-                ['benefit_type'],
-            'id_diagnosa': masterDataDetailRincianRawatInap[index]
-                ['id_diagnosa'],
-            'jumlah_rp': masterDataDetailRincianRawatInap[index]['jumlah_rp'],
-            'jumlah_approve': _plafonDisetujuiController.text,
-            'ket': masterDataDetailRincianRawatInap[index]['md_rw_inap']['ket'],
-            'md_kategori_inap': {
-              'id': masterDataDetailRincianRawatInap[index]['md_kategori_inap']
-                  ['id'],
-              'nama': masterDataDetailRincianRawatInap[index]
-                  ['md_kategori_inap']['nama'],
-              'status': masterDataDetailRincianRawatInap[index]
-                  ['md_kategori_inap']['status'],
-              'benefit_type': masterDataDetailRincianRawatInap[index]
-                  ['md_kategori_inap']['benefit_type'],
-              'wage_type': masterDataDetailRincianRawatInap[index]
-                  ['md_kategori_inap']['wage_type'],
-              'mandt': masterDataDetailRincianRawatInap[index]
-                  ['md_kategori_inap']['mandt'],
-            },
-            'md_rw_inap': {
-              'id': masterDataDetailRincianRawatInap[index]['md_rw_inap']['id'],
-              'kd_rw_inap': masterDataDetailRincianRawatInap[index]
-                  ['md_rw_inap']['kd_rw_inap'],
-              'ket': masterDataDetailRincianRawatInap[index]['md_rw_inap']
-                  ['ket'],
-              'created_at': masterDataDetailRincianRawatInap[index]
-                  ['md_rw_inap']['created_at'],
-              'updated_at': masterDataDetailRincianRawatInap[index]
-                  ['md_rw_inap']['updated_at'],
-            },
-            'diagnosa': {
-              'id': masterDataDetailRincianRawatInap[index]['diagnosa']['id'],
-              'kode': masterDataDetailRincianRawatInap[index]['diagnosa']
-                  ['kode'],
-              'nama': masterDataDetailRincianRawatInap[index]['diagnosa']
-                  ['nama'],
-              'mandt': masterDataDetailRincianRawatInap[index]['diagnosa']
-                  ['mandt'],
-            },
-          });
+    void showSnackbar(String title, String message) {
+      Get.snackbar(
+        title,
+        message,
+        snackPosition: SnackPosition.TOP,
+        backgroundColor: Colors.amber,
+        icon: const Icon(
+          Icons.info,
+          color: Colors.white,
+        ),
+        shouldIconPulse: false,
+      );
+    }
 
-          masterDataDetailApprovedRawatInap.add({
-            'detail_penggantian': masterDataDetailRincianRawatInap[index]
-                ['detail_penggantian'],
-            'md_rw_inap': {
-              'kd_rw_inap': masterDataDetailRincianRawatInap[index]
-                  ['md_rw_inap']['kd_rw_inap'],
-              'ket': masterDataDetailRincianRawatInap[index]['md_rw_inap']
-                  ['ket']
-            },
-            'diagnosa': {
-              'nama': masterDataDetailRincianRawatInap[index]['diagnosa']
-                  ['nama']
-            },
-            'no_kuitansi': masterDataDetailRincianRawatInap[index]
-                ['no_kuitansi'],
-            'tgl_kuitansi': masterDataDetailRincianRawatInap[index]
-                ['tgl_kuitansi'],
-            'jumlah_approve': _plafonDisetujuiController.text
-          });
-          _plafonDisetujuiController.text = '';
-          _totalDigantiController.text =
-              calculateTotalDigantiPerusahaan(masterDataDetailApprovedRawatInap)
-                  .toString();
-          int selisih = int.parse(_totalPengajuanController.text) -
-              int.parse(_totalDigantiController.text);
-          _selisihController.text = selisih.toString();
-        });
-      } else {
-        Get.snackbar('Infomation', 'Data Tersebut Tidak Boleh Lagi!',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.amber,
-            icon: const Icon(
-              Icons.info,
-              color: Colors.white,
-            ),
-            shouldIconPulse: false);
+    void addApprovedDetail() {
+      final detail = masterDataDetailRincianRawatInap[index!];
+      final approvedDetail = {
+        'id_jp_rawat_inap': detail['id_jp_rawat_inap'],
+        'kode_rawat_inap': detail['kode_rawat_inap'],
+        'id_md_jp_rawat_inap': detail['id_md_jp_rawat_inap'],
+        'detail_penggantian': detail['detail_penggantian'],
+        'no_kuitansi': detail['no_kuitansi'],
+        'tgl_kuitansi': detail['tgl_kuitansi'],
+        'keterangan': detail['keterangan'],
+        'lampiran_pembayaran': detail['lampiran_pembayaran'],
+        'created_at': detail['created_at'],
+        'updated_at': detail['updated_at'],
+        'jumlah': detail['jumlah'],
+        'status': detail['status'],
+        'file_type': detail['file_type'],
+        'sap_sync_state': detail['sap_sync_state'],
+        'benefit_type': detail['benefit_type'],
+        'id_diagnosa': detail['id_diagnosa'],
+        'jumlah_rp': detail['jumlah_rp'],
+        'jumlah_approve': _plafonDisetujuiController.text,
+        'ket': detail['md_rw_inap']['ket'],
+        'md_kategori_inap': detail['md_kategori_inap'],
+        'md_rw_inap': detail['md_rw_inap'],
+        'diagnosa': detail['diagnosa'],
+      };
+
+      approveDetail.add(approvedDetail);
+
+      final approvedSummary = {
+        'detail_penggantian': detail['detail_penggantian'],
+        'md_rw_inap': {
+          'kd_rw_inap': detail['md_rw_inap']['kd_rw_inap'],
+          'ket': detail['md_rw_inap']['ket'],
+        },
+        'diagnosa': {
+          'nama': detail['diagnosa']['nama'],
+        },
+        'no_kuitansi': detail['no_kuitansi'],
+        'tgl_kuitansi': detail['tgl_kuitansi'],
+        'jumlah_approve': _plafonDisetujuiController.text,
+      };
+
+      masterDataDetailApprovedRawatInap.add(approvedSummary);
+    }
+
+    void updateControllers() {
+      _plafonDisetujuiController.clear();
+      _totalDigantiController.text =
+          calculateTotalDigantiPerusahaan(masterDataDetailApprovedRawatInap)
+              .toString();
+
+      final int totalPengajuan = int.parse(_totalPengajuanController.text);
+      final int totalDiganti = int.parse(_totalDigantiController.text);
+      _selisihController.text = (totalPengajuan - totalDiganti).toString();
+    }
+
+    void submitDaftarPengajuan() {
+      if (isIdExists()) {
+        showSnackbar('Information', 'Data Tersebut Tidak Boleh Lagi!');
+        return;
       }
+
+      setState(() {
+        addApprovedDetail();
+        updateControllers();
+      });
     }
 
     return showModalBottomSheet(
@@ -711,64 +745,61 @@ class _DetailRawatInapDaftarPersetujuanState
                       children: [
                         diajukanOlehWidget(context),
                         const TitleWidget(
-                            title:
-                                'Daftar Pengajuan Jenis Penggantian Biaya Kesehatan Rawat Inap'),
-                        const SizedBox(
-                          height: sizedBoxHeightShort,
+                          title:
+                              'Daftar Pengajuan Jenis Penggantian Biaya Kesehatan Rawat Inap',
                         ),
+                        const SizedBox(height: sizedBoxHeightShort),
                         const LineWidget(),
-                        const SizedBox(
-                          height: sizedBoxHeightTall,
-                        ),
-                        (x.data['pernr'] ==
-                                    masterDataDetailRawatInap['approved_by2'] &&
-                                masterDataDetailRawatInap['approved_date2'] ==
-                                    null)
-                            ? daftarPengajuanTableWithButton(context)
-                            : daftarPengajuanTable(context),
-                        (x.data['pernr'] ==
-                                    masterDataDetailRawatInap['approved_by2'] &&
-                                masterDataDetailRawatInap['approved_date2'] ==
-                                    null)
-                            ? approvalCompensationTableWithButton(context)
-                            : approvalCompensationTable(context),
+                        const SizedBox(height: sizedBoxHeightTall),
+                        _buildPengajuanTable(context),
+                        _buildCompensationTable(context),
                         hasilVerivikasiPicHrgsWidget(context),
                       ],
                     ),
                   ),
-                  (x.data['pernr'] ==
-                              masterDataDetailRawatInap['approved_by2'] &&
-                          masterDataDetailRawatInap['approved_date2'] == null)
-                      ? secondApprovalForm(context)
-                      : const SizedBox(
-                          height: 0,
-                        ),
+                  _buildSecondApprovalForm(context),
                   footerWidget(context),
-                  const SizedBox(
-                    height: sizedBoxHeightExtraTall,
-                  ),
-                  (masterDataDetailRawatInap['approved_date1'] == null &&
-                              x.data['pernr'] ==
-                                  masterDataDetailRawatInap['approved_by1']) ||
-                          (masterDataDetailRawatInap['approved_date2'] ==
-                                  null &&
-                              x.data['pernr'] ==
-                                  masterDataDetailRawatInap['approved_by2']) ||
-                          (masterDataDetailRawatInap['approved_date3'] ==
-                                  null &&
-                              x.data['pernr'] ==
-                                  masterDataDetailRawatInap['approved_by3'])
-                      ? approvalAndRejectButton(context)
-                      : const SizedBox(
-                          height: 0,
-                        ),
-                  const SizedBox(
-                    height: sizedBoxHeightExtraTall,
-                  ),
+                  const SizedBox(height: sizedBoxHeightExtraTall),
+                  _buildApprovalAndRejectButton(context),
+                  const SizedBox(height: sizedBoxHeightExtraTall),
                 ],
               ),
             ),
           );
+  }
+
+  Widget _buildPengajuanTable(BuildContext context) {
+    return (x.data['pernr'] == masterDataDetailRawatInap['approved_by2'] &&
+            masterDataDetailRawatInap['approved_date2'] == null)
+        ? daftarPengajuanTableWithButton(context)
+        : daftarPengajuanTable(context);
+  }
+
+  Widget _buildCompensationTable(BuildContext context) {
+    return (x.data['pernr'] == masterDataDetailRawatInap['approved_by2'] &&
+            masterDataDetailRawatInap['approved_date2'] == null)
+        ? approvalCompensationTableWithButton(context)
+        : approvalCompensationTable(context);
+  }
+
+  Widget _buildSecondApprovalForm(BuildContext context) {
+    return (x.data['pernr'] == masterDataDetailRawatInap['approved_by2'] &&
+            masterDataDetailRawatInap['approved_date2'] == null)
+        ? secondApprovalForm(context)
+        : const SizedBox(height: 0);
+  }
+
+  Widget _buildApprovalAndRejectButton(BuildContext context) {
+    bool isPendingApproval =
+        (masterDataDetailRawatInap['approved_date1'] == null &&
+                x.data['pernr'] == masterDataDetailRawatInap['approved_by1']) ||
+            (masterDataDetailRawatInap['approved_date2'] == null &&
+                x.data['pernr'] == masterDataDetailRawatInap['approved_by2']) ||
+            (masterDataDetailRawatInap['approved_date3'] == null &&
+                x.data['pernr'] == masterDataDetailRawatInap['approved_by3']);
+    return isPendingApproval
+        ? approvalAndRejectButton(context)
+        : const SizedBox(height: 0);
   }
 
   Widget daftarPengajuanTable(BuildContext context) {
@@ -1227,127 +1258,77 @@ class _DetailRawatInapDaftarPersetujuanState
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
+
+    List<Map<String, dynamic>> data = [
+      {
+        'label': 'Kode',
+        'value': '${masterDataDetailRawatInap['kode_rawat_inap'] ?? '-'}',
+      },
+      {
+        'label': 'Tanggal Pengajuan',
+        'value': '${masterDataDetailRawatInap['tgl_pengajuan'] ?? '-'}',
+      },
+      {
+        'label': 'Nrp',
+        'value': '${masterDataDetailRawatInap['pernr'] ?? '-'}',
+      },
+      {
+        'label': 'Nama Karyawan',
+        'value': '${masterDataDetailRawatInap['nama'] ?? '-'}',
+      },
+      {
+        'label': 'Perusahaan',
+        'value': '${masterDataDetailRawatInap['pt'] ?? '-'}',
+      },
+      {
+        'label': 'Lokasi Kerja',
+        'value': '${masterDataDetailRawatInap['lokasi'] ?? '-'}',
+      },
+      {
+        'label': 'Pangkat Karyawan',
+        'value': '${masterDataDetailRawatInap['pangkat'] ?? '-'}',
+      },
+      {
+        'label': 'Tanggal Masuk',
+        'value': '${masterDataDetailRawatInap['hire_date'] ?? '-'}',
+      },
+      {
+        'label': 'Periode Rawat (Mulai)',
+        'value': '${masterDataDetailRawatInap['prd_rawat_mulai'] ?? '-'}',
+      },
+      {
+        'label': 'Periode Rawat (Berakhir)',
+        'value': '${masterDataDetailRawatInap['prd_rawat_akhir'] ?? '-'}',
+      },
+      {
+        'label': 'Nama Pasien',
+        'value': '${masterDataDetailRawatInap['nm_pasien'] ?? '-'}',
+      },
+      {
+        'label': 'Hubungan Dengan Karyawan',
+        'value': '${masterDataDetailRawatInap['hub_karyawan'] ?? '-'}',
+      },
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const TitleWidget(title: 'Diajukan Oleh'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
+        SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Kode',
-          textRight: '${masterDataDetailRawatInap['kode_rawat_inap'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Pengajuan',
-          textRight: '${masterDataDetailRawatInap['tgl_pengajuan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nrp',
-          textRight: '${masterDataDetailRawatInap['pernr'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama Karyawan',
-          textRight: '${masterDataDetailRawatInap['nama'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Perusahaan',
-          textRight: '${masterDataDetailRawatInap['pt'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Lokasi Kerja',
-          textRight: '${masterDataDetailRawatInap['lokasi'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Pangkat Karyawan',
-          textRight: '${masterDataDetailRawatInap['pangkat'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Masuk',
-          textRight: '${masterDataDetailRawatInap['hire_date'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Periode Rawat (Mulai)',
-          textRight: '${masterDataDetailRawatInap['prd_rawat_mulai'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Periode Rawat (Berakhir)',
-          textRight: '${masterDataDetailRawatInap['prd_rawat_akhir'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Nama Pasien',
-          textRight: '${masterDataDetailRawatInap['nm_pasien'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Hubungan Dengan Karyawan',
-          textRight: '${masterDataDetailRawatInap['hub_karyawan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightExtraTall,
-        ),
+        SizedBox(height: sizedBoxHeightExtraTall),
+        ...data.map((item) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RowWithSemicolonWidget(
+                  textLeft: item['label'],
+                  textRight: item['value'].toString(),
+                  fontSizeLeft: textMedium,
+                  fontSizeRight: textMedium,
+                ),
+                SizedBox(height: sizedBoxHeightShort),
+              ],
+            )),
       ],
     );
   }

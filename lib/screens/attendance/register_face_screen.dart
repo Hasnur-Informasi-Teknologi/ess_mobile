@@ -8,7 +8,6 @@ import 'package:camera/camera.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
-import 'package:mobile_ess/screens/user/main/main_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:http/http.dart' as http;
