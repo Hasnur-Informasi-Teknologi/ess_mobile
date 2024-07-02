@@ -67,6 +67,7 @@ dependencies:
   # flutter_timezone: ^1.0.8
   # flutter_pdfview: ^1.2.7
   scrollable_table_view: ^2.0.3
+  open_file: ^3.3.2
 
 
 dev_dependencies:
