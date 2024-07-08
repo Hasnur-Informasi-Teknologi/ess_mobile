@@ -93,11 +93,18 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
   }
 
   Future<void> clockInProcess() async {
+    bool isMockLocation = await TrustLocation.isMockLocation;
+    if (isMockLocation) {
+      _showErrorDialog(
+          'Kami mendeteksi penggunaan GPS palsu. Silahkan Nonaktifkan dan coba lagi untuk melanjutkan absensi Anda!');
+      return;
+    }
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     setState(() {
       _isLoading = true;
     });
+
     if (lat != null &&
         long != null &&
         latString != null &&
@@ -116,40 +123,53 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
             ),
             shouldIconPulse: false);
       } else {
-        Map<String, String> headers = {"Content-type": "application/json"};
-        final ioClient = createIOClientWithInsecureConnection();
-        final response = await ioClient.get(
-            Uri.parse('https://hitfaceapi.my.id/api/get/server_date'),
-            headers: headers);
-        DateTime sdate = DateTime.parse(response.body);
-        int stimestamp = sdate.millisecondsSinceEpoch;
-        // var timeZone = prefs.getString('timeZone');
-        var timeZone = _timeZone;
-        print(timeZone);
-        if (timeZone == 'WITA') {
-          stimestamp = stimestamp + (1 * 60 * 60 * 1000);
-        } else if (timeZone == 'WIT') {
-          stimestamp = stimestamp + (2 * 60 * 60 * 1000);
+        try {
+          Map<String, String> headers = {"Content-type": "application/json"};
+          final ioClient = createIOClientWithInsecureConnection();
+          final response = await ioClient.get(
+              Uri.parse('https://hitfaceapi.my.id/api/get/server_date'),
+              headers: headers);
+          DateTime sdate = DateTime.parse(response.body);
+          int stimestamp = sdate.millisecondsSinceEpoch;
+          var timeZone = _timeZone;
+          if (timeZone == 'WITA') {
+            stimestamp = stimestamp + (1 * 60 * 60 * 1000);
+          } else if (timeZone == 'WIT') {
+            stimestamp = stimestamp + (2 * 60 * 60 * 1000);
+          }
+          var clockIn = DateFormat('yyyy-MM-dd HH:mm:ss')
+              .format(DateTime.fromMillisecondsSinceEpoch(stimestamp));
+
+          var karyawan =
+              jsonDecode(prefs.getString('userData').toString())['data'];
+          final userId = karyawan['pernr'];
+
+          Map<String, Object> clockInData = {
+            'nrp': userId.toString(),
+            'lat': lat!,
+            'long': long!,
+            'clock_in_time': clockIn,
+            'working_location': widget.workLocation,
+          };
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (ctx) => TakeSelfieScreen(
+                      clockInType: 'In', attendanceData: clockInData)));
+        } catch (e) {
+          Get.snackbar(
+            'Information',
+            'Maaf, Server lagi Down mohon lakukan absen beberapa saat lagi!',
+            snackPosition: SnackPosition.TOP,
+            duration: const Duration(seconds: 20),
+            backgroundColor: Colors.red,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false,
+          );
         }
-        var clockIn = DateFormat('yyyy-MM-dd HH:mm:ss')
-            .format(DateTime.fromMillisecondsSinceEpoch(stimestamp));
-
-        var karyawan =
-            jsonDecode(prefs.getString('userData').toString())['data'];
-        final userId = karyawan['pernr'];
-
-        Map<String, Object> clockInData = {
-          'nrp': userId.toString(),
-          'lat': lat!,
-          'long': long!,
-          'clock_in_time': clockIn,
-          'working_location': widget.workLocation,
-        };
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (ctx) => TakeSelfieScreen(
-                    clockInType: 'In', attendanceData: clockInData)));
       }
     } else {
       Get.snackbar('Infomation',
@@ -186,11 +206,13 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
               leading: IconButton(
                 icon: const Icon(Icons.arrow_back),
                 onPressed: () {
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              const MainScreenWithAnimation()));
+                  Get.offAllNamed('/user/main');
+
+                  // Navigator.pushReplacement(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //         builder: (context) =>
+                  //             const MainScreenWithAnimation()));
                 },
               )),
           body: _isLoading
@@ -211,41 +233,6 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
                             margin: const EdgeInsets.all(0),
                             child: Column(
                               children: <Widget>[
-                                // SizedBox(
-                                //   width: double.infinity,
-                                //   height: MediaQuery.of(context).size.width,
-                                //   child: FlutterMap(
-                                //     options: MapOptions(
-                                //       center: LatLng(double.parse(lat!),
-                                //           double.parse(long!)),
-                                //       zoom: 17.0,
-                                //     ),
-                                //     children: [
-                                //       TileLayer(
-                                //         urlTemplate:
-                                //             'http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
-                                //         subdomains: const [
-                                //           'mt0',
-                                //           'mt1',
-                                //           'mt2',
-                                //           'mt3'
-                                //         ],
-                                //       ),
-                                //       MarkerLayer(
-                                //         markers: [
-                                //           Marker(
-                                //             width: 50.0,
-                                //             height: 50.0,
-                                //             point: LatLng(double.parse(lat!),
-                                //                 double.parse(long!)),
-                                //             builder: (ctx) => Image.asset(
-                                //                 'assets/images/logo-hasnur.png'),
-                                //           ),
-                                //         ],
-                                //       ),
-                                //     ],
-                                //   ),
-                                // ),
                                 SizedBox(
                                   width: double.infinity,
                                   height: MediaQuery.of(context).size.width,
@@ -327,6 +314,31 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
                                       ),
                                     ),
                                     onPressed: clockInProcess,
+                                    // onPressed: () async {
+                                    //   bool isFakeLocation =
+                                    //       await DetectFakeLocation()
+                                    //           .detectFakeLocation();
+                                    //   showDialog(
+                                    //     context: context,
+                                    //     builder: (BuildContext context) {
+                                    //       return AlertDialog(
+                                    //         title:
+                                    //             Text('Fake Location Detected'),
+                                    //         content: Text(
+                                    //             'The user is${isFakeLocation ? '' : ' not'} using a fake location.'),
+                                    //         actions: <Widget>[
+                                    //           TextButton(
+                                    //             child: Text('OK'),
+                                    //             onPressed: () {
+                                    //               Navigator.of(context).pop();
+                                    //             },
+                                    //           ),
+                                    //         ],
+                                    //       );
+                                    //     },
+                                    //   );
+                                    // },
+
                                     child: const Padding(
                                       padding: EdgeInsets.all(12),
                                       child: Text(

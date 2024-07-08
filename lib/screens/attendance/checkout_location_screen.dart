@@ -3,6 +3,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/screens/attendance/take_selfie_screen.dart';
@@ -21,9 +22,13 @@ import 'package:trust_location/trust_location.dart';
 class CheckoutLocationScreen extends StatefulWidget {
   final String attendanceType;
   final String shift;
+  final String workLocation;
 
   const CheckoutLocationScreen(
-      {Key? key, required this.attendanceType, this.shift = 'false'})
+      {Key? key,
+      required this.attendanceType,
+      this.shift = 'false',
+      required this.workLocation})
       : super(key: key);
 
   @override
@@ -73,101 +78,65 @@ class _CheckoutLocationScreenState extends State<CheckoutLocationScreen> {
         });
   }
 
-  // Future<void> clockOutProcess() async {
-  //   setState(() {
-  //     _isLoading = true;
-  //   });
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-
-  //   Map<String, String> headers = {"Content-type": "application/json"};
-  //   final response = await http.get(
-  //       Uri.parse('https://hitfaceapi.my.id/api/get/server_date'),
-  //       headers: headers);
-  //   DateTime sdate = DateTime.parse(response.body);
-  //   int stimestamp = sdate.millisecondsSinceEpoch;
-  //   var timeZone = prefs.getString('timeZone');
-  //   var timezone = await FlutterTimezone.getLocalTimezone();
-  //   if (timezone == 'Asia/Jakarta') {
-  //     timeZone = 'WIB'; // Western Indonesia Time
-  //   } else if (timezone == 'Asia/Makassar') {
-  //     timeZone = 'WITA'; // Central Indonesia Time
-  //   } else if (timezone == 'Asia/Jayapura') {
-  //     timeZone = 'WIT'; // Eastern Indonesia Time
-  //   } else {
-  //     timeZone = 'Unknown'; // Unknown or not applicable
-  //   }
-  //   if (timeZone == 'WITA') {
-  //     stimestamp = stimestamp + (1 * 60 * 60 * 1000);
-  //   } else if (timeZone == 'WIT') {
-  //     stimestamp = stimestamp + (2 * 60 * 60 * 1000);
-  //   }
-
-  //   var clockOut = DateFormat('yyyy-MM-dd HH:mm:ss')
-  //       .format(DateTime.fromMillisecondsSinceEpoch(stimestamp));
-
-  //   var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
-  //   final userId = karyawan['pernr'];
-
-  //   Map<String, Object> clockOutData = {
-  //     'nrp': userId.toString(),
-  //     'lat': lat!,
-  //     'long': long!,
-  //     'clock_in_time': clockOut,
-  //     'working_location': 'Office',
-  //   };
-  //   Navigator.push(
-  //       context,
-  //       MaterialPageRoute(
-  //           builder: (ctx) => TakeSelfieScreen(
-  //               clockInType: 'Out', attendanceData: clockOutData)));
-  //   // Navigator.push(
-  //   //     context, MaterialPageRoute(builder: (ctx) => RegisterFaceScreen()));
-
-  //   setState(() {
-  //     _isLoading = false;
-  //   });
-  // }
-
   Future<void> clockOutProcess() async {
+    bool isMockLocation = await TrustLocation.isMockLocation;
+    if (isMockLocation) {
+      _showErrorDialog(
+          'Kami mendeteksi penggunaan GPS palsu. Silahkan Nonaktifkan dan coba lagi untuk melanjutkan absensi Anda!');
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      Map<String, String> headers = {"Content-type": "application/json"};
+      final ioClient = createIOClientWithInsecureConnection();
+      final response = await ioClient.get(
+          Uri.parse('https://hitfaceapi.my.id/api/get/server_date'),
+          headers: headers);
+      DateTime sdate = DateTime.parse(response.body);
+      int stimestamp = sdate.millisecondsSinceEpoch;
 
-    Map<String, String> headers = {"Content-type": "application/json"};
-    final ioClient = createIOClientWithInsecureConnection();
-    final response = await ioClient.get(
-        Uri.parse('https://hitfaceapi.my.id/api/get/server_date'),
-        headers: headers);
-    DateTime sdate = DateTime.parse(response.body);
-    int stimestamp = sdate.millisecondsSinceEpoch;
-    // var timeZone = prefs.getString('timeZone');
+      var timeZone = _timeZone;
+      if (timeZone == 'WITA') {
+        stimestamp = stimestamp + (1 * 60 * 60 * 1000);
+      } else if (timeZone == 'WIT') {
+        stimestamp = stimestamp + (2 * 60 * 60 * 1000);
+      }
+      var clockIn = DateFormat('yyyy-MM-dd HH:mm:ss')
+          .format(DateTime.fromMillisecondsSinceEpoch(stimestamp));
 
-    var timeZone = _timeZone;
-    if (timeZone == 'WITA') {
-      stimestamp = stimestamp + (1 * 60 * 60 * 1000);
-    } else if (timeZone == 'WIT') {
-      stimestamp = stimestamp + (2 * 60 * 60 * 1000);
+      var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
+      final userId = karyawan['pernr'];
+
+      Map<String, Object> clockOutData = {
+        'nrp': userId.toString(),
+        'lat': lat!,
+        'long': long!,
+        'clock_in_time': clockIn,
+        'working_location': widget.workLocation,
+      };
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (ctx) => TakeSelfieScreen(
+                  clockInType: 'Out', attendanceData: clockOutData)));
+    } catch (e) {
+      Get.snackbar(
+        'Information',
+        'Maaf, Server lagi Down mohon lakukan absen beberapa saat lagi!',
+        snackPosition: SnackPosition.TOP,
+        duration: const Duration(seconds: 20),
+        backgroundColor: Colors.red,
+        icon: const Icon(
+          Icons.info,
+          color: Colors.white,
+        ),
+        shouldIconPulse: false,
+      );
     }
-    var clockIn = DateFormat('yyyy-MM-dd HH:mm:ss')
-        .format(DateTime.fromMillisecondsSinceEpoch(stimestamp));
-
-    var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
-    final userId = karyawan['pernr'];
-
-    Map<String, Object> clockOutData = {
-      'nrp': userId.toString(),
-      'lat': lat!,
-      'long': long!,
-      'clock_in_time': clockIn,
-      'working_location': 'Office',
-    };
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (ctx) => TakeSelfieScreen(
-                clockInType: 'Out', attendanceData: clockOutData)));
-
     setState(() {
       _isLoading = false;
     });

@@ -43,6 +43,8 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
   final List<TabIconData> tabIconsList = TabIconData.tabIconsList;
   Widget tabBody = Container(color: const Color(backgroundNew));
 
+  String? workLocation;
+
   @override
   void initState() {
     super.initState();
@@ -102,6 +104,7 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
     if (responseData['dataku'][0]['in_date'] == dateOnly) {
       x.absenIn.value = true;
       x.absenOut.value = responseData['dataku'][0]['out_time'] != null;
+      workLocation = responseData['dataku'][0]['working_location_status'];
     } else {
       x.absenIn.value = false;
       x.absenOut.value = false;
@@ -248,10 +251,33 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
           context,
           icon: Icons.outbound,
           label: 'Absen Pulang',
-          onPressed: () => navigateToScreen(
-            context,
-            const CheckoutLocationScreen(attendanceType: 'Check-Out'),
-          ),
+          onPressed: () {
+            if (workLocation == 'Home') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (ctx) => const CheckoutLocationScreen(
+                      attendanceType: 'Check-Out', workLocation: 'Home'),
+                ),
+              );
+            } else if (workLocation == 'Trip') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (ctx) => const CheckoutLocationScreen(
+                      attendanceType: 'Check-Out', workLocation: 'Trip'),
+                ),
+              );
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (ctx) => const CheckoutLocationScreen(
+                      attendanceType: 'Check-Out', workLocation: 'Office'),
+                ),
+              );
+            }
+          },
         ),
       ],
     );

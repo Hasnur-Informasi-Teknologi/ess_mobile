@@ -46,6 +46,7 @@ class _AdminMainScreenState extends State<AdminMainScreen>
   bool isLate = false;
   bool isEmpty = true;
   final String _apiUrl = API_URL;
+  String? workLocation;
 
   Widget tabBody = Container(
     color: const Color(backgroundNew),
@@ -62,6 +63,7 @@ class _AdminMainScreenState extends State<AdminMainScreen>
     tabBody = const AdminHeaderScreen();
     // tabBody = const HomeScreen();
     // _checkFaceData();
+    print('Dashboard');
     getDataAbsenKaryawan();
     super.initState();
   }
@@ -103,6 +105,7 @@ class _AdminMainScreenState extends State<AdminMainScreen>
             x.absenIn.value = true;
             x.absenOut.value = true;
           }
+          workLocation = responseData['dataku'][0]['working_location_status'];
         } else {
           x.absenIn.value = false;
           x.absenOut.value = false;
@@ -246,7 +249,6 @@ class _AdminMainScreenState extends State<AdminMainScreen>
               style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Color(primaryYellow))),
               onPressed: () {
-                print('home');
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -328,36 +330,72 @@ class _AdminMainScreenState extends State<AdminMainScreen>
     );
   }
 
+  Widget buildOutlinedButton(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return Container(
+      width: double.infinity,
+      height: 45,
+      margin: const EdgeInsets.only(bottom: 10),
+      child: OutlinedButton(
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: Color(primaryYellow)),
+        ),
+        onPressed: onPressed,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(icon),
+            Text(
+              label,
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                color: Color(primaryBlack),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget clockOutWidget(BuildContext context) {
     return Column(
       children: [
-        Container(
-          width: double.infinity,
-          height: 45,
-          margin: const EdgeInsets.only(bottom: 10),
-          child: OutlinedButton(
-            style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(primaryYellow))),
-            onPressed: () {
+        buildOutlinedButton(
+          context,
+          icon: Icons.outbound,
+          label: 'Absen Pulang',
+          onPressed: () {
+            if (workLocation == 'Home') {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (ctx) =>
-                      const CheckoutLocationScreen(attendanceType: 'Check-Out'),
+                  builder: (ctx) => const CheckoutLocationScreen(
+                      attendanceType: 'Check-Out', workLocation: 'Home'),
                 ),
               );
-            },
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Icon(Icons.outbound),
-                Text('Absen Pulang',
-                    style: TextStyle(
-                        fontWeight: FontWeight.w500,
-                        color: Color(primaryBlack))),
-              ],
-            ),
-          ),
+            } else if (workLocation == 'Trip') {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (ctx) => const CheckoutLocationScreen(
+                      attendanceType: 'Check-Out', workLocation: 'Trip'),
+                ),
+              );
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (ctx) => const CheckoutLocationScreen(
+                      attendanceType: 'Check-Out', workLocation: 'Office'),
+                ),
+              );
+            }
+          },
         ),
       ],
     );

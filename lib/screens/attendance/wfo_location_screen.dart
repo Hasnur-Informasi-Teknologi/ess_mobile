@@ -47,20 +47,8 @@ class _WFOLocationScreenState extends State<WFOLocationScreen> {
 
     latUser = locationData!.latitude!.toStringAsFixed(7);
     longUser = locationData.longitude!.toStringAsFixed(7);
-    print('lokasi user');
-    print(locationData);
     // GET QR LOCATION
     Map<String, dynamic> qrLocationData = await json.decode(widget.qrLocation);
-    print('lokasi qr');
-    print(qrLocationData);
-    // _qrTime = DateFormat('yyyy-MM-dd').parse(qrLocationData['attendance_period']);
-    // _systemTime = DateTime.now();
-
-    // if (_systemTime!.month != _qrTime!.month) {
-    //   _showErrorDialog('QR Code is expired');
-    // } else if (_systemTime!.day != _qrTime!.day) {
-    //   _showErrorDialog('QR Code is expired');
-    // }
     // posisi QR
     print(double.parse(qrLocationData['lat']));
     lat = double.parse(qrLocationData['lat']);
@@ -68,7 +56,6 @@ class _WFOLocationScreenState extends State<WFOLocationScreen> {
     latString = lat!.toStringAsFixed(7);
     longString = long!.toStringAsFixed(7);
 
-    // =====================================================
     List<Placemark> newPlace = await placemarkFromCoordinates(lat!, long!);
 
     if (newPlace != null && newPlace.isNotEmpty) {
@@ -97,19 +84,7 @@ class _WFOLocationScreenState extends State<WFOLocationScreen> {
     print('=======TIMESTAMP ======');
     DateTime sdate = DateTime.parse(response.body);
     int stimestamp = sdate.millisecondsSinceEpoch;
-    print(sdate);
-    print(stimestamp);
     var timeZone = prefs.getString('timeZone');
-    // var timezone = await FlutterTimezone.getLocalTimezone();
-    // if (timezone == 'Asia/Jakarta') {
-    //   timeZone = 'WIB'; // Western Indonesia Time
-    // } else if (timezone == 'Asia/Makassar') {
-    //   timeZone = 'WITA'; // Central Indonesia Time
-    // } else if (timezone == 'Asia/Jayapura') {
-    //   timeZone = 'WIT'; // Eastern Indonesia Time
-    // } else {
-    //   timeZone = 'Unknown'; // Unknown or not applicable
-    // }
     if (timeZone == 'WITA') {
       stimestamp = stimestamp + (1 * 60 * 60 * 1000);
     } else if (timeZone == 'WIT') {

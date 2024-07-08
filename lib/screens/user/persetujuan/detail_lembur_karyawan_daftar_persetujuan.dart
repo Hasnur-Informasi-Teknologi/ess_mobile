@@ -488,7 +488,8 @@ class _DetailLemburKaryawanDaftarPersetujuanState
                             } else {
                               return TableViewCell(
                                 child: Text(
-                                  data[column].toString(),
+                                  // data[column].toString(),
+                                  data[column] ?? '-',
                                   style: TextStyle(
                                     color: const Color(primaryBlack),
                                     fontSize: textMedium,
@@ -556,8 +557,7 @@ class _DetailLemburKaryawanDaftarPersetujuanState
       children: [
         InkWell(
           onTap: () {
-            showRejectPengajuanCutiModal(
-                context, masterDataDetailLemburKaryawan['id']);
+            showRejectModal(context, masterDataDetailLemburKaryawan['id']);
           },
           child: Container(
             width: size.width * 0.25,
@@ -591,8 +591,7 @@ class _DetailLemburKaryawanDaftarPersetujuanState
         ),
         InkWell(
           onTap: () {
-            showApprovePengajuanCutiModal(
-                context, masterDataDetailLemburKaryawan['id']);
+            showApproveModal(context, masterDataDetailLemburKaryawan['id']);
           },
           child: Container(
             width: size.width * 0.25,
@@ -625,7 +624,7 @@ class _DetailLemburKaryawanDaftarPersetujuanState
     );
   }
 
-  void showApprovePengajuanCutiModal(BuildContext context, int? id) {
+  void showApproveModal(BuildContext context, int? id) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double textLarge = size.width * 0.04;
@@ -672,7 +671,7 @@ class _DetailLemburKaryawanDaftarPersetujuanState
           content: TextFormFieldWidget(
             controller: _alasanController,
             maxHeightConstraints: 40,
-            hintText: 'Alasan Reject',
+            hintText: 'Masukkan Catatan disini',
           ),
           actions: [
             Row(
@@ -740,7 +739,7 @@ class _DetailLemburKaryawanDaftarPersetujuanState
     );
   }
 
-  void showRejectPengajuanCutiModal(BuildContext context, int? id) {
+  void showRejectModal(BuildContext context, int? id) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double textLarge = size.width * 0.04;

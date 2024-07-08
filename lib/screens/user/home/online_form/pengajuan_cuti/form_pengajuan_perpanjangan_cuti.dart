@@ -340,213 +340,66 @@ class _FormPengajuanPerpanjanganCutiState
                             ],
                           ),
                         ),
-                        onPressed: () {
-                          // showDialog(
-                          //   context: context,
-                          //   builder: (BuildContext context) {
-                          //     return AlertDialog(
-                          //       content: Container(
-                          //         height: 350,
-                          //         width: 350,
-                          //         child: SfDateRangePicker(
-                          //           controller: _tanggalPengajuanController,
-                          //           onSelectionChanged:
-                          //               (DateRangePickerSelectionChangedArgs
-                          //                   args) {
-                          //             setState(() {
-                          //               tanggalPengajuan = args.value;
-                          //             });
-                          //           },
-                          //           selectionMode:
-                          //               DateRangePickerSelectionMode.single,
-                          //         ),
-                          //       ),
-                          //       actions: <Widget>[
-                          //         TextButton(
-                          //           onPressed: () => Navigator.pop(context),
-                          //           child: Text('OK'),
-                          //         ),
-                          //       ],
-                          //     );
-                          //   },
-                          // );
-                        },
+                        onPressed: () {},
                       ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
+                      _buildFormSection(
                           title: 'NRP',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFielDisableWidget(
+                          isMandatory: false,
+                          textSize: textMedium,
+                          horizontalPadding: paddingHorizontalNarrow,
+                          verticalSpacing: sizedBoxHeightShort,
                           controller: _nrpController,
+                          hintText: 'NRP',
                           maxHeightConstraints: _maxHeightNrp,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
+                          isDisable: true),
+                      _buildFormSection(
                           title: 'Nama',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFielDisableWidget(
+                          isMandatory: false,
+                          textSize: textMedium,
+                          horizontalPadding: paddingHorizontalNarrow,
+                          verticalSpacing: sizedBoxHeightShort,
                           controller: _namaController,
+                          hintText: 'Nama',
                           maxHeightConstraints: _maxHeightNama,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
+                          isDisable: true),
+                      _buildFormSection(
                           title: 'Entitas',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFielDisableWidget(
+                          isMandatory: false,
+                          textSize: textMedium,
+                          horizontalPadding: paddingHorizontalNarrow,
+                          verticalSpacing: sizedBoxHeightShort,
                           controller: _entitasController,
+                          hintText: 'Entitas',
                           maxHeightConstraints: _maxHeightEntitas,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih Atasan : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorAtasan,
-                          value: selectedValueAtasan,
-                          icon: selectedAtasan.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
+                          isDisable: true),
+                      _buildDropdownWithTwoTitle(
+                          title: 'Pilih Atasan : ',
+                          selectedValue: selectedValueAtasan,
+                          itemList: selectedAtasan,
                           onChanged: (String? newValue) {
                             setState(() {
                               selectedValueAtasan = newValue ?? '';
                             });
                           },
-                          items:
-                              selectedAtasan.map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["nrp"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: value["nama"] as String,
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            constraints:
-                                BoxConstraints(maxHeight: _maxHeightAtasan),
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValueAtasan != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                          validator: _validatorAtasan,
+                          maxHeight: _maxHeightAtasan,
+                          isLoading: selectedAtasan.isEmpty,
+                          valueKey: "nrp",
+                          titleKey: "nama",
+                          isRequired: true),
                       SizedBox(
                         height: sizedBoxHeightTall,
                       ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
+                      _buildFormSection(
                           title: 'Sisa Cuti',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFielDisableWidget(
+                          isMandatory: false,
+                          textSize: textMedium,
+                          horizontalPadding: paddingHorizontalNarrow,
+                          verticalSpacing: sizedBoxHeightShort,
                           controller: _sisaCutiController,
+                          hintText: 'Sisa Cuti',
                           maxHeightConstraints: _maxHeightSisaCuti,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
+                          isDisable: true),
                       SizedBox(
                         height: sizedBoxHeightTall,
                       ),
@@ -729,45 +582,17 @@ class _FormPengajuanPerpanjanganCutiState
                           )
                         ],
                       ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Alasan Cuti Tidak Digunakan ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFieldWidget(
+                      _buildFormSection(
+                          title: 'Alasan Cuti Tidak Digunakan ',
+                          isMandatory: true,
+                          textSize: textMedium,
+                          horizontalPadding: paddingHorizontalNarrow,
+                          verticalSpacing: sizedBoxHeightShort,
                           controller: _alasanController,
                           validator: validatorAlasanCuti,
-                          maxHeightConstraints: _maxHeightAlasan,
                           hintText: 'Karena ada ....',
-                        ),
-                      ),
+                          maxHeightConstraints: _maxHeightAlasan,
+                          isDisable: false),
                       SizedBox(
                         height: sizedBoxHeightTall,
                       ),
@@ -807,6 +632,158 @@ class _FormPengajuanPerpanjanganCutiState
               ],
             ),
           );
+  }
+
+  Widget _buildFormSection(
+      {required String title,
+      required bool isMandatory,
+      required double textSize,
+      required double horizontalPadding,
+      required double verticalSpacing,
+      required TextEditingController controller,
+      required String hintText,
+      double? maxHeightConstraints,
+      String? Function(String?)? validator,
+      isDisable = false}) {
+    Size size = MediaQuery.of(context).size;
+    double sizedBoxHeightTall = size.height * 0.0163;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              TitleWidget(
+                title: title,
+                fontWeight: FontWeight.w300,
+                fontSize: textSize,
+              ),
+              if (isMandatory)
+                Text(
+                  '*',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textSize,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+            ],
+          ),
+          SizedBox(height: verticalSpacing),
+          isDisable
+              ? TextFormFielDisableWidget(
+                  controller: controller,
+                  maxHeightConstraints: maxHeightConstraints ?? 50.0,
+                )
+              : TextFormFieldWidget(
+                  validator: validator,
+                  controller: controller,
+                  maxHeightConstraints: maxHeightConstraints ?? 50.0,
+                  hintText: hintText,
+                ),
+          SizedBox(height: sizedBoxHeightTall),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDropdownWithTwoTitle({
+    required String title,
+    required String? selectedValue,
+    required List<Map<String, dynamic>> itemList,
+    required ValueChanged<String?> onChanged,
+    String? Function(String?)? validator,
+    double? maxHeight,
+    bool isLoading = false,
+    String valueKey = "value",
+    String titleKey = "title",
+    bool isRequired = false,
+  }) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double paddingHorizontalWide = size.width * 0.0585;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalNarrow = size.width * 0.035;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              TitleWidget(
+                title: title,
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              if (isRequired)
+                Text(
+                  '*',
+                  textAlign: TextAlign.start,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+            ],
+          ),
+          DropdownButtonFormField<String>(
+            value: selectedValue,
+            onChanged: onChanged,
+            items: itemList.map((value) {
+              return DropdownMenuItem<String>(
+                value: value[valueKey].toString(),
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: TitleWidget(
+                    // title: value[titleKey] as String,
+                    title: '${value["nama"]} - ${value["nrp"]}',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+              );
+            }).toList(),
+            decoration: InputDecoration(
+              constraints:
+                  BoxConstraints(maxHeight: maxHeight ?? double.infinity),
+              labelStyle: TextStyle(fontSize: textMedium),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.black,
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: selectedValue != null ? Colors.black54 : Colors.grey,
+                  width: 1.0,
+                ),
+              ),
+            ),
+            validator: validator,
+            icon: isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  )
+                : const Icon(Icons.arrow_drop_down),
+          ),
+          SizedBox(height: sizedBoxHeightExtraTall)
+        ],
+      ),
+    );
   }
 
   void showSubmitModal(BuildContext context) {

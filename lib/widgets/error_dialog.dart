@@ -14,16 +14,24 @@ class ErrorDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      backgroundColor: Colors.red,
       title: const Text(
         'Warning',
         textAlign: TextAlign.center,
-        style: TextStyle(fontWeight: FontWeight.w500),
+        style: TextStyle(
+          fontWeight: FontWeight.w500,
+          color: Colors.white,
+        ),
       ),
       content: SizedBox(
           width: MediaQuery.of(context).size.width,
           child: Text(
             message,
             textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.w500,
+              color: Colors.white,
+            ),
           )),
       actions: <Widget>[
         Container(
@@ -31,12 +39,12 @@ class ErrorDialog extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 5),
           child: OutlinedButton(
             style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(primaryYellow))),
+                side: const BorderSide(color: Colors.white)),
             child: const Padding(
               padding: EdgeInsets.all(10),
               child: Text('OK',
                   style: TextStyle(
-                      fontWeight: FontWeight.w500, color: Color(primaryBlack))),
+                      fontWeight: FontWeight.w500, color: Colors.white)),
             ),
             onPressed: () {
               Navigator.pop(context);

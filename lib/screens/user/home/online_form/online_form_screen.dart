@@ -130,7 +130,7 @@ class OnlineFormScreen extends StatelessWidget {
       case 0:
         return 'Pengajuan\nTraining';
       case 1:
-        return 'Pengajuan Aplikasi Recruitment';
+        return 'Rekrutmen';
       case 2:
         return 'Pengajuan Perjalanan Dinas';
       case 3:
@@ -168,7 +168,7 @@ class OnlineFormScreen extends StatelessWidget {
         //     shouldIconPulse: false);
         break;
       case 1:
-        Get.toNamed('/user/main/home/online_form/aplikasi_recruitment');
+        Get.toNamed('/user/main/home/online_form/rekrutmen');
         // Get.snackbar('Infomation', 'Coming Soon',
         //     snackPosition: SnackPosition.TOP,
         //     backgroundColor: Colors.amber,

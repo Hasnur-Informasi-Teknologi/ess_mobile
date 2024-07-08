@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/constant.dart';
+import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_number_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
@@ -203,9 +204,6 @@ class _FormDetailPengajuanRawatInapState
         dataDetailPengajuanRawatInapController = Get.find();
 
     dataDetailPengajuanRawatInapController.tambahData(newData);
-
-    // Get.offAllNamed(
-    //     '/user/main/home/online_form/pengajuan_fasilitas_kesehatan/pengajuan_rawat_inap');
     onClose?.call();
     Get.back();
   }
@@ -335,216 +333,48 @@ class _FormDetailPengajuanRawatInapState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  height: sizedBoxHeightTall,
+                _buildDropdownWithTwoTitle(
+                  title: 'Pilih Jenis Pengganti : ',
+                  selectedValue: selectedValueJenisPengganti,
+                  itemList: selectedJenisPengganti,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedValueJenisPengganti = newValue ?? '';
+                    });
+                  },
+                  validator: _validatorJenisPengganti,
+                  maxHeight: maxHeightJenisPengganti,
+                  isLoading: selectedJenisPengganti.isEmpty,
+                  valueKey: "id",
+                  titleKey: "jenis",
+                  isRequired: true,
                 ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Row(
-                    children: [
-                      TitleWidget(
-                        title: 'Pilih Jenis Pengganti : ',
-                        fontWeight: FontWeight.w300,
-                        fontSize: textMedium,
-                      ),
-                      Text(
-                        '*',
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                            color: Colors.red,
-                            fontSize: textMedium,
-                            fontFamily: 'Poppins',
-                            letterSpacing: 0.6,
-                            fontWeight: FontWeight.w300),
-                      )
-                    ],
-                  ),
+                _buildDropdownWithTwoValue(
+                  title: 'Pilih Detail Penggantian : ',
+                  selectedValue: selectedValueDetailPengganti,
+                  itemList: selectedDetailPengganti,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedValueDetailPengganti = newValue ?? '';
+                    });
+                  },
+                  validator: _validatorDetailPengganti,
+                  maxHeight: maxHeightJenisPengganti,
+                  isLoading: selectedDetailPengganti.isEmpty,
+                  valueKey: "id",
+                  titleKey: "nama",
+                  isRequired: true,
                 ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: DropdownButtonFormField<String>(
-                    menuMaxHeight: size.height * 0.5,
-                    value: selectedValueJenisPengganti,
-                    validator: _validatorJenisPengganti,
-                    icon: selectedJenisPengganti.isEmpty
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.blue),
-                            ),
-                          )
-                        : const Icon(Icons.arrow_drop_down),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedValueJenisPengganti = newValue ?? '';
-                      });
-                    },
-                    items: selectedJenisPengganti
-                        .map((Map<String, dynamic> value) {
-                      return DropdownMenuItem<String>(
-                        value: value["id"].toString(),
-                        child: Padding(
-                          padding: const EdgeInsets.all(1.0),
-                          child: TitleWidget(
-                            title: '${value["id"]} - ${value["jenis"]}',
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                    decoration: InputDecoration(
-                      constraints:
-                          BoxConstraints(maxHeight: maxHeightJenisPengganti),
-                      labelStyle: TextStyle(fontSize: textMedium),
-                      focusedBorder: const UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.black,
-                          width: 1.0,
-                        ),
-                      ),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: selectedValueJenisPengganti != null
-                              ? Colors.black54
-                              : Colors.grey,
-                          width: 1.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightTall,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Row(
-                    children: [
-                      TitleWidget(
-                        title: 'Pilih Detail Penggantian : ',
-                        fontWeight: FontWeight.w300,
-                        fontSize: textMedium,
-                      ),
-                      Text(
-                        '*',
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                            color: Colors.red,
-                            fontSize: textMedium,
-                            fontFamily: 'Poppins',
-                            letterSpacing: 0.6,
-                            fontWeight: FontWeight.w300),
-                      )
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: DropdownButtonFormField<String>(
-                    menuMaxHeight: size.height * 0.5,
-                    validator: _validatorDetailPengganti,
-                    value: selectedValueDetailPengganti,
-                    icon: selectedDetailPengganti.isEmpty
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.blue),
-                            ),
-                          )
-                        : const Icon(Icons.arrow_drop_down),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedValueDetailPengganti = newValue ?? '';
-                      });
-                    },
-                    items: selectedDetailPengganti
-                        .map((Map<String, dynamic> value) {
-                      return DropdownMenuItem<String>(
-                        value: '${value["id"]},${value["nama"]}',
-                        child: Padding(
-                          padding: const EdgeInsets.all(1.0),
-                          child: TitleWidget(
-                            title: value["nama"] as String,
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                    decoration: InputDecoration(
-                      constraints:
-                          BoxConstraints(maxHeight: maxHeightJenisPengganti),
-                      labelStyle: TextStyle(fontSize: textMedium),
-                      focusedBorder: const UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.black,
-                          width: 1.0,
-                        ),
-                      ),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: selectedValueDetailPengganti != null
-                              ? Colors.black54
-                              : Colors.grey,
-                          width: 1.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightTall,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Row(
-                    children: [
-                      TitleWidget(
-                        title: 'No Kwitansi ',
-                        fontWeight: FontWeight.w300,
-                        fontSize: textMedium,
-                      ),
-                      Text(
-                        '*',
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                            color: Colors.red,
-                            fontSize: textMedium,
-                            fontFamily: 'Poppins',
-                            letterSpacing: 0.6,
-                            fontWeight: FontWeight.w300),
-                      )
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormFieldWidget(
-                    validator: _validatorNoKwitansi,
-                    controller: _noKwitansiController,
-                    maxHeightConstraints: maxHeightNokwitansi,
-                    hintText: 'No Kwitansi',
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightTall,
+                _buildTextFieldSection(
+                  title: 'No Kwitansi',
+                  isMandatory: true,
+                  textSize: textMedium,
+                  horizontalPadding: paddingHorizontalNarrow,
+                  verticalSpacing: sizedBoxHeightShort,
+                  controller: _noKwitansiController,
+                  hintText: 'No Kwitansi',
+                  validator: _validatorNoKwitansi,
+                  maxHeightConstraints: maxHeightNokwitansi,
                 ),
                 Padding(
                   padding:
@@ -632,167 +462,43 @@ class _FormDetailPengajuanRawatInapState
                     );
                   },
                 ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
+                _buildTextFieldSection(
+                  title: 'Jumlah',
+                  isMandatory: true,
+                  textSize: textMedium,
+                  horizontalPadding: paddingHorizontalNarrow,
+                  verticalSpacing: sizedBoxHeightShort,
+                  controller: _jumlahController,
+                  hintText: 'masukkan nominal',
+                  validator: _validatorJumlah,
+                  maxHeightConstraints: maxHeightJumlah,
+                  isNumberField: true,
                 ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Row(
-                    children: [
-                      TitleWidget(
-                        title: 'Jumlah ',
-                        fontWeight: FontWeight.w300,
-                        fontSize: textMedium,
-                      ),
-                      Text(
-                        '*',
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                            color: Colors.red,
-                            fontSize: textMedium,
-                            fontFamily: 'Poppins',
-                            letterSpacing: 0.6,
-                            fontWeight: FontWeight.w300),
-                      )
-                    ],
-                  ),
+                _buildDropdownWithTitle(
+                  title: 'Pilih Diagnosa : ',
+                  selectedValue: selectedValueDiagnosa,
+                  itemList: selectedDiagnosa,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedValueDiagnosa = newValue ?? '';
+                    });
+                  },
+                  validator: _validatorDiagnosa,
+                  maxHeight: maxHeightDiagnosa,
+                  isLoading: selectedDiagnosa.isEmpty,
+                  valueKey: "id",
+                  titleKey: "nama",
                 ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormFieldNumberWidget(
-                    validator: _validatorJumlah,
-                    controller: _jumlahController,
-                    maxHeightConstraints: maxHeightJumlah,
-                    hintText: 'masukkan nominal',
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightTall,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Row(
-                    children: [
-                      TitleWidget(
-                        title: 'Pilih Diagnosa : ',
-                        fontWeight: FontWeight.w300,
-                        fontSize: textMedium,
-                      ),
-                      Text(
-                        '*',
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                            color: Colors.red,
-                            fontSize: textMedium,
-                            fontFamily: 'Poppins',
-                            letterSpacing: 0.6,
-                            fontWeight: FontWeight.w300),
-                      )
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: DropdownButtonFormField<String>(
-                    menuMaxHeight: size.height * 0.5,
-                    validator: _validatorDiagnosa,
-                    value: selectedValueDiagnosa,
-                    icon: selectedDiagnosa.isEmpty
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.blue),
-                            ),
-                          )
-                        : const Icon(Icons.arrow_drop_down),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedValueDiagnosa = newValue ?? '';
-                      });
-                    },
-                    items: selectedDiagnosa.map((Map<String, dynamic> value) {
-                      return DropdownMenuItem<String>(
-                        value: value["id"].toString(),
-                        child: Padding(
-                          padding: const EdgeInsets.all(1.0),
-                          child: TitleWidget(
-                            title: value["nama"].toString(),
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                    decoration: InputDecoration(
-                      constraints: BoxConstraints(maxHeight: maxHeightDiagnosa),
-                      labelStyle: TextStyle(fontSize: textMedium),
-                      focusedBorder: const UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.black,
-                          width: 1.0,
-                        ),
-                      ),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: selectedValueDiagnosa != null
-                              ? Colors.black54
-                              : Colors.grey,
-                          width: 1.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightTall,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Row(
-                    children: [
-                      TitleWidget(
-                        title: 'Keterangan/Diagnosa ',
-                        fontWeight: FontWeight.w300,
-                        fontSize: textMedium,
-                      ),
-                      Text(
-                        '*',
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                            color: Colors.red,
-                            fontSize: textMedium,
-                            fontFamily: 'Poppins',
-                            letterSpacing: 0.6,
-                            fontWeight: FontWeight.w300),
-                      )
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormFieldWidget(
-                    validator: _validatorKeterangan,
-                    controller: _keteranganController,
-                    maxHeightConstraints: maxHeightKeterangan,
-                    hintText: 'Keterangan',
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightTall,
+                _buildTextFieldSection(
+                  title: 'Keterangan/Diagnosa',
+                  isMandatory: true,
+                  textSize: textMedium,
+                  horizontalPadding: paddingHorizontalNarrow,
+                  verticalSpacing: sizedBoxHeightShort,
+                  controller: _keteranganController,
+                  hintText: 'Keterangan',
+                  validator: _validatorKeterangan,
+                  maxHeightConstraints: maxHeightKeterangan,
                 ),
                 Padding(
                   padding:
@@ -890,6 +596,355 @@ class _FormDetailPengajuanRawatInapState
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTextFieldSection({
+    required String title,
+    required bool isMandatory,
+    required double textSize,
+    required double horizontalPadding,
+    required double verticalSpacing,
+    required TextEditingController controller,
+    required String hintText,
+    double? maxHeightConstraints,
+    String? Function(String?)? validator,
+    bool isNumberField = false,
+    bool isDisable = false,
+  }) {
+    Size size = MediaQuery.of(context).size;
+    double sizedBoxHeightTall = size.height * 0.0163;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              TitleWidget(
+                title: title,
+                fontWeight: FontWeight.w300,
+                fontSize: textSize,
+              ),
+              if (isMandatory)
+                Text(
+                  '*',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textSize,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+            ],
+          ),
+          SizedBox(height: verticalSpacing),
+          if (isNumberField && !isDisable)
+            TextFormFieldNumberWidget(
+              validator: validator,
+              controller: controller,
+              maxHeightConstraints: maxHeightConstraints ?? 50.0,
+              hintText: hintText,
+            ),
+          if (isDisable && !isNumberField)
+            TextFormFielDisableWidget(
+              controller: controller,
+              maxHeightConstraints: maxHeightConstraints ?? 50.0,
+            ),
+          if (!isDisable && !isNumberField)
+            TextFormFieldWidget(
+              validator: validator,
+              controller: controller,
+              maxHeightConstraints: maxHeightConstraints ?? 50.0,
+              hintText: hintText,
+            ),
+          SizedBox(height: sizedBoxHeightTall),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDropdownWithTitle({
+    required String title,
+    required String? selectedValue,
+    required List<Map<String, dynamic>> itemList,
+    required ValueChanged<String?> onChanged,
+    String? Function(String?)? validator,
+    double? maxHeight,
+    bool isLoading = false,
+    String valueKey = "value",
+    String titleKey = "title",
+  }) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalNarrow = size.width * 0.035;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              TitleWidget(
+                title: title,
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              Text(
+                '*',
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: textMedium,
+                  fontFamily: 'Poppins',
+                  letterSpacing: 0.6,
+                  fontWeight: FontWeight.w300,
+                ),
+              ),
+            ],
+          ),
+          DropdownButtonFormField<String>(
+            menuMaxHeight: size.height * 0.5,
+            value: selectedValue,
+            onChanged: onChanged,
+            items: itemList.map((value) {
+              return DropdownMenuItem<String>(
+                value: value[valueKey].toString(),
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: TitleWidget(
+                    title: value[titleKey] as String,
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+              );
+            }).toList(),
+            decoration: InputDecoration(
+              constraints:
+                  BoxConstraints(maxHeight: maxHeight ?? double.infinity),
+              labelStyle: TextStyle(fontSize: textMedium),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.black,
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: selectedValue != null ? Colors.black54 : Colors.grey,
+                  width: 1.0,
+                ),
+              ),
+            ),
+            validator: validator,
+            icon: isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  )
+                : const Icon(Icons.arrow_drop_down),
+          ),
+          SizedBox(height: sizedBoxHeightExtraTall)
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDropdownWithTwoTitle({
+    required String title,
+    required String? selectedValue,
+    required List<Map<String, dynamic>> itemList,
+    required ValueChanged<String?> onChanged,
+    String? Function(String?)? validator,
+    double? maxHeight,
+    bool isLoading = false,
+    String valueKey = "value",
+    String titleKey = "title",
+    bool isRequired = false,
+  }) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double paddingHorizontalNarrow = size.width * 0.035;
+
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              TitleWidget(
+                title: title,
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              if (isRequired)
+                Text(
+                  '*',
+                  textAlign: TextAlign.start,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+            ],
+          ),
+          DropdownButtonFormField<String>(
+            menuMaxHeight: size.height * 0.5,
+            value: selectedValue,
+            onChanged: onChanged,
+            items: itemList.map((value) {
+              return DropdownMenuItem<String>(
+                value: value[valueKey].toString(),
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: TitleWidget(
+                    title: '${value[titleKey]} - ${value[valueKey]}',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+              );
+            }).toList(),
+            decoration: InputDecoration(
+              constraints:
+                  BoxConstraints(maxHeight: maxHeight ?? double.infinity),
+              labelStyle: TextStyle(fontSize: textMedium),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.black,
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: selectedValue != null ? Colors.black54 : Colors.grey,
+                  width: 1.0,
+                ),
+              ),
+            ),
+            validator: validator,
+            icon: isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  )
+                : const Icon(Icons.arrow_drop_down),
+          ),
+          SizedBox(height: sizedBoxHeightExtraTall)
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDropdownWithTwoValue({
+    required String title,
+    required String? selectedValue,
+    required List<Map<String, dynamic>> itemList,
+    required ValueChanged<String?> onChanged,
+    String? Function(String?)? validator,
+    double? maxHeight,
+    bool isLoading = false,
+    String valueKey = "value",
+    String titleKey = "title",
+    bool isRequired = false,
+  }) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double paddingHorizontalNarrow = size.width * 0.035;
+
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              TitleWidget(
+                title: title,
+                fontWeight: FontWeight.w300,
+                fontSize: textMedium,
+              ),
+              if (isRequired)
+                Text(
+                  '*',
+                  textAlign: TextAlign.start,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+            ],
+          ),
+          DropdownButtonFormField<String>(
+            menuMaxHeight: size.height * 0.5,
+            value: selectedValue,
+            onChanged: onChanged,
+            items: itemList.map((value) {
+              return DropdownMenuItem<String>(
+                value: '${value["valueKey"]},${value["titleKey"]}',
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: TitleWidget(
+                    title: '${value[titleKey]}',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                ),
+              );
+            }).toList(),
+            decoration: InputDecoration(
+              constraints:
+                  BoxConstraints(maxHeight: maxHeight ?? double.infinity),
+              labelStyle: TextStyle(fontSize: textMedium),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Colors.black,
+                  width: 1.0,
+                ),
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: selectedValue != null ? Colors.black54 : Colors.grey,
+                  width: 1.0,
+                ),
+              ),
+            ),
+            validator: validator,
+            icon: isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                  )
+                : const Icon(Icons.arrow_drop_down),
+          ),
+          SizedBox(height: sizedBoxHeightExtraTall)
         ],
       ),
     );

@@ -124,19 +124,37 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
     }
   }
 
+  bool isNewVersion(String localVersion, String remoteVersion) {
+    List<int> localParts = localVersion.split('.').map(int.parse).toList();
+    List<int> remoteParts = remoteVersion.split('.').map(int.parse).toList();
+    print(localParts);
+    print(remoteParts);
+
+    for (int i = 0; i < localParts.length; i++) {
+      if (localParts[i] < remoteParts[i]) {
+        return false;
+      } else if (localParts[i] > remoteParts[i]) {
+        return true;
+      }
+    }
+    return true;
+  }
+
   void compareVersions() {
     print("saat ini $versionMobile");
     if (versionMobile == null) {
       _isNewVersion = true;
     } else {
-      if ((_packageInfo.version != versionMobile)) {
-        _isNewVersion = false;
-        print('Different versions: ${_packageInfo.version} != $versionMobile');
-      } else {
-        print(
-            'Versions are the same: ${_packageInfo.version} == $versionMobile');
-        _isNewVersion = true;
-      }
+      String localVersion = _packageInfo.version;
+      String remoteVersion = versionMobile!;
+      _isNewVersion = isNewVersion(localVersion, remoteVersion);
+      print(_isNewVersion);
+
+      // if ((_packageInfo.version != versionMobile)) {
+      //   _isNewVersion = false;
+      // } else {
+      //   _isNewVersion = true;
+      // }
     }
   }
 

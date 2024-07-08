@@ -138,6 +138,8 @@ class _DetailPengajuanTrainingDaftarPermintaanState
       final response = await _sendRequest(token, id!, filePath);
       final responseDataMessage = json.decode(response);
 
+      print(responseDataMessage);
+
       _showSnackbar(responseDataMessage['message']);
 
       if (responseDataMessage['status'] == 'success') {

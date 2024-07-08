@@ -42,8 +42,9 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
     {'id': '4', 'opsi': 'Lembur Karyawan'},
     // {'id': '12', 'opsi': 'Summary Cuti'},
     {'id': '5', 'opsi': 'Pengajuan Cuti'},
-    {'id': '8', 'opsi': 'Perpanjangan Cuti'},
     {'id': '6', 'opsi': 'Pengajuan Training'},
+    {'id': '15', 'opsi': 'Penilaian Kinerja Karyawan'},
+    {'id': '8', 'opsi': 'Perpanjangan Cuti'},
     {'id': '7', 'opsi': 'IM Perjalanan Dinas'},
     {'id': '13', 'opsi': 'LPJ Perjalanan Dinas'},
     {'id': '9', 'opsi': 'Rawat Inap'},
@@ -538,7 +539,37 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
       setState(() {
         masterDataPermintaan =
             List<Map<String, dynamic>>.from(responseData['data']);
-        print(masterDataPermintaan);
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching data Lembur : $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> getDataPenilaianKinerjaKaryawan(String? statusFilter) async {
+    final token = await _getToken();
+    if (token == null) return;
+
+    try {
+      final Map<String, dynamic> queryParams = {
+        'page': page.toString(),
+        'perPage': perPage.toString(),
+        'search': search,
+        'status': statusFilter ?? '',
+        'type': type,
+      };
+
+      final uri = Uri.parse("$_apiUrl/penilaian-kinerja/get")
+          .replace(queryParameters: queryParams);
+
+      final responseData = await fetchData(uri, token);
+
+      setState(() {
+        masterDataPermintaan =
+            List<Map<String, dynamic>>.from(responseData['data']);
         _isLoading = false;
       });
     } catch (e) {
@@ -585,6 +616,9 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
           "$_url/online-form/preview-pdf-permintaan-hardware-software/$id/pdf";
     } else if (type == 'lemburKaryawan') {
       endpoint = "$_url/online-form/preview-pdf-perintah-lembur/$id/pdf";
+    } else if (type == 'penilaianKinerjaKaryawan') {
+      endpoint =
+          "$_url/online-form/preview-pdf-penilaian-kinerja-karyawan/$id/pdf";
     }
 
     Completer<File> completer = Completer();
@@ -685,6 +719,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
         '10': () => getDataRawatJalan(statusFilterRawatInapJalan),
         '11': () => getDataSuratKeterangan(statusFilter),
         '14': () => getDataSuratIzinKeluar(statusFilter),
+        '15': () => getDataPenilaianKinerjaKaryawan(statusFilter),
       };
 
       dataFetchers[selectedValueDaftarPermintaan]?.call() ??
@@ -775,6 +810,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
           '11': () => getDataSuratKeterangan(statusFilter),
           '13': () => getDataLpjPerjalananDinas(statusFilter),
           '14': () => getDataSuratIzinKeluar(statusFilter),
+          '15': () => getDataPenilaianKinerjaKaryawan(statusFilter),
         };
 
         dataFetchers[selectedValueDaftarPermintaan]?.call() ??
@@ -801,6 +837,7 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
             child: DropdownButtonFormField<String>(
+              menuMaxHeight: size.height * 0.5,
               value: selectedValueDaftarPermintaan,
               icon: selectedDaftarPermintaan.isEmpty
                   ? const SizedBox(
@@ -949,6 +986,8 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
           return buildRawatJalan(data);
         case '11':
           return buildSuratKeterangan(data);
+        case '15':
+          return buildPenilaianKinerjaKaryawan(data);
         default:
           return const Text('Kosong');
       }
@@ -1013,6 +1052,8 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
           return buildRawatJalan(data);
         case '11':
           return buildSuratKeterangan(data);
+        case '15':
+          return buildPenilaianKinerjaKaryawan(data);
         default:
           return const Text('Kosong');
       }
@@ -1077,6 +1118,8 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
           return buildRawatJalan(data);
         case '11':
           return buildSuratKeterangan(data);
+        case '15':
+          return buildPenilaianKinerjaKaryawan(data);
         default:
           return const Text('Kosong');
       }
@@ -1141,6 +1184,8 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
           return buildRawatJalan(data);
         case '11':
           return buildSuratKeterangan(data);
+        case '15':
+          return buildPenilaianKinerjaKaryawan(data);
         default:
           return const Text('Kosong');
       }
@@ -1284,6 +1329,76 @@ class _DaftarPermintaanScreenState extends State<DaftarPermintaanScreen> {
                   },
                   () {
                     _downloadPdf('hardwareSoftware', id);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildPenilaianKinerjaKaryawan(Map<String, dynamic> data) {
+    Size size = MediaQuery.of(context).size;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalNarrow = size.width * 0.035;
+
+    String id = data['id'].toString();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(vertical: sizedBoxHeightExtraTall),
+          height: size.height * 0.3,
+          width: size.width * 0.9,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(paddingHorizontalNarrow),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildRowWidget(
+                  'Nomor Dokumen',
+                  '${data['no_doc'] ?? '-'}',
+                  '',
+                ),
+                _buildRowWidget(
+                  'Pemohon',
+                  '${data['nrp_user'] ?? '-'} - ',
+                  '${data['nama_user'] ?? '-'}',
+                ),
+                _buildRowWidget(
+                  'Kepada',
+                  '${data['nrp_to'] ?? '-'} - ',
+                  '${data['nama_to'] ?? '-'}',
+                ),
+                _buildRowWidget(
+                    'Nama Atasan', '${data['nama_atasan'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Tanggal Pengajuan',
+                    data['created_at'] != null
+                        ? formatDate(data['created_at'])
+                        : '-',
+                    ''),
+                _buildRowWidget(
+                    'Status', '${data['status_approve'] ?? '-'}', ''),
+                SizedBox(height: sizedBoxHeightShort),
+                _buildActionButtons(
+                  id,
+                  () {
+                    Get.toNamed(
+                      '/user/main/daftar_permintaan/detail_penilaian_kinerja_karyawan',
+                      arguments: {'id': id},
+                    );
+                  },
+                  () {
+                    _downloadPdf('penilaianKinerjaKaryawan', id);
                   },
                 ),
               ],

@@ -10,6 +10,7 @@ import 'package:mobile_ess/helpers/url_helper.dart';
 
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
+import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_number_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
@@ -1004,7 +1005,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                       SizedBox(
                         height: sizedBoxHeightTall,
                       ),
-                      _buildFormSection(
+                      _buildTextFieldSection(
                         title: 'Keperluan Cuti',
                         isMandatory: true,
                         textSize: textMedium,
@@ -1325,7 +1326,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           },
                         ),
                       ),
-                      _buildFormSection(
+                      _buildTextFieldSection(
                         title: 'Alamat Cuti',
                         isMandatory: true,
                         textSize: textMedium,
@@ -1336,7 +1337,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         maxHeightConstraints: maxHeightAlamatCuti,
                         validator: validatorAlamatCuti,
                       ),
-                      _buildFormSection(
+                      _buildTextFieldSection(
                         title: 'No Telepon',
                         isMandatory: true,
                         textSize: textMedium,
@@ -1720,7 +1721,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     );
   }
 
-  Widget _buildFormSection({
+  Widget _buildTextFieldSection({
     required String title,
     required bool isMandatory,
     required double textSize,
@@ -1731,6 +1732,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     double? maxHeightConstraints,
     String? Function(String?)? validator,
     bool isNumberField = false,
+    bool isDisable = false,
   }) {
     Size size = MediaQuery.of(context).size;
     double sizedBoxHeightTall = size.height * 0.0163;
@@ -1761,19 +1763,25 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
             ],
           ),
           SizedBox(height: verticalSpacing),
-          isNumberField
-              ? TextFormFieldNumberWidget(
-                  validator: validator,
-                  controller: controller,
-                  maxHeightConstraints: maxHeightConstraints ?? 50.0,
-                  hintText: hintText,
-                )
-              : TextFormFieldWidget(
-                  validator: validator,
-                  controller: controller,
-                  maxHeightConstraints: maxHeightConstraints ?? 50.0,
-                  hintText: hintText,
-                ),
+          if (isNumberField && !isDisable)
+            TextFormFieldNumberWidget(
+              validator: validator,
+              controller: controller,
+              maxHeightConstraints: maxHeightConstraints ?? 50.0,
+              hintText: hintText,
+            ),
+          if (isDisable && !isNumberField)
+            TextFormFielDisableWidget(
+              controller: controller,
+              maxHeightConstraints: maxHeightConstraints ?? 50.0,
+            ),
+          if (!isDisable && !isNumberField)
+            TextFormFieldWidget(
+              validator: validator,
+              controller: controller,
+              maxHeightConstraints: maxHeightConstraints ?? 50.0,
+              hintText: hintText,
+            ),
           SizedBox(height: sizedBoxHeightTall),
         ],
       ),
@@ -1912,6 +1920,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
             ],
           ),
           DropdownButtonFormField<String>(
+            menuMaxHeight: size.height * 0.5,
             value: selectedValue,
             onChanged: onChanged,
             items: itemList.map((value) {
@@ -2005,6 +2014,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
             ],
           ),
           DropdownButtonFormField<String>(
+            menuMaxHeight: size.height * 0.5,
             value: selectedValue,
             onChanged: onChanged,
             items: itemList.map((value) {
@@ -2014,7 +2024,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                   padding: const EdgeInsets.all(1.0),
                   child: TitleWidget(
                     // title: value[titleKey] as String,
-                    title: '${value["nama"]} - ${value["nrp"]}',
+                    title: '${value[titleKey]} - ${value[valueKey]}',
                     fontWeight: FontWeight.w300,
                     fontSize: textMedium,
                   ),
