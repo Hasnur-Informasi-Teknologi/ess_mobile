@@ -318,7 +318,7 @@ class _AdminMainScreenState extends State<AdminMainScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Icon(Icons.car_crash),
-                  Text('Bussiness Trip',
+                  Text('Business Trip',
                       style: TextStyle(
                           fontWeight: FontWeight.w500,
                           color: Color(primaryBlack))),

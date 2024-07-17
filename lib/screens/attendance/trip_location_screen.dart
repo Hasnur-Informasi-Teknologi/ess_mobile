@@ -32,34 +32,38 @@ class _TripLocationScreenState extends State<TripLocationScreen> {
   String? lat, long, address;
   bool _isLoading = false;
   String _timeZone = 'WIB';
+  String timeZone = 'WIB';
 
   @override
   void initState() {
     super.initState();
-    _getTimeZone();
+    // _getTimeZone();
   }
 
-  void _getTimeZone() {
-    var now = DateTime.now();
-    var timeZoneName = now.timeZoneName;
-    setState(() {
-      _timeZone = timeZoneName;
-    });
-  }
+  // void _getTimeZone() {
+  //   var now = DateTime.now();
+  //   var timeZoneName = now.timeZoneName;
+  //   setState(() {
+  //     _timeZone = timeZoneName;
+  //   });
+  // }
 
   Future<void> getLocation() async {
     final locationService = LocationService();
     final locationData = await locationService.getLocation();
 
     if (locationData != null) {
-      final placeMark =
-          await locationService.getPlaceMark(locationData: locationData);
-
       lat = locationData.latitude!.toStringAsFixed(7);
       long = locationData.longitude!.toStringAsFixed(7);
 
-      address =
-          '${placeMark?.street}, ${placeMark?.subLocality}, ${placeMark?.locality}, ${placeMark?.subAdministrativeArea}, ${placeMark?.administrativeArea}, ${placeMark?.postalCode}';
+      try {
+        final placeMark =
+            await locationService.getPlaceMark(locationData: locationData);
+        address =
+            '${placeMark?.street}, ${placeMark?.subLocality}, ${placeMark?.locality}, ${placeMark?.subAdministrativeArea}, ${placeMark?.administrativeArea}, ${placeMark?.postalCode}';
+      } catch (e) {
+        address = 'Unable to determine address';
+      }
     }
   }
 
@@ -90,17 +94,16 @@ class _TripLocationScreenState extends State<TripLocationScreen> {
           headers: headers);
       DateTime sdate = DateTime.parse(response.body);
       int stimestamp = sdate.millisecondsSinceEpoch;
-      var timeZone = _timeZone;
+      // var timeZone = _timeZone;
+      var now = DateTime.now();
+      timeZone = now.timeZoneName;
       if (timeZone == 'WITA') {
         stimestamp = stimestamp + (1 * 60 * 60 * 1000);
       } else if (timeZone == 'WIT') {
         stimestamp = stimestamp + (2 * 60 * 60 * 1000);
       }
-      print('----------------- before ---------------------');
       var clockIn = DateFormat('yyyy-MM-dd HH:mm:ss')
           .format(DateTime.fromMillisecondsSinceEpoch(stimestamp));
-      print('----------------- time ---------------------');
-      print(clockIn);
 
       var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
       final userId = karyawan['pernr'];

@@ -109,6 +109,8 @@ class _MainScreenWithAnimationState extends State<MainScreenWithAnimation>
       x.absenIn.value = false;
       x.absenOut.value = false;
     }
+    print('x.absenIn ${x.absenIn}');
+    print('x.absenOut ${x.absenOut}');
   }
 
   Future<void> _checkFaceData() async {

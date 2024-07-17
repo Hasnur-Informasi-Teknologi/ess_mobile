@@ -1,17 +1,12 @@
 import 'dart:convert';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/screens/admin/componentDashboard/TaskMenuDashboard.dart';
 import 'package:mobile_ess/screens/admin/componentDashboard/demografiAttendance.dart';
 import 'package:mobile_ess/screens/admin/componentDashboard/employeeMonitoring.dart';
-import 'package:mobile_ess/screens/admin/componentDashboard/ijinCutiKaryawan.dart';
-import 'package:mobile_ess/screens/admin/componentDashboard/kehadiranKaryawanTable.dart';
-import 'package:mobile_ess/screens/admin/componentDashboard/kehadiranTanpaKeterangan.dart';
 import 'package:mobile_ess/screens/admin/componentDashboard/kontrakKaryawan.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/header_profile_widget.dart';
@@ -221,7 +216,6 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
         '2': 'User',
       };
     }
-    String? token = prefs.getString('token');
     x.karyawan.value =
         jsonDecode(prefs.getString('userData').toString())['data'];
   }
@@ -266,7 +260,6 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var userLogin = Hive.box('userLogin');
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double paddingHorizontalNarrow = size.width * 0.035;

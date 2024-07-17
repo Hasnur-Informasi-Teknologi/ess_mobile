@@ -6,8 +6,6 @@ import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data
 import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_screen.dart';
 import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_pic_hrgs.dart';
 import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_rawat_inap.dart';
-import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_rawat_jalan.dart';
-import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_uang_makan_dalam_negeri.dart';
 import 'package:mobile_ess/screens/admin/administrator/master%20data/tab%20rawat%20jalan/tabsRawatJalan.dart';
 import 'package:mobile_ess/screens/admin/administrator/master%20data/tab%20uang%20makan/TabsUangMakan.dart';
 import 'package:mobile_ess/screens/admin/administrator/user%20management/user_management_list.dart';

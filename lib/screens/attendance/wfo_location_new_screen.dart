@@ -1,4 +1,6 @@
 // ignore_for_file: prefer_final_fields, use_build_context_synchronously
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geocoding/geocoding.dart';
@@ -42,20 +44,21 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
   double circleRadius = 100;
   final double radius = 0.2; // Radius dalam kilometer (100 meter = 0.1 km)
   String _timeZone = 'WIB';
+  String timeZone = 'WIB';
 
   @override
   void initState() {
     super.initState();
-    _getTimeZone();
+    // _getTimeZone();
   }
 
-  void _getTimeZone() {
-    var now = DateTime.now();
-    var timeZoneName = now.timeZoneName;
-    setState(() {
-      _timeZone = timeZoneName;
-    });
-  }
+  // void _getTimeZone() {
+  //   var now = DateTime.now();
+  //   var timeZoneName = now.timeZoneName;
+  //   setState(() {
+  //     _timeZone = timeZoneName;
+  //   });
+  // }
 
   double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
     const p = 0.017453292519943295; // Pi/180
@@ -73,14 +76,18 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
     longString = prefs.getString('longString');
 
     if (locationData != null) {
-      final placeMark =
-          await locationService.getPlaceMark(locationData: locationData);
-
       lat = locationData.latitude!.toStringAsFixed(7);
       long = locationData.longitude!.toStringAsFixed(7);
 
-      address =
-          '${placeMark?.street}, ${placeMark?.subLocality}, ${placeMark?.locality}, ${placeMark?.subAdministrativeArea}, ${placeMark?.administrativeArea}, ${placeMark?.postalCode}';
+      try {
+        final placeMark =
+            await locationService.getPlaceMark(locationData: locationData);
+
+        address =
+            '${placeMark?.street}, ${placeMark?.subLocality}, ${placeMark?.locality}, ${placeMark?.subAdministrativeArea}, ${placeMark?.administrativeArea}, ${placeMark?.postalCode}';
+      } catch (e) {
+        address = 'Unable to determine address';
+      }
     }
   }
 
@@ -93,11 +100,13 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
   }
 
   Future<void> clockInProcess() async {
-    bool isMockLocation = await TrustLocation.isMockLocation;
-    if (isMockLocation) {
-      _showErrorDialog(
-          'Kami mendeteksi penggunaan GPS palsu. Silahkan Nonaktifkan dan coba lagi untuk melanjutkan absensi Anda!');
-      return;
+    if (Platform.isAndroid) {
+      bool isMockLocation = await TrustLocation.isMockLocation;
+      if (isMockLocation) {
+        _showErrorDialog(
+            'Kami mendeteksi penggunaan GPS palsu. Silahkan Nonaktifkan dan coba lagi untuk melanjutkan absensi Anda!');
+        return;
+      }
     }
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -131,7 +140,9 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
               headers: headers);
           DateTime sdate = DateTime.parse(response.body);
           int stimestamp = sdate.millisecondsSinceEpoch;
-          var timeZone = _timeZone;
+          // var timeZone = _timeZone;
+          var now = DateTime.now();
+          timeZone = now.timeZoneName;
           if (timeZone == 'WITA') {
             stimestamp = stimestamp + (1 * 60 * 60 * 1000);
           } else if (timeZone == 'WIT') {
@@ -151,6 +162,8 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
             'clock_in_time': clockIn,
             'working_location': widget.workLocation,
           };
+
+          print(clockInData);
           Navigator.push(
               context,
               MaterialPageRoute(
@@ -223,6 +236,10 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
                         child: CircularProgressIndicator(),
+                      );
+                    } else if (lat == null || long == null) {
+                      return const Center(
+                        child: Text('Failed to get location.'),
                       );
                     } else {
                       return Column(
@@ -314,31 +331,6 @@ class _WFOLocationNewScreenState extends State<WFOLocationNewScreen> {
                                       ),
                                     ),
                                     onPressed: clockInProcess,
-                                    // onPressed: () async {
-                                    //   bool isFakeLocation =
-                                    //       await DetectFakeLocation()
-                                    //           .detectFakeLocation();
-                                    //   showDialog(
-                                    //     context: context,
-                                    //     builder: (BuildContext context) {
-                                    //       return AlertDialog(
-                                    //         title:
-                                    //             Text('Fake Location Detected'),
-                                    //         content: Text(
-                                    //             'The user is${isFakeLocation ? '' : ' not'} using a fake location.'),
-                                    //         actions: <Widget>[
-                                    //           TextButton(
-                                    //             child: Text('OK'),
-                                    //             onPressed: () {
-                                    //               Navigator.of(context).pop();
-                                    //             },
-                                    //           ),
-                                    //         ],
-                                    //       );
-                                    //     },
-                                    //   );
-                                    // },
-
                                     child: const Padding(
                                       padding: EdgeInsets.all(12),
                                       child: Text(

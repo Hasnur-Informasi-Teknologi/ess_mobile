@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 
 class ListAnnouncmentAdmin extends StatefulWidget {
   const ListAnnouncmentAdmin({super.key});
@@ -14,7 +12,6 @@ class _ListAnnouncmentAdminState extends State<ListAnnouncmentAdmin> {
 
   @override
   Widget build(BuildContext context) {
-    var userLogin = Hive.box('userLogin');
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double paddingHorizontalNarrow = size.width * 0.035;
@@ -41,14 +38,14 @@ class _ListAnnouncmentAdminState extends State<ListAnnouncmentAdmin> {
       ),
       body: ListView(
         children: [
-          Padding(  
+          Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
+                    const Column(
                       children: [
                         Text(
                           "Announcement General",
@@ -66,7 +63,8 @@ class _ListAnnouncmentAdminState extends State<ListAnnouncmentAdmin> {
                             primary: Color.fromARGB(255, 6, 202, 35),
                             padding: EdgeInsets.symmetric(horizontal: 1),
                             shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
                             ),
                           ),
                           onPressed: () {},
@@ -77,15 +75,17 @@ class _ListAnnouncmentAdminState extends State<ListAnnouncmentAdmin> {
                           ),
                         ),
                         Container(
-                          margin: EdgeInsets.only(left:10),
+                          margin: EdgeInsets.only(left: 10),
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              onPrimary: const Color.fromARGB(221, 255, 255, 255),
+                              onPrimary:
+                                  const Color.fromARGB(221, 255, 255, 255),
                               elevation: 5,
                               primary: Color.fromARGB(255, 202, 6, 6),
                               padding: EdgeInsets.symmetric(horizontal: 1),
                               shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
                               ),
                             ),
                             onPressed: () {},
@@ -100,7 +100,9 @@ class _ListAnnouncmentAdminState extends State<ListAnnouncmentAdmin> {
                     )
                   ],
                 ),
-                SizedBox(height: 10,),
+                SizedBox(
+                  height: 10,
+                ),
                 // ==================================================================
                 Divider(
                   height: 3,
@@ -109,7 +111,9 @@ class _ListAnnouncmentAdminState extends State<ListAnnouncmentAdmin> {
                   indent: 0,
                   endIndent: 0,
                 ),
-                SizedBox(height: 10,),
+                SizedBox(
+                  height: 10,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -131,7 +135,8 @@ class _ListAnnouncmentAdminState extends State<ListAnnouncmentAdmin> {
                             primary: Color.fromARGB(255, 6, 202, 35),
                             padding: EdgeInsets.symmetric(horizontal: 1),
                             shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
                             ),
                           ),
                           onPressed: () {},
@@ -142,15 +147,17 @@ class _ListAnnouncmentAdminState extends State<ListAnnouncmentAdmin> {
                           ),
                         ),
                         Container(
-                          margin: EdgeInsets.only(left:10),
+                          margin: EdgeInsets.only(left: 10),
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              onPrimary: const Color.fromARGB(221, 255, 255, 255),
+                              onPrimary:
+                                  const Color.fromARGB(221, 255, 255, 255),
                               elevation: 5,
                               primary: Color.fromARGB(255, 202, 6, 6),
                               padding: EdgeInsets.symmetric(horizontal: 1),
                               shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
                               ),
                             ),
                             onPressed: () {},
@@ -165,7 +172,9 @@ class _ListAnnouncmentAdminState extends State<ListAnnouncmentAdmin> {
                     )
                   ],
                 ),
-                SizedBox(height: 10,),
+                SizedBox(
+                  height: 10,
+                ),
                 // ==================================================================
                 Divider(
                   height: 3,
@@ -174,7 +183,9 @@ class _ListAnnouncmentAdminState extends State<ListAnnouncmentAdmin> {
                   indent: 0,
                   endIndent: 0,
                 ),
-                SizedBox(height: 10,),
+                SizedBox(
+                  height: 10,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -196,7 +207,8 @@ class _ListAnnouncmentAdminState extends State<ListAnnouncmentAdmin> {
                             primary: Color.fromARGB(255, 6, 202, 35),
                             padding: EdgeInsets.symmetric(horizontal: 1),
                             shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(10)),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10)),
                             ),
                           ),
                           onPressed: () {},
@@ -207,15 +219,17 @@ class _ListAnnouncmentAdminState extends State<ListAnnouncmentAdmin> {
                           ),
                         ),
                         Container(
-                          margin: EdgeInsets.only(left:10),
+                          margin: EdgeInsets.only(left: 10),
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              onPrimary: const Color.fromARGB(221, 255, 255, 255),
+                              onPrimary:
+                                  const Color.fromARGB(221, 255, 255, 255),
                               elevation: 5,
                               primary: Color.fromARGB(255, 202, 6, 6),
                               padding: EdgeInsets.symmetric(horizontal: 1),
                               shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(10)),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
                               ),
                             ),
                             onPressed: () {},
@@ -230,7 +244,9 @@ class _ListAnnouncmentAdminState extends State<ListAnnouncmentAdmin> {
                     )
                   ],
                 ),
-                SizedBox(height: 10,),
+                SizedBox(
+                  height: 10,
+                ),
                 // ==================================================================
                 Divider(
                   height: 3,
@@ -239,7 +255,9 @@ class _ListAnnouncmentAdminState extends State<ListAnnouncmentAdmin> {
                   indent: 0,
                   endIndent: 0,
                 ),
-                SizedBox(height: 10,),
+                SizedBox(
+                  height: 10,
+                ),
               ],
             ),
           )

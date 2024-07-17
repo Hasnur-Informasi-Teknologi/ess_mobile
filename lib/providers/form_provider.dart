@@ -1,12 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/io_client.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
-import 'package:mobile_ess/models/http_exception.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class FormProvider with ChangeNotifier {
   final String _apiUrl = API_URL;
@@ -26,8 +21,8 @@ class FormProvider with ChangeNotifier {
             // 'nrp_pengganti': nrpPengganti,
           }));
 
-      final responseData = jsonDecode(response.body);
-      print(responseData);
+      // final responseData = jsonDecode(response.body);
+      jsonDecode(response.body);
 
       // if (responseData['status'] != true) {
       //   throw HttpException(responseData['status']);
@@ -35,7 +30,7 @@ class FormProvider with ChangeNotifier {
 
       // notifyListeners();
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 }

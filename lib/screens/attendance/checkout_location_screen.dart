@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:io';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -9,7 +11,6 @@ import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/screens/attendance/take_selfie_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:trust_location/trust_location.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 // import 'package:flutter_timezone/flutter_timezone.dart';
@@ -39,11 +40,12 @@ class _CheckoutLocationScreenState extends State<CheckoutLocationScreen> {
   String? lat, long, address;
   bool _isLoading = false;
   String _timeZone = 'WIB';
+  String timeZone = 'WIB';
 
   @override
   void initState() {
     super.initState();
-    _getTimeZone();
+    // _getTimeZone();
   }
 
   Future<void> getLocation() async {
@@ -51,24 +53,27 @@ class _CheckoutLocationScreenState extends State<CheckoutLocationScreen> {
     final locationData = await locationService.getLocation();
 
     if (locationData != null) {
-      final placeMark =
-          await locationService.getPlaceMark(locationData: locationData);
-
       lat = locationData.latitude!.toStringAsFixed(7);
       long = locationData.longitude!.toStringAsFixed(7);
 
-      address =
-          '${placeMark?.street}, ${placeMark?.subLocality}, ${placeMark?.locality}, ${placeMark?.subAdministrativeArea}, ${placeMark?.administrativeArea}, ${placeMark?.postalCode}';
+      try {
+        final placeMark =
+            await locationService.getPlaceMark(locationData: locationData);
+        address =
+            '${placeMark?.street}, ${placeMark?.subLocality}, ${placeMark?.locality}, ${placeMark?.subAdministrativeArea}, ${placeMark?.administrativeArea}, ${placeMark?.postalCode}';
+      } catch (e) {
+        address = 'Unable to determine address';
+      }
     }
   }
 
-  void _getTimeZone() {
-    var now = DateTime.now();
-    var timeZoneName = now.timeZoneName;
-    setState(() {
-      _timeZone = timeZoneName;
-    });
-  }
+  // void _getTimeZone() {
+  //   var now = DateTime.now();
+  //   var timeZoneName = now.timeZoneName;
+  //   setState(() {
+  //     _timeZone = timeZoneName;
+  //   });
+  // }
 
   void _showErrorDialog(String errorMessage) {
     showDialog(
@@ -79,11 +84,13 @@ class _CheckoutLocationScreenState extends State<CheckoutLocationScreen> {
   }
 
   Future<void> clockOutProcess() async {
-    bool isMockLocation = await TrustLocation.isMockLocation;
-    if (isMockLocation) {
-      _showErrorDialog(
-          'Kami mendeteksi penggunaan GPS palsu. Silahkan Nonaktifkan dan coba lagi untuk melanjutkan absensi Anda!');
-      return;
+    if (Platform.isAndroid) {
+      bool isMockLocation = await TrustLocation.isMockLocation;
+      if (isMockLocation) {
+        _showErrorDialog(
+            'Kami mendeteksi penggunaan GPS palsu. Silahkan Nonaktifkan dan coba lagi untuk melanjutkan absensi Anda!');
+        return;
+      }
     }
 
     setState(() {
@@ -99,7 +106,9 @@ class _CheckoutLocationScreenState extends State<CheckoutLocationScreen> {
       DateTime sdate = DateTime.parse(response.body);
       int stimestamp = sdate.millisecondsSinceEpoch;
 
-      var timeZone = _timeZone;
+      // var timeZone = _timeZone;
+      var now = DateTime.now();
+      timeZone = now.timeZoneName;
       if (timeZone == 'WITA') {
         stimestamp = stimestamp + (1 * 60 * 60 * 1000);
       } else if (timeZone == 'WIT') {

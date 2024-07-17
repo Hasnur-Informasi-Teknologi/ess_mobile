@@ -1,12 +1,8 @@
 import 'dart:convert';
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/io_client.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/models/http_exception.dart';
-import 'package:mobile_ess/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider with ChangeNotifier {
@@ -44,7 +40,7 @@ class AuthProvider with ChangeNotifier {
           'Authorization': 'Bearer $token'
         },
       );
-      final user_auth = await ioClient.get(
+      final userAuth = await ioClient.get(
         Uri.parse('$_apiUrl/master/profile/get_user?nrp=$nrp'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -55,13 +51,13 @@ class AuthProvider with ChangeNotifier {
       final userData = user.body;
       prefs.setString('userData', userData);
       prefs.setBool('permission', true);
-      prefs.setInt('role_id', jsonDecode(user_auth.body)['data']['role_id']);
+      prefs.setInt('role_id', jsonDecode(userAuth.body)['data']['role_id']);
       notifyListeners();
-      return jsonDecode(user_auth.body)['data']['role_id'];
+      return jsonDecode(userAuth.body)['data']['role_id'];
     } catch (e) {
       // throw e;
       if (e is HttpException) {
-        throw e;
+        rethrow;
       } else {
         throw HttpException('Authentication failed. Please try again later.');
       }
@@ -110,7 +106,7 @@ class AuthProvider with ChangeNotifier {
         throw HttpException(responseData['message']);
       }
     } catch (e) {
-      throw e;
+      rethrow;
     }
   }
 }
