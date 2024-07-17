@@ -250,14 +250,7 @@ class OnlineFormScreen extends StatelessWidget {
         Get.toNamed('/user/main/home/online_form/pengajuan_cuti');
         break;
       case 9:
-        Get.snackbar('Infomation', 'Coming Soon',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.amber,
-            icon: const Icon(
-              Icons.info,
-              color: Colors.white,
-            ),
-            shouldIconPulse: false);
+        Get.toNamed('/user/main/home/online_form/penilaian_kinerja_karyawan');
         break;
       case 10:
         Get.toNamed('/admin/administrator/administrator_screen');
