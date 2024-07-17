@@ -38,6 +38,7 @@ import 'package:mobile_ess/screens/user/home/online_form/pengajuan_perjalanan_di
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_perjalanan_dinas/form_rencana_biaya_perjalanan_dinas.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_perjalanan_dinas/pengajuan_perjalanan_dinas.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_surat_keterangan.dart/form_surat_keterangan.dart';
+import 'package:mobile_ess/screens/user/home/online_form/penilaian_kinerja_karyawan/form_penilaian_kinerja_karyawan.dart';
 import 'package:mobile_ess/screens/user/home/pengumuman/detail_pengumuman_screen.dart';
 import 'package:mobile_ess/screens/user/home/pengumuman/pengumuman_screen.dart';
 import 'package:mobile_ess/screens/user/home/online_form/aplikasi_training/form_aplikasi_training_screen.dart';
@@ -130,6 +131,8 @@ Map<String, Widget Function(BuildContext)> routers() {
         (context) => const FormPengajuanCuti(),
     '/user/main/home/online_form/pengajuan_cuti/form_pengajuan_perpanjangan_cuti':
         (context) => const FormPengajuanPerpanjanganCuti(),
+    '/user/main/home/online_form/penilaian_kinerja_karyawan': (context) =>
+        const FormPenilaianKinerjaKaryawan(),
     '/user/main/home/request_attendance': (context) =>
         const RequestAttendanceKaryawanScreen(),
     '/user/main/home/request_attendance/ubah_data_kehadiran': (context) =>
