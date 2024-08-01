@@ -10,11 +10,16 @@ import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/build_dropdown_with_title_widget.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/build_dropdown_with_two_title_widget.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/build_text_field_widget.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/custom_tabbar.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_number_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
+import 'package:scrollable_table_view/scrollable_table_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
@@ -33,12 +38,15 @@ class _FormAplikasiRecruitmentScreenState
   bool? _isNormalChecked = false;
   bool? _isRendahChecked = false;
 
+  List<Map<String, dynamic>> masterDataJurusan = [];
+  Map<int, bool> selectedItems = {};
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final DateRangePickerController _tanggalPengajuanController =
       DateRangePickerController();
   DateTime? tanggalPengajuan;
+
   // Pengajuan
-  final TextEditingController _nomorController = TextEditingController();
   final TextEditingController _nrpController = TextEditingController();
   final TextEditingController _namaController = TextEditingController();
   final TextEditingController _jabatanController = TextEditingController();
@@ -50,9 +58,9 @@ class _FormAplikasiRecruitmentScreenState
       TextEditingController();
   final TextEditingController _qtyController = TextEditingController();
   final TextEditingController _catatanController = TextEditingController();
-  final DateRangePickerController _tanggalMulaiKerjaController =
+  final DateRangePickerController _tanggalKembaliKerjaController =
       DateRangePickerController();
-  DateTime? tanggalMulaiKerja;
+  DateTime? tanggalKembaliKerja;
   // Kualifikasi
   final TextEditingController _jurusanController = TextEditingController();
   final TextEditingController _sertifikasiController = TextEditingController();
@@ -92,7 +100,8 @@ class _FormAplikasiRecruitmentScreenState
       selectedValueEntitasDirekturKeuangan,
       selectedValueDirekturKeuangan,
       selectedValueEntitasPresidenDirektur,
-      selectedValuePresidenDirektur;
+      selectedValuePresidenDirektur,
+      cocd;
 
   List<Map<String, dynamic>> selectedEntitasAtasanLangsung = [];
   List<Map<String, dynamic>> selectedAtasanLangsung = [];
@@ -101,11 +110,48 @@ class _FormAplikasiRecruitmentScreenState
   List<Map<String, dynamic>> selectedLokasiKerja = [];
   List<Map<String, dynamic>> selectedPangkatAwal = [];
   List<Map<String, dynamic>> selectedPangkatAkhir = [];
-  List<Map<String, dynamic>> selectedPendidikanAwal = [];
-  List<Map<String, dynamic>> selectedPendidikanAkhir = [];
-  List<Map<String, dynamic>> selectedJenisKelamin = [];
+  List<Map<String, dynamic>> selectedPendidikanAwal = [
+    {'pendidikan': 'SD'},
+    {'pendidikan': 'SMP'},
+    {'pendidikan': 'SMA/SMK'},
+    {'pendidikan': 'Paket B'},
+    {'pendidikan': 'Paket C'},
+    {'pendidikan': 'D1'},
+    {'pendidikan': 'D2'},
+    {'pendidikan': 'D3'},
+    {'pendidikan': 'D4'},
+    {'pendidikan': 'S1'},
+    {'pendidikan': 'S2'},
+    {'pendidikan': 'S3'}
+  ];
+  List<Map<String, dynamic>> selectedPendidikanAkhir = [
+    {'pendidikan': 'SD'},
+    {'pendidikan': 'SMP'},
+    {'pendidikan': 'SMA/SMK'},
+    {'pendidikan': 'Paket B'},
+    {'pendidikan': 'Paket C'},
+    {'pendidikan': 'D1'},
+    {'pendidikan': 'D2'},
+    {'pendidikan': 'D3'},
+    {'pendidikan': 'D4'},
+    {'pendidikan': 'S1'},
+    {'pendidikan': 'S2'},
+    {'pendidikan': 'S3'}
+  ];
+  List<Map<String, dynamic>> selectedJenisKelamin = [
+    {'jenis': 'Laki-Laki'},
+    {'jenis': 'Perempuan'}
+  ];
   List<Map<String, dynamic>> selectedNrpDiUraianJabatan = [];
-  List<Map<String, dynamic>> selectedStatusKaryawan = [];
+  List<Map<String, dynamic>> selectedStatusKaryawan = [
+    {'status': 'Permanen'},
+    {'status': 'Kontrak'},
+    {'status': 'KHL'},
+    {'status': 'KHT'},
+    {'status': 'PB'},
+    {'status': 'Magang'},
+    {'status': 'Outsourcing'},
+  ];
   List<Map<String, dynamic>> selectedEntitasDirekturHcgs = [];
   List<Map<String, dynamic>> selectedDirekturHcgs = [];
   List<Map<String, dynamic>> selectedEntitasDirekturKeuangan = [];
@@ -118,6 +164,7 @@ class _FormAplikasiRecruitmentScreenState
   final double _maxHeightEntitasAtasanLangsung = 60.0;
   final double _maxHeightAtasanLangsung = 60.0;
   final double _maxHeightEntitas = 60.0;
+  final double _maxHeightDepartement = 60.0;
   final double _maxHeightLokasiKerja = 60.0;
   final double _maxHeightPangkatAwal = 60.0;
   final double _maxHeightPangkatAkhir = 60.0;
@@ -151,6 +198,18 @@ class _FormAplikasiRecruitmentScreenState
   final double _maxHeightEntitasPresidenDirektur = 60.0;
   final double _maxHeightPresidenDirektur = 60.0;
 
+  List jurusanHeader = [
+    'Select',
+    'Jurusan',
+    'Aksi',
+  ];
+
+  List jurusanKey = [
+    'select',
+    'jurusan',
+    'aksi',
+  ];
+
   bool _isLoading = false;
   bool _isFileNull = false;
   List<PlatformFile>? _files;
@@ -178,16 +237,33 @@ class _FormAplikasiRecruitmentScreenState
   @override
   void initState() {
     super.initState();
+    getData();
     getDataRole();
     getDataUserDetail();
     getDataEntitas();
     getDataJabatan();
-    getDataLokasi();
     getDataPangkat();
+    getDataLokasi();
     getDataJurusan();
     getDataSertifikasi();
     getDataPengajuan();
   }
+
+  Future<void> getData() async {
+    final prefs = await SharedPreferences.getInstance();
+    var userData = prefs.getString('userData');
+    final responseData = jsonDecode(userData.toString())['data'];
+    setState(() {
+      _nrpController.text = responseData['pernr'];
+      _namaController.text = responseData['nama'];
+      _jabatanController.text = responseData['position'];
+      _entitasController.text = responseData['pt'];
+      cocd = responseData['cocd'];
+    });
+    getDataNrpUraianJabatan();
+  }
+
+  // cocd
 
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -223,12 +299,145 @@ class _FormAplikasiRecruitmentScreenState
     }
   }
 
+  Future<void> getDataEntitas() async {
+    await _fetchData("master/entitas", (data) {
+      final dataHasilApi = data['data'];
+
+      setState(() {
+        selectedEntitasAtasanLangsung =
+            List<Map<String, dynamic>>.from(dataHasilApi);
+        selectedEntitas = List<Map<String, dynamic>>.from(dataHasilApi);
+        selectedEntitasDirekturHcgs =
+            List<Map<String, dynamic>>.from(dataHasilApi);
+        selectedEntitasDirekturKeuangan =
+            List<Map<String, dynamic>>.from(dataHasilApi);
+        selectedEntitasPresidenDirektur =
+            List<Map<String, dynamic>>.from(dataHasilApi);
+      });
+    });
+  }
+
+  Future<void> getDataAtasan() async {
+    await _fetchData(
+      "karyawan/dept-head",
+      (data) {
+        final dataHasilApi = data['data'];
+        setState(() {
+          selectedAtasanLangsung =
+              List<Map<String, dynamic>>.from(dataHasilApi);
+        });
+      },
+      queryParams: {
+        'atasan': '05',
+        'entitas': selectedValueEntitasAtasanLangsung.toString(),
+      },
+    );
+  }
+
+  Future<void> getDataNrpUraianJabatan() async {
+    await _fetchData(
+      "karyawan/dept-head",
+      (data) {
+        final dataHasilApi = data['data'];
+        setState(() {
+          selectedNrpDiUraianJabatan =
+              List<Map<String, dynamic>>.from(dataHasilApi);
+        });
+      },
+      queryParams: {
+        'atasan': '05',
+        'entitas': cocd.toString(),
+      },
+    );
+  }
+
+  Future<void> getDataDepartemen() async {
+    await _fetchData(
+      "master/departemen",
+      (data) {
+        final dataHasilApi = data['data'];
+        setState(() {
+          selectedDepartemen = List<Map<String, dynamic>>.from(dataHasilApi);
+        });
+      },
+      queryParams: {
+        'pt': selectedValueEntitas.toString(),
+      },
+    );
+  }
+
+  Future<void> getDataLokasi() async {
+    await _fetchData("master/lokasi", (data) {
+      final dataHasilApi = data['data'];
+      setState(() {
+        selectedLokasiKerja = List<Map<String, dynamic>>.from(dataHasilApi);
+      });
+    });
+  }
+
+  Future<void> getDataPangkat() async {
+    await _fetchData("master/pangkat", (data) {
+      final dataHasilApi = data['data'];
+      setState(() {
+        selectedPangkatAwal = List<Map<String, dynamic>>.from(dataHasilApi);
+        selectedPangkatAkhir = List<Map<String, dynamic>>.from(dataHasilApi);
+      });
+    });
+  }
+
+  Future<void> getDataDirekturHcgs() async {
+    await _fetchData(
+      "karyawan/dept-head",
+      (data) {
+        final dataHasilApi = data['data'];
+        setState(() {
+          selectedDirekturHcgs = List<Map<String, dynamic>>.from(dataHasilApi);
+        });
+      },
+      queryParams: {
+        'atasan': '12',
+        'entitas': selectedValueEntitasDirekturHcgs.toString(),
+      },
+    );
+  }
+
+  Future<void> getDataDirekturKeuangan() async {
+    await _fetchData(
+      "karyawan/dept-head",
+      (data) {
+        final dataHasilApi = data['data'];
+        setState(() {
+          selectedDirekturKeuangan =
+              List<Map<String, dynamic>>.from(dataHasilApi);
+        });
+      },
+      queryParams: {
+        'atasan': '12',
+        'entitas': selectedValueEntitasDirekturKeuangan.toString(),
+      },
+    );
+  }
+
+  Future<void> getDataPresidenDirektur() async {
+    await _fetchData(
+      "karyawan/dept-head",
+      (data) {
+        final dataHasilApi = data['data'];
+        setState(() {
+          selectedPresidenDirektur =
+              List<Map<String, dynamic>>.from(dataHasilApi);
+        });
+      },
+      queryParams: {
+        'atasan': '12',
+        'entitas': selectedValueEntitasPresidenDirektur.toString(),
+      },
+    );
+  }
+
   Future<void> getDataRole() async {
     await _fetchData("master/profile/get_role", (data) {
       final dataHasilApi = data['data'];
-      // setState(() {
-      //   selectedEntitas = List<Map<String, dynamic>>.from(dataEntitasApi);
-      // });
     });
   }
 
@@ -238,26 +447,8 @@ class _FormAplikasiRecruitmentScreenState
     });
   }
 
-  Future<void> getDataEntitas() async {
-    await _fetchData("master/entitas", (data) {
-      final dataHasilApi = data['data'];
-    });
-  }
-
   Future<void> getDataJabatan() async {
     await _fetchData("master/jabatan", (data) {
-      final dataHasilApi = data['data'];
-    });
-  }
-
-  Future<void> getDataLokasi() async {
-    await _fetchData("master/lokasi", (data) {
-      final dataHasilApi = data['data'];
-    });
-  }
-
-  Future<void> getDataPangkat() async {
-    await _fetchData("master/pangkat", (data) {
       final dataHasilApi = data['data'];
     });
   }
@@ -265,6 +456,10 @@ class _FormAplikasiRecruitmentScreenState
   Future<void> getDataJurusan() async {
     await _fetchData("master/jurusan", (data) {
       final dataHasilApi = data['data'];
+
+      setState(() {
+        masterDataJurusan = List<Map<String, dynamic>>.from(dataHasilApi);
+      });
     });
   }
 
@@ -280,9 +475,86 @@ class _FormAplikasiRecruitmentScreenState
     });
   }
 
+  Future<void> _addJurusan() async {
+    final token = await _getToken();
+
+    String jurusan = _jurusanController.text;
+
+    try {
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response =
+          await ioClient.post(Uri.parse('$_apiUrl/master/jurusan/add'),
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+                'Authorization': 'Bearer $token'
+              },
+              body: jsonEncode({
+                'jurusan': jurusan.toString(),
+              }));
+
+      final responseData = jsonDecode(response.body);
+      print(responseData);
+
+      if (responseData['status'] == 'success') {
+        getDataJurusan();
+        _jurusanController.text = '';
+        _showSnackbar('Success', 'Tambah Jurusan berhasil');
+      }
+    } catch (e) {
+      _showSnackbar('Error', 'Terjadi kesalahan saat manambahkan jurusan.');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _deleteJurusan(dynamic id) async {
+    final token = await _getToken();
+
+    try {
+      final ioClient = createIOClientWithInsecureConnection();
+
+      final response = await ioClient.delete(
+          Uri.parse('$_apiUrl/master/jurusan/delete?id=$id'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+            'Authorization': 'Bearer $token'
+          });
+
+      final responseData = jsonDecode(response.body);
+      print(responseData);
+
+      if (responseData['status'] == 'success') {
+        getDataJurusan();
+        _showSnackbar('Success', 'Delete Jurusan berhasil');
+      }
+    } catch (e) {
+      _showSnackbar('Error', 'Terjadi kesalahan saat menghapus jurusan.');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _showSnackbar(String title, String message) {
+    Get.snackbar(
+      title,
+      message,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.amber,
+      icon: const Icon(
+        Icons.info,
+        color: Colors.white,
+      ),
+      shouldIconPulse: false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    DateTime dateTime = DateTime(3000, 2, 1, 10, 20);
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double textLarge = size.width * 0.04;
@@ -305,6 +577,7 @@ class _FormAplikasiRecruitmentScreenState
     void updateData(int index) {
       setState(() {
         current = index;
+        print(current);
       });
     }
 
@@ -542,7 +815,7 @@ class _FormAplikasiRecruitmentScreenState
             SizedBox(
               height: sizedBoxHeightTall,
             ),
-            _buildTextFieldSection(
+            BuildTextFieldWidget(
               title: 'NRP',
               isMandatory: true,
               textSize: textMedium,
@@ -553,7 +826,7 @@ class _FormAplikasiRecruitmentScreenState
               maxHeightConstraints: 50,
               isDisable: true,
             ),
-            _buildTextFieldSection(
+            BuildTextFieldWidget(
               title: 'Nama',
               isMandatory: true,
               textSize: textMedium,
@@ -564,7 +837,7 @@ class _FormAplikasiRecruitmentScreenState
               maxHeightConstraints: 50,
               isDisable: true,
             ),
-            _buildTextFieldSection(
+            BuildTextFieldWidget(
               title: 'Jabatan',
               isMandatory: true,
               textSize: textMedium,
@@ -575,7 +848,7 @@ class _FormAplikasiRecruitmentScreenState
               maxHeightConstraints: 50,
               isDisable: true,
             ),
-            _buildTextFieldSection(
+            BuildTextFieldWidget(
               title: 'Entitas',
               isMandatory: true,
               textSize: textMedium,
@@ -625,24 +898,26 @@ class _FormAplikasiRecruitmentScreenState
             SizedBox(
               height: sizedBoxHeightTall,
             ),
-            _buildDropdownWithTitle(
+            BuildDropdownWithTitleWidget(
               title: 'Pilih Entitas Atasan Langsung : ',
               selectedValue: selectedValueEntitasAtasanLangsung,
               itemList: selectedEntitasAtasanLangsung,
               onChanged: (String? newValue) {
                 setState(() {
                   selectedValueEntitasAtasanLangsung = newValue ?? '';
-                  // selectedValueAtasan = null;
-                  // getDataAtasan();
+                  selectedValueAtasanLangsung = null;
+                  selectedAtasanLangsung = [];
+                  getDataAtasan();
                 });
               },
               // validator: _validatorEntitas,
               maxHeight: _maxHeightEntitasAtasanLangsung,
               isLoading: selectedEntitasAtasanLangsung.isEmpty,
+              horizontalPadding: paddingHorizontalNarrow,
               valueKey: "kode",
               titleKey: "nama",
             ),
-            _buildDropdownWithTitle(
+            BuildDropdownWithTitleWidget(
               title: 'Pilih Atasan Langsung : ',
               selectedValue: selectedValueAtasanLangsung,
               itemList: selectedAtasanLangsung,
@@ -654,25 +929,44 @@ class _FormAplikasiRecruitmentScreenState
               // validator: _validatorEntitas,
               maxHeight: _maxHeightAtasanLangsung,
               isLoading: selectedAtasanLangsung.isEmpty,
-              valueKey: "kode",
+              horizontalPadding: paddingHorizontalNarrow,
+              valueKey: "pernr",
               titleKey: "nama",
             ),
-            _buildDropdownWithTitle(
+            BuildDropdownWithTitleWidget(
               title: 'Pilih Entitas : ',
               selectedValue: selectedValueEntitas,
               itemList: selectedEntitas,
               onChanged: (String? newValue) {
                 setState(() {
                   selectedValueEntitas = newValue ?? '';
+                  selectedValueDepartemen = null;
+                  selectedDepartemen = [];
+                  getDataDepartemen();
                 });
               },
-              // validator: _validatorEntitas,
               maxHeight: _maxHeightEntitas,
               isLoading: selectedEntitas.isEmpty,
+              horizontalPadding: paddingHorizontalNarrow,
               valueKey: "kode",
               titleKey: "nama",
             ),
-            _buildDropdownWithTitle(
+            BuildDropdownWithTitleWidget(
+              title: 'Pilih Departemen : ',
+              selectedValue: selectedValueDepartemen,
+              itemList: selectedDepartemen,
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedValueDepartemen = newValue ?? '';
+                });
+              },
+              maxHeight: _maxHeightDepartement,
+              isLoading: selectedDepartemen.isEmpty,
+              horizontalPadding: paddingHorizontalNarrow,
+              valueKey: "organizational_unit",
+              titleKey: "organizational_unit",
+            ),
+            BuildDropdownWithTitleWidget(
               title: 'Pilih Lokasi Kerja : ',
               selectedValue: selectedValueLokasiKerja,
               itemList: selectedLokasiKerja,
@@ -681,13 +975,13 @@ class _FormAplikasiRecruitmentScreenState
                   selectedValueLokasiKerja = newValue ?? '';
                 });
               },
-              // validator: _validatorEntitas,
               maxHeight: _maxHeightLokasiKerja,
               isLoading: selectedLokasiKerja.isEmpty,
-              valueKey: "kode",
-              titleKey: "nama",
+              horizontalPadding: paddingHorizontalNarrow,
+              valueKey: "lokasi",
+              titleKey: "lokasi",
             ),
-            _buildDropdownWithTitle(
+            BuildDropdownWithTitleWidget(
               title: 'Pilih Pangkat Awal : ',
               selectedValue: selectedValuePangkatAwal,
               itemList: selectedPangkatAwal,
@@ -696,13 +990,13 @@ class _FormAplikasiRecruitmentScreenState
                   selectedValuePangkatAwal = newValue ?? '';
                 });
               },
-              // validator: _validatorEntitas,
               maxHeight: _maxHeightPangkatAwal,
               isLoading: selectedPangkatAwal.isEmpty,
+              horizontalPadding: paddingHorizontalNarrow,
               valueKey: "kode",
               titleKey: "nama",
             ),
-            _buildDropdownWithTitle(
+            BuildDropdownWithTitleWidget(
               title: 'Pilih Pangkat Akhir : ',
               selectedValue: selectedValuePangkatAkhir,
               itemList: selectedPangkatAkhir,
@@ -711,13 +1005,13 @@ class _FormAplikasiRecruitmentScreenState
                   selectedValuePangkatAkhir = newValue ?? '';
                 });
               },
-              // validator: _validatorEntitas,
               maxHeight: _maxHeightPangkatAkhir,
               isLoading: selectedPangkatAkhir.isEmpty,
+              horizontalPadding: paddingHorizontalNarrow,
               valueKey: "kode",
               titleKey: "nama",
             ),
-            _buildTextFieldSection(
+            BuildTextFieldWidget(
               title: 'Jabatan',
               isMandatory: true,
               textSize: textMedium,
@@ -756,9 +1050,9 @@ class _FormAplikasiRecruitmentScreenState
                         color: Colors.grey,
                       ),
                       Text(
-                        tanggalMulaiKerja != null
+                        tanggalKembaliKerja != null
                             ? DateFormat('dd-MM-yyyy').format(
-                                _tanggalMulaiKerjaController.selectedDate ??
+                                _tanggalKembaliKerjaController.selectedDate ??
                                     DateTime.now())
                             : 'dd/mm/yyyy',
                         style: TextStyle(
@@ -780,11 +1074,11 @@ class _FormAplikasiRecruitmentScreenState
                           height: 350,
                           width: 350,
                           child: SfDateRangePicker(
-                            controller: _tanggalMulaiKerjaController,
+                            controller: _tanggalKembaliKerjaController,
                             onSelectionChanged:
                                 (DateRangePickerSelectionChangedArgs args) {
                               setState(() {
-                                tanggalMulaiKerja = args.value;
+                                tanggalKembaliKerja = args.value;
                               });
                             },
                             selectionMode: DateRangePickerSelectionMode.single,
@@ -802,7 +1096,7 @@ class _FormAplikasiRecruitmentScreenState
                 },
               ),
             ),
-            _buildTextFieldSection(
+            BuildTextFieldWidget(
               title: 'Qty',
               isMandatory: true,
               textSize: textMedium,
@@ -813,7 +1107,7 @@ class _FormAplikasiRecruitmentScreenState
               maxHeightConstraints: _maxHeightQty,
               isNumberField: true,
             ),
-            _buildTextFieldSection(
+            BuildTextFieldWidget(
               title: 'Catatan',
               isMandatory: true,
               textSize: textMedium,
@@ -838,8 +1132,6 @@ class _FormAplikasiRecruitmentScreenState
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding5 = size.width * 0.0115;
-    double paddingHorizontalWide = size.width * 0.0585;
-    double padding7 = size.width * 0.018;
 
     return SingleChildScrollView(
       child: Padding(
@@ -862,7 +1154,7 @@ class _FormAplikasiRecruitmentScreenState
             SizedBox(
               height: sizedBoxHeightTall,
             ),
-            _buildDropdownWithTitle(
+            BuildDropdownWithTitleWidget(
               title: 'Pilih Pendidikan Awal : ',
               selectedValue: selectedValuePendidikanAwal,
               itemList: selectedPendidikanAwal,
@@ -874,10 +1166,11 @@ class _FormAplikasiRecruitmentScreenState
               // validator: _validatorEntitas,
               maxHeight: _maxHeightPendidikanAwal,
               isLoading: selectedPendidikanAwal.isEmpty,
-              valueKey: "kode",
-              titleKey: "nama",
+              horizontalPadding: paddingHorizontalNarrow,
+              valueKey: "pendidikan",
+              titleKey: "pendidikan",
             ),
-            _buildDropdownWithTitle(
+            BuildDropdownWithTitleWidget(
               title: 'Pilih Pendidikan Akhir : ',
               selectedValue: selectedValuePendidikanAkhir,
               itemList: selectedPendidikanAkhir,
@@ -889,30 +1182,75 @@ class _FormAplikasiRecruitmentScreenState
               // validator: _validatorEntitas,
               maxHeight: _maxHeightPendidikanAkhir,
               isLoading: selectedPendidikanAkhir.isEmpty,
-              valueKey: "kode",
-              titleKey: "nama",
-            ),
-            _buildTextFieldSection(
-              title: 'Jurusan',
-              isMandatory: true,
-              textSize: textMedium,
               horizontalPadding: paddingHorizontalNarrow,
-              verticalSpacing: sizedBoxHeightShort,
-              controller: _nrpController,
-              hintText: 'Pilih Jurusan',
-              maxHeightConstraints: _maxHeightJurusan,
+              valueKey: "pendidikan",
+              titleKey: "pendidikan",
             ),
-            _buildTextFieldSection(
+            Column(
+              children: [
+                Padding(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+                  child: Row(
+                    children: [
+                      TitleWidget(
+                        title: 'Jurusan',
+                        fontWeight: FontWeight.w300,
+                        fontSize: textMedium,
+                      ),
+                      Text(
+                        '*',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: textMedium,
+                          fontFamily: 'Poppins',
+                          letterSpacing: 0.6,
+                          fontWeight: FontWeight.w300,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: size.width,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                        horizontal: paddingHorizontalNarrow),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        showJurusanModal(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      child: Text(
+                        'Pilih Jurusan',
+                        style: TextStyle(
+                            color: const Color(primaryBlack),
+                            fontSize: textMedium,
+                            fontFamily: 'Poppins',
+                            letterSpacing: 0.9,
+                            fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            BuildTextFieldWidget(
               title: 'Sertifikasi',
               isMandatory: true,
               textSize: textMedium,
               horizontalPadding: paddingHorizontalNarrow,
               verticalSpacing: sizedBoxHeightShort,
-              controller: _nrpController,
+              controller: _sertifikasiController,
               hintText: 'Pilih Sertifikasi',
               maxHeightConstraints: _maxHeightSertifikasi,
             ),
-            _buildTextFieldSection(
+            BuildTextFieldWidget(
               title: 'IPK / Nilai',
               isMandatory: true,
               textSize: textMedium,
@@ -923,7 +1261,7 @@ class _FormAplikasiRecruitmentScreenState
               maxHeightConstraints: _maxHeightIpk,
               isNumberField: true,
             ),
-            _buildDropdownWithTitle(
+            BuildDropdownWithTitleWidget(
               title: 'Pilih Jenis Kelamin : ',
               selectedValue: selectedValueJenisKelamin,
               itemList: selectedJenisKelamin,
@@ -935,10 +1273,11 @@ class _FormAplikasiRecruitmentScreenState
               // validator: _validatorEntitas,
               maxHeight: _maxHeightJenisKelamin,
               isLoading: selectedJenisKelamin.isEmpty,
-              valueKey: "kode",
-              titleKey: "nama",
+              horizontalPadding: paddingHorizontalNarrow,
+              valueKey: "jenis",
+              titleKey: "jenis",
             ),
-            _buildTextFieldSection(
+            BuildTextFieldWidget(
               title: 'Rentang Usia Awal',
               isMandatory: true,
               textSize: textMedium,
@@ -949,7 +1288,7 @@ class _FormAplikasiRecruitmentScreenState
               maxHeightConstraints: _maxHeightUsiaAwal,
               isNumberField: true,
             ),
-            _buildTextFieldSection(
+            BuildTextFieldWidget(
               title: 'Rentang Usia Akhir',
               isMandatory: true,
               textSize: textMedium,
@@ -960,7 +1299,7 @@ class _FormAplikasiRecruitmentScreenState
               maxHeightConstraints: _maxHeightUsiaAkhir,
               isNumberField: true,
             ),
-            _buildTextFieldSection(
+            BuildTextFieldWidget(
               title: 'Pengalaman Kerja',
               isMandatory: true,
               textSize: textMedium,
@@ -985,7 +1324,7 @@ class _FormAplikasiRecruitmentScreenState
             SizedBox(
               height: sizedBoxHeightTall,
             ),
-            _buildTextFieldSection(
+            BuildTextFieldWidget(
               title: 'Soft Skill',
               isMandatory: true,
               textSize: textMedium,
@@ -995,7 +1334,7 @@ class _FormAplikasiRecruitmentScreenState
               hintText: 'Soft Skill',
               maxHeightConstraints: _maxHeightSoftSkill,
             ),
-            _buildTextFieldSection(
+            BuildTextFieldWidget(
               title: 'Hard Skill',
               isMandatory: true,
               textSize: textMedium,
@@ -1044,7 +1383,7 @@ class _FormAplikasiRecruitmentScreenState
             SizedBox(
               height: sizedBoxHeightTall,
             ),
-            _buildTextFieldSection(
+            BuildTextFieldWidget(
               title: 'Tugas & Tanggung Jawab',
               isMandatory: true,
               textSize: textMedium,
@@ -1116,7 +1455,7 @@ class _FormAplikasiRecruitmentScreenState
               horizontalPadding: paddingHorizontalNarrow,
               isRequired: false,
             ),
-            _buildDropdownWithTitle(
+            BuildDropdownWithTitleWidget(
               title: 'Status Karyawan : ',
               selectedValue: selectedValueStatusKaryawan,
               itemList: selectedStatusKaryawan,
@@ -1128,8 +1467,9 @@ class _FormAplikasiRecruitmentScreenState
               // validator: _validatorEntitas,
               maxHeight: _maxHeightStatusKaryawan,
               isLoading: selectedStatusKaryawan.isEmpty,
-              valueKey: "kode",
-              titleKey: "nama",
+              horizontalPadding: paddingHorizontalNarrow,
+              valueKey: "status",
+              titleKey: "status",
             ),
             _buildTitle(
               title: 'Status Aplikasi Rekrutmen',
@@ -1146,22 +1486,32 @@ class _FormAplikasiRecruitmentScreenState
                     'Untuk Pangganti Karyawan Lama', _isOld),
               ],
             ),
-            _buildDropdownWithTitle(
+            BuildDropdownWithTwoTitleWidget(
               title: 'Pilih NRP : ',
               selectedValue: selectedValueNrpDiUraianJabatan,
               itemList: selectedNrpDiUraianJabatan,
               onChanged: (String? newValue) {
                 setState(() {
                   selectedValueNrpDiUraianJabatan = newValue ?? '';
+                  if (newValue != null) {
+                    final selectedData = selectedNrpDiUraianJabatan
+                        .firstWhere((element) => element['pernr'] == newValue);
+                    _namaDiUraianJabatanController.text = selectedData['nama'];
+                    _jabatanDiUraianJabatanController.text =
+                        selectedData['pangkat'];
+                    _entitasDiUraianJabatanController.text = selectedData['pt'];
+                  } else {
+                    _namaDiUraianJabatanController.clear();
+                  }
                 });
               },
-              // validator: _validatorEntitas,
               maxHeight: _maxHeightStatusKaryawan,
               isLoading: selectedNrpDiUraianJabatan.isEmpty,
-              valueKey: "kode",
+              horizontalPadding: paddingHorizontalNarrow,
+              valueKey: "pernr",
               titleKey: "nama",
             ),
-            _buildTextFieldSection(
+            BuildTextFieldWidget(
               title: 'Nama',
               isMandatory: true,
               textSize: textMedium,
@@ -1172,7 +1522,7 @@ class _FormAplikasiRecruitmentScreenState
               maxHeightConstraints: _maxHeightNamaDiUraianJabatan,
               isDisable: true,
             ),
-            _buildTextFieldSection(
+            BuildTextFieldWidget(
               title: 'Jabatan',
               isMandatory: true,
               textSize: textMedium,
@@ -1183,7 +1533,7 @@ class _FormAplikasiRecruitmentScreenState
               maxHeightConstraints: _maxHeightJabatanDiUraianJabatan,
               isDisable: true,
             ),
-            _buildTextFieldSection(
+            BuildTextFieldWidget(
               title: 'Entitas',
               isMandatory: true,
               textSize: textMedium,
@@ -1200,17 +1550,530 @@ class _FormAplikasiRecruitmentScreenState
     );
   }
 
-  Widget approvalWidget(BuildContext context) {
+  Future<void> showJurusanModal(BuildContext context) async {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
+    double textSmall = size.width * 0.027;
+    double padding7 = size.width * 0.018;
+    double padding5 = size.width * 0.0115;
+    double textLarge = size.width * 0.04;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightTall = size.height * 0.015;
+    double paddingHorizontalNarrow = size.width * 0.035;
+
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: paddingHorizontalNarrow,
+                vertical: paddingHorizontalNarrow,
+              ),
+              height: 700,
+              width: double.infinity,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Center(
+                      child: Text(
+                        'Jurusan',
+                        style: TextStyle(
+                          color: const Color(primaryBlack),
+                          fontSize: textLarge,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: sizedBoxHeightTall,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 7,
+                          child: BuildTextFieldWidget(
+                            title: '',
+                            isWithTitle: false,
+                            isMandatory: false,
+                            textSize: textMedium,
+                            horizontalPadding: paddingHorizontalNarrow,
+                            verticalSpacing: sizedBoxHeightShort,
+                            controller: _jurusanController,
+                            hintText: 'Jurusan',
+                            maxHeightConstraints: _maxHeightJurusan,
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: InkWell(
+                            onTap: () {
+                              _addJurusan();
+                            },
+                            child: Container(
+                              height: 50,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: paddingHorizontalNarrow),
+                              decoration: BoxDecoration(
+                                color: const Color(primaryYellow),
+                                borderRadius: BorderRadius.circular(5.0),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Save',
+                                  style: TextStyle(
+                                    color: Color(primaryBlack),
+                                    fontSize: textMedium,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: sizedBoxHeightTall,
+                    ),
+                    SizedBox(
+                      height: 500,
+                      child: jurusanData(context, setState),
+                      // child: Column(
+                      //   children: [
+                      //     Padding(
+                      //       padding: EdgeInsets.symmetric(
+                      //           horizontal: paddingHorizontalNarrow,
+                      //           vertical: padding7),
+                      //       child: Row(
+                      //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //         children: [
+                      //           Container(
+                      //             width: size.width * 1 / 4,
+                      //             padding: EdgeInsets.all(padding5),
+                      //             child: Text(
+                      //               'Select',
+                      //               style: TextStyle(
+                      //                 color: Colors.black,
+                      //                 fontSize: textMedium,
+                      //                 fontFamily: 'Poppins',
+                      //                 fontWeight: FontWeight.bold,
+                      //               ),
+                      //             ),
+                      //           ),
+                      //           Container(
+                      //             width: size.width * 1 / 2.8,
+                      //             padding: EdgeInsets.all(padding5),
+                      //             child: Text(
+                      //               'Jurusan',
+                      //               style: TextStyle(
+                      //                 color: Colors.black,
+                      //                 fontSize: textMedium,
+                      //                 fontFamily: 'Poppins',
+                      //                 fontWeight: FontWeight.bold,
+                      //               ),
+                      //             ),
+                      //           ),
+                      //           Container(
+                      //             width: size.width * 1 / 4,
+                      //             padding: EdgeInsets.all(padding5),
+                      //             child: Text(
+                      //               'Aksi',
+                      //               style: TextStyle(
+                      //                 color: Colors.black,
+                      //                 fontSize: textMedium,
+                      //                 fontFamily: 'Poppins',
+                      //                 fontWeight: FontWeight.bold,
+                      //               ),
+                      //             ),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //     ),
+                      //     Expanded(
+                      //       child: SingleChildScrollView(
+                      //         child: SizedBox(
+                      //           height: 400,
+                      //           child: ListView.builder(
+                      //             padding: EdgeInsets.symmetric(
+                      //               horizontal: paddingHorizontalNarrow,
+                      //               vertical: padding7,
+                      //             ),
+                      //             itemCount: 1,
+                      //             itemBuilder:
+                      //                 (BuildContext context, int index) {
+                      //               return Column(
+                      //                 children: [
+                      //                   SizedBox(
+                      //                     height: sizedBoxHeightTall,
+                      //                   ),
+                      //                   Row(
+                      //                     mainAxisAlignment:
+                      //                         MainAxisAlignment.spaceBetween,
+                      //                     children: [
+                      //                       Container(
+                      //                         width: size.width * 1 / 4,
+                      //                         padding: EdgeInsets.all(padding5),
+                      //                         child: Text(
+                      //                           'test',
+                      //                           style: TextStyle(
+                      //                             color: Colors.grey[700],
+                      //                             fontSize: textSmall,
+                      //                             fontFamily: 'Poppins',
+                      //                             fontWeight: FontWeight.w300,
+                      //                           ),
+                      //                         ),
+                      //                       ),
+                      //                       Container(
+                      //                         width: size.width * 1 / 2.8,
+                      //                         padding: EdgeInsets.all(padding5),
+                      //                         child: Text(
+                      //                           'test',
+                      //                           style: TextStyle(
+                      //                             color: Colors.grey[700],
+                      //                             fontSize: textSmall,
+                      //                             fontFamily: 'Poppins',
+                      //                             fontWeight: FontWeight.w300,
+                      //                           ),
+                      //                         ),
+                      //                       ),
+                      //                       Container(
+                      //                         width: size.width * 1 / 4,
+                      //                         padding: EdgeInsets.all(padding5),
+                      //                         child: Text(
+                      //                           'test',
+                      //                           style: TextStyle(
+                      //                             color: Colors.grey[700],
+                      //                             fontSize: textSmall,
+                      //                             fontFamily: 'Poppins',
+                      //                             fontWeight: FontWeight.w300,
+                      //                           ),
+                      //                         ),
+                      //                       ),
+                      //                     ],
+                      //                   ),
+                      //                 ],
+                      //               );
+                      //             },
+                      //           ),
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
+                    ),
+                    // jurusanTable(context, setState),
+                    SizedBox(
+                      height: sizedBoxHeightTall,
+                    ),
+                    Center(
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          width: size.width * 0.3,
+                          height: size.height * 0.04,
+                          padding: EdgeInsets.all(size.width * 0.0115),
+                          decoration: BoxDecoration(
+                            color: const Color(primaryYellow),
+                            borderRadius: BorderRadius.circular(5.0),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'Keluar',
+                              style: TextStyle(
+                                color: Color(primaryBlack),
+                                fontSize: textMedium,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget jurusanData(BuildContext context, StateSetter setState) {
+    Size size = MediaQuery.of(context).size;
+    double textSmall = size.width * 0.027;
+    double textMedium = size.width * 0.0329;
+    double padding7 = size.width * 0.018;
+    double padding5 = size.width * 0.0115;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double sizedBoxHeightTall = size.height * 0.0163;
+
+    print(masterDataJurusan);
+
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(
+              horizontal: paddingHorizontalNarrow, vertical: padding7),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                width: size.width * 1 / 4,
+                padding: EdgeInsets.all(padding5),
+                child: Text(
+                  'Select',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Container(
+                width: size.width * 1 / 2.8,
+                padding: EdgeInsets.all(padding5),
+                child: Text(
+                  'Jurusan',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Container(
+                width: size.width * 1 / 4.5,
+                padding: EdgeInsets.all(padding5),
+                child: Text(
+                  'Aksi',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: textMedium,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: SingleChildScrollView(
+            child: SizedBox(
+              height: 400,
+              child: ListView.builder(
+                padding: EdgeInsets.symmetric(
+                  horizontal: paddingHorizontalNarrow,
+                  vertical: padding7,
+                ),
+                itemCount: masterDataJurusan.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return Column(
+                    children: [
+                      SizedBox(
+                        height: sizedBoxHeightTall,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            width: size.width * 1 / 4,
+                            padding: const EdgeInsets.only(right: 30),
+                            child: Checkbox(
+                              value: selectedItems[index] ?? false,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  selectedItems[index] = value ?? false;
+                                });
+                              },
+                            ),
+                          ),
+                          Container(
+                            width: size.width * 1 / 2.8,
+                            padding: EdgeInsets.all(padding5),
+                            child: Text(
+                              '${masterDataJurusan[index]['jurusan'] ?? '-'}',
+                              style: TextStyle(
+                                color: Colors.grey[700],
+                                fontSize: textMedium,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            width: size.width * 1 / 4.5,
+                            padding: EdgeInsets.all(padding5),
+                            child: Row(
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    // _deleteJurusan(
+                                    //     masterDataJurusan[index]['id']);
+                                    print(masterDataJurusan[index]['id']);
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.red,
+                                      borderRadius: BorderRadius.circular(2.0),
+                                    ),
+                                    child:
+                                        const Center(child: Icon(Icons.remove)),
+                                  ),
+                                ),
+                                InkWell(
+                                  onTap: () {},
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.green,
+                                      borderRadius: BorderRadius.circular(2.0),
+                                    ),
+                                    child:
+                                        const Center(child: Icon(Icons.edit)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget jurusanTable(BuildContext context, StateSetter setState) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double padding7 = size.width * 0.018;
+    double paddingHorizontalNarrow = size.width * 0.035;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: MediaQuery.of(context).size.width,
+          child: masterDataJurusan.isNotEmpty
+              ? Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: paddingHorizontalNarrow, vertical: padding7),
+                  child: SizedBox(
+                    height: 400,
+                    width: double.infinity,
+                    child: ScrollableTableView(
+                      headers: jurusanHeader.map((column) {
+                        return TableViewHeader(
+                          label: column,
+                        );
+                      }).toList(),
+                      rows: masterDataJurusan.asMap().entries.map((entry) {
+                        int index = entry.key;
+                        Map<String, dynamic> data = entry.value;
+                        return TableViewRow(
+                          height: 40,
+                          cells: jurusanKey.map((column) {
+                            if (column == 'select') {
+                              return TableViewCell(
+                                child: Checkbox(
+                                  value: selectedItems[index] ?? false,
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      selectedItems[index] = value ?? false;
+                                    });
+                                  },
+                                ),
+                              );
+                            } else if (column == 'aksi') {
+                              return TableViewCell(
+                                child: Row(
+                                  children: [
+                                    InkWell(
+                                      onTap: () {
+                                        // handleButtonDelete(context, index);
+                                        _deleteJurusan(data['id']);
+                                        // print(data['id']);
+                                      },
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.red,
+                                          borderRadius:
+                                              BorderRadius.circular(2.0),
+                                        ),
+                                        child: const Center(
+                                            child: Icon(Icons.remove)),
+                                      ),
+                                    ),
+                                    InkWell(
+                                      onTap: () {},
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.green,
+                                          borderRadius:
+                                              BorderRadius.circular(2.0),
+                                        ),
+                                        child: const Center(
+                                            child: Icon(Icons.edit)),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            } else {
+                              return TableViewCell(
+                                child: Text(
+                                  data[column].toString(),
+                                  style: TextStyle(
+                                    color: const Color(primaryBlack),
+                                    fontSize: textMedium,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ),
+                              );
+                            }
+                          }).toList(),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                )
+              : const SizedBox(
+                  height: 0,
+                ),
+        ),
+        SizedBox(
+          height: 20,
+        ),
+      ],
+    );
+  }
+
+  Widget approvalWidget(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     double textLarge = size.width * 0.04;
     double sizedBoxHeightTall = size.height * 0.0163;
-    double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding5 = size.width * 0.0115;
-    double paddingHorizontalWide = size.width * 0.0585;
-    double padding7 = size.width * 0.018;
 
     return SingleChildScrollView(
       child: Padding(
@@ -1233,22 +2096,25 @@ class _FormAplikasiRecruitmentScreenState
             SizedBox(
               height: sizedBoxHeightTall,
             ),
-            _buildDropdownWithTitle(
+            BuildDropdownWithTitleWidget(
               title: 'Pilih Entitas Direktur HCGS : ',
               selectedValue: selectedValueEntitasDirekturHcgs,
               itemList: selectedEntitasDirekturHcgs,
               onChanged: (String? newValue) {
                 setState(() {
                   selectedValueEntitasDirekturHcgs = newValue ?? '';
+                  selectedValueDirekturHcgs = null;
+                  selectedDirekturHcgs = [];
+                  getDataDirekturHcgs();
                 });
               },
-              // validator: _validatorEntitas,
               maxHeight: _maxHeightEntitasDirekturHcgs,
               isLoading: selectedEntitasDirekturHcgs.isEmpty,
+              horizontalPadding: paddingHorizontalNarrow,
               valueKey: "kode",
               titleKey: "nama",
             ),
-            _buildDropdownWithTitle(
+            BuildDropdownWithTwoTitleWidget(
               title: 'Pilih Direktur HCGS : ',
               selectedValue: selectedValueDirekturHcgs,
               itemList: selectedDirekturHcgs,
@@ -1257,28 +2123,31 @@ class _FormAplikasiRecruitmentScreenState
                   selectedValueDirekturHcgs = newValue ?? '';
                 });
               },
-              // validator: _validatorEntitas,
               maxHeight: _maxHeightDirekturHcgs,
               isLoading: selectedDirekturHcgs.isEmpty,
-              valueKey: "kode",
+              horizontalPadding: paddingHorizontalNarrow,
+              valueKey: "pernr",
               titleKey: "nama",
             ),
-            _buildDropdownWithTitle(
+            BuildDropdownWithTitleWidget(
               title: 'Pilih Entitas Direktur Keuangan : ',
               selectedValue: selectedValueEntitasDirekturKeuangan,
               itemList: selectedEntitasDirekturKeuangan,
               onChanged: (String? newValue) {
                 setState(() {
                   selectedValueEntitasDirekturKeuangan = newValue ?? '';
+                  selectedValueDirekturKeuangan = null;
+                  selectedDirekturKeuangan = [];
+                  getDataDirekturKeuangan();
                 });
               },
-              // validator: _validatorEntitas,
               maxHeight: _maxHeightEntitasDirekturKeuangan,
               isLoading: selectedEntitasDirekturKeuangan.isEmpty,
+              horizontalPadding: paddingHorizontalNarrow,
               valueKey: "kode",
               titleKey: "nama",
             ),
-            _buildDropdownWithTitle(
+            BuildDropdownWithTwoTitleWidget(
               title: 'Pilih Direktur Keuangan : ',
               selectedValue: selectedValueDirekturKeuangan,
               itemList: selectedDirekturKeuangan,
@@ -1287,28 +2156,31 @@ class _FormAplikasiRecruitmentScreenState
                   selectedValueDirekturKeuangan = newValue ?? '';
                 });
               },
-              // validator: _validatorEntitas,
               maxHeight: _maxHeightDirekturKeuangan,
               isLoading: selectedDirekturKeuangan.isEmpty,
-              valueKey: "kode",
+              horizontalPadding: paddingHorizontalNarrow,
+              valueKey: "pernr",
               titleKey: "nama",
             ),
-            _buildDropdownWithTitle(
+            BuildDropdownWithTitleWidget(
               title: 'Pilih Entitas Presiden Direktur : ',
               selectedValue: selectedValueEntitasPresidenDirektur,
               itemList: selectedEntitasPresidenDirektur,
               onChanged: (String? newValue) {
                 setState(() {
                   selectedValueEntitasPresidenDirektur = newValue ?? '';
+                  selectedValuePresidenDirektur = null;
+                  selectedPresidenDirektur = [];
+                  getDataPresidenDirektur();
                 });
               },
-              // validator: _validatorEntitas,
               maxHeight: _maxHeightEntitasPresidenDirektur,
               isLoading: selectedEntitasPresidenDirektur.isEmpty,
+              horizontalPadding: paddingHorizontalNarrow,
               valueKey: "kode",
               titleKey: "nama",
             ),
-            _buildDropdownWithTitle(
+            BuildDropdownWithTwoTitleWidget(
               title: 'Pilih Presiden Direktur : ',
               selectedValue: selectedValuePresidenDirektur,
               itemList: selectedPresidenDirektur,
@@ -1317,10 +2189,10 @@ class _FormAplikasiRecruitmentScreenState
                   selectedValuePresidenDirektur = newValue ?? '';
                 });
               },
-              // validator: _validatorEntitas,
               maxHeight: _maxHeightPresidenDirektur,
               isLoading: selectedPresidenDirektur.isEmpty,
-              valueKey: "kode",
+              horizontalPadding: paddingHorizontalNarrow,
+              valueKey: "pernr",
               titleKey: "nama",
             ),
           ],
@@ -1339,7 +2211,6 @@ class _FormAplikasiRecruitmentScreenState
     Size size = MediaQuery.of(context).size;
     double sizedBoxHeightTall = size.height * 0.0163;
     double sizedBoxHeightShort = size.height * 0.0086;
-    double paddingHorizontalWide = size.width * 0.0585;
     double paddingHorizontalNarrow = size.width * 0.035;
 
     return Column(
@@ -1382,166 +2253,6 @@ class _FormAplikasiRecruitmentScreenState
           height: sizedBoxHeightShort,
         ),
       ],
-    );
-  }
-
-  Widget _buildTextFieldSection({
-    required String title,
-    required bool isMandatory,
-    required double textSize,
-    required double horizontalPadding,
-    required double verticalSpacing,
-    required TextEditingController controller,
-    required String hintText,
-    double? maxHeightConstraints,
-    String? Function(String?)? validator,
-    bool isNumberField = false,
-    bool isDisable = false,
-  }) {
-    Size size = MediaQuery.of(context).size;
-    double sizedBoxHeightTall = size.height * 0.0163;
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              TitleWidget(
-                title: title,
-                fontWeight: FontWeight.w300,
-                fontSize: textSize,
-              ),
-              if (isMandatory)
-                Text(
-                  '*',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: textSize,
-                    fontFamily: 'Poppins',
-                    letterSpacing: 0.6,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-            ],
-          ),
-          SizedBox(height: verticalSpacing),
-          if (isNumberField && !isDisable)
-            TextFormFieldNumberWidget(
-              validator: validator,
-              controller: controller,
-              maxHeightConstraints: maxHeightConstraints ?? 50.0,
-              hintText: hintText,
-            ),
-          if (isDisable && !isNumberField)
-            TextFormFielDisableWidget(
-              controller: controller,
-              maxHeightConstraints: maxHeightConstraints ?? 50.0,
-            ),
-          if (!isDisable && !isNumberField)
-            TextFormFieldWidget(
-              validator: validator,
-              controller: controller,
-              maxHeightConstraints: maxHeightConstraints ?? 50.0,
-              hintText: hintText,
-            ),
-          SizedBox(height: sizedBoxHeightTall),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDropdownWithTitle({
-    required String title,
-    required String? selectedValue,
-    required List<Map<String, dynamic>> itemList,
-    required ValueChanged<String?> onChanged,
-    String? Function(String?)? validator,
-    double? maxHeight,
-    bool isLoading = false,
-    String valueKey = "value",
-    String titleKey = "title",
-  }) {
-    Size size = MediaQuery.of(context).size;
-    double textMedium = size.width * 0.0329;
-    double paddingHorizontalWide = size.width * 0.0585;
-    double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double paddingHorizontalNarrow = size.width * 0.035;
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              TitleWidget(
-                title: title,
-                fontWeight: FontWeight.w300,
-                fontSize: textMedium,
-              ),
-              Text(
-                '*',
-                textAlign: TextAlign.start,
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: textMedium,
-                  fontFamily: 'Poppins',
-                  letterSpacing: 0.6,
-                  fontWeight: FontWeight.w300,
-                ),
-              ),
-            ],
-          ),
-          DropdownButtonFormField<String>(
-            menuMaxHeight: size.height * 0.5,
-            value: selectedValue,
-            onChanged: onChanged,
-            items: itemList.map((value) {
-              return DropdownMenuItem<String>(
-                value: value[valueKey].toString(),
-                child: Padding(
-                  padding: const EdgeInsets.all(1.0),
-                  child: TitleWidget(
-                    title: value[titleKey] as String,
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
-                  ),
-                ),
-              );
-            }).toList(),
-            decoration: InputDecoration(
-              constraints:
-                  BoxConstraints(maxHeight: maxHeight ?? double.infinity),
-              labelStyle: TextStyle(fontSize: textMedium),
-              focusedBorder: const UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: Colors.black,
-                  width: 1.0,
-                ),
-              ),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: selectedValue != null ? Colors.black54 : Colors.grey,
-                  width: 1.0,
-                ),
-              ),
-            ),
-            validator: validator,
-            icon: isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                    ),
-                  )
-                : const Icon(Icons.arrow_drop_down),
-          ),
-          SizedBox(height: sizedBoxHeightExtraTall)
-        ],
-      ),
     );
   }
 

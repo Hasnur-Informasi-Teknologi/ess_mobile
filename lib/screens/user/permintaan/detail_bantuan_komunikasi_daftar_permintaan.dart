@@ -158,6 +158,10 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
         'label': 'Tanggal Pengajuan',
         'value': masterDataDetailBantuanKomunikasi['tgl_pengajuan'] ?? '-'
       },
+      {
+        'label': 'No Dokumen',
+        'value': masterDataDetailBantuanKomunikasi['no_doc'] ?? '-'
+      },
     ];
 
     return Column(

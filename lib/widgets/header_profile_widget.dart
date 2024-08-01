@@ -9,18 +9,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class HeaderProfileWidget extends StatefulWidget {
   final String? _userName;
-  final String? _posision;
+  final String? nrp;
   final String? _imageUrl;
   final String? _webUrl;
 
   const HeaderProfileWidget({
     Key? key,
     required String? userName,
-    required String? posision,
+    required String? nrp,
     required String? imageUrl,
     required String? webUrl,
   })  : _userName = userName,
-        _posision = posision,
+        nrp = nrp,
         _imageUrl = imageUrl,
         _webUrl = webUrl,
         super(key: key);
@@ -100,7 +100,7 @@ class _HeaderProfileWidgetState extends State<HeaderProfileWidget> {
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  '${widget._posision}',
+                  '${widget.nrp}',
                   style: TextStyle(
                       color: Color(primaryBlack),
                       fontSize: textMedium,

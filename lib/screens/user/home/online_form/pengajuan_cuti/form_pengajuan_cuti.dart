@@ -9,6 +9,9 @@ import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 
 import 'package:mobile_ess/themes/constant.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/build_dropdown_with_title_widget.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/build_dropdown_with_two_title_widget.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/build_text_field_widget.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_number_widget.dart';
@@ -646,7 +649,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildDropdownWithTitle(
+                      BuildDropdownWithTitleWidget(
                         title: 'Pilih Entitas : ',
                         selectedValue: selectedValueEntitas,
                         itemList: selectedEntitas,
@@ -661,25 +664,28 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         validator: _validatorEntitas,
                         maxHeight: maxHeightEntitas,
                         isLoading: selectedEntitas.isEmpty,
+                        horizontalPadding: paddingHorizontalWide,
                         valueKey: "kode",
                         titleKey: "nama",
                       ),
-                      _buildDropdownWithTwoTitle(
-                          title: 'Pilih Atasan : ',
-                          selectedValue: selectedValueAtasan,
-                          itemList: selectedAtasan,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueAtasan = newValue ?? '';
-                            });
-                          },
-                          validator: _validatorAtasan,
-                          maxHeight: maxHeightAtasan,
-                          isLoading: selectedAtasan.isEmpty,
-                          valueKey: "nrp",
-                          titleKey: "nama",
-                          isRequired: true),
-                      _buildDropdownWithTwoTitle(
+                      BuildDropdownWithTwoTitleWidget(
+                        title: 'Pilih Atasan : ',
+                        selectedValue: selectedValueAtasan,
+                        itemList: selectedAtasan,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedValueAtasan = newValue ?? '';
+                          });
+                        },
+                        validator: _validatorAtasan,
+                        maxHeight: maxHeightAtasan,
+                        isLoading: selectedAtasan.isEmpty,
+                        horizontalPadding: paddingHorizontalWide,
+                        valueKey: "nrp",
+                        titleKey: "nama",
+                        isRequired: true,
+                      ),
+                      BuildDropdownWithTwoTitleWidget(
                           title: 'Pilih Atasan dari Atasan :',
                           selectedValue: selectedValueAtasanDariAtasan,
                           itemList: selectedAtasanDariAtasan,
@@ -700,6 +706,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           },
                           maxHeight: maxHeightAtasanDariAtasan,
                           isLoading: selectedAtasanDariAtasan.isEmpty,
+                          horizontalPadding: paddingHorizontalWide,
                           valueKey: "nrp",
                           titleKey: "nama",
                           isRequired: false),
@@ -710,7 +717,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         horizontalPadding: paddingHorizontalWide,
                         isRequired: false,
                       ),
-                      _buildDropdownWithTitle(
+                      BuildDropdownWithTitleWidget(
                         title: 'Pilih Entitas :',
                         selectedValue: selectedValueEntitasPengganti,
                         itemList: selectedEntitasPengganti,
@@ -724,10 +731,11 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         validator: _validatorEntitasKaryawanPengganti,
                         maxHeight: maxHeightEntitasKaryawanPengganti,
                         isLoading: selectedEntitasPengganti.isEmpty,
+                        horizontalPadding: paddingHorizontalWide,
                         valueKey: "kode",
                         titleKey: "nama",
                       ),
-                      _buildDropdownWithTwoTitle(
+                      BuildDropdownWithTwoTitleWidget(
                         title: 'Pilih Pengganti : ',
                         selectedValue: selectedValuePengganti,
                         itemList: selectedPengganti,
@@ -739,6 +747,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         validator: _validatorKaryawanPengganti,
                         maxHeight: maxHeightKaryawanPengganti,
                         isLoading: selectedPengganti.isEmpty,
+                        horizontalPadding: paddingHorizontalWide,
                         valueKey: "nrp",
                         titleKey: "nama",
                         isRequired: true,
@@ -1005,7 +1014,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                       SizedBox(
                         height: sizedBoxHeightTall,
                       ),
-                      _buildTextFieldSection(
+                      BuildTextFieldWidget(
                         title: 'Keperluan Cuti',
                         isMandatory: true,
                         textSize: textMedium,
@@ -1326,7 +1335,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                           },
                         ),
                       ),
-                      _buildTextFieldSection(
+                      BuildTextFieldWidget(
                         title: 'Alamat Cuti',
                         isMandatory: true,
                         textSize: textMedium,
@@ -1337,7 +1346,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                         maxHeightConstraints: maxHeightAlamatCuti,
                         validator: validatorAlamatCuti,
                       ),
-                      _buildTextFieldSection(
+                      BuildTextFieldWidget(
                         title: 'No Telepon',
                         isMandatory: true,
                         textSize: textMedium,
@@ -1721,73 +1730,6 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     );
   }
 
-  Widget _buildTextFieldSection({
-    required String title,
-    required bool isMandatory,
-    required double textSize,
-    required double horizontalPadding,
-    required double verticalSpacing,
-    required TextEditingController controller,
-    required String hintText,
-    double? maxHeightConstraints,
-    String? Function(String?)? validator,
-    bool isNumberField = false,
-    bool isDisable = false,
-  }) {
-    Size size = MediaQuery.of(context).size;
-    double sizedBoxHeightTall = size.height * 0.0163;
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              TitleWidget(
-                title: title,
-                fontWeight: FontWeight.w300,
-                fontSize: textSize,
-              ),
-              if (isMandatory)
-                Text(
-                  '*',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: textSize,
-                    fontFamily: 'Poppins',
-                    letterSpacing: 0.6,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-            ],
-          ),
-          SizedBox(height: verticalSpacing),
-          if (isNumberField && !isDisable)
-            TextFormFieldNumberWidget(
-              validator: validator,
-              controller: controller,
-              maxHeightConstraints: maxHeightConstraints ?? 50.0,
-              hintText: hintText,
-            ),
-          if (isDisable && !isNumberField)
-            TextFormFielDisableWidget(
-              controller: controller,
-              maxHeightConstraints: maxHeightConstraints ?? 50.0,
-            ),
-          if (!isDisable && !isNumberField)
-            TextFormFieldWidget(
-              validator: validator,
-              controller: controller,
-              maxHeightConstraints: maxHeightConstraints ?? 50.0,
-              hintText: hintText,
-            ),
-          SizedBox(height: sizedBoxHeightTall),
-        ],
-      ),
-    );
-  }
-
   Widget _buildTextFormFieldDisableWithNoController({
     required double width,
     required double horizontalPadding,
@@ -1873,193 +1815,6 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
             hintText: hintText,
             textSize: textMedium,
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDropdownWithTitle({
-    required String title,
-    required String? selectedValue,
-    required List<Map<String, dynamic>> itemList,
-    required ValueChanged<String?> onChanged,
-    String? Function(String?)? validator,
-    double? maxHeight,
-    bool isLoading = false,
-    String valueKey = "value",
-    String titleKey = "title",
-  }) {
-    Size size = MediaQuery.of(context).size;
-    double textMedium = size.width * 0.0329;
-    double paddingHorizontalWide = size.width * 0.0585;
-    double sizedBoxHeightExtraTall = size.height * 0.0215;
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              TitleWidget(
-                title: title,
-                fontWeight: FontWeight.w300,
-                fontSize: textMedium,
-              ),
-              Text(
-                '*',
-                textAlign: TextAlign.start,
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: textMedium,
-                  fontFamily: 'Poppins',
-                  letterSpacing: 0.6,
-                  fontWeight: FontWeight.w300,
-                ),
-              ),
-            ],
-          ),
-          DropdownButtonFormField<String>(
-            menuMaxHeight: size.height * 0.5,
-            value: selectedValue,
-            onChanged: onChanged,
-            items: itemList.map((value) {
-              return DropdownMenuItem<String>(
-                value: value[valueKey].toString(),
-                child: Padding(
-                  padding: const EdgeInsets.all(1.0),
-                  child: TitleWidget(
-                    title: value[titleKey] as String,
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
-                  ),
-                ),
-              );
-            }).toList(),
-            decoration: InputDecoration(
-              constraints:
-                  BoxConstraints(maxHeight: maxHeight ?? double.infinity),
-              labelStyle: TextStyle(fontSize: textMedium),
-              focusedBorder: const UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: Colors.black,
-                  width: 1.0,
-                ),
-              ),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: selectedValue != null ? Colors.black54 : Colors.grey,
-                  width: 1.0,
-                ),
-              ),
-            ),
-            validator: validator,
-            icon: isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                    ),
-                  )
-                : const Icon(Icons.arrow_drop_down),
-          ),
-          SizedBox(height: sizedBoxHeightExtraTall)
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDropdownWithTwoTitle({
-    required String title,
-    required String? selectedValue,
-    required List<Map<String, dynamic>> itemList,
-    required ValueChanged<String?> onChanged,
-    String? Function(String?)? validator,
-    double? maxHeight,
-    bool isLoading = false,
-    String valueKey = "value",
-    String titleKey = "title",
-    bool isRequired = false,
-  }) {
-    Size size = MediaQuery.of(context).size;
-    double textMedium = size.width * 0.0329;
-    double paddingHorizontalWide = size.width * 0.0585;
-    double sizedBoxHeightExtraTall = size.height * 0.0215;
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              TitleWidget(
-                title: title,
-                fontWeight: FontWeight.w300,
-                fontSize: textMedium,
-              ),
-              if (isRequired)
-                Text(
-                  '*',
-                  textAlign: TextAlign.start,
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: textMedium,
-                    fontFamily: 'Poppins',
-                    letterSpacing: 0.6,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-            ],
-          ),
-          DropdownButtonFormField<String>(
-            menuMaxHeight: size.height * 0.5,
-            value: selectedValue,
-            onChanged: onChanged,
-            items: itemList.map((value) {
-              return DropdownMenuItem<String>(
-                value: value[valueKey].toString(),
-                child: Padding(
-                  padding: const EdgeInsets.all(1.0),
-                  child: TitleWidget(
-                    // title: value[titleKey] as String,
-                    title: '${value[titleKey]} - ${value[valueKey]}',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
-                  ),
-                ),
-              );
-            }).toList(),
-            decoration: InputDecoration(
-              constraints:
-                  BoxConstraints(maxHeight: maxHeight ?? double.infinity),
-              labelStyle: TextStyle(fontSize: textMedium),
-              focusedBorder: const UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: Colors.black,
-                  width: 1.0,
-                ),
-              ),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: selectedValue != null ? Colors.black54 : Colors.grey,
-                  width: 1.0,
-                ),
-              ),
-            ),
-            validator: validator,
-            icon: isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                    ),
-                  )
-                : const Icon(Icons.arrow_drop_down),
-          ),
-          SizedBox(height: sizedBoxHeightExtraTall)
         ],
       ),
     );

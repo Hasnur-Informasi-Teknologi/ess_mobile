@@ -1,19 +1,26 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
+import 'package:mobile_ess/widgets/image_screen.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
+import 'package:mobile_ess/widgets/pdf_screen.dart';
 import 'package:mobile_ess/widgets/row_with_semicolon_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_center_widget.dart';
 import 'package:mobile_ess/widgets/title_center_with_badge_long_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:scrollable_table_view/scrollable_table_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -34,6 +41,7 @@ class DetailRawatInapDaftarPersetujuan extends StatefulWidget {
 class _DetailRawatInapDaftarPersetujuanState
     extends State<DetailRawatInapDaftarPersetujuan> {
   final String _apiUrl = API_URL;
+  final String _url = URL;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   Map<String, dynamic> masterDataDetailRawatInap = {};
   List<Map<String, dynamic>> masterDataDetailRincianRawatInap = [];
@@ -41,7 +49,10 @@ class _DetailRawatInapDaftarPersetujuanState
   List<Map<String, dynamic>> approveDetail = [];
   List<Map<String, dynamic>> masterDataDetailPlafon = [];
   final Map<String, dynamic> arguments = Get.arguments;
-  String? totalPengajuanFormated, selisihFormated, totalDigantiFormated;
+  String? totalPengajuanFormated,
+      selisihFormated,
+      totalDigantiFormated,
+      nrpPemohon;
   final _keteranganController = TextEditingController();
   bool _isLoadingScreen = false;
   final DateRangePickerController _tanggalTerimaController =
@@ -59,6 +70,9 @@ class _DetailRawatInapDaftarPersetujuanState
   final _maksimalPlafonController = TextEditingController();
   final _plafonDisetujuiController = TextEditingController();
 
+  String pdfpath = "";
+  Map<String, bool> _isLoadingContent = {};
+
   List<Map<String, dynamic>> selectedJenisDokumen = [
     {'jenis': 'Dokumen Lengkap'},
     {'jenis': 'Dokumen Tidak Lengkap / Dikembalikan'},
@@ -72,6 +86,7 @@ class _DetailRawatInapDaftarPersetujuanState
     'No Kuitansi',
     'Tanggal Kuitansi',
     'Nominal (RP)',
+    // 'Lampiran'
   ];
 
   List daftarPengajuanKey = [
@@ -82,6 +97,7 @@ class _DetailRawatInapDaftarPersetujuanState
     'no_kuitansi',
     'tgl_kuitansi',
     'jumlah_rp',
+    // 'lampiran'
   ];
 
   List daftarPengajuanHeaderWithButton = [
@@ -144,7 +160,7 @@ class _DetailRawatInapDaftarPersetujuanState
     'diagnosa',
     'no_kuitansi',
     'tgl_kuitansi',
-    'jumlah',
+    'jumlah_approve',
     'delete'
   ];
 
@@ -157,7 +173,7 @@ class _DetailRawatInapDaftarPersetujuanState
     super.initState();
     getData();
     getDataDetailRawatInap();
-    getDataDetailPlafon();
+    // getDataDetailPlafon();
   }
 
   Future<Map<String, dynamic>> getData() async {
@@ -179,6 +195,7 @@ class _DetailRawatInapDaftarPersetujuanState
   int calculateTotalDigantiPerusahaan(
       List<Map<String, dynamic>> masterDataDetailApprovedRawatInap) {
     return masterDataDetailApprovedRawatInap.fold(0, (sum, item) {
+      print(item['jumlah_approve']);
       int jumlah = int.parse(item['jumlah_approve']);
       return sum + jumlah;
     });
@@ -242,13 +259,17 @@ class _DetailRawatInapDaftarPersetujuanState
       masterDataDetailApprovedRawatInap =
           List<Map<String, dynamic>>.from(dataDetailApprovedRawatInapApi);
 
+      nrpPemohon = masterDataDetailRawatInap['pernr'].toString();
       _kelasKamarController.text =
           masterDataDetailRawatInap['kls_kamar_ajukan'].toString();
       _totalPengajuanController.text =
           calculateTotalJumlah(masterDataDetailRincianRawatInap).toString();
+      print(_totalPengajuanController.text);
       _totalDigantiController.text = masterDataDetailRawatInap['total_diganti'];
       _selisihController.text = masterDataDetailRawatInap['selisih'];
     });
+
+    getDataDetailPlafon();
   }
 
   void _handleErrorResponseDetailRawatJalan(http.Response response) {
@@ -259,17 +280,14 @@ class _DetailRawatInapDaftarPersetujuanState
     final token = await _getToken();
     if (token == null) return;
 
-    final nrp = x.data['pernr'];
+    // final nrp = x.data['pernr'];
 
     try {
-      final response = await _fetchDataDetailPlafon(token, nrp);
+      final response = await _fetchDataDetailPlafon(token, nrpPemohon!);
 
-      print(response.body);
       if (response.statusCode == 200) {
-        print('success');
         _handleSuccessResponseDetailPlafon(response);
       } else {
-        print('gagal');
         _handleErrorResponseDetailPlafon(response);
       }
     } catch (e) {
@@ -291,7 +309,7 @@ class _DetailRawatInapDaftarPersetujuanState
 
   void _handleSuccessResponseDetailPlafon(http.Response response) {
     final responseData = jsonDecode(response.body);
-    final dataDetailPlafonApi = responseData['data']['manfaat_setahun'];
+    final dataDetailPlafonApi = responseData['data']['detail'];
 
     setState(() {
       masterDataDetailPlafon =
@@ -313,6 +331,8 @@ class _DetailRawatInapDaftarPersetujuanState
     try {
       final response = await _sendRequest(id, token, requestBody);
       final responseData = jsonDecode(response.body);
+
+      print(responseData);
 
       if (responseData['status'] == 'success') {
         _handleSuccess(responseData['message']);
@@ -391,7 +411,63 @@ class _DetailRawatInapDaftarPersetujuanState
     });
   }
 
-  Future<void> handleButtonAdd(BuildContext context, int? index) {
+  Future<File> createPdf(String endpoint) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    Completer<File> completer = Completer();
+    try {
+      // var url =
+      //     "$_url/online-form/preview-pdf-cuti/77db6a95-85ef-4728-b9e1-466afcce073e/pdf";
+      var url = endpoint;
+      final filename = url.substring(url.lastIndexOf("/") + 1);
+      var request = await HttpClient().getUrl(Uri.parse(url));
+      request.headers.set('Content-Type', 'application/json;charset=UTF-8');
+      request.headers.set('Authorization', 'Bearer $token');
+      var response = await request.close();
+      var bytes = await consolidateHttpClientResponseBytes(response);
+
+      var dir = await getApplicationDocumentsDirectory();
+      var downloadDir = Directory('${dir.path}/Download');
+      if (!downloadDir.existsSync()) {
+        downloadDir.createSync(recursive: true);
+      }
+
+      File file = File("${dir.path}/Download/$filename");
+      await file.writeAsBytes(bytes, flush: true);
+      completer.complete(file);
+    } catch (e) {
+      print('Error creating PDF: $e');
+      throw Exception('Error creating PDF file!');
+    }
+
+    return completer.future;
+  }
+
+  void _downloadPdf(String endpoint) {
+    createPdf(endpoint).then((file) {
+      setState(() {
+        pdfpath = file.path;
+      });
+      // if (pdfpath.isNotEmpty) {
+      //   print(pdfpath);
+      //   Navigator.push(
+      //     context,
+      //     MaterialPageRoute(
+      //       builder: (context) => PDFScreen(path: pdfpath),
+      //     ),
+      //   );
+      // }
+      print("$pdfpath/oke.jpg");
+      if (pdfpath.isNotEmpty) {
+        OpenFile.open("$pdfpath/oke.jpg");
+      }
+    }).catchError((e) {
+      print('Error downloading PDF: $e');
+    });
+  }
+
+  Future<void> handleButtonAdd(BuildContext context, int index) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double paddingHorizontalWide = size.width * 0.0585;
@@ -401,21 +477,28 @@ class _DetailRawatInapDaftarPersetujuanState
 
     setState(() {
       _detailPlafonController.text =
-          masterDataDetailRincianRawatInap[index!]['detail_penggantian'];
+          masterDataDetailRincianRawatInap[index]['detail_penggantian'];
       var masterDataDetailPlafonFilted = masterDataDetailPlafon
           .where((item) =>
               item['ket'] ==
               masterDataDetailRincianRawatInap[index]['detail_penggantian'])
           .toList();
 
-      _maksimalPlafonController.text =
-          masterDataDetailPlafonFilted[0]['nominal'].toString();
+      // _plafonDisetujuiController.text =
+      //     masterDataDetailRincianRawatInap[index]['jumlah_rp'].toString();
+
+      if (masterDataDetailPlafonFilted.isNotEmpty) {
+        _maksimalPlafonController.text =
+            masterDataDetailPlafonFilted[0]['nominal'].toString();
+      } else {
+        _maksimalPlafonController.text = '0';
+      }
     });
 
     bool isIdExists() {
       return approveDetail.any((element) =>
           element['id_jp_rawat_inap'] ==
-          masterDataDetailRincianRawatInap[index!]['id_jp_rawat_inap']);
+          masterDataDetailRincianRawatInap[index]['id_jp_rawat_inap']);
     }
 
     void showSnackbar(String title, String message) {
@@ -588,7 +671,7 @@ class _DetailRawatInapDaftarPersetujuanState
                 ),
                 TextFormFielDisableWidget(
                   controller: _detailPlafonController,
-                  maxHeightConstraints: 40,
+                  maxHeightConstraints: 50,
                 ),
                 const SizedBox(
                   height: sizedBoxHeightShort,
@@ -706,6 +789,7 @@ class _DetailRawatInapDaftarPersetujuanState
     double textLarge = size.width * 0.04;
     double padding20 = size.width * 0.047;
     double paddingHorizontalWide = size.width * 0.0585;
+    double paddingHorizontalNarrow = size.width * 0.035;
     const double sizedBoxHeightTall = 15;
     const double sizedBoxHeightShort = 8;
     const double sizedBoxHeightExtraTall = 20;
@@ -753,11 +837,11 @@ class _DetailRawatInapDaftarPersetujuanState
                         const SizedBox(height: sizedBoxHeightTall),
                         _buildPengajuanTable(context),
                         _buildCompensationTable(context),
-                        hasilVerivikasiPicHrgsWidget(context),
                       ],
                     ),
                   ),
                   _buildSecondApprovalForm(context),
+                  _hasilVerivikasiPicHrgsWidget(context),
                   footerWidget(context),
                   const SizedBox(height: sizedBoxHeightExtraTall),
                   _buildApprovalAndRejectButton(context),
@@ -770,21 +854,38 @@ class _DetailRawatInapDaftarPersetujuanState
 
   Widget _buildPengajuanTable(BuildContext context) {
     return (x.data['pernr'] == masterDataDetailRawatInap['approved_by2'] &&
-            masterDataDetailRawatInap['approved_date2'] == null)
+            masterDataDetailRawatInap['approved_date2'] == null &&
+            masterDataDetailRawatInap['approved_date1'] != null)
         ? daftarPengajuanTableWithButton(context)
         : daftarPengajuanTable(context);
   }
 
+  Widget _hasilVerivikasiPicHrgsWidget(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    return (x.data['pernr'] == masterDataDetailRawatInap['approved_by2'] &&
+                masterDataDetailRawatInap['approved_date2'] == null &&
+                masterDataDetailRawatInap['approved_date1'] != null ||
+            x.data['pernr'] == masterDataDetailRawatInap['approved_by3'])
+        ? Padding(
+            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
+            child: hasilVerivikasiPicHrgsWidget(context),
+          )
+        : const SizedBox(height: 0);
+  }
+
   Widget _buildCompensationTable(BuildContext context) {
     return (x.data['pernr'] == masterDataDetailRawatInap['approved_by2'] &&
-            masterDataDetailRawatInap['approved_date2'] == null)
+            masterDataDetailRawatInap['approved_date2'] == null &&
+            masterDataDetailRawatInap['approved_date1'] != null)
         ? approvalCompensationTableWithButton(context)
         : approvalCompensationTable(context);
   }
 
   Widget _buildSecondApprovalForm(BuildContext context) {
     return (x.data['pernr'] == masterDataDetailRawatInap['approved_by2'] &&
-            masterDataDetailRawatInap['approved_date2'] == null)
+            masterDataDetailRawatInap['approved_date2'] == null &&
+            masterDataDetailRawatInap['approved_date1'] != null)
         ? secondApprovalForm(context)
         : const SizedBox(height: 0);
   }
@@ -868,6 +969,27 @@ class _DetailRawatInapDaftarPersetujuanState
                                 fontSize: textMedium,
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                          );
+                        } else if (column == 'lampiran') {
+                          return TableViewCell(
+                            child: InkWell(
+                              onTap: () {
+                                print(data['link_lampiran']);
+                                _downloadPdf(data['link_lampiran']);
+                                // handleButtonAdd(context, index);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
+                                  child: const Center(
+                                      child: Icon(Icons.remove_red_eye)),
+                                ),
                               ),
                             ),
                           );
@@ -969,6 +1091,7 @@ class _DetailRawatInapDaftarPersetujuanState
                           return TableViewCell(
                             child: InkWell(
                               onTap: () {
+                                print('object');
                                 handleButtonAdd(context, index);
                               },
                               child: Container(
@@ -977,6 +1100,26 @@ class _DetailRawatInapDaftarPersetujuanState
                                   borderRadius: BorderRadius.circular(2.0),
                                 ),
                                 child: const Center(child: Icon(Icons.add)),
+                              ),
+                            ),
+                          );
+                        } else if (column == 'lampiran') {
+                          return TableViewCell(
+                            child: InkWell(
+                              onTap: () {
+                                print('object');
+                                // handleButtonAdd(context, index);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.green,
+                                    borderRadius: BorderRadius.circular(2.0),
+                                  ),
+                                  child: const Center(
+                                      child: Icon(Icons.remove_red_eye)),
+                                ),
                               ),
                             ),
                           );
@@ -1340,56 +1483,23 @@ class _DetailRawatInapDaftarPersetujuanState
     double sizedBoxHeightExtraTall = size.height * 0.0215;
     double sizedBoxHeightTall = 15;
 
+    bool approval1 =
+        (x.data['pernr'] == masterDataDetailRawatInap['approved_by1'] &&
+            masterDataDetailRawatInap['approved_date1'] == null);
+
+    bool approval2 =
+        (x.data['pernr'] == masterDataDetailRawatInap['approved_by2'] &&
+            masterDataDetailRawatInap['approved_date2'] == null);
+
+    bool approval3 =
+        (x.data['pernr'] == masterDataDetailRawatInap['approved_by3'] &&
+            masterDataDetailRawatInap['approved_date3'] == null);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
           height: sizedBoxHeightExtraTall,
-        ),
-        const TitleWidget(title: 'Hasil Verifikasi PIC HCGS'),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        const LineWidget(),
-        SizedBox(
-          height: sizedBoxHeightTall,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Tanggal Terima',
-          textRight: masterDataDetailRawatInap['approved_date2'] ?? '-',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Total Pengajuan',
-          textRight:
-              'Rp. ${masterDataDetailRawatInap['total_pengajuan'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Selisih',
-          textRight: 'Rp. ${masterDataDetailRawatInap['selisih'] ?? '-'}',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Catatan',
-          textRight: masterDataDetailRawatInap['catatan'] ?? '-',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
         ),
         RowWithSemicolonWidget(
           textLeft: 'Keterangan Atasan',
@@ -1412,24 +1522,6 @@ class _DetailRawatInapDaftarPersetujuanState
         RowWithSemicolonWidget(
           textLeft: 'Keterangan Direksi',
           textRight: masterDataDetailRawatInap['keterangan_direksi'] ?? '-',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Dokumen',
-          textRight: masterDataDetailRawatInap['dokumen'] ?? '-',
-          fontSizeLeft: textMedium,
-          fontSizeRight: textMedium,
-        ),
-        SizedBox(
-          height: sizedBoxHeightShort,
-        ),
-        RowWithSemicolonWidget(
-          textLeft: 'Total Diganti Perusahaan',
-          textRight: 'Rp. ${masterDataDetailRawatInap['total_diganti'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
@@ -1569,10 +1661,24 @@ class _DetailRawatInapDaftarPersetujuanState
             Padding(
               padding:
                   EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-              child: TitleWidget(
-                title: 'Tanggal Terima',
-                fontWeight: FontWeight.w300,
-                fontSize: textMedium,
+              child: Row(
+                children: [
+                  TitleWidget(
+                    title: 'Tanggal Terima',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                  Text(
+                    '*',
+                    textAlign: TextAlign.start,
+                    style: TextStyle(
+                        color: Colors.red,
+                        fontSize: textMedium,
+                        fontFamily: 'Poppins',
+                        letterSpacing: 0.6,
+                        fontWeight: FontWeight.w300),
+                  )
+                ],
               ),
             ),
             CupertinoButton(
@@ -1615,6 +1721,7 @@ class _DetailRawatInapDaftarPersetujuanState
                         height: 350,
                         width: 350,
                         child: SfDateRangePicker(
+                          maxDate: DateTime.now(),
                           controller: _tanggalTerimaController,
                           onSelectionChanged:
                               (DateRangePickerSelectionChangedArgs args) {
@@ -1639,10 +1746,24 @@ class _DetailRawatInapDaftarPersetujuanState
             Padding(
               padding:
                   EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-              child: TitleWidget(
-                title: 'Tanggal Payment',
-                fontWeight: FontWeight.w300,
-                fontSize: textMedium,
+              child: Row(
+                children: [
+                  TitleWidget(
+                    title: 'Tanggal Payment',
+                    fontWeight: FontWeight.w300,
+                    fontSize: textMedium,
+                  ),
+                  Text(
+                    '*',
+                    textAlign: TextAlign.start,
+                    style: TextStyle(
+                        color: Colors.red,
+                        fontSize: textMedium,
+                        fontFamily: 'Poppins',
+                        letterSpacing: 0.6,
+                        fontWeight: FontWeight.w300),
+                  )
+                ],
               ),
             ),
             CupertinoButton(
@@ -1685,6 +1806,7 @@ class _DetailRawatInapDaftarPersetujuanState
                         height: 350,
                         width: 350,
                         child: SfDateRangePicker(
+                          maxDate: DateTime.now(),
                           controller: _tanggalPaymentController,
                           onSelectionChanged:
                               (DateRangePickerSelectionChangedArgs args) {

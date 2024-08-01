@@ -278,34 +278,28 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
         : _isNewVersion
             ? Scaffold(
                 backgroundColor: Colors.white,
-                appBar: AppBar(
-                  elevation: 0,
-                  backgroundColor: Colors.white,
-                  title: Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: paddingHorizontalNarrow),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Obx(
-                          () => Text(
-                            x.karyawan['pt'] ?? 'PT Hasnur Informasi Teknologi',
-                            style: TextStyle(
-                                fontSize: textMedium,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: 'Quicksand'),
-                          ),
-                        ),
-                        // IconButton(
-                        //   icon: const Icon(Icons.notifications),
-                        //   onPressed: () {
-                        //     getToken();
-                        //   },
-                        // ),
-                      ],
-                    ),
-                  ),
-                ),
+                // appBar: AppBar(
+                //   elevation: 0,
+                //   backgroundColor: Colors.white,
+                //   title: Padding(
+                //     padding: EdgeInsets.symmetric(
+                //         horizontal: paddingHorizontalNarrow),
+                //     child: Row(
+                //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //       children: [
+                //         Obx(
+                //           () => Text(
+                //             x.karyawan['pt'] ?? 'PT Hasnur Informasi Teknologi',
+                //             style: TextStyle(
+                //                 fontSize: textMedium,
+                //                 fontWeight: FontWeight.w500,
+                //                 fontFamily: 'Quicksand'),
+                //           ),
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                // ),
                 body: RefreshIndicator(
                   onRefresh: _handleRefresh,
                   child: ListView(
@@ -320,7 +314,7 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
                           children: [
                             Obx(() => HeaderProfileWidget(
                                   userName: x.karyawan['nama'] ?? 'Admin',
-                                  posision: x.karyawan['pernr'] ?? '7822000',
+                                  nrp: x.karyawan['pernr'] ?? '7822000',
                                   imageUrl: '',
                                   webUrl: '',
                                 )),

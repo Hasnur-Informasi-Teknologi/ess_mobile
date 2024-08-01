@@ -47,6 +47,7 @@ import 'package:mobile_ess/screens/user/home/request_attendance/request_attendan
 import 'package:mobile_ess/screens/user/home/request_attendance/ubah_data_kehadiran_screen.dart';
 import 'package:mobile_ess/screens/user/home/transactions/transactions_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
+import 'package:mobile_ess/screens/user/permintaan/detail_aplikasi_rekrutmen_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_hardware_software_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_im_perjalanan_dinas_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_lembur_karyawan_daftar_permintaan.dart';
@@ -58,6 +59,7 @@ import 'package:mobile_ess/screens/user/permintaan/detail_rawat_inap_daftar_perm
 import 'package:mobile_ess/screens/user/permintaan/detail_rawat_jalan_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_surat_izin_keluar_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_surat_keterangan_daftar_permintaan.dart';
+import 'package:mobile_ess/screens/user/persetujuan/detail_aplikasi_rekrutmen_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_bantuan_komunikasi_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_hardware_software_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_im_perjalanan_dinas_daftar_persetujuan.dart';
@@ -164,6 +166,8 @@ Map<String, Widget Function(BuildContext)> routers() {
         const DetailSuratKeteranganDaftarPermintaan(),
     '/user/main/daftar_permintaan/detail_penilaian_kinerja_karyawan':
         (context) => const DetailPenilaianKinerjaKaryawanDaftarPermintaan(),
+    '/user/main/daftar_permintaan/detail_aplikasi_rekrutmen': (context) =>
+        const DetailAplikasiRekrutmenDaftarPermintaan(),
 
     '/user/main/daftar_persetujuan/detail_rawat_inap': (context) =>
         const DetailRawatInapDaftarPersetujuan(),
@@ -191,6 +195,8 @@ Map<String, Widget Function(BuildContext)> routers() {
         const DetailSuratKeteranganDaftarPersetujuan(),
     '/user/main/daftar_persetujuan/detail_penilaian_kinerja_karyawan':
         (context) => const DetailPenilaianKinerjaKaryawanDaftarPersetujuan(),
+    '/user/main/daftar_persetujuan/detail_aplikasi_rekrutmen': (context) =>
+        const DetailAplikasiRekrutmenDaftarPersetujuan(),
 
     // '/user/main/submition/aplikasi_training/detail_aplikasi_training':
     //     (context) => const DetailFormPengajuanLembur(),

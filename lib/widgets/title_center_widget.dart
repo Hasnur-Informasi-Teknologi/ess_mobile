@@ -23,7 +23,7 @@ class TitleCenterWidget extends StatelessWidget {
     return Row(
       children: [
         SizedBox(
-          width: size.width * 0.43,
+          width: size.width * 0.4,
           child: Text(
             textLeft!,
             style: TextStyle(
@@ -35,7 +35,7 @@ class TitleCenterWidget extends StatelessWidget {
           ),
         ),
         SizedBox(
-          width: size.width * 0.43,
+          width: size.width * 0.46,
           child: Text(
             textRight!,
             style: TextStyle(

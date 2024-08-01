@@ -170,15 +170,15 @@ class _IconsContainerWidgetState extends State<IconsContainerWidget> {
         Get.toNamed('/user/main/home/online_form');
         break;
       case 1:
-        // Get.toNamed('/user/main/home/documents');
-        Get.snackbar('Infomation', 'Coming Soon',
-            snackPosition: SnackPosition.TOP,
-            backgroundColor: Colors.amber,
-            icon: const Icon(
-              Icons.info,
-              color: Colors.white,
-            ),
-            shouldIconPulse: false);
+        Get.toNamed('/user/main/home/documents');
+        // Get.snackbar('Infomation', 'Coming Soon',
+        //     snackPosition: SnackPosition.TOP,
+        //     backgroundColor: Colors.amber,
+        //     icon: const Icon(
+        //       Icons.info,
+        //       color: Colors.white,
+        //     ),
+        //     shouldIconPulse: false);
         break;
       case 2:
         // Get.toNamed('/user/main/home/transactions');

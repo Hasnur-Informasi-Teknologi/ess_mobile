@@ -7,6 +7,11 @@ import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/constant.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/build_dropdown_with_title_widget.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/build_dropdown_with_two_title_two_value_widget.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/build_dropdown_with_two_title_widget.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/build_dropdown_with_two_value_widget.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/build_text_field_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_number_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
@@ -36,16 +41,17 @@ class _FormDetailPengajuanRawatJalanState
   double maxDetailPengganti = 60.0;
   double maxHubunganDenganKaryawan = 60.0;
   double maxDiagnosa = 60.0;
-  double maxNamaPasien = 40.0;
-  double maxNoKwitansi = 40.0;
-  double maxJumlah = 40.0;
-  double maxKeterangan = 40.0;
+  double maxNamaPasien = 50.0;
+  double maxNoKwitansi = 50.0;
+  double maxJumlah = 50.0;
+  double maxKeterangan = 50.0;
   final Function? onClose = Get.arguments['onClose'];
 
   String? jenisPengganti,
       idMdJpRawatJalan,
       detailPengganti,
       idDiagnosa,
+      jenisDiagnosa,
       namaPasient,
       hubunganDenganKaryawan,
       noKwitansi,
@@ -63,13 +69,21 @@ class _FormDetailPengajuanRawatJalanState
     {'id': '3000', 'jenis': 'Frame'},
   ];
 
+  List<Map<String, String>> convertData(Map<String, String> data) {
+    List<Map<String, String>> result = [];
+
+    data.forEach((key, value) {
+      result.add({'jenis': key, 'nama': value});
+    });
+
+    return result;
+  }
+
   List<Map<String, dynamic>> selectedDetailPengganti = [];
   List<Map<String, dynamic>> selectedDiagnosa = [];
   dynamic dataEmployee;
 
-  List<Map<String, dynamic>> selectedHubunganDenganKarwayan = [
-    {'opsi': 'Diri Sendiri'},
-  ];
+  List<Map<String, dynamic>> selectedHubunganDenganKarwayan = [];
 
   final DateRangePickerController _tanggalKuitansiController =
       DateRangePickerController();
@@ -123,6 +137,28 @@ class _FormDetailPengajuanRawatJalanState
     );
   }
 
+  Future<void> getHubungan() async {
+    await _fetchData(
+      "karyawan/hubungan",
+      (data) {
+        final dataApi = data['data'] as Map<String, dynamic>;
+
+        final List<Map<String, dynamic>> transformedData =
+            dataApi.entries.map((entry) {
+          return {
+            'jenis': entry.key,
+            'nama': entry.value,
+          };
+        }).toList();
+
+        setState(() {
+          selectedHubunganDenganKarwayan =
+              List<Map<String, dynamic>>.from(transformedData);
+        });
+      },
+    );
+  }
+
   Future<void> getDiagnosa() async {
     await _fetchData(
       "master/diagnosa",
@@ -141,6 +177,7 @@ class _FormDetailPengajuanRawatJalanState
     super.initState();
     getData();
     getJenisPengganti();
+    getHubungan();
     getDiagnosa();
   }
 
@@ -171,11 +208,15 @@ class _FormDetailPengajuanRawatJalanState
     }
     _formKey.currentState!.save();
 
-    jenisPengganti = selectedValueJenisPengganti;
+    List<String> separatedJenisPenggantiValues =
+        selectedValueJenisPengganti!.split('-');
+    jenisPengganti = separatedJenisPenggantiValues[0].trim();
     List<String> separatedValues = selectedValueDetailPengganti!.split(',');
     idMdJpRawatJalan = separatedValues[0].trim();
     detailPengganti = separatedValues[1].trim();
-    idDiagnosa = selectedValueDiagnosa;
+    List<String> separatedDiagnosaValues = selectedValueDiagnosa!.split(',');
+    idDiagnosa = separatedDiagnosaValues[0].trim();
+    jenisDiagnosa = separatedDiagnosaValues[1].trim();
     namaPasient = _namaPasientController.text;
     hubunganDenganKaryawan = _hubunganDenganKaryawanController.text;
     noKwitansi = _noKwitansiController.text;
@@ -185,8 +226,10 @@ class _FormDetailPengajuanRawatJalanState
     Map<String, dynamic> newData = {
       "id_md_jp_rawat_jalan": idMdJpRawatJalan ?? '',
       "benefit_type": jenisPengganti ?? '',
+      "selectedValueJenisPengganti": selectedValueJenisPengganti ?? '',
       "detail_penggantian": detailPengganti ?? '',
       "id_diagnosa": idDiagnosa ?? '',
+      "jenis_diagnosa": jenisDiagnosa ?? '',
       "no_kuitansi": noKwitansi ?? '',
       "tgl_kuitansi": tanggalKuitansi != null
           ? tanggalKuitansi.toString()
@@ -358,7 +401,7 @@ class _FormDetailPengajuanRawatJalanState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildDropdownWithTwoTitle(
+                BuildDropdownWithTwoTitleTwoValueWidget(
                   title: 'Pilih Jenis Pengganti : ',
                   selectedValue: selectedValueJenisPengganti,
                   itemList: selectedJenisPengganti,
@@ -370,11 +413,12 @@ class _FormDetailPengajuanRawatJalanState
                   validator: _validatorJenisPengganti,
                   maxHeight: maxJenisPengganti,
                   isLoading: selectedJenisPengganti.isEmpty,
+                  horizontalPadding: paddingHorizontalNarrow,
                   valueKey: "id",
                   titleKey: "jenis",
                   isRequired: true,
                 ),
-                _buildDropdownWithTwoValue(
+                BuildDropdownWithTwoValueWidget(
                   title: 'Pilih Detail Pengganti : ',
                   selectedValue: selectedValueDetailPengganti,
                   itemList: selectedDetailPengganti,
@@ -386,30 +430,36 @@ class _FormDetailPengajuanRawatJalanState
                   validator: _validatorDetailPengganti,
                   maxHeight: maxDetailPengganti,
                   isLoading: selectedDetailPengganti.isEmpty,
+                  horizontalPadding: paddingHorizontalNarrow,
                   valueKey: "id",
                   titleKey: "nama",
                   isRequired: true,
                 ),
-                _buildDropdownWithTitle(
+                BuildDropdownWithTitleWidget(
                   title: 'Pilih Hubungan Dengan Karyawan : ',
                   selectedValue: selectedValueHubunganDenganKarwayan,
                   itemList: selectedHubunganDenganKarwayan,
                   onChanged: (String? newValue) {
                     setState(() {
                       selectedValueHubunganDenganKarwayan = newValue ?? '';
-                      if (selectedValueHubunganDenganKarwayan ==
-                          'Diri Sendiri') {
-                        _namaPasientController.text = dataEmployee['nama'];
-                      }
+                      List<Map<String, dynamic>> dataFiltered =
+                          selectedHubunganDenganKarwayan
+                              .where((item) =>
+                                  item['jenis'] ==
+                                  selectedValueHubunganDenganKarwayan)
+                              .toList();
+                      _namaPasientController.text =
+                          dataFiltered[0]['nama'].toString();
                     });
                   },
                   validator: _validatorHubunganDenganKaryawan,
                   maxHeight: maxHubunganDenganKaryawan,
                   isLoading: selectedHubunganDenganKarwayan.isEmpty,
-                  valueKey: "opsi",
-                  titleKey: "opsi",
+                  horizontalPadding: paddingHorizontalNarrow,
+                  valueKey: "jenis",
+                  titleKey: "jenis",
                 ),
-                _buildTextFieldSection(
+                BuildTextFieldWidget(
                   title: 'Nama Pasien',
                   isMandatory: true,
                   textSize: textMedium,
@@ -420,7 +470,7 @@ class _FormDetailPengajuanRawatJalanState
                   maxHeightConstraints: maxNamaPasien,
                   isDisable: true,
                 ),
-                _buildTextFieldSection(
+                BuildTextFieldWidget(
                   title: 'No Kwitansi',
                   isMandatory: true,
                   textSize: textMedium,
@@ -495,6 +545,7 @@ class _FormDetailPengajuanRawatJalanState
                             height: 350,
                             width: 350,
                             child: SfDateRangePicker(
+                              maxDate: DateTime.now(),
                               controller: _tanggalKuitansiController,
                               onSelectionChanged:
                                   (DateRangePickerSelectionChangedArgs args) {
@@ -517,7 +568,7 @@ class _FormDetailPengajuanRawatJalanState
                     );
                   },
                 ),
-                _buildTextFieldSection(
+                BuildTextFieldWidget(
                   title: 'Jumlah',
                   isMandatory: true,
                   textSize: textMedium,
@@ -529,7 +580,7 @@ class _FormDetailPengajuanRawatJalanState
                   maxHeightConstraints: maxJumlah,
                   isNumberField: true,
                 ),
-                _buildDropdownWithTitle(
+                BuildDropdownWithTwoValueWidget(
                   title: 'Pilih Diagnosa : ',
                   selectedValue: selectedValueDiagnosa,
                   itemList: selectedDiagnosa,
@@ -541,11 +592,12 @@ class _FormDetailPengajuanRawatJalanState
                   validator: _validatorDiagnosa,
                   maxHeight: maxDiagnosa,
                   isLoading: selectedDiagnosa.isEmpty,
+                  horizontalPadding: paddingHorizontalNarrow,
                   valueKey: "id",
                   titleKey: "nama",
                 ),
-                _buildTextFieldSection(
-                  title: 'Keterangan/Diagnosa ',
+                BuildTextFieldWidget(
+                  title: 'Keterangan ',
                   isMandatory: true,
                   textSize: textMedium,
                   horizontalPadding: paddingHorizontalNarrow,
@@ -589,356 +641,6 @@ class _FormDetailPengajuanRawatJalanState
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTextFieldSection({
-    required String title,
-    required bool isMandatory,
-    required double textSize,
-    required double horizontalPadding,
-    required double verticalSpacing,
-    required TextEditingController controller,
-    required String hintText,
-    double? maxHeightConstraints,
-    String? Function(String?)? validator,
-    bool isNumberField = false,
-    bool isDisable = false,
-  }) {
-    Size size = MediaQuery.of(context).size;
-    double sizedBoxHeightTall = size.height * 0.0163;
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              TitleWidget(
-                title: title,
-                fontWeight: FontWeight.w300,
-                fontSize: textSize,
-              ),
-              if (isMandatory)
-                Text(
-                  '*',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: textSize,
-                    fontFamily: 'Poppins',
-                    letterSpacing: 0.6,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-            ],
-          ),
-          SizedBox(height: verticalSpacing),
-          if (isNumberField && !isDisable)
-            TextFormFieldNumberWidget(
-              validator: validator,
-              controller: controller,
-              maxHeightConstraints: maxHeightConstraints ?? 50.0,
-              hintText: hintText,
-            ),
-          if (isDisable && !isNumberField)
-            TextFormFielDisableWidget(
-              controller: controller,
-              maxHeightConstraints: maxHeightConstraints ?? 50.0,
-            ),
-          if (!isDisable && !isNumberField)
-            TextFormFieldWidget(
-              validator: validator,
-              controller: controller,
-              maxHeightConstraints: maxHeightConstraints ?? 50.0,
-              hintText: hintText,
-            ),
-          SizedBox(height: sizedBoxHeightTall),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDropdownWithTitle({
-    required String title,
-    required String? selectedValue,
-    required List<Map<String, dynamic>> itemList,
-    required ValueChanged<String?> onChanged,
-    String? Function(String?)? validator,
-    double? maxHeight,
-    bool isLoading = false,
-    String valueKey = "value",
-    String titleKey = "title",
-  }) {
-    Size size = MediaQuery.of(context).size;
-    double textMedium = size.width * 0.0329;
-    double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double paddingHorizontalNarrow = size.width * 0.035;
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              TitleWidget(
-                title: title,
-                fontWeight: FontWeight.w300,
-                fontSize: textMedium,
-              ),
-              Text(
-                '*',
-                textAlign: TextAlign.start,
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: textMedium,
-                  fontFamily: 'Poppins',
-                  letterSpacing: 0.6,
-                  fontWeight: FontWeight.w300,
-                ),
-              ),
-            ],
-          ),
-          DropdownButtonFormField<String>(
-            menuMaxHeight: size.height * 0.5,
-            value: selectedValue,
-            onChanged: onChanged,
-            items: itemList.map((value) {
-              return DropdownMenuItem<String>(
-                value: value[valueKey].toString(),
-                child: Padding(
-                  padding: const EdgeInsets.all(1.0),
-                  child: TitleWidget(
-                    title: value[titleKey] as String,
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
-                  ),
-                ),
-              );
-            }).toList(),
-            decoration: InputDecoration(
-              constraints:
-                  BoxConstraints(maxHeight: maxHeight ?? double.infinity),
-              labelStyle: TextStyle(fontSize: textMedium),
-              focusedBorder: const UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: Colors.black,
-                  width: 1.0,
-                ),
-              ),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: selectedValue != null ? Colors.black54 : Colors.grey,
-                  width: 1.0,
-                ),
-              ),
-            ),
-            validator: validator,
-            icon: isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                    ),
-                  )
-                : const Icon(Icons.arrow_drop_down),
-          ),
-          SizedBox(height: sizedBoxHeightExtraTall)
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDropdownWithTwoTitle({
-    required String title,
-    required String? selectedValue,
-    required List<Map<String, dynamic>> itemList,
-    required ValueChanged<String?> onChanged,
-    String? Function(String?)? validator,
-    double? maxHeight,
-    bool isLoading = false,
-    String valueKey = "value",
-    String titleKey = "title",
-    bool isRequired = false,
-  }) {
-    Size size = MediaQuery.of(context).size;
-    double textMedium = size.width * 0.0329;
-    double paddingHorizontalNarrow = size.width * 0.035;
-
-    double sizedBoxHeightExtraTall = size.height * 0.0215;
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              TitleWidget(
-                title: title,
-                fontWeight: FontWeight.w300,
-                fontSize: textMedium,
-              ),
-              if (isRequired)
-                Text(
-                  '*',
-                  textAlign: TextAlign.start,
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: textMedium,
-                    fontFamily: 'Poppins',
-                    letterSpacing: 0.6,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-            ],
-          ),
-          DropdownButtonFormField<String>(
-            menuMaxHeight: size.height * 0.5,
-            value: selectedValue,
-            onChanged: onChanged,
-            items: itemList.map((value) {
-              return DropdownMenuItem<String>(
-                value: value[valueKey].toString(),
-                child: Padding(
-                  padding: const EdgeInsets.all(1.0),
-                  child: TitleWidget(
-                    // title: value[titleKey] as String,
-                    title: '${value[valueKey]} - ${value[titleKey]}',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
-                  ),
-                ),
-              );
-            }).toList(),
-            decoration: InputDecoration(
-              constraints:
-                  BoxConstraints(maxHeight: maxHeight ?? double.infinity),
-              labelStyle: TextStyle(fontSize: textMedium),
-              focusedBorder: const UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: Colors.black,
-                  width: 1.0,
-                ),
-              ),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: selectedValue != null ? Colors.black54 : Colors.grey,
-                  width: 1.0,
-                ),
-              ),
-            ),
-            validator: validator,
-            icon: isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                    ),
-                  )
-                : const Icon(Icons.arrow_drop_down),
-          ),
-          SizedBox(height: sizedBoxHeightExtraTall)
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDropdownWithTwoValue({
-    required String title,
-    required String? selectedValue,
-    required List<Map<String, dynamic>> itemList,
-    required ValueChanged<String?> onChanged,
-    String? Function(String?)? validator,
-    double? maxHeight,
-    bool isLoading = false,
-    String valueKey = "value",
-    String titleKey = "title",
-    bool isRequired = false,
-  }) {
-    Size size = MediaQuery.of(context).size;
-    double textMedium = size.width * 0.0329;
-    double paddingHorizontalNarrow = size.width * 0.035;
-
-    double sizedBoxHeightExtraTall = size.height * 0.0215;
-
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              TitleWidget(
-                title: title,
-                fontWeight: FontWeight.w300,
-                fontSize: textMedium,
-              ),
-              if (isRequired)
-                Text(
-                  '*',
-                  textAlign: TextAlign.start,
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: textMedium,
-                    fontFamily: 'Poppins',
-                    letterSpacing: 0.6,
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-            ],
-          ),
-          DropdownButtonFormField<String>(
-            menuMaxHeight: size.height * 0.5,
-            value: selectedValue,
-            onChanged: onChanged,
-            items: itemList.map((value) {
-              return DropdownMenuItem<String>(
-                value: '${value["valueKey"]},${value["titleKey"]}',
-                child: Padding(
-                  padding: const EdgeInsets.all(1.0),
-                  child: TitleWidget(
-                    title: '${value[titleKey]}',
-                    fontWeight: FontWeight.w300,
-                    fontSize: textMedium,
-                  ),
-                ),
-              );
-            }).toList(),
-            decoration: InputDecoration(
-              constraints:
-                  BoxConstraints(maxHeight: maxHeight ?? double.infinity),
-              labelStyle: TextStyle(fontSize: textMedium),
-              focusedBorder: const UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: Colors.black,
-                  width: 1.0,
-                ),
-              ),
-              enabledBorder: UnderlineInputBorder(
-                borderSide: BorderSide(
-                  color: selectedValue != null ? Colors.black54 : Colors.grey,
-                  width: 1.0,
-                ),
-              ),
-            ),
-            validator: validator,
-            icon: isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                    ),
-                  )
-                : const Icon(Icons.arrow_drop_down),
-          ),
-          SizedBox(height: sizedBoxHeightExtraTall)
         ],
       ),
     );

@@ -11,6 +11,8 @@ import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/build_dropdown_with_title_widget.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/custom_tabbar.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
 import 'package:mobile_ess/widgets/pdf_screen.dart';
 import 'package:mobile_ess/widgets/row_widget.dart';
@@ -88,7 +90,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
   String? tahunPengajuan = '';
   int? idRawatInap;
 
-  final double _maxHeightDaftarPermintaan = 60.0;
+  final double _maxHeightDaftarPersetujuan = 60.0;
   final double _maxHeightSearch = 40.0;
 
   int current = 0;
@@ -130,6 +132,40 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     );
 
     return jsonDecode(response.body);
+  }
+
+  Future<void> getDataAplikasiRekrutmen(String? statusFilter) async {
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      final String? token = await _getToken();
+
+      final Map<String, dynamic> queryParams = {
+        'page': page.toString(),
+        'limit': perPage.toString(),
+        'search': search,
+        'status': statusFilterRawatInapJalan ?? '',
+        'permintaan': '0',
+      };
+
+      final uri = Uri.parse("$_apiUrl/rekrutmen/all")
+          .replace(queryParameters: queryParams);
+
+      final responseData = await fetchData(uri, token!);
+
+      setState(() {
+        masterDataPersetujuan =
+            List<Map<String, dynamic>>.from(responseData['data']['data']);
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> getDataBantuanKomunikasi(String? statusFilter) async {
@@ -865,6 +901,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
     } else if (type == 'penilaianKinerjaKaryawan') {
       endpoint =
           "$_url/online-form/preview-pdf-penilaian-kinerja-karyawan/$id/pdf";
+    } else if (type == 'aplikasiRekrutmen') {
+      endpoint = "$_url/online-form/approval-aplikasi-rekrutmen/$id/pdf";
     }
 
     Completer<File> completer = Completer();
@@ -954,6 +992,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
       });
 
       final dataFetchers = {
+        '1': () => getDataAplikasiRekrutmen(statusFilterRawatInapJalan),
         '2': () => getDataBantuanKomunikasi(statusFilter),
         '3': () => getDataHardwareSoftware(statusFilterRawatInapJalan),
         '4': () => getDataLembur(statusFilter),
@@ -992,40 +1031,46 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
               SizedBox(height: sizedBoxHeightTall),
               formSearchWidget(context),
               SizedBox(height: sizedBoxHeightShort),
-              selectedValueDaftarPersetujuan == '12'
-                  ? summaryCutiWidget(context)
-                  : Expanded(
-                      child: Column(
+              Expanded(
+                child: Column(
+                  children: [
+                    // TabBar(
+                    //   indicatorSize: TabBarIndicatorSize.label,
+                    //   tabAlignment: TabAlignment.center,
+                    //   isScrollable: true,
+                    //   indicatorColor: Colors.black,
+                    //   labelColor: Colors.black,
+                    //   unselectedLabelColor: Colors.grey,
+                    //   labelPadding: EdgeInsets.symmetric(
+                    //       horizontal: paddingHorizontalNarrow),
+                    //   tabs: tabTitles.map((title) => Tab(text: title)).toList(),
+                    //   onTap: updateData,
+                    // ),
+                    CustomTabBar(
+                      tabTitles: const [
+                        'Semua',
+                        'Disetujui',
+                        'Proses',
+                        'Ditolak'
+                      ],
+                      selectedIndex: current,
+                      onTap: updateData,
+                    ),
+                    Expanded(
+                      child: TabBarView(
+                        physics: const NeverScrollableScrollPhysics(),
                         children: [
-                          TabBar(
-                            indicatorSize: TabBarIndicatorSize.label,
-                            tabAlignment: TabAlignment.center,
-                            isScrollable: true,
-                            indicatorColor: Colors.black,
-                            labelColor: Colors.black,
-                            unselectedLabelColor: Colors.grey,
-                            labelPadding: EdgeInsets.symmetric(
-                                horizontal: paddingHorizontalNarrow),
-                            tabs: tabTitles
-                                .map((title) => Tab(text: title))
-                                .toList(),
-                            onTap: updateData,
-                          ),
-                          Expanded(
-                            child: TabBarView(
-                              physics: const NeverScrollableScrollPhysics(),
-                              children: [
-                                allTabWidget(context),
-                                approvedTabWidget(context),
-                                prossesTabWidget(context),
-                                rejectedTabWidget(context),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 75),
+                          allTabWidget(context),
+                          approvedTabWidget(context),
+                          prossesTabWidget(context),
+                          rejectedTabWidget(context),
                         ],
                       ),
                     ),
+                    const SizedBox(height: 75),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -1044,6 +1089,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
         selectedValueDaftarPersetujuan = newValue ?? '';
 
         final dataFetchers = {
+          '1': () => getDataAplikasiRekrutmen(statusFilterRawatInapJalan),
           '2': () => getDataBantuanKomunikasi(statusFilter),
           '3': () => getDataHardwareSoftware(statusFilterRawatInapJalan),
           '4': () => getDataLembur(statusFilter),
@@ -1081,57 +1127,17 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
               fontSize: textMedium,
             ),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
-            child: DropdownButtonFormField<String>(
-              menuMaxHeight: size.height * 0.5,
-              value: selectedValueDaftarPersetujuan,
-              icon: selectedDaftarPersetujuan.isEmpty
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                      ),
-                    )
-                  : const Icon(Icons.arrow_drop_down),
-              onChanged: onDropdownChanged,
-              items:
-                  selectedDaftarPersetujuan.map((Map<String, dynamic> value) {
-                return DropdownMenuItem<String>(
-                  value: value["id"].toString(),
-                  child: Padding(
-                    padding: const EdgeInsets.all(1.0),
-                    child: TitleWidget(
-                      title: value["opsi"] as String,
-                      fontWeight: FontWeight.w300,
-                      fontSize: textMedium,
-                    ),
-                  ),
-                );
-              }).toList(),
-              decoration: InputDecoration(
-                constraints:
-                    BoxConstraints(maxHeight: _maxHeightDaftarPermintaan),
-                labelStyle: TextStyle(fontSize: textMedium),
-                focusedBorder: const UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.black,
-                    width: 1.0,
-                  ),
-                ),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color: selectedValueDaftarPersetujuan != null
-                        ? Colors.black54
-                        : Colors.grey,
-                    width: 1.0,
-                  ),
-                ),
-              ),
-            ),
+          BuildDropdownWithTitleWidget(
+            title: '',
+            isWithTitle: false,
+            selectedValue: selectedValueDaftarPersetujuan,
+            itemList: selectedDaftarPersetujuan,
+            onChanged: onDropdownChanged,
+            maxHeight: _maxHeightDaftarPersetujuan,
+            horizontalPadding: paddingHorizontalWide,
+            valueKey: "id",
+            titleKey: "opsi",
           ),
-          SizedBox(height: sizedBoxHeightTall),
         ],
       ),
     );
@@ -1210,6 +1216,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
     Widget buildItem(Map<String, dynamic> data) {
       switch (selectedValueDaftarPersetujuan) {
+        case '1':
+          return buildAplikasiRekrutmen(data);
         case '2':
           return buildBantuanKomunikasi(data);
         case '3':
@@ -1276,6 +1284,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
     Widget buildItem(Map<String, dynamic> data) {
       switch (selectedValueDaftarPersetujuan) {
+        case '1':
+          return buildAplikasiRekrutmen(data);
         case '2':
           return buildBantuanKomunikasi(data);
         case '3':
@@ -1342,6 +1352,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
     Widget buildItem(Map<String, dynamic> data) {
       switch (selectedValueDaftarPersetujuan) {
+        case '1':
+          return buildAplikasiRekrutmen(data);
         case '2':
           return buildBantuanKomunikasi(data);
         case '3':
@@ -1408,6 +1420,8 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
 
     Widget buildItem(Map<String, dynamic> data) {
       switch (selectedValueDaftarPersetujuan) {
+        case '1':
+          return buildAplikasiRekrutmen(data);
         case '2':
           return buildBantuanKomunikasi(data);
         case '3':
@@ -1453,6 +1467,68 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
           );
         },
       ),
+    );
+  }
+
+  Widget buildAplikasiRekrutmen(Map<String, dynamic> data) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalNarrow = size.width * 0.035;
+    double padding5 = size.width * 0.0188;
+
+    String id = data['id'].toString();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: EdgeInsets.symmetric(vertical: sizedBoxHeightExtraTall),
+          height: size.height * 0.3,
+          width: size.width * 0.9,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(paddingHorizontalNarrow),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildRowWidget('Prioritas', '${data['prioritas'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Tanggal Pengajuan', '${data['tgl_pengajuan'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Diajukan Oleh',
+                    '${data['pengaju_nrp'] ?? '-'} - ',
+                    '${data['pengaju_nama'] ?? '-'}'),
+                _buildRowWidget(
+                    'Entitas', '${data['pengaju_kode_entitas'] ?? '-'}', ''),
+                _buildRowWidget('Divisi/Departemen',
+                    '${data['departemen_tujuan'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Jabatan', '${data['jabatan_tujuan'] ?? '-'}', ''),
+                _buildRowWidget(
+                    'Status', '${data['status_permintaan'] ?? '-'}', ''),
+                SizedBox(height: sizedBoxHeightShort),
+                _buildActionButtons(
+                  id,
+                  () {
+                    Get.toNamed(
+                      '/user/main/daftar_persetujuan/detail_aplikasi_rekrutmen',
+                      arguments: {'id': id},
+                    );
+                  },
+                  () {
+                    _downloadPdf('aplikasiRekrutmen', id);
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -1552,6 +1628,7 @@ class _DaftarPersetujuanScreenState extends State<DaftarPersetujuanScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                _buildRowWidget('No Dokumen', '${data['no_doc'] ?? '-'}', ''),
                 _buildRowWidget(
                     'Diajukan Oleh',
                     '${data['nrp_user'] ?? '-'} - ',
