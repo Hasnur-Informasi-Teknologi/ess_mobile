@@ -22,6 +22,7 @@ class _FormPenilaianKinerjaKaryawanState
   final FormController form = Get.put(FormController());
   List<int?> dropdownValuesTipe1 = [];
   List<int?> dropdownValuesTipe2 = [];
+  List<String> selectecCheckboxUsulan = [];
 
   final _nrpController = TextEditingController();
   final _namaController = TextEditingController();
@@ -124,7 +125,7 @@ class _FormPenilaianKinerjaKaryawanState
   bool _isLoadingNrpDirFin = false;
   Map<String, String?> validationMessages = {};
 
-  String? validateField(String? value, String fieldName) {
+  String? validateField(dynamic value, String fieldName) {
     if (value == null || value.isEmpty) {
       return validationMessages[fieldName] = 'Field wajib diisi!';
     }
@@ -332,6 +333,8 @@ class _FormPenilaianKinerjaKaryawanState
       validateField(_kelebihanController.text, 'Kelebihan');
       validateField(_halDikembangkanController.text, 'Hal Yang Dikembangkan');
       validateField(_pengembanganController.text, 'Pengembangan Karyawan');
+      validateField(selectecCheckboxUsulan, 'Usulan');
+      // validateField(value, fieldName)
 
       if (_isDiperpanjang == true) {
         validateField(selectedValueDurasi, 'Tipe Durasi');
@@ -1713,32 +1716,55 @@ class _FormPenilaianKinerjaKaryawanState
                       SizedBox(
                         height: sizedBoxHeightShort,
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: size.width,
-                            child: buildCheckbox(
-                                'Diangkat Sebagai Karyawan Tetap', _isTetap!),
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: paddingHorizontalNarrow),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: validationMessages['Usulan'] != null
+                                ? Border.all(color: Colors.red, width: 2.0)
+                                : null,
+                            borderRadius: BorderRadius.circular(4.0),
                           ),
-                          SizedBox(
-                              width: size.width,
-                              child: buildCheckbox(
-                                  'PKWT Diperpanjang', _isDiperpanjang!)),
-                          SizedBox(
-                            width: size.width,
-                            child: buildCheckbox(
-                                'Pemutusan Hubungan Kerja / Akhiri Masa Kontrak',
-                                _isPHK!),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                width: size.width,
+                                child: buildCheckbox(
+                                    'Diangkat Sebagai Karyawan Tetap',
+                                    _isTetap!),
+                              ),
+                              SizedBox(
+                                  width: size.width,
+                                  child: buildCheckbox(
+                                      'PKWT Diperpanjang', _isDiperpanjang!)),
+                              SizedBox(
+                                width: size.width,
+                                child: buildCheckbox(
+                                    'Pemutusan Hubungan Kerja / Akhiri Masa Kontrak',
+                                    _isPHK!),
+                              ),
+                              SizedBox(
+                                  width: size.width,
+                                  child: buildCheckbox(
+                                      'Kenaikan Gaji / Upah', _isNaikGaji!)),
+                              SizedBox(
+                                  width: size.width,
+                                  child: buildCheckbox('Lainnya', _isLainnya!)),
+                            ],
                           ),
-                          SizedBox(
-                              width: size.width,
-                              child: buildCheckbox(
-                                  'Kenaikan Gaji / Upah', _isNaikGaji!)),
-                          SizedBox(
-                              width: size.width,
-                              child: buildCheckbox('Lainnya', _isLainnya!)),
-                        ],
+                        ),
+                      ),
+                      SizedBox(
+                        width: size.width,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: paddingHorizontalNarrow),
+                          child: validationMessages['Usulan'] != null
+                              ? validateContainer('Usulan')
+                              : null,
+                        ),
                       ),
                       SizedBox(
                         height: sizedBoxHeightExtraTall,
@@ -1896,6 +1922,13 @@ class _FormPenilaianKinerjaKaryawanState
               value: value,
               onChanged: (newValue) {
                 setState(() {
+                  if (newValue == true) {
+                    if (!selectecCheckboxUsulan.contains(label)) {
+                      selectecCheckboxUsulan.add(label);
+                    }
+                  } else {
+                    selectecCheckboxUsulan.remove(label);
+                  }
                   switch (label) {
                     case 'Diangkat Sebagai Karyawan Tetap':
                       _isTetap = newValue!;
@@ -1919,6 +1952,7 @@ class _FormPenilaianKinerjaKaryawanState
                       break;
                   }
                 });
+                debugPrint('selectecCheckboxUsulan, $selectecCheckboxUsulan');
               },
             ),
             Text(
