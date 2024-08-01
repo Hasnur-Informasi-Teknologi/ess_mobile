@@ -1,8 +1,10 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:get/get.dart';
+import 'package:http/http.dart';
 import 'package:mobile_ess/models/http_exception.dart';
 import 'package:mobile_ess/providers/auth_provider.dart';
+import 'package:mobile_ess/screens/admin/main/dashboard.dart';
 import 'package:mobile_ess/screens/user/home/home_screen.dart';
 import 'package:mobile_ess/themes/constant.dart';
 import 'package:mobile_ess/widgets/error_dialog_widget.dart';
@@ -25,8 +27,8 @@ class _SignInScreenState extends State<SignInScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nrpController = TextEditingController();
   final _passController = TextEditingController();
-  double maxHeight = 40.0;
-  double _maxHeightPass = 40.0;
+  double maxHeight = 50.0;
+  double _maxHeightPass = 50.0;
 
   bool _obscureText = true;
   bool _isLoading = false;
@@ -51,43 +53,55 @@ class _SignInScreenState extends State<SignInScreen> {
     try {
       await Provider.of<AuthProvider>(context, listen: false)
           .signIn(userNrp!, userPass!)
-          .then((_) => Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (ctx) => const HomeScreen())));
-
-      // Get.offAllNamed('/user/main');
-    } on HttpException catch (e) {
-      String errorMessage = '';
-
-      if (e.toString().contains('USER_NOT_FOUND')) {
-        errorMessage = 'USER NOT FOUND';
-      } else if (e.toString().contains('INVALID_PASSWORD')) {
-        errorMessage = 'INVALID PASSWORD';
-      } else if (e.toString().contains('USER_NOT_REGISTERED')) {
-        errorMessage = 'USER NOT REGISTERED';
-      }
-      _showErrorDialog(errorMessage);
-
-      // Future.delayed(
-      //     const Duration(seconds: 2),
-      //     () => Navigator.pushReplacement(context,
-      //         MaterialPageRoute(builder: (ctx) => const HomeScreen())));
+          .then((auth) {
+        if (auth == 1) {
+          Get.offAllNamed('/admin/main');
+        } else if (auth == 4) {
+          Get.offAllNamed('/user/main');
+        }
+      });
     } catch (e) {
+      String errorMessage = '';
       print(e);
-      print('Gagal Fetching Data');
-      // Get.offAllNamed('/user/main');
+      print(HttpException);
 
-      // _showErrorDialog('USER NOT REGISTERED');
-      // Future.delayed(
-      //   const Duration(seconds: 2),
-      //   () => Navigator.pushReplacement(
-      //     context,
-      //     MaterialPageRoute(
-      //       builder: (ctx) => const MainScreen(),
-      //     ),
-      //   ),
-      // );
+      if (e is HttpException) {
+        errorMessage = e.message;
+      } else {
+        errorMessage = e.toString();
+      }
+
+      _showErrorDialog(errorMessage);
     }
 
+    // try {
+    //   final authResponse =
+    //       await Provider.of<AuthProvider>(context, listen: false)
+    //           .signIn(userNrp!, userPass!);
+
+    //   final roleId = authResponse.roleId;
+
+    //   if (roleId == 1) {
+    //     print('admin');
+    //     print(roleId);
+    //     Get.offAllNamed('/admin/main');
+    //   } else if (roleId == 4) {
+    //     print('user');
+    //     print(roleId);
+    //     Get.offAllNamed('/user/main');
+    //   }
+    // } catch (e) {
+    //   String errorMessage = 'Authentication failed. Please try again later.';
+
+    //   if (e is HttpException) {
+    //     errorMessage = e.message; // Use the error message from responseData
+    //   } else {
+    //     errorMessage = e.toString();
+    //   }
+
+    //   _showErrorDialog(errorMessage);
+    //   print('Failed to fetch data');
+    // }
     setState(() {
       _isLoading = false;
     });
@@ -114,7 +128,7 @@ class _SignInScreenState extends State<SignInScreen> {
       return 'Password Kosong';
     }
     setState(() {
-      maxHeight = 40.0;
+      maxHeight = 50.0;
     });
     return null;
   }
@@ -127,7 +141,7 @@ class _SignInScreenState extends State<SignInScreen> {
       return 'Password Kosong';
     }
     setState(() {
-      _maxHeightPass = 40.0;
+      _maxHeightPass = 50.0;
     });
     return null;
   }
@@ -163,7 +177,7 @@ class _SignInScreenState extends State<SignInScreen> {
           toolbarHeight: 0,
         ),
         body: _isLoading
-            ? const CircularProgressIndicator()
+            ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: padding40),
@@ -179,7 +193,7 @@ class _SignInScreenState extends State<SignInScreen> {
                             'Employee Self Service Login',
                             style: TextStyle(
                               fontSize: textExtraLarge,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500,
                               fontFamily: 'Poppins',
                             ),
                           ),
@@ -191,6 +205,12 @@ class _SignInScreenState extends State<SignInScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(10.0),
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Colors.grey.withOpacity(0.3),
+                                  offset: const Offset(1.1, 1.1),
+                                  blurRadius: 10.0),
+                            ],
                           ),
                           child: Padding(
                             padding: EdgeInsets.symmetric(
@@ -204,7 +224,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                     GestureDetector(
                                       onTap: () {
                                         // on doubletap, drag
-                                        Get.toNamed('/admin/main');
+                                        Get.toNamed('/test');
                                       },
                                       child: Text(
                                         'SELAMAT DATANG',
@@ -317,7 +337,11 @@ class _SignInScreenState extends State<SignInScreen> {
                                             width: double.infinity,
                                             height: 50,
                                             child: ElevatedButton(
-                                              onPressed: _signIn,
+                                              onPressed:
+                                                  // () {
+                                                  //   Get.to(AdminMainScreen());
+                                                  // },
+                                                  _signIn,
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor:
                                                     const Color(primaryYellow),
@@ -335,7 +359,7 @@ class _SignInScreenState extends State<SignInScreen> {
                                                     fontFamily: 'Poppins',
                                                     letterSpacing: 0.9,
                                                     fontWeight:
-                                                        FontWeight.w700),
+                                                        FontWeight.w500),
                                               ),
                                             ),
                                           )

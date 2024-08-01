@@ -25,6 +25,7 @@ class TitleCenterWithBadgeWidget extends StatelessWidget {
     double padding5 = size.width * 0.0115;
 
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         SizedBox(
           width: size.width * 0.43,

@@ -39,7 +39,7 @@ class TitleCenterWidget extends StatelessWidget {
           child: Text(
             textRight!,
             style: TextStyle(
-              color: const Color(primaryBlack),
+              color: Colors.black87,
               fontSize: fontSizeRight ?? textSmall,
               fontFamily: 'Poppins',
               fontWeight: fontWeightRight ?? FontWeight.w300,

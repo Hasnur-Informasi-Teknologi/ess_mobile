@@ -6,6 +6,7 @@ class RowWithButtonWidget extends StatelessWidget {
   final FontWeight? fontWeightLeft, fontWeightRight;
   final double? fontSizeLeft, fontSizeRight;
   final VoidCallback? onTab;
+  final bool isEnabled;
 
   const RowWithButtonWidget({
     super.key,
@@ -16,6 +17,7 @@ class RowWithButtonWidget extends StatelessWidget {
     this.onTab,
     this.fontSizeLeft,
     this.fontSizeRight,
+    this.isEnabled = true,
   });
 
   @override
@@ -33,24 +35,24 @@ class RowWithButtonWidget extends StatelessWidget {
             color: const Color(primaryBlack),
             fontSize: fontSizeLeft ?? textSmall,
             fontFamily: 'Poppins',
-            fontWeight: fontWeightLeft ?? FontWeight.w700,
+            fontWeight: fontWeightLeft ?? FontWeight.w500,
           ),
         ),
         InkWell(
-          onTap: onTab,
+          onTap: isEnabled ? onTab : null,
           child: Container(
             padding: EdgeInsets.all(padding5),
             decoration: BoxDecoration(
-              color: Colors.grey[100],
+              color: isEnabled ? Colors.grey[100] : Colors.grey[300],
               borderRadius: BorderRadius.circular(2.0),
             ),
             child: Text(
               textRight!,
               style: TextStyle(
-                color: const Color(primaryBlack),
+                color: isEnabled ? const Color(primaryBlack) : Colors.grey,
                 fontSize: fontSizeRight ?? textSmall,
                 fontFamily: 'Poppins',
-                fontWeight: fontWeightRight ?? FontWeight.w700,
+                fontWeight: fontWeightRight ?? FontWeight.w500,
               ),
             ),
           ),

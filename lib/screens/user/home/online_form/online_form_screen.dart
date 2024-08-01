@@ -9,6 +9,7 @@ class OnlineFormScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textSmall = size.width * 0.027;
+    double textLarge = size.width * 0.04;
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding8 = size.width * 0.0188;
     double padding10 = size.width * 0.023;
@@ -22,12 +23,17 @@ class OnlineFormScreen extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Get.back();
-            // Navigator.pop(context);
+            Get.offAllNamed('/user/main');
           },
         ),
-        title: const Text(
+        title: Text(
           'Online Form',
+          style: TextStyle(
+              color: const Color(primaryBlack),
+              fontSize: textLarge,
+              fontFamily: 'Poppins',
+              letterSpacing: 0.6,
+              fontWeight: FontWeight.w500),
         ),
       ),
       body: Center(
@@ -44,7 +50,7 @@ class OnlineFormScreen extends StatelessWidget {
               crossAxisCount: 3,
               childAspectRatio: 1.0,
             ),
-            itemCount: 10, // Jumlah total item
+            itemCount: 11, // Jumlah total item
             itemBuilder: (BuildContext context, int index) {
               return Padding(
                 padding: EdgeInsets.all(padding8),
@@ -112,16 +118,17 @@ class OnlineFormScreen extends StatelessWidget {
         return Icons.assignment;
       case 9:
         return Icons.description;
+      case 10:
+        return Icons.admin_panel_settings;
       default:
         return Icons.error;
     }
   }
 
   String getText(int index) {
-    // Mengembalikan teks berdasarkan indeks
     switch (index) {
       case 0:
-        return 'Pengajuan Training';
+        return 'Pengajuan\nTraining';
       case 1:
         return 'Pengajuan Aplikasi Recruitment';
       case 2:
@@ -129,7 +136,7 @@ class OnlineFormScreen extends StatelessWidget {
       case 3:
         return 'Pengajuan Fasilitas Kesehatan';
       case 4:
-        return 'Pengajuan Izin';
+        return 'Pengajuan\nIzin';
       case 5:
         return 'Pengajuan Bantuan Komunikasi';
       case 6:
@@ -137,9 +144,11 @@ class OnlineFormScreen extends StatelessWidget {
       case 7:
         return 'Pengajuan Surat Keterangan';
       case 8:
-        return 'Pengajuan Cuti';
+        return 'Pengajuan\nCuti';
       case 9:
         return 'Penilaian Kinerja Karyawan';
+      case 10:
+        return 'Administrator';
       default:
         return 'Error';
     }
@@ -149,33 +158,111 @@ class OnlineFormScreen extends StatelessWidget {
     switch (index) {
       case 0:
         Get.toNamed('/user/main/home/online_form/aplikasi_training');
+        // Get.snackbar('Infomation', 'Coming Soon',
+        //     snackPosition: SnackPosition.TOP,
+        //     backgroundColor: Colors.amber,
+        //     icon: const Icon(
+        //       Icons.info,
+        //       color: Colors.white,
+        //     ),
+        //     shouldIconPulse: false);
         break;
       case 1:
         Get.toNamed('/user/main/home/online_form/aplikasi_recruitment');
+        // Get.snackbar('Infomation', 'Coming Soon',
+        //     snackPosition: SnackPosition.TOP,
+        //     backgroundColor: Colors.amber,
+        //     icon: const Icon(
+        //       Icons.info,
+        //       color: Colors.white,
+        //     ),
+        //     shouldIconPulse: false);
         break;
       case 2:
         Get.toNamed('/user/main/home/online_form/pengajuan_perjalanan_dinas');
+        // Get.snackbar('Infomation', 'Coming Soon',
+        //     snackPosition: SnackPosition.TOP,
+        //     backgroundColor: Colors.amber,
+        //     icon: const Icon(
+        //       Icons.info,
+        //       color: Colors.white,
+        //     ),
+        //     shouldIconPulse: false);
         break;
       case 3:
         Get.toNamed(
             '/user/main/home/online_form/pengajuan_fasilitas_kesehatan');
+        // Get.snackbar('Infomation', 'Coming Soon',
+        //     snackPosition: SnackPosition.TOP,
+        //     backgroundColor: Colors.amber,
+        //     icon: const Icon(
+        //       Icons.info,
+        //       color: Colors.white,
+        //     ),
+        //     shouldIconPulse: false);
         break;
       case 4:
         Get.toNamed('/user/main/home/online_form/pengajuan_izin');
+        // Get.snackbar('Infomation', 'Coming Soon',
+        //     snackPosition: SnackPosition.TOP,
+        //     backgroundColor: Colors.amber,
+        //     icon: const Icon(
+        //       Icons.info,
+        //       color: Colors.white,
+        //     ),
+        //     shouldIconPulse: false);
         break;
       case 5:
-        return print('Documents');
+        Get.toNamed(
+            '/user/main/home/online_form/pengajuan_bantuan_komunikasi/form_pengajuan_bantuan_komunikasi');
+        // Get.snackbar('Infomation', 'Coming Soon',
+        //     snackPosition: SnackPosition.TOP,
+        //     backgroundColor: Colors.amber,
+        //     icon: const Icon(
+        //       Icons.info,
+        //       color: Colors.white,
+        //     ),
+        //     shouldIconPulse: false);
+        break;
       case 6:
         Get.toNamed('/user/main/home/online_form/pengajuan_hardware_software');
+        // Get.snackbar('Infomation', 'Coming Soon',
+        //     snackPosition: SnackPosition.TOP,
+        //     backgroundColor: Colors.amber,
+        //     icon: const Icon(
+        //       Icons.info,
+        //       color: Colors.white,
+        //     ),
+        //     shouldIconPulse: false);
         break;
       case 7:
         Get.toNamed('/user/main/home/online_form/pengajuan_surat_keterangan');
+        // Get.snackbar('Infomation', 'Coming Soon',
+        //     snackPosition: SnackPosition.TOP,
+        //     backgroundColor: Colors.amber,
+        //     icon: const Icon(
+        //       Icons.info,
+        //       color: Colors.white,
+        //     ),
+        //     shouldIconPulse: false);
         break;
       case 8:
         Get.toNamed('/user/main/home/online_form/pengajuan_cuti');
         break;
       case 9:
-        return print('Documents');
+        Get.toNamed('/user/main/home/online_form/penilaian_kinerja_karyawan');
+        break;
+      case 10:
+        Get.toNamed('/admin/administrator/administrator_screen');
+        // Get.snackbar('Infomation', 'Coming Soon',
+        //     snackPosition: SnackPosition.TOP,
+        //     backgroundColor: Colors.amber,
+        //     icon: const Icon(
+        //       Icons.info,
+        //       color: Colors.white,
+        //     ),
+        //     shouldIconPulse: false);
+        break;
       default:
         return print('Error');
     }

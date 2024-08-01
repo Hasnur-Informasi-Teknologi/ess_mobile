@@ -30,7 +30,7 @@ class RowWidget extends StatelessWidget {
             color: const Color(primaryBlack),
             fontSize: fontSizeLeft ?? textSmall,
             fontFamily: 'Poppins',
-            fontWeight: fontWeightLeft ?? FontWeight.w700,
+            fontWeight: fontWeightLeft ?? FontWeight.w500,
           ),
         ),
         Text(
@@ -39,7 +39,7 @@ class RowWidget extends StatelessWidget {
             color: const Color(primaryBlack),
             fontSize: fontSizeRight ?? textSmall,
             fontFamily: 'Poppins',
-            fontWeight: fontWeightRight ?? FontWeight.w700,
+            fontWeight: fontWeightRight ?? FontWeight.w500,
           ),
         ),
       ],

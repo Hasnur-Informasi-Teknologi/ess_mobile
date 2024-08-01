@@ -9,6 +9,7 @@ class PengajuanCuti extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textSmall = size.width * 0.027;
+    double textLarge = size.width * 0.04;
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding8 = size.width * 0.0188;
     double padding10 = size.width * 0.023;
@@ -22,12 +23,17 @@ class PengajuanCuti extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Get.back();
-            // Navigator.pop(context);
+            Get.offAllNamed('/user/main/home/online_form');
           },
         ),
-        title: const Text(
+        title: Text(
           'Pengajuan Cuti',
+          style: TextStyle(
+              color: const Color(primaryBlack),
+              fontSize: textLarge,
+              fontFamily: 'Poppins',
+              letterSpacing: 0.6,
+              fontWeight: FontWeight.w500),
         ),
       ),
       body: Center(

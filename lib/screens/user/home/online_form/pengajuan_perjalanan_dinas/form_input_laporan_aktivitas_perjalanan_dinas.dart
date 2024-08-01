@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 
@@ -27,6 +28,7 @@ class _FormInputLaporanAktivitasPerjalananDinasState
     double sizedBoxHeightShort = size.height * 0.0086;
     double paddingHorizontalNarrow = size.width * 0.035;
     double padding5 = size.width * 0.0115;
+    double textLarge = size.width * 0.04;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -41,8 +43,14 @@ class _FormInputLaporanAktivitasPerjalananDinasState
             // Navigator.pop(context);
           },
         ),
-        title: const Text(
+        title: Text(
           'Laporan Aktivitas Perjalanan Dinas',
+          style: TextStyle(
+              color: const Color(primaryBlack),
+              fontSize: textLarge,
+              fontFamily: 'Poppins',
+              letterSpacing: 0.6,
+              fontWeight: FontWeight.w500),
         ),
       ),
       body: ListView(

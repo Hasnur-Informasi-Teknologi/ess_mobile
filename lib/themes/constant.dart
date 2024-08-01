@@ -5,6 +5,8 @@ const cardBackground = 808080;
 const textGreen = 0xFF2B7A78;
 const secondaryBackground = 0xFFF3F2EF;
 
+const backgroundNew = 0xFFF2F3F8;
+const nearlyDarkBlue = 0xFF2633C5;
 const buttonGreen = 0xFF27AE60;
 const buttonRed = 0xFFBF3A2B;
 const buttonBlue = 0xFF3C73A8;
@@ -26,6 +28,7 @@ const boxDate = 0xFFC69821;
 
 // double padding5 = size.width * 0.0115; // 5 px
 // double padding8 = size.width * 0.0188; // 8 px
+// double padding7 = size.width * 0.018; // 7 px
 // double padding10 = size.width * 0.023; // 10 px
 // double padding20 = size.width * 0.047; // 20 px
 // double padding40 = size.width * 0.095; // 40 px

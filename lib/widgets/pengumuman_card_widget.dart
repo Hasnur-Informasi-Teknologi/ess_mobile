@@ -33,7 +33,7 @@ class PengumumanCardWidget extends StatelessWidget {
             const RowWidget(
               textLeft: 'Undangan Pengajian Hasnur Group',
               textRight: 'Kamis, 22 Juni 2023',
-              fontWeightLeft: FontWeight.w700,
+              fontWeightLeft: FontWeight.w500,
               fontWeightRight: FontWeight.w300,
             ),
             SizedBox(
