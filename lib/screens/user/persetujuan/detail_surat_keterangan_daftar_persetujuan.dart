@@ -1,47 +1,51 @@
 import 'dart:convert';
+import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
 import 'package:mobile_ess/widgets/row_with_semicolon_widget.dart';
+import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_center_widget.dart';
 import 'package:mobile_ess/widgets/title_center_with_badge_long_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
-class DataUserBantuanKomunikasiController extends GetxController {
+class DataUserSuratKeteranganController extends GetxController {
   var data = {}.obs;
 }
 
-class DetailBantuanKomunikasiDaftarPersetujuan extends StatefulWidget {
-  const DetailBantuanKomunikasiDaftarPersetujuan({super.key});
+class DetailSuratKeteranganDaftarPersetujuan extends StatefulWidget {
+  const DetailSuratKeteranganDaftarPersetujuan({super.key});
 
   @override
-  State<DetailBantuanKomunikasiDaftarPersetujuan> createState() =>
-      _DetailBantuanKomunikasiDaftarPersetujuanState();
+  State<DetailSuratKeteranganDaftarPersetujuan> createState() =>
+      _DetailSuratKeteranganDaftarPersetujuanState();
 }
 
-class _DetailBantuanKomunikasiDaftarPersetujuanState
-    extends State<DetailBantuanKomunikasiDaftarPersetujuan> {
+class _DetailSuratKeteranganDaftarPersetujuanState
+    extends State<DetailSuratKeteranganDaftarPersetujuan> {
   final String _apiUrl = API_URL;
-  Map<String, dynamic> masterDataDetailBantuanKomunikasi = {};
-  String? nominalFormated;
-  bool _isLoading = false;
+  Map<String, dynamic> masterDataDetailSuratKeterangan = {};
   final Map<String, dynamic> arguments = Get.arguments;
+  final _alasanController = TextEditingController();
+  bool _isLoading = false;
+  bool _isFileNull = false;
+  List<PlatformFile>? _files;
 
-  DataUserBantuanKomunikasiController x =
-      Get.put(DataUserBantuanKomunikasiController());
+  DataUserSuratKeteranganController x =
+      Get.put(DataUserSuratKeteranganController());
 
   @override
   void initState() {
     super.initState();
-    getDataDetailBantuanKomunikasi();
+    getDataDetailSuratKeterangan();
     getData();
   }
 
@@ -53,14 +57,38 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
     return responseData;
   }
 
-  Future<void> getDataDetailBantuanKomunikasi() async {
+  String formatDate(String dateStr) {
+    DateTime dateTime = DateTime.parse(dateStr);
+    DateFormat formatter = DateFormat('yyyy-MM-dd');
+    return formatter.format(dateTime);
+  }
+
+  Future<void> pickFiles() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result != null) {
+      setState(() {
+        _files = result.files;
+        _isFileNull = false;
+      });
+    }
+  }
+
+  void deleteFile(PlatformFile file) {
+    setState(() {
+      _files?.remove(file);
+      _isFileNull = _files?.isEmpty ?? true;
+    });
+  }
+
+  Future<void> getDataDetailSuratKeterangan() async {
     final token = await _getToken();
     if (token == null) return;
 
     final id = int.parse(arguments['id'].toString());
 
     try {
-      final response = await _fetchDataDetailBantuanKomunikasi(token, id);
+      final response = await _fetchDataDetailSuratKeterangan(token, id);
       if (response.statusCode == 200) {
         _handleSuccessResponse(response);
       } else {
@@ -76,11 +104,10 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
     return prefs.getString('token');
   }
 
-  Future<http.Response> _fetchDataDetailBantuanKomunikasi(
-      String token, int id) {
+  Future<http.Response> _fetchDataDetailSuratKeterangan(String token, int id) {
     final ioClient = createIOClientWithInsecureConnection();
 
-    final url = Uri.parse("$_apiUrl/bantuan-komunikasi/detail/$id");
+    final url = Uri.parse("$_apiUrl/surat-keterangan/detail/$id");
     return ioClient.get(
       url,
       headers: {
@@ -92,12 +119,11 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
 
   void _handleSuccessResponse(http.Response response) {
     final responseData = jsonDecode(response.body);
-    final dataDetailBantuanKomunikasiApi = responseData['dkomunikasi'];
+    final dataDetailSuratKeteranganApi = responseData['data'];
+
     setState(() {
-      masterDataDetailBantuanKomunikasi =
-          Map<String, dynamic>.from(dataDetailBantuanKomunikasiApi);
-      final nominal = masterDataDetailBantuanKomunikasi['nominal'];
-      nominalFormated = NumberFormat.decimalPattern('id-ID').format(nominal);
+      masterDataDetailSuratKeterangan =
+          Map<String, dynamic>.from(dataDetailSuratKeteranganApi);
     });
   }
 
@@ -105,67 +131,85 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
     print('Failed to fetch data: ${response.statusCode}');
   }
 
+  String? _getFilePath() {
+    if (_files != null) {
+      return _files!.single.path;
+    }
+    return null;
+  }
+
   Future<void> approve(int? id) async {
     final token = await _getToken();
     if (token == null) return;
+
+    final filePath = _getFilePath();
+    if (filePath == null) {
+      _showSnackbar('Information', 'Lampiran Wajib Diisi', Colors.amber);
+      setState(() {
+        _isFileNull = true;
+        _isLoading = false;
+      });
+      return;
+    }
 
     setState(() {
       _isLoading = true;
     });
 
     try {
-      final response = await _sendApprovalRequest(token, id);
-      _handleApprovalResponse(response);
+      final response = await _sendApproveRequest(token, id, filePath);
+      final responseDataMessage = json.decode(response);
+      if (responseDataMessage['status'] == 'success') {
+        Get.offAllNamed('/user/main');
+        _showSnackbar('Information', 'Approved', Colors.amber);
+      } else {
+        _showSnackbar('Information', 'Gagal', Colors.amber);
+      }
     } catch (e) {
-      print('Error approving request: $e');
+      print('Error approving cuti: $e');
+    } finally {
       setState(() {
         _isLoading = false;
       });
     }
   }
 
-  Future<http.Response> _sendApprovalRequest(String token, int? id) {
+  Future<String> _sendApproveRequest(
+      String token, int? id, String filePath) async {
     final ioClient = createIOClientWithInsecureConnection();
-    final url = Uri.parse('$_apiUrl/bantuan-komunikasi/approve');
+    final file = File(filePath);
 
-    return ioClient.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-        'Authorization': 'Bearer $token',
-      },
-      body: jsonEncode({'id': id.toString()}),
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('$_apiUrl/surat-keterangan/approve'),
     );
+
+    request.headers['Content-Type'] = 'multipart/form-data';
+    request.headers['Authorization'] = 'Bearer $token';
+    request.files.add(http.MultipartFile.fromBytes(
+      'lampiran',
+      file.readAsBytesSync(),
+      filename: file.path.split('/').last,
+    ));
+    request.fields['id'] = id.toString();
+    request.fields['catatan'] = _alasanController.text;
+
+    var streamedResponse = await ioClient.send(request);
+    return await streamedResponse.stream.bytesToString();
   }
 
-  void _handleApprovalResponse(http.Response response) {
-    final responseData = jsonDecode(response.body);
-
-    if (responseData['status'] == 'success') {
-      Get.offAllNamed('/user/main');
-
-      Get.snackbar('Information', 'Approved',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.amber,
-          icon: const Icon(
-            Icons.info,
-            color: Colors.white,
-          ),
-          shouldIconPulse: false);
-    } else {
-      Get.snackbar('Information', 'Gagal',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.amber,
-          icon: const Icon(
-            Icons.info,
-            color: Colors.white,
-          ),
-          shouldIconPulse: false);
-    }
-
-    setState(() {
-      _isLoading = false;
-    });
+  void _showSnackbar(String title, String message, Color backgroundColor) {
+    Get.snackbar(
+      title,
+      message,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: backgroundColor,
+      icon: const Icon(
+        Icons.info,
+        color: Colors.white,
+      ),
+      shouldIconPulse: false,
+    );
   }
 
   Future<void> reject(int? id) async {
@@ -177,83 +221,56 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
     });
 
     try {
-      final response = await _sendRejectionRequest(token, id);
-      _handleRejectionResponse(response);
+      final response = await _sendRejectRequest(token, id);
+      _handleRejectResponse(response);
     } catch (e) {
-      print('Error rejecting request: $e');
+      print('Error rejecting cuti: $e');
+    } finally {
       setState(() {
         _isLoading = false;
       });
     }
   }
 
-  Future<http.Response> _sendRejectionRequest(String token, int? id) {
+  Future<http.Response> _sendRejectRequest(String token, int? id) {
     final ioClient = createIOClientWithInsecureConnection();
-    final url = Uri.parse('$_apiUrl/bantuan-komunikasi/reject');
-
+    final url = Uri.parse('$_apiUrl/surat-keterangan/reject');
     return ioClient.post(
       url,
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
         'Authorization': 'Bearer $token',
       },
-      body: jsonEncode({'id': id.toString()}),
+      body:
+          jsonEncode({'id': id.toString(), 'catatan': _alasanController.text}),
     );
   }
 
-  void _handleRejectionResponse(http.Response response) {
+  void _handleRejectResponse(http.Response response) {
     final responseData = jsonDecode(response.body);
-
     if (responseData['status'] == 'success') {
       Get.offAllNamed('/user/main');
-
-      Get.snackbar('Information', 'Rejected',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.amber,
-          icon: const Icon(
-            Icons.info,
-            color: Colors.white,
-          ),
-          shouldIconPulse: false);
+      _showSnackbar('Information', 'Rejected', Colors.amber);
     } else {
-      Get.snackbar('Information', 'Gagal',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.amber,
-          icon: const Icon(
-            Icons.info,
-            color: Colors.white,
-          ),
-          shouldIconPulse: false);
+      _showSnackbar('Information', 'Gagal', Colors.amber);
     }
-
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-
     double textLarge = size.width * 0.04;
     double padding20 = size.width * 0.047;
     double paddingHorizontalWide = size.width * 0.0585;
-    const double sizedBoxHeightExtraTall = 20;
+    double textMedium = size.width * 0.0329;
+    double sizedBoxHeightTall = size.height * 0.015;
 
     bool shouldShowApprovalAndRejectButton() {
-      final level = masterDataDetailBantuanKomunikasi['level'];
+      final level = masterDataDetailSuratKeterangan['level'];
       final pernr = x.data['pernr'];
+      final nrpHrgs = masterDataDetailSuratKeterangan['nrp_hrgs'];
 
-      return (level == '1' &&
-              pernr == masterDataDetailBantuanKomunikasi['nrp_atasan']) ||
-          (level == '2' &&
-              pernr == masterDataDetailBantuanKomunikasi['nrp_hrgs']) ||
-          (level == '3' &&
-              pernr == masterDataDetailBantuanKomunikasi['nrp_direktur']) ||
-          (level == '4' &&
-              pernr == masterDataDetailBantuanKomunikasi['nrp_keuangan']) ||
-          (level == '5' &&
-              pernr == masterDataDetailBantuanKomunikasi['nrp_presiden']);
+      return (level == '2' && pernr == nrpHrgs);
     }
 
     return _isLoading
@@ -271,7 +288,7 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
                 },
               ),
               title: Text(
-                'Approval - Bantuan Komunikasi',
+                'Detail Permintaan Surat Keterangan',
                 style: TextStyle(
                   color: Colors.black,
                   fontSize: textLarge,
@@ -287,17 +304,14 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    diajukanOlehWidget(context),
-                    diberikanKepadaWidget(context),
-                    detailFasilitasKomunikasiWidget(context),
-                    keteranganWidget(context),
+                    suratDibuatUntukWidget(context),
+                    atasanWidget(context),
+                    hcgsWidget(context),
+                    lampiranWidget(context),
                     footerWidget(context),
                     shouldShowApprovalAndRejectButton()
                         ? approvalAndRejectButton(context)
                         : const SizedBox.shrink(),
-                    const SizedBox(
-                      height: sizedBoxHeightExtraTall,
-                    ),
                   ],
                 ),
               ),
@@ -305,7 +319,7 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
           );
   }
 
-  Widget diajukanOlehWidget(BuildContext context) {
+  Widget suratDibuatUntukWidget(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
@@ -314,76 +328,39 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
     List<Map<String, String>> data = [
       {
         'label': 'NRP',
-        'value': masterDataDetailBantuanKomunikasi['nrp_user'] ?? '-'
+        'value': masterDataDetailSuratKeterangan['nrp_user'] ?? '-'
       },
       {
         'label': 'Nama',
-        'value': masterDataDetailBantuanKomunikasi['nama_user'] ?? '-'
+        'value': masterDataDetailSuratKeterangan['nama_user'] ?? '-'
+      },
+      {'label': 'NIK', 'value': masterDataDetailSuratKeterangan['nik'] ?? '-'},
+      {
+        'label': 'Posisi',
+        'value': masterDataDetailSuratKeterangan['posisi'] ?? '-'
       },
       {
-        'label': 'Tanggal Pengajuan',
-        'value': masterDataDetailBantuanKomunikasi['tgl_pengajuan'] ?? '-'
-      },
-      {
-        'label': 'No Dokumen',
-        'value': masterDataDetailBantuanKomunikasi['no_doc'] ?? '-'
-      },
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const TitleWidget(title: 'Diajukan Oleh'),
-        SizedBox(height: sizedBoxHeightShort),
-        const LineWidget(),
-        const SizedBox(height: 15),
-        ...data.map((item) => Padding(
-              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
-              child: RowWithSemicolonWidget(
-                textLeft: item['label'],
-                textRight: item['value'].toString(),
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-            )),
-        SizedBox(height: sizedBoxHeightExtraTall),
-      ],
-    );
-  }
-
-  Widget diberikanKepadaWidget(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    double textMedium = size.width * 0.0329;
-    double sizedBoxHeightShort = size.height * 0.0086;
-    double sizedBoxHeightExtraTall = size.height * 0.0215;
-
-    List<Map<String, String>> data = [
-      {
-        'label': 'NRP',
-        'value': masterDataDetailBantuanKomunikasi['nrp_penerima'] ?? '-'
-      },
-      {
-        'label': 'Nama',
-        'value': masterDataDetailBantuanKomunikasi['nama_penerima'] ?? '-'
-      },
-      {
-        'label': 'Jabatan',
-        'value': masterDataDetailBantuanKomunikasi['jabatan_penerima'] ?? '-'
+        'label': 'Lokasi Kerja',
+        'value': masterDataDetailSuratKeterangan['lokasi_kerja'] ?? '-'
       },
       {
         'label': 'Entitas',
-        'value': masterDataDetailBantuanKomunikasi['entitas_penerima'] ?? '-'
+        'value': masterDataDetailSuratKeterangan['entitas_user'] ?? '-'
       },
       {
-        'label': 'Pangkat',
-        'value': masterDataDetailBantuanKomunikasi['pangkat_penerima'] ?? '-'
+        'label': 'Tujuan Dikeluarkannya Surat',
+        'value': masterDataDetailSuratKeterangan['tujuan_surat'] ?? '-'
+      },
+      {
+        'label': 'Tanggal Bergabung',
+        'value': masterDataDetailSuratKeterangan['hire_date'] ?? '-'
       },
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const TitleWidget(title: 'Diberikan Kepada'),
+        const TitleWidget(title: 'Surat Dibuat Untuk'),
         SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
         const SizedBox(height: 15),
@@ -401,57 +378,34 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
     );
   }
 
-  Widget detailFasilitasKomunikasiWidget(BuildContext context) {
+  Widget atasanWidget(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
 
     List<Map<String, String>> data = [
       {
-        'label': 'Kelompok Jabatan',
-        'value': masterDataDetailBantuanKomunikasi['pangkat_komunikasi'] ?? '-'
-      },
-      {'label': 'Nominal (IDR)', 'value': nominalFormated ?? '-'},
-      {
-        'label': 'Jenis Fasilitas',
-        'value': masterDataDetailBantuanKomunikasi['nama_fasilitas'] ?? '-'
+        'label': 'NRP Atasan',
+        'value': masterDataDetailSuratKeterangan['nrp_atasan'] ?? '-'
       },
       {
-        'label': 'Jenis Mobile Phone',
-        'value': masterDataDetailBantuanKomunikasi['jenis_phone_name'] ?? '-'
-      },
-      if (masterDataDetailBantuanKomunikasi['merek_phone'] != null)
-        {
-          'label': 'Merek Mobile Phone',
-          'value': masterDataDetailBantuanKomunikasi['merek_phone'] ?? '-'
-        },
-      {
-        'label': 'Prioritas',
-        'value': getPrioritas(masterDataDetailBantuanKomunikasi['prioritas'])
+        'label': 'Nama Atasan',
+        'value': masterDataDetailSuratKeterangan['nama_atasan'] ?? '-'
       },
       {
-        'label': 'Tujuan Komunikasi Internal',
-        'value': masterDataDetailBantuanKomunikasi['tujuan_internal'] ?? '-'
-      },
-      {
-        'label': 'Tujuan Komunikasi Eksternal',
-        'value': masterDataDetailBantuanKomunikasi['tujuan_eksternal'] ?? '-'
-      },
-      {
-        'label': 'Keterangan',
-        'value': masterDataDetailBantuanKomunikasi['keterangan'] ?? '-'
+        'label': 'Entitas Atasan',
+        'value': masterDataDetailSuratKeterangan['entitas_atasan'] ?? '-'
       },
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const TitleWidget(title: 'Detail Fasilitas Komunikasi'),
+        const TitleWidget(title: 'Atasan'),
         SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(height: sizedBoxHeightTall),
+        const SizedBox(height: 15),
         ...data.map((item) => Padding(
               padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
               child: RowWithSemicolonWidget(
@@ -466,57 +420,100 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
     );
   }
 
-  String getPrioritas(String? prioritas) {
-    switch (prioritas) {
-      case '0':
-        return 'Rendah';
-      case '1':
-        return 'Sedang';
-      case '2':
-        return 'Tinggi';
-      default:
-        return '-';
-    }
-  }
-
-  Widget keteranganWidget(BuildContext context) {
+  Widget hcgsWidget(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
 
     List<Map<String, String>> data = [
       {
-        'label': 'Tujuan Komunikasi Internal',
-        'value': masterDataDetailBantuanKomunikasi['tujuan_internal'] ?? '-'
+        'label': 'NRP HCGS',
+        'value': masterDataDetailSuratKeterangan['nrp_hrgs'] ?? '-'
       },
       {
-        'label': 'Tujuan Komunikasi Eksternal',
-        'value': masterDataDetailBantuanKomunikasi['tujuan_eksternal'] ?? '-'
+        'label': 'Nama HCGS',
+        'value': masterDataDetailSuratKeterangan['nama_hrgs'] ?? '-'
       },
       {
-        'label': 'Keterangan',
-        'value': masterDataDetailBantuanKomunikasi['keterangan'] ?? '-'
+        'label': 'Entitas HCGS',
+        'value': masterDataDetailSuratKeterangan['entitas_hrgs'] ?? '-'
       },
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const TitleWidget(title: 'Keterangan'),
+        const TitleWidget(title: 'HCGS'),
         SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(height: sizedBoxHeightTall),
+        const SizedBox(height: 15),
         ...data.map((item) => Padding(
               padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
               child: RowWithSemicolonWidget(
-                textLeft: item['label']!,
-                textRight: item['value'].toString()!,
+                textLeft: item['label'],
+                textRight: item['value'].toString(),
                 fontSizeLeft: textMedium,
                 fontSizeRight: textMedium,
               ),
             )),
+        SizedBox(height: sizedBoxHeightExtraTall),
+      ],
+    );
+  }
+
+  Widget lampiranWidget(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textMedium = size.width * 0.0329;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightTall = size.height * 0.015;
+
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const TitleWidget(title: 'Lampiran'),
+        SizedBox(height: sizedBoxHeightShort),
+        const LineWidget(),
+        SizedBox(
+          height: sizedBoxHeightTall,
+        ),
+        Column(
+          children: [
+            Center(
+              child: ElevatedButton(
+                onPressed: pickFiles,
+                child: Text('Pilih File'),
+              ),
+            ),
+            // if (_files != null)
+            //   Column(
+            //     children: _files!.map((file) {
+            //       return ListTile(
+            //         title: Text(file.name),
+            //         // subtitle: Text('${file.size} bytes'),
+            //       );
+            //     }).toList(),
+            //   ),
+            if (_files != null)
+              Column(
+                children: _files!.map((file) {
+                  return ListTile(
+                    title: Text(file.name),
+                    trailing: IconButton(
+                      icon: const Icon(
+                        Icons.delete,
+                        color: Colors.red,
+                      ),
+                      onPressed: () => deleteFile(file),
+                    ),
+                    // subtitle: Text('${file.size} bytes'),
+                  );
+                }).toList(),
+              ),
+          ],
+        ),
         SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
@@ -526,21 +523,16 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
-    double sizedBoxHeightTall = 15;
-
-    Map<String, String> data = {
-      'Status Pengajuan':
-          masterDataDetailBantuanKomunikasi['status_approve'] ?? '-',
-      'Pada': ': ${masterDataDetailBantuanKomunikasi['created_at'] ?? '-'}',
-    };
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: sizedBoxHeightTall),
+        SizedBox(height: sizedBoxHeightExtraTall),
         TitleCenterWithLongBadgeWidget(
           textLeft: 'Status Pengajuan',
-          textRight: data['Status Pengajuan']!,
+          textRight:
+              '${masterDataDetailSuratKeterangan['status_approve'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
           color: Colors.yellow,
@@ -548,11 +540,12 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
         SizedBox(height: sizedBoxHeightShort),
         TitleCenterWidget(
           textLeft: 'Pada',
-          textRight: data['Pada']!,
+          textRight:
+              ': ${masterDataDetailSuratKeterangan['created_at'] != null ? formatDate(masterDataDetailSuratKeterangan['created_at']) : ''}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
-        SizedBox(height: sizedBoxHeightShort),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }
@@ -567,7 +560,7 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
       children: [
         InkWell(
           onTap: () {
-            showRejectModal(context, masterDataDetailBantuanKomunikasi['id']);
+            showRejectModal(context, masterDataDetailSuratKeterangan['id']);
           },
           child: Container(
             width: size.width * 0.25,
@@ -601,7 +594,7 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
         ),
         InkWell(
           onTap: () {
-            showApproveModal(context, masterDataDetailBantuanKomunikasi['id']);
+            showApproveModal(context, masterDataDetailSuratKeterangan['id']);
           },
           child: Container(
             width: size.width * 0.25,
@@ -667,18 +660,21 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
               SizedBox(
                 height: sizedBoxHeightExtraTall,
               ),
-              Center(
-                child: Text(
-                  'Apakah Anda yakin ingin menyetujui data ini?',
-                  style: TextStyle(
-                    color: const Color(primaryBlack),
-                    fontSize: textMedium,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w300,
-                  ),
+              Text(
+                'Apakah Anda Yakin ingin menyetujui data ini?',
+                style: TextStyle(
+                  color: Color(primaryBlack),
+                  fontSize: textMedium,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w300,
                 ),
               ),
             ],
+          ),
+          content: TextFormFieldWidget(
+            controller: _alasanController,
+            maxHeightConstraints: 40,
+            hintText: '',
           ),
           actions: [
             Row(
@@ -697,7 +693,7 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
                     ),
                     child: Center(
                       child: Text(
-                        'No',
+                        'Cancel',
                         style: TextStyle(
                           color: Color(primaryBlack),
                           fontSize: textMedium,
@@ -727,7 +723,7 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
                     ),
                     child: Center(
                       child: Text(
-                        'Yes',
+                        'Approve',
                         style: TextStyle(
                           color: Color(primaryBlack),
                           fontSize: textMedium,
@@ -767,7 +763,7 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
               ),
               Center(
                 child: Text(
-                  'Konfirmasi Penolakan',
+                  'Modal Reject',
                   style: TextStyle(
                     color: Color(primaryBlack),
                     fontSize: textLarge,
@@ -780,7 +776,7 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
                 height: sizedBoxHeightExtraTall,
               ),
               Text(
-                'Apakah Anda yakin ingin menolak data ini?',
+                'Apakah Anda Yakin ingin menyetujui data ini?',
                 style: TextStyle(
                   color: Color(primaryBlack),
                   fontSize: textMedium,
@@ -789,6 +785,11 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
                 ),
               ),
             ],
+          ),
+          content: TextFormFieldWidget(
+            controller: _alasanController,
+            maxHeightConstraints: 40,
+            hintText: 'Alasan Reject',
           ),
           actions: [
             Row(
@@ -807,7 +808,7 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
                     ),
                     child: Center(
                       child: Text(
-                        'No',
+                        'Cancel',
                         style: TextStyle(
                           color: Color(primaryBlack),
                           fontSize: textMedium,
@@ -836,7 +837,7 @@ class _DetailBantuanKomunikasiDaftarPersetujuanState
                     ),
                     child: Center(
                       child: Text(
-                        'Yes',
+                        'Reject',
                         style: TextStyle(
                           color: Color(primaryBlack),
                           fontSize: textMedium,

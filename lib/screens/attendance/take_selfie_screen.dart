@@ -129,17 +129,24 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
   }
 
   Future<void> _processImage(File imageFile, String userId) async {
+    print("======================");
+    print('success2');
+    String? alamat;
     Map<String, String> headers = {'Content-Type': 'multipart/form-data'};
     Map<String, dynamic> attendanceData = widget.attendanceData;
     var nrp = attendanceData['nrp'] ?? attendanceData['pernr'];
     var lat = attendanceData['lat'];
     var long = attendanceData['long'];
 
-    List<Placemark> getAlamat =
-        await placemarkFromCoordinates(double.parse(lat), double.parse(long));
-    String alamat = getAlamat.isNotEmpty
-        ? getAlamat.last.toString()
-        : 'Alamat tidak ditemukan';
+    try {
+      List<Placemark> getAlamat =
+          await placemarkFromCoordinates(double.parse(lat), double.parse(long));
+      alamat = getAlamat.isNotEmpty
+          ? getAlamat.last.toString()
+          : 'Alamat tidak ditemukan';
+    } catch (e) {
+      alamat = 'Unable to determine address';
+    }
 
     var request = http.MultipartRequest(
         'POST', Uri.parse('https://hitfaceapi.my.id/api/face/recognition'));
@@ -153,6 +160,8 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
     var res = await ioClient.send(request);
     var respStr = await res.stream.bytesToString();
     final result = jsonDecode(respStr);
+
+    print('success');
 
     await _handleFaceRecognitionResult(
         result, userId, attendanceData, imageFile, headers, alamat);
@@ -177,6 +186,7 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
     } else if (confidence.round() < 55) {
       _showErrorDialog('Confidence Data Kurang dari 50%!');
     } else {
+      print('success2');
       await _handleAttendance(attendanceData, imageFile, headers, alamat);
     }
   }
@@ -218,33 +228,35 @@ class _TakeSelfieScreenState extends State<TakeSelfieScreen> {
       List<String> clockInToleransiParts = clockInToleransi!.split(':');
       int clockInToleransiHour = int.parse(clockInToleransiParts[0]);
       int clockInToleransiMinute = int.parse(clockInToleransiParts[1]);
-      int clockInToleransiSecond = int.parse(clockInToleransiParts[2]);
+      // int clockInToleransiSecond = int.parse(clockInToleransiParts[2]);
 
       bool isLate = timeHour > clockInToleransiHour ||
           (timeHour == clockInToleransiHour &&
-              timeMinute > clockInToleransiMinute) ||
-          (timeHour == clockInToleransiHour &&
-              timeMinute == clockInToleransiMinute &&
-              timeSecond > clockInToleransiSecond);
+              timeMinute > clockInToleransiMinute);
 
-      if (isLate) {
-        Map<String, dynamic> newData = {
-          "nrp": attendanceData['nrp'] ?? attendanceData['pernr'],
-          "lat": attendanceData['lat'],
-          "long": attendanceData['long'],
-          "clock_time": clockInTime,
-          "working_location": workingLocation,
-          "address": alamat,
-          "image": imageFile,
-        };
+      if (workingLocation == 'Office') {
+        if (isLate) {
+          Map<String, dynamic> newData = {
+            "nrp": attendanceData['nrp'] ?? attendanceData['pernr'],
+            "lat": attendanceData['lat'],
+            "long": attendanceData['long'],
+            "clock_time": clockInTime,
+            "working_location": workingLocation,
+            "address": alamat,
+            "image": imageFile,
+          };
 
-        Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (ctx) => LateModalDialog(newData: newData)));
-        setState(() {
-          _camera = false;
-        });
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (ctx) => LateModalDialog(newData: newData)));
+          setState(() {
+            _camera = false;
+          });
+        } else {
+          await _sendClockInData(
+              attendanceData, headers, alamat, clockInTime, workingLocation);
+        }
       } else {
         await _sendClockInData(
             attendanceData, headers, alamat, clockInTime, workingLocation);

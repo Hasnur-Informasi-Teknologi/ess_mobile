@@ -8,9 +8,13 @@ import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_fasilitas_kesehatan/form_detail_pengajuan_rawat_jalan.dart';
 import 'package:mobile_ess/themes/constant.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/build_dropdown_with_title_widget.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/build_dropdown_with_two_title_widget.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/build_text_field_widget.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
 import 'package:mobile_ess/widgets/row_with_button_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_disable_widget.dart';
+import 'package:mobile_ess/widgets/text_form_field_number_widget.dart';
 import 'package:mobile_ess/widgets/text_form_field_widget.dart';
 import 'package:mobile_ess/widgets/title_center_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
@@ -136,6 +140,12 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
     ;
   }
 
+  String formatDate(String dateStr) {
+    DateTime dateTime = DateTime.parse(dateStr);
+    DateFormat formatter = DateFormat('yyyy-MM-dd');
+    return formatter.format(dateTime);
+  }
+
   String _formatAmount(dynamic amount) {
     if (amount is String) {
       double parsedAmount = double.tryParse(amount) ?? 0.0;
@@ -253,6 +263,7 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
     setState(() {
       dataDetail.removeAt(index);
     });
+    getDetailPenganjuanRawatJalan();
   }
 
   Future<void> _submit() async {
@@ -286,10 +297,31 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
     String? filePath;
 
     if (_files != null) {
-      filePath = _files!.single.path;
-      setState(() {
-        _isFileNull = false;
-      });
+      final fileExtension = _files!.single.path!.split('.').last.toLowerCase();
+
+      const allowedExtensions = ['jpeg', 'jpg', 'png', 'pdf'];
+
+      if (allowedExtensions.contains(fileExtension)) {
+        filePath = _files!.single.path;
+        setState(() {
+          _isFileNull = false;
+        });
+      } else {
+        setState(() {
+          _isFileNull = false;
+          _isLoading = false;
+        });
+        Get.snackbar('Infomation',
+            'File yang dipilih harus berformat jpeg, jpg, png, atau pdf.',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
+        return;
+      }
     } else {
       setState(() {
         _isFileNull = true;
@@ -300,80 +332,91 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
 
     File file = File(filePath!);
     final ioClient = createIOClientWithInsecureConnection();
-    var request = http.MultipartRequest(
-      'POST',
-      Uri.parse('$_apiUrl/rawat/jalan/create'),
-    );
+    try {
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$_apiUrl/rawat/jalan/create'),
+      );
 
-    request.headers['Content-Type'] = 'multipart/form-data';
-    request.headers['Authorization'] = 'Bearer $token';
-    // Add file lampiran
-    request.files.add(http.MultipartFile.fromBytes(
-        'lampiran', file.readAsBytesSync(),
-        filename: file.path.split('/').last));
-    // Add the JSON data as a field
-    request.fields['nama'] = _namaController.text;
-    request.fields['pernr'] = _nrpController.text;
-    request.fields['pt'] = _perusahaanController.text;
-    request.fields['lokasi'] = _lokasiKerjaController.text;
-    request.fields['pangkat'] = _pangkatController.text;
-    request.fields['hire_date'] = _tanggalPengajuanRawatJalanController.text;
-    request.fields['tgl_pengajuan'] = DateTime.now().toString();
-    request.fields['entitas_atasan'] = selectedValueEntitas.toString();
-    request.fields['prd_rawat'] = periodeRawat != null
-        ? periodeRawat.toString()
-        : DateTime.now().toString();
-    request.fields['approved_by1'] = selectedValueAtasan.toString();
-    request.fields['entitas_hrgs'] = selectedValueEntitasHrgs.toString();
-    request.fields['entitas_keuangan'] = selectedValueEntitasHrgs.toString();
-    request.fields['approved_by2'] = selectedValueHrgs.toString();
-    request.fields['approved_by3'] = selectedValueKeuangan.toString();
-    for (int i = 0; i < allData.length; i++) {
-      // final data = allData[i];
-      request.fields['detail[$i][id_md_jp_rawat_jalan]'] =
-          allData[i]['id_md_jp_rawat_jalan'].toString();
-      request.fields['detail[$i][benefit_type]'] = allData[i]['benefit_type'];
-      request.fields['detail[$i][detail_penggantian]'] =
-          allData[i]['detail_penggantian'];
-      request.fields['detail[$i][id_diagnosa]'] = allData[i]['id_diagnosa'];
-      request.fields['detail[$i][no_kuitansi]'] = allData[i]['no_kuitansi'];
-      request.fields['detail[$i][tgl_kuitansi]'] = allData[i]['tgl_kuitansi'];
-      request.fields['detail[$i][nm_pasien]'] = allData[i]['nm_pasien'];
-      request.fields['detail[$i][hub_karyawan]'] = allData[i]['hub_karyawan'];
-      request.fields['detail[$i][jumlah]'] = allData[i]['jumlah'].toString();
-      request.fields['detail[$i][keterangan]'] = allData[i]['keterangan'];
-    }
+      request.headers['Content-Type'] = 'multipart/form-data';
+      request.headers['Authorization'] = 'Bearer $token';
+      request.files.add(http.MultipartFile.fromBytes(
+          'lampiran', file.readAsBytesSync(),
+          filename: file.path.split('/').last));
+      request.fields['nama'] = _namaController.text;
+      request.fields['pernr'] = _nrpController.text;
+      request.fields['pt'] = _perusahaanController.text;
+      request.fields['lokasi'] = _lokasiKerjaController.text;
+      request.fields['pangkat'] = _pangkatController.text;
+      request.fields['hire_date'] = _tanggalPengajuanRawatJalanController.text;
+      request.fields['tgl_pengajuan'] = DateTime.now().toString();
+      request.fields['entitas_atasan'] = selectedValueEntitas.toString();
+      request.fields['prd_rawat'] = periodeRawat != null
+          ? periodeRawat.toString()
+          : DateTime.now().toString();
+      request.fields['approved_by1'] = selectedValueAtasan.toString();
+      request.fields['entitas_hrgs'] = selectedValueEntitasHrgs.toString();
+      request.fields['entitas_keuangan'] = selectedValueEntitasHrgs.toString();
+      request.fields['approved_by2'] = selectedValueHrgs.toString();
+      request.fields['approved_by3'] = selectedValueKeuangan.toString();
+      for (int i = 0; i < allData.length; i++) {
+        request.fields['detail[$i][id_md_jp_rawat_jalan]'] =
+            allData[i]['id_md_jp_rawat_jalan'].toString();
+        request.fields['detail[$i][benefit_type]'] = allData[i]['benefit_type'];
+        request.fields['detail[$i][detail_penggantian]'] =
+            allData[i]['detail_penggantian'];
+        request.fields['detail[$i][id_diagnosa]'] = allData[i]['id_diagnosa'];
+        request.fields['detail[$i][no_kuitansi]'] = allData[i]['no_kuitansi'];
+        request.fields['detail[$i][tgl_kuitansi]'] = allData[i]['tgl_kuitansi'];
+        request.fields['detail[$i][nm_pasien]'] = allData[i]['nm_pasien'];
+        request.fields['detail[$i][hub_karyawan]'] = allData[i]['hub_karyawan'];
+        request.fields['detail[$i][jumlah]'] = allData[i]['jumlah'].toString();
+        request.fields['detail[$i][keterangan]'] = allData[i]['keterangan'];
+      }
 
-    var streamedResponse = await ioClient.send(request);
-    final responseData = await streamedResponse.stream.bytesToString();
-    final responseDataMessage = json.decode(responseData);
-    Get.snackbar('Infomation', responseDataMessage['message'],
-        snackPosition: SnackPosition.TOP,
-        backgroundColor: Colors.amber,
-        icon: const Icon(
-          Icons.info,
-          color: Colors.white,
-        ),
-        shouldIconPulse: false);
-    setState(() {
-      _isLoading = false;
-    });
-
-    print('Message $responseDataMessage');
-
-    if (responseDataMessage['status'] == 'success') {
-      allData.clear();
+      var streamedResponse = await ioClient.send(request);
+      final responseData = await streamedResponse.stream.bytesToString();
+      final responseDataMessage = json.decode(responseData);
+      Get.snackbar('Infomation', responseDataMessage['message'],
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.amber,
+          icon: const Icon(
+            Icons.info,
+            color: Colors.white,
+          ),
+          shouldIconPulse: false);
       setState(() {
-        dataDetail = [];
+        _isLoading = false;
       });
-      Get.offAllNamed('/user/main');
+
+      print('Message $responseDataMessage');
+
+      if (responseDataMessage['status'] == 'success') {
+        allData.clear();
+        setState(() {
+          dataDetail = [];
+        });
+        Get.offAllNamed('/user/main');
+      }
+    } catch (e) {
+      print('Error submit data: $e');
+      Get.snackbar('Infomation', 'Gagal Mengajukan Rawat Jalan',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.amber,
+          icon: const Icon(
+            Icons.info,
+            color: Colors.white,
+          ),
+          shouldIconPulse: false);
+      _isLoading = false;
     }
   }
 
   void deleteFile(PlatformFile file) {
     setState(() {
       _files?.remove(file);
-      _isFileNull = _files?.isEmpty ?? true;
+      _files = null;
+      _isFileNull = false;
     });
   }
 
@@ -410,7 +453,7 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
       setState(() {
         maxHeightEntitasHrgs = 80.0;
       });
-      return 'Field Entitas HRGS Kosong';
+      return 'Field Entitas HCGS Kosong';
     }
 
     setState(() {
@@ -424,7 +467,7 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
       setState(() {
         maxHeightHrgs = 80.0;
       });
-      return 'Field HRGS Kosong';
+      return 'Field HCGS Kosong';
     }
 
     setState(() {
@@ -553,155 +596,62 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                             ],
                           ),
                         ),
-                        onPressed: () {
-                          // showDialog(
-                          //   context: context,
-                          //   builder: (BuildContext context) {
-                          //     return AlertDialog(
-                          //       content: Container(
-                          //         height: 350,
-                          //         width: 350,
-                          //         child: SfDateRangePicker(
-                          //           controller: _tanggalPengajuanController,
-                          //           onSelectionChanged:
-                          //               (DateRangePickerSelectionChangedArgs
-                          //                   args) {
-                          //             setState(() {
-                          //               tanggalPengajuan = args.value;
-                          //             });
-                          //           },
-                          //           selectionMode:
-                          //               DateRangePickerSelectionMode.single,
-                          //         ),
-                          //       ),
-                          //       actions: <Widget>[
-                          //         TextButton(
-                          //           onPressed: () => Navigator.pop(context),
-                          //           child: Text('OK'),
-                          //         ),
-                          //       ],
-                          //     );
-                          //   },
-                          // );
-                        },
+                        onPressed: () {},
                       ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
+                      BuildTextFieldWidget(
+                        title: 'NRP',
+                        isMandatory: false,
+                        textSize: textMedium,
+                        horizontalPadding: paddingHorizontalNarrow,
+                        verticalSpacing: sizedBoxHeightShort,
+                        controller: _nrpController,
+                        hintText: 'NRP',
+                        maxHeightConstraints: maxHeightNrp,
+                        isDisable: true,
                       ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'NRP',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
+                      BuildTextFieldWidget(
+                        title: 'Nama',
+                        isMandatory: false,
+                        textSize: textMedium,
+                        horizontalPadding: paddingHorizontalNarrow,
+                        verticalSpacing: sizedBoxHeightShort,
+                        controller: _namaController,
+                        hintText: 'Nama',
+                        maxHeightConstraints: maxHeightNama,
+                        isDisable: true,
                       ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
+                      BuildTextFieldWidget(
+                        title: 'Perusahaan',
+                        isMandatory: false,
+                        textSize: textMedium,
+                        horizontalPadding: paddingHorizontalNarrow,
+                        verticalSpacing: sizedBoxHeightShort,
+                        controller: _perusahaanController,
+                        hintText: 'Perusahaan',
+                        maxHeightConstraints: maxHeightPerusahaan,
+                        isDisable: true,
                       ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFielDisableWidget(
-                          controller: _nrpController,
-                          maxHeightConstraints: maxHeightNrp,
-                        ),
+                      BuildTextFieldWidget(
+                        title: 'Lokasi Kerja',
+                        isMandatory: false,
+                        textSize: textMedium,
+                        horizontalPadding: paddingHorizontalNarrow,
+                        verticalSpacing: sizedBoxHeightShort,
+                        controller: _lokasiKerjaController,
+                        hintText: 'Lokasi Kerja',
+                        maxHeightConstraints: maxHeightLokasiKerja,
+                        isDisable: true,
                       ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Nama',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFielDisableWidget(
-                          controller: _namaController,
-                          maxHeightConstraints: maxHeightNama,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Perusahaan',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFielDisableWidget(
-                          controller: _perusahaanController,
-                          maxHeightConstraints: maxHeightPerusahaan,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Lokasi Kerja',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFielDisableWidget(
-                          controller: _lokasiKerjaController,
-                          maxHeightConstraints: maxHeightLokasiKerja,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TitleWidget(
-                          title: 'Pangkat',
-                          fontWeight: FontWeight.w300,
-                          fontSize: textMedium,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalNarrow),
-                        child: TextFormFielDisableWidget(
-                          controller: _pangkatController,
-                          maxHeightConstraints: maxHeightPangkat,
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
+                      BuildTextFieldWidget(
+                        title: 'Pangkat',
+                        isMandatory: false,
+                        textSize: textMedium,
+                        horizontalPadding: paddingHorizontalNarrow,
+                        verticalSpacing: sizedBoxHeightShort,
+                        controller: _pangkatController,
+                        hintText: 'Pangkat',
+                        maxHeightConstraints: maxHeightPangkat,
+                        isDisable: true,
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(
@@ -767,6 +717,7 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                                   height: 350,
                                   width: 350,
                                   child: SfDateRangePicker(
+                                    maxDate: DateTime.now(),
                                     controller: _periodeRawatController,
                                     onSelectionChanged:
                                         (DateRangePickerSelectionChangedArgs
@@ -790,176 +741,41 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                           );
                         },
                       ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
+                      BuildDropdownWithTitleWidget(
+                        title: 'Pilih Entitas : ',
+                        selectedValue: selectedValueEntitas,
+                        itemList: selectedEntitas,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedValueEntitas = newValue ?? '';
+                            selectedValueAtasan = null;
+                            selectedAtasan = [];
+                            getDataAtasan();
+                          });
+                        },
+                        validator: _validatorEntitas,
+                        maxHeight: maxHeightEntitas,
+                        isLoading: selectedEntitas.isEmpty,
+                        horizontalPadding: paddingHorizontalWide,
+                        valueKey: "kode",
+                        titleKey: "nama",
                       ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih Entitas : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorEntitas,
-                          value: selectedValueEntitas,
-                          icon: selectedEntitas.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueEntitas = newValue ?? '';
-                              selectedValueAtasan = null;
-                              getDataAtasan();
-                            });
-                          },
-                          items:
-                              selectedEntitas.map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["kode"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: value["nama"] as String,
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            constraints:
-                                BoxConstraints(maxHeight: maxHeightEntitas),
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValueEntitas != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih Atasan : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorAtasan,
-                          value: selectedValueAtasan,
-                          icon: selectedAtasan.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueAtasan = newValue ?? '';
-                            });
-                          },
-                          items:
-                              selectedAtasan.map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["nrp"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: '${value["nama"]} - ${value["nrp"]}',
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            constraints:
-                                BoxConstraints(maxHeight: maxHeightAtasan),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValueAtasan != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
+                      BuildDropdownWithTwoTitleWidget(
+                        title: 'Pilih Atasan : ',
+                        selectedValue: selectedValueAtasan,
+                        itemList: selectedAtasan,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedValueAtasan = newValue ?? '';
+                          });
+                        },
+                        validator: _validatorAtasan,
+                        maxHeight: maxHeightAtasan,
+                        isLoading: selectedAtasan.isEmpty,
+                        horizontalPadding: paddingHorizontalWide,
+                        valueKey: "nrp",
+                        titleKey: "nama",
+                        isRequired: true,
                       ),
                       SizedBox(
                         height: sizedBoxHeightExtraTall,
@@ -974,8 +790,6 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                           fontSizeLeft: textMedium,
                           fontSizeRight: textSmall,
                           onTab: () {
-                            // Get.toNamed(
-                            //     '/user/main/home/online_form/pengajuan_fasilitas_kesehatan/pengajuan_rawat_jalan/detail_pengajuan_rawat_jalan');
                             Get.to(
                               () => const FormDetailPengajuanRawatJalan(),
                               arguments: {
@@ -990,118 +804,7 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                       SizedBox(
                         height: sizedBoxHeightTall,
                       ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide,
-                            vertical: padding10),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const LineWidget(),
-                            dataDetail.isNotEmpty
-                                ? ListView.builder(
-                                    itemCount: dataDetail.length,
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemBuilder:
-                                        (BuildContext context, int index) {
-                                      final data = dataDetail[index];
-                                      return SizedBox(
-                                        child: Column(
-                                          children: [
-                                            SizedBox(
-                                              height: sizedBoxHeightShort,
-                                            ),
-                                            TitleCenterWidget(
-                                              textLeft: 'Jenis Penggantian',
-                                              textRight:
-                                                  ': ${data['id_md_jp_rawat_jalan']}',
-                                              fontSizeLeft: textMedium,
-                                              fontSizeRight: textMedium,
-                                            ),
-                                            SizedBox(
-                                                height: sizedBoxHeightShort),
-                                            TitleCenterWidget(
-                                              textLeft: 'Detail Penggantian',
-                                              textRight:
-                                                  ': ${data['detail_penggantian']}',
-                                              fontSizeLeft: textMedium,
-                                              fontSizeRight: textMedium,
-                                            ),
-                                            SizedBox(
-                                                height: sizedBoxHeightShort),
-                                            TitleCenterWidget(
-                                              textLeft: 'No Kuitansi',
-                                              textRight:
-                                                  ': ${data['no_kuitansi']}',
-                                              fontSizeLeft: textMedium,
-                                              fontSizeRight: textMedium,
-                                            ),
-                                            SizedBox(
-                                                height: sizedBoxHeightShort),
-                                            TitleCenterWidget(
-                                              textLeft: 'Jumlah',
-                                              textRight:
-                                                  ': Rp ${_formatAmount(data['jumlah'])}',
-                                              fontSizeLeft: textMedium,
-                                              fontSizeRight: textMedium,
-                                              // NumberFormat.decimalPattern('id-ID').format()
-                                            ),
-                                            SizedBox(
-                                              height: sizedBoxHeightExtraTall,
-                                            ),
-                                            InkWell(
-                                              onTap: () {
-                                                _hapusData(index);
-                                              },
-                                              child: Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical: padding5,
-                                                    horizontal:
-                                                        paddingHorizontalWide),
-                                                decoration: BoxDecoration(
-                                                  color: Colors.red,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          2.0),
-                                                ),
-                                                child: Text(
-                                                  'Hapus',
-                                                  style: TextStyle(
-                                                    color: const Color(
-                                                        primaryBlack),
-                                                    fontSize: textSmall,
-                                                    fontFamily: 'Poppins',
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              height: sizedBoxHeightExtraTall,
-                                            ),
-                                            const LineWidget(),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  )
-                                : Column(
-                                    children: [
-                                      SizedBox(
-                                        height: sizedBoxHeightShort,
-                                      ),
-                                      const Center(
-                                        child: TitleWidget(
-                                          title: 'Data Belum Ada',
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                          ],
-                        ),
-                      ),
+                      daftarPengajuanWidget(context),
                       dataDetail.isNotEmpty
                           ? Padding(
                               padding: EdgeInsets.symmetric(
@@ -1131,7 +834,7 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                         child: Row(
                           children: [
                             TitleWidget(
-                              title: 'Lampiran Dokumen : ',
+                              title: 'Lampiran : ',
                               fontWeight: FontWeight.w300,
                               fontSize: textMedium,
                             ),
@@ -1194,363 +897,84 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
                                   fontSize: textMedium),
                             ))
                           : const Text(''),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
+                      _buildTitle(
+                        title: 'Diajukan Kepada',
+                        fontSize: textMedium,
+                        fontWeight: FontWeight.w700,
+                        horizontalPadding: paddingHorizontalWide,
+                        isRequired: false,
                       ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide),
-                        child: TitleWidget(
-                          title: 'Diajukan Kepada',
-                          fontWeight: FontWeight.w700,
-                          fontSize: textMedium,
-                        ),
+                      BuildDropdownWithTitleWidget(
+                        title: 'Pilih Entitas HCGS : ',
+                        selectedValue: selectedValueEntitasHrgs,
+                        itemList: selectedEntitasHrgs,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedValueEntitasHrgs = newValue ?? '';
+                            selectedValueHrgs = null;
+                            selectedHrgs = [];
+                            getDataHrgs();
+                          });
+                        },
+                        validator: _validatorEntitasHrgs,
+                        maxHeight: maxHeightEntitasHrgs,
+                        isLoading: selectedEntitasHrgs.isEmpty,
+                        horizontalPadding: paddingHorizontalWide,
+                        valueKey: "kode",
+                        titleKey: "nama",
                       ),
-                      SizedBox(
-                        height: sizedBoxHeightShort,
+                      BuildDropdownWithTwoTitleWidget(
+                        title: 'HCGS : ',
+                        selectedValue: selectedValueHrgs,
+                        itemList: selectedHrgs,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedValueHrgs = newValue ?? '';
+                          });
+                        },
+                        validator: _validatorHrgs,
+                        maxHeight: maxHeightHrgs,
+                        isLoading: selectedHrgs.isEmpty,
+                        horizontalPadding: paddingHorizontalWide,
+                        valueKey: "pernr",
+                        titleKey: "nama",
+                        isRequired: true,
                       ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide),
-                        child: const LineWidget(),
+                      BuildDropdownWithTitleWidget(
+                        title: 'Pilih Entitas Direktur HCGS : ',
+                        selectedValue: selectedValueEntitasKeuangan,
+                        itemList: selectedEntitasKeuangan,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedValueEntitasKeuangan = newValue ?? '';
+                            selectedValueKeuangan = null;
+                            selectedKeuangan = [];
+                            getDataKeuangan();
+                          });
+                        },
+                        validator: _validatorEntitasDirekturKeuangan,
+                        maxHeight: maxHeightEntitasDirekturKeuangan,
+                        isLoading: selectedEntitasKeuangan.isEmpty,
+                        horizontalPadding: paddingHorizontalWide,
+                        valueKey: "kode",
+                        titleKey: "nama",
                       ),
-                      SizedBox(
-                        height: sizedBoxHeightTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih Entitas HRGS : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorEntitasHrgs,
-                          value: selectedValueEntitasHrgs,
-                          icon: selectedEntitasHrgs.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueEntitasHrgs = newValue ?? '';
-                              // selectedValueHrgs = null;
-                              getDataHrgs();
-                            });
-                          },
-                          items: selectedEntitasHrgs
-                              .map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["kode"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: value["nama"] as String,
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            constraints:
-                                BoxConstraints(maxHeight: maxHeightEntitasHrgs),
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValueEntitas != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'HRGS : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorHrgs,
-                          value: selectedValueHrgs,
-                          icon: selectedHrgs.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueHrgs = newValue ?? '';
-                            });
-                          },
-                          items: selectedHrgs.map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["pernr"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: '${value["pernr"]} - ${value["nama"]}',
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            constraints:
-                                BoxConstraints(maxHeight: maxHeightHrgs),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValueAtasan != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih Entitas Direktur Keuangan : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorEntitasDirekturKeuangan,
-                          value: selectedValueEntitasKeuangan,
-                          icon: selectedEntitasKeuangan.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueEntitasKeuangan = newValue ?? '';
-                              // selectedValueKeuangan = null;
-                              getDataKeuangan();
-                            });
-                          },
-                          items: selectedEntitasKeuangan
-                              .map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["kode"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: value["nama"] as String,
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            constraints: BoxConstraints(
-                                maxHeight: maxHeightEntitasDirekturKeuangan),
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValueEntitas != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide),
-                        child: Row(
-                          children: [
-                            TitleWidget(
-                              title: 'Pilih Direktur Keuangan : ',
-                              fontWeight: FontWeight.w300,
-                              fontSize: textMedium,
-                            ),
-                            Text(
-                              '*',
-                              textAlign: TextAlign.start,
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontSize: textMedium,
-                                  fontFamily: 'Poppins',
-                                  letterSpacing: 0.6,
-                                  fontWeight: FontWeight.w300),
-                            )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: paddingHorizontalWide),
-                        child: DropdownButtonFormField<String>(
-                          menuMaxHeight: size.height * 0.5,
-                          validator: _validatorDirekturKeuangan,
-                          value: selectedValueKeuangan,
-                          icon: selectedKeuangan.isEmpty
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                )
-                              : const Icon(Icons.arrow_drop_down),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedValueKeuangan = newValue ?? '';
-                            });
-                          },
-                          items: selectedKeuangan
-                              .map((Map<String, dynamic> value) {
-                            return DropdownMenuItem<String>(
-                              value: value["pernr"].toString(),
-                              child: Padding(
-                                padding: const EdgeInsets.all(1.0),
-                                child: TitleWidget(
-                                  title: '${value["pernr"]} - ${value["nama"]}',
-                                  fontWeight: FontWeight.w300,
-                                  fontSize: textMedium,
-                                ),
-                              ),
-                            );
-                          }).toList(),
-                          decoration: InputDecoration(
-                            labelStyle: TextStyle(fontSize: textMedium),
-                            constraints: BoxConstraints(
-                                maxHeight: maxHeightDirekturKeuangan),
-                            focusedBorder: const UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0,
-                              ),
-                            ),
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                color: selectedValueAtasan != null
-                                    ? Colors.black54
-                                    : Colors.grey,
-                                width: 1.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: sizedBoxHeightExtraTall,
+                      BuildDropdownWithTwoTitleWidget(
+                        title: 'Pilih Direktur HCGS : ',
+                        selectedValue: selectedValueKeuangan,
+                        itemList: selectedKeuangan,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            selectedValueKeuangan = newValue ?? '';
+                          });
+                        },
+                        validator: _validatorDirekturKeuangan,
+                        maxHeight: maxHeightDirekturKeuangan,
+                        isLoading: selectedKeuangan.isEmpty,
+                        horizontalPadding: paddingHorizontalWide,
+                        valueKey: "pernr",
+                        titleKey: "nama",
+                        isRequired: true,
                       ),
                       SizedBox(
                         width: size.width,
@@ -1588,6 +1012,199 @@ class _FormPengajuanRawatJalanState extends State<FormPengajuanRawatJalan> {
               ],
             ),
           );
+  }
+
+  Widget daftarPengajuanWidget(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    double textSmall = size.width * 0.027;
+    double textMedium = size.width * 0.0329;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double paddingHorizontalWide = size.width * 0.0585;
+    double padding5 = size.width * 0.0115;
+    double padding10 = size.width * 0.023;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(
+          horizontal: paddingHorizontalWide, vertical: padding10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const LineWidget(),
+          dataDetail.isNotEmpty
+              ? ListView.builder(
+                  itemCount: dataDetail.length,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemBuilder: (BuildContext context, int index) {
+                    final data = dataDetail[index];
+                    return SizedBox(
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: sizedBoxHeightShort,
+                          ),
+                          TitleCenterWidget(
+                            textLeft: 'Jenis Penggantian',
+                            textRight:
+                                ': ${data['selectedValueJenisPengganti']}',
+                            fontSizeLeft: textMedium,
+                            fontSizeRight: textMedium,
+                          ),
+                          SizedBox(height: sizedBoxHeightShort),
+                          TitleCenterWidget(
+                            textLeft: 'Detail Penggantian',
+                            textRight: ': ${data['detail_penggantian']}',
+                            fontSizeLeft: textMedium,
+                            fontSizeRight: textMedium,
+                          ),
+                          SizedBox(height: sizedBoxHeightShort),
+                          TitleCenterWidget(
+                            textLeft: 'Diagnosa',
+                            textRight: ': ${data['jenis_diagnosa']}',
+                            fontSizeLeft: textMedium,
+                            fontSizeRight: textMedium,
+                          ),
+                          SizedBox(height: sizedBoxHeightShort),
+                          TitleCenterWidget(
+                            textLeft: 'Hubungan',
+                            textRight: ': ${data['hub_karyawan']}',
+                            fontSizeLeft: textMedium,
+                            fontSizeRight: textMedium,
+                          ),
+                          SizedBox(height: sizedBoxHeightShort),
+                          TitleCenterWidget(
+                            textLeft: 'Nama Pasien',
+                            textRight: ': ${data['nm_pasien']}',
+                            fontSizeLeft: textMedium,
+                            fontSizeRight: textMedium,
+                          ),
+                          SizedBox(height: sizedBoxHeightShort),
+                          TitleCenterWidget(
+                            textLeft: 'No Kuitansi',
+                            textRight: ': ${data['no_kuitansi']}',
+                            fontSizeLeft: textMedium,
+                            fontSizeRight: textMedium,
+                          ),
+                          SizedBox(height: sizedBoxHeightShort),
+                          TitleCenterWidget(
+                            textLeft: 'Tanggal Kuitansi',
+                            textRight:
+                                ': ${data['tgl_kuitansi'] != null ? formatDate(data['tgl_kuitansi']) : ''}',
+                            fontSizeLeft: textMedium,
+                            fontSizeRight: textMedium,
+                          ),
+                          SizedBox(height: sizedBoxHeightShort),
+                          TitleCenterWidget(
+                            textLeft: 'Jumlah',
+                            textRight: ': Rp ${_formatAmount(data['jumlah'])}',
+                            fontSizeLeft: textMedium,
+                            fontSizeRight: textMedium,
+                          ),
+                          SizedBox(
+                            height: sizedBoxHeightExtraTall,
+                          ),
+                          InkWell(
+                            onTap: () {
+                              _hapusData(index);
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: padding5,
+                                  horizontal: paddingHorizontalWide),
+                              decoration: BoxDecoration(
+                                color: Colors.red,
+                                borderRadius: BorderRadius.circular(2.0),
+                              ),
+                              child: Text(
+                                'Hapus',
+                                style: TextStyle(
+                                  color: const Color(primaryBlack),
+                                  fontSize: textSmall,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: sizedBoxHeightExtraTall,
+                          ),
+                          const LineWidget(),
+                        ],
+                      ),
+                    );
+                  },
+                )
+              : Column(
+                  children: [
+                    SizedBox(
+                      height: sizedBoxHeightShort,
+                    ),
+                    const Center(
+                      child: TitleWidget(
+                        title: 'Data Belum Ada',
+                      ),
+                    ),
+                  ],
+                )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTitle({
+    required String title,
+    required double fontSize,
+    required FontWeight fontWeight,
+    required double horizontalPadding,
+    bool isRequired = false,
+  }) {
+    Size size = MediaQuery.of(context).size;
+    double sizedBoxHeightTall = size.height * 0.0163;
+    double sizedBoxHeightShort = size.height * 0.0086;
+    double paddingHorizontalWide = size.width * 0.0585;
+    return Column(
+      children: [
+        SizedBox(
+          height: sizedBoxHeightTall,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+          child: Row(
+            children: [
+              TitleWidget(
+                title: title,
+                fontWeight: fontWeight,
+                fontSize: fontSize,
+              ),
+              if (isRequired)
+                Text(
+                  '*',
+                  textAlign: TextAlign.start,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: fontSize,
+                    fontFamily: 'Poppins',
+                    letterSpacing: 0.6,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightShort,
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: paddingHorizontalWide),
+          child: const LineWidget(),
+        ),
+        SizedBox(
+          height: sizedBoxHeightShort,
+        ),
+      ],
+    );
   }
 
   void showSubmitModal(BuildContext context) {

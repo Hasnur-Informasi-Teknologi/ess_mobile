@@ -222,6 +222,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           downloadFile(file.path, fileName);
         } else if (action == 'preview') {
           // Open the file
+          print(file.path);
           await OpenFile.open(file.path);
         }
       } catch (e) {

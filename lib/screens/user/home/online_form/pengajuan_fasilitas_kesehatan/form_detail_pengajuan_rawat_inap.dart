@@ -9,8 +9,10 @@ import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/themes/constant.dart';
-import 'package:mobile_ess/widgets/text_form_field_number_widget.dart';
-import 'package:mobile_ess/widgets/text_form_field_widget.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/build_dropdown_with_title_widget.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/build_dropdown_with_two_title_two_value_widget.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/build_dropdown_with_two_value_widget.dart';
+import 'package:mobile_ess/widgets/higher_custom_widget/build_text_field_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -31,9 +33,9 @@ class _FormDetailPengajuanRawatInapState
   final _jumlahController = TextEditingController();
   final _keteranganController = TextEditingController();
   double maxHeightDetailPengganti = 60.0;
-  double maxHeightNokwitansi = 40.0;
-  double maxHeightJumlah = 40.0;
-  double maxHeightKeterangan = 40.0;
+  double maxHeightNokwitansi = 50.0;
+  double maxHeightJumlah = 50.0;
+  double maxHeightKeterangan = 50.0;
   double maxHeightJenisPengganti = 60.0;
   double maxHeightDiagnosa = 60.0;
   bool _isFileNull = false;
@@ -46,6 +48,7 @@ class _FormDetailPengajuanRawatInapState
       jenisPengganti,
       detailPengganti,
       idDiagnosa,
+      jenisDiagnosa,
       namaPasient,
       noKwitansi,
       jumlah,
@@ -143,6 +146,14 @@ class _FormDetailPengajuanRawatInapState
     );
   }
 
+  void deleteFile(PlatformFile file) {
+    setState(() {
+      files?.remove(file);
+      files = null;
+      _isFileNull = false;
+    });
+  }
+
   Future<void> _tambah() async {
     if (tanggalKwitansi == null) {
       Get.snackbar('Infomation', 'Tanggal Wajib Diisi',
@@ -165,10 +176,30 @@ class _FormDetailPengajuanRawatInapState
     String? filePath;
 
     if (files != null) {
-      filePath = files!.single.path;
-      setState(() {
-        _isFileNull = false;
-      });
+      final fileExtension = files!.single.path!.split('.').last.toLowerCase();
+
+      const allowedExtensions = ['jpeg', 'jpg', 'png', 'pdf'];
+
+      if (allowedExtensions.contains(fileExtension)) {
+        filePath = files!.single.path;
+        setState(() {
+          _isFileNull = false;
+        });
+      } else {
+        setState(() {
+          _isFileNull = false;
+        });
+        Get.snackbar('Infomation',
+            'File yang dipilih harus berformat jpeg, jpg, png, atau pdf.',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
+        return;
+      }
     } else {
       setState(() {
         _isFileNull = true;
@@ -176,19 +207,25 @@ class _FormDetailPengajuanRawatInapState
       return;
     }
 
-    jenisPengganti = selectedValueJenisPengganti;
+    List<String> separatedJenisPenggantiValues =
+        selectedValueJenisPengganti!.split('-');
+    jenisPengganti = separatedJenisPenggantiValues[0].trim();
     List<String> separatedValues = selectedValueDetailPengganti!.split(',');
     id = separatedValues[0].trim();
     detailPengganti = separatedValues[1].trim();
     noKwitansi = _noKwitansiController.text;
     jumlah = _jumlahController.text;
-    idDiagnosa = selectedValueDiagnosa;
+    List<String> separatedDiagnosaValues = selectedValueDiagnosa!.split(',');
+    idDiagnosa = separatedDiagnosaValues[0].trim();
+    jenisDiagnosa = separatedDiagnosaValues[1].trim();
     keterangan = _keteranganController.text;
 
     Map<String, dynamic> newData = {
       "id": id ?? '',
       "benefit_type": jenisPengganti ?? '',
+      "selectedValueJenisPengganti": selectedValueJenisPengganti ?? '',
       "id_diagnosa": idDiagnosa ?? '',
+      "jenis_diagnosa": jenisDiagnosa ?? '',
       "no_kuitansi": noKwitansi ?? '',
       "tgl_kuitansi": tanggalKwitansi != null
           ? "${tanggalKwitansi?.year}-${tanggalKwitansi?.month.toString().padLeft(2, '0')}-${tanggalKwitansi?.day.toString().padLeft(2, '0')}"
@@ -203,9 +240,6 @@ class _FormDetailPengajuanRawatInapState
         dataDetailPengajuanRawatInapController = Get.find();
 
     dataDetailPengajuanRawatInapController.tambahData(newData);
-
-    // Get.offAllNamed(
-    //     '/user/main/home/online_form/pengajuan_fasilitas_kesehatan/pengajuan_rawat_inap');
     onClose?.call();
     Get.back();
   }
@@ -335,216 +369,50 @@ class _FormDetailPengajuanRawatInapState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(
-                  height: sizedBoxHeightTall,
+                BuildDropdownWithTwoTitleTwoValueWidget(
+                  title: 'Pilih Jenis Pengganti : ',
+                  selectedValue: selectedValueJenisPengganti,
+                  itemList: selectedJenisPengganti,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedValueJenisPengganti = newValue ?? '';
+                    });
+                  },
+                  validator: _validatorJenisPengganti,
+                  maxHeight: maxHeightJenisPengganti,
+                  isLoading: selectedJenisPengganti.isEmpty,
+                  horizontalPadding: paddingHorizontalNarrow,
+                  valueKey: "id",
+                  titleKey: "jenis",
+                  isRequired: true,
                 ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Row(
-                    children: [
-                      TitleWidget(
-                        title: 'Pilih Jenis Pengganti : ',
-                        fontWeight: FontWeight.w300,
-                        fontSize: textMedium,
-                      ),
-                      Text(
-                        '*',
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                            color: Colors.red,
-                            fontSize: textMedium,
-                            fontFamily: 'Poppins',
-                            letterSpacing: 0.6,
-                            fontWeight: FontWeight.w300),
-                      )
-                    ],
-                  ),
+                BuildDropdownWithTwoValueWidget(
+                  title: 'Pilih Detail Penggantian : ',
+                  selectedValue: selectedValueDetailPengganti,
+                  itemList: selectedDetailPengganti,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedValueDetailPengganti = newValue ?? '';
+                    });
+                  },
+                  validator: _validatorDetailPengganti,
+                  maxHeight: maxHeightJenisPengganti,
+                  isLoading: selectedDetailPengganti.isEmpty,
+                  horizontalPadding: paddingHorizontalNarrow,
+                  valueKey: "id",
+                  titleKey: "nama",
+                  isRequired: true,
                 ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: DropdownButtonFormField<String>(
-                    menuMaxHeight: size.height * 0.5,
-                    value: selectedValueJenisPengganti,
-                    validator: _validatorJenisPengganti,
-                    icon: selectedJenisPengganti.isEmpty
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.blue),
-                            ),
-                          )
-                        : const Icon(Icons.arrow_drop_down),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedValueJenisPengganti = newValue ?? '';
-                      });
-                    },
-                    items: selectedJenisPengganti
-                        .map((Map<String, dynamic> value) {
-                      return DropdownMenuItem<String>(
-                        value: value["id"].toString(),
-                        child: Padding(
-                          padding: const EdgeInsets.all(1.0),
-                          child: TitleWidget(
-                            title: '${value["id"]} - ${value["jenis"]}',
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                    decoration: InputDecoration(
-                      constraints:
-                          BoxConstraints(maxHeight: maxHeightJenisPengganti),
-                      labelStyle: TextStyle(fontSize: textMedium),
-                      focusedBorder: const UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.black,
-                          width: 1.0,
-                        ),
-                      ),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: selectedValueJenisPengganti != null
-                              ? Colors.black54
-                              : Colors.grey,
-                          width: 1.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightTall,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Row(
-                    children: [
-                      TitleWidget(
-                        title: 'Pilih Detail Penggantian : ',
-                        fontWeight: FontWeight.w300,
-                        fontSize: textMedium,
-                      ),
-                      Text(
-                        '*',
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                            color: Colors.red,
-                            fontSize: textMedium,
-                            fontFamily: 'Poppins',
-                            letterSpacing: 0.6,
-                            fontWeight: FontWeight.w300),
-                      )
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: DropdownButtonFormField<String>(
-                    menuMaxHeight: size.height * 0.5,
-                    validator: _validatorDetailPengganti,
-                    value: selectedValueDetailPengganti,
-                    icon: selectedDetailPengganti.isEmpty
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.blue),
-                            ),
-                          )
-                        : const Icon(Icons.arrow_drop_down),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedValueDetailPengganti = newValue ?? '';
-                      });
-                    },
-                    items: selectedDetailPengganti
-                        .map((Map<String, dynamic> value) {
-                      return DropdownMenuItem<String>(
-                        value: '${value["id"]},${value["nama"]}',
-                        child: Padding(
-                          padding: const EdgeInsets.all(1.0),
-                          child: TitleWidget(
-                            title: value["nama"] as String,
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                    decoration: InputDecoration(
-                      constraints:
-                          BoxConstraints(maxHeight: maxHeightJenisPengganti),
-                      labelStyle: TextStyle(fontSize: textMedium),
-                      focusedBorder: const UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.black,
-                          width: 1.0,
-                        ),
-                      ),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: selectedValueDetailPengganti != null
-                              ? Colors.black54
-                              : Colors.grey,
-                          width: 1.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightTall,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Row(
-                    children: [
-                      TitleWidget(
-                        title: 'No Kwitansi ',
-                        fontWeight: FontWeight.w300,
-                        fontSize: textMedium,
-                      ),
-                      Text(
-                        '*',
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                            color: Colors.red,
-                            fontSize: textMedium,
-                            fontFamily: 'Poppins',
-                            letterSpacing: 0.6,
-                            fontWeight: FontWeight.w300),
-                      )
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormFieldWidget(
-                    validator: _validatorNoKwitansi,
-                    controller: _noKwitansiController,
-                    maxHeightConstraints: maxHeightNokwitansi,
-                    hintText: 'No Kwitansi',
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightTall,
+                BuildTextFieldWidget(
+                  title: 'No Kwitansi',
+                  isMandatory: true,
+                  textSize: textMedium,
+                  horizontalPadding: paddingHorizontalNarrow,
+                  verticalSpacing: sizedBoxHeightShort,
+                  controller: _noKwitansiController,
+                  hintText: 'No Kwitansi',
+                  validator: _validatorNoKwitansi,
+                  maxHeightConstraints: maxHeightNokwitansi,
                 ),
                 Padding(
                   padding:
@@ -610,6 +478,7 @@ class _FormDetailPengajuanRawatInapState
                             height: 350,
                             width: 350,
                             child: SfDateRangePicker(
+                              maxDate: DateTime.now(),
                               controller: _tanggalKwitansiController,
                               onSelectionChanged:
                                   (DateRangePickerSelectionChangedArgs args) {
@@ -632,8 +501,44 @@ class _FormDetailPengajuanRawatInapState
                     );
                   },
                 ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
+                BuildTextFieldWidget(
+                  title: 'Jumlah',
+                  isMandatory: true,
+                  textSize: textMedium,
+                  horizontalPadding: paddingHorizontalNarrow,
+                  verticalSpacing: sizedBoxHeightShort,
+                  controller: _jumlahController,
+                  hintText: 'masukkan nominal',
+                  validator: _validatorJumlah,
+                  maxHeightConstraints: maxHeightJumlah,
+                  isNumberField: true,
+                ),
+                BuildDropdownWithTwoValueWidget(
+                  title: 'Pilih Diagnosa : ',
+                  selectedValue: selectedValueDiagnosa,
+                  itemList: selectedDiagnosa,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedValueDiagnosa = newValue ?? '';
+                    });
+                  },
+                  validator: _validatorDiagnosa,
+                  maxHeight: maxHeightDiagnosa,
+                  isLoading: selectedDiagnosa.isEmpty,
+                  horizontalPadding: paddingHorizontalNarrow,
+                  valueKey: "id",
+                  titleKey: "nama",
+                ),
+                BuildTextFieldWidget(
+                  title: 'Keterangan',
+                  isMandatory: true,
+                  textSize: textMedium,
+                  horizontalPadding: paddingHorizontalNarrow,
+                  verticalSpacing: sizedBoxHeightShort,
+                  controller: _keteranganController,
+                  hintText: 'Keterangan',
+                  validator: _validatorKeterangan,
+                  maxHeightConstraints: maxHeightKeterangan,
                 ),
                 Padding(
                   padding:
@@ -641,166 +546,7 @@ class _FormDetailPengajuanRawatInapState
                   child: Row(
                     children: [
                       TitleWidget(
-                        title: 'Jumlah ',
-                        fontWeight: FontWeight.w300,
-                        fontSize: textMedium,
-                      ),
-                      Text(
-                        '*',
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                            color: Colors.red,
-                            fontSize: textMedium,
-                            fontFamily: 'Poppins',
-                            letterSpacing: 0.6,
-                            fontWeight: FontWeight.w300),
-                      )
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormFieldNumberWidget(
-                    validator: _validatorJumlah,
-                    controller: _jumlahController,
-                    maxHeightConstraints: maxHeightJumlah,
-                    hintText: 'masukkan nominal',
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightTall,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Row(
-                    children: [
-                      TitleWidget(
-                        title: 'Pilih Diagnosa : ',
-                        fontWeight: FontWeight.w300,
-                        fontSize: textMedium,
-                      ),
-                      Text(
-                        '*',
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                            color: Colors.red,
-                            fontSize: textMedium,
-                            fontFamily: 'Poppins',
-                            letterSpacing: 0.6,
-                            fontWeight: FontWeight.w300),
-                      )
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: DropdownButtonFormField<String>(
-                    menuMaxHeight: size.height * 0.5,
-                    validator: _validatorDiagnosa,
-                    value: selectedValueDiagnosa,
-                    icon: selectedDiagnosa.isEmpty
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.blue),
-                            ),
-                          )
-                        : const Icon(Icons.arrow_drop_down),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedValueDiagnosa = newValue ?? '';
-                      });
-                    },
-                    items: selectedDiagnosa.map((Map<String, dynamic> value) {
-                      return DropdownMenuItem<String>(
-                        value: value["id"].toString(),
-                        child: Padding(
-                          padding: const EdgeInsets.all(1.0),
-                          child: TitleWidget(
-                            title: value["nama"].toString(),
-                            fontWeight: FontWeight.w300,
-                            fontSize: textMedium,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                    decoration: InputDecoration(
-                      constraints: BoxConstraints(maxHeight: maxHeightDiagnosa),
-                      labelStyle: TextStyle(fontSize: textMedium),
-                      focusedBorder: const UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.black,
-                          width: 1.0,
-                        ),
-                      ),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: selectedValueDiagnosa != null
-                              ? Colors.black54
-                              : Colors.grey,
-                          width: 1.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightTall,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Row(
-                    children: [
-                      TitleWidget(
-                        title: 'Keterangan/Diagnosa ',
-                        fontWeight: FontWeight.w300,
-                        fontSize: textMedium,
-                      ),
-                      Text(
-                        '*',
-                        textAlign: TextAlign.start,
-                        style: TextStyle(
-                            color: Colors.red,
-                            fontSize: textMedium,
-                            fontFamily: 'Poppins',
-                            letterSpacing: 0.6,
-                            fontWeight: FontWeight.w300),
-                      )
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightShort,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: TextFormFieldWidget(
-                    validator: _validatorKeterangan,
-                    controller: _keteranganController,
-                    maxHeightConstraints: maxHeightKeterangan,
-                    hintText: 'Keterangan',
-                  ),
-                ),
-                SizedBox(
-                  height: sizedBoxHeightTall,
-                ),
-                Padding(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
-                  child: Row(
-                    children: [
-                      TitleWidget(
-                        title: 'Lampiran Bukti Pembayaran ',
+                        title: 'Lampiran',
                         fontWeight: FontWeight.w300,
                         fontSize: textMedium,
                       ),
@@ -836,6 +582,13 @@ class _FormDetailPengajuanRawatInapState
                           children: files!.map((file) {
                             return ListTile(
                               title: Text(file.name),
+                              trailing: IconButton(
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () => deleteFile(file),
+                              ),
                               // subtitle: Text('${file.size} bytes'),
                             );
                           }).toList(),

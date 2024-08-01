@@ -77,6 +77,7 @@ class _IconsProfileContainerWidgetState
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textSmall = size.width * 0.027;
+    double textExtraSmall = size.width * 0.023;
     double icon = size.width * 0.06;
     double sizedBoxHeightExtraShort = size.width * 0.02;
     double paddingHorizontalExtraNarrow = size.width * 0.025;
@@ -128,7 +129,7 @@ class _IconsProfileContainerWidgetState
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.grey[700],
-                      fontSize: textSmall,
+                      fontSize: textExtraSmall,
                     ),
                   ),
                 ]),

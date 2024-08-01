@@ -55,14 +55,14 @@ class _FormPengajuanBantuanKomunikasiState
   final _entitasUserController = TextEditingController();
 
   bool _isLoading = false;
-  double maxHeightNrp = 40.0;
-  double maxHeightNama = 40.0;
-  double maxHeightPangkat = 40.0;
+  double maxHeightNrp = 50.0;
+  double maxHeightNama = 50.0;
+  double maxHeightPangkat = 50.0;
   double maxHeightEntitas = 60.0;
   double maxHeightPenerima = 60.0;
   double maxHeightJabatan = 60.0;
   double maxHeightFasilitas = 60.0;
-  double maxHeightNominal = 40.0;
+  double maxHeightNominal = 50.0;
   double maxHeightTujuanKomunikasiInternal = 100.0;
   double maxHeightTujuanKomunikasiEksternal = 100.0;
   double maxHeightKeterangan = 100.0;
@@ -76,9 +76,9 @@ class _FormPengajuanBantuanKomunikasiState
   double maxHeightHcgs = 60.0;
   double maxHeightDirekturKeuangan = 60.0;
   double maxHeightPresidenDirektur = 60.0;
-  double maxHeightJabatanPenerima = 40.0;
-  double maxHeightPangkatPenerima = 40.0;
-  double maxHeightMerekMobilePhone = 40.0;
+  double maxHeightJabatanPenerima = 50.0;
+  double maxHeightPangkatPenerima = 50.0;
+  double maxHeightMerekMobilePhone = 50.0;
 
   String? selectedValueEntitas,
       selectedValuePenerima,
@@ -347,11 +347,29 @@ class _FormPengajuanBantuanKomunikasiState
       return;
     }
 
-    if (_isSmartphoneChecked!) {
-      jenisMobilePhone = '0';
-    } else if (_isLainnyaChecked!) {
-      jenisMobilePhone = '1';
+    if (_isMobilePhoneChecked!) {
+      if (_isSmartphoneChecked!) {
+        jenisMobilePhone = '0';
+      } else if (_isLainnyaChecked!) {
+        jenisMobilePhone = '1';
+      } else {
+        Get.snackbar('Infomation', 'Field Jenis Mobile Phone Required',
+            snackPosition: SnackPosition.TOP,
+            backgroundColor: Colors.amber,
+            icon: const Icon(
+              Icons.info,
+              color: Colors.white,
+            ),
+            shouldIconPulse: false);
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
     }
+
+    // _isMobilePhoneChecked
+    print(jenisMobilePhone);
 
     String today = DateTime.now().toString();
     String justDate = today.substring(0, 10);
@@ -364,6 +382,14 @@ class _FormPengajuanBantuanKomunikasiState
       setState(() {
         _isLoading = false;
       });
+      Get.snackbar('Infomation', 'Harap mengisi inputan yang required',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.amber,
+          icon: const Icon(
+            Icons.info,
+            color: Colors.white,
+          ),
+          shouldIconPulse: false);
       return;
     }
 
@@ -575,6 +601,20 @@ class _FormPengajuanBantuanKomunikasiState
     return null;
   }
 
+  String? _validatorMerekMobilePhone(dynamic value) {
+    if (value == null || value.isEmpty) {
+      setState(() {
+        maxHeightMerekMobilePhone = 70.0;
+      });
+      return 'Field Merek Mobile Phone Kosong';
+    }
+
+    setState(() {
+      maxHeightMerekMobilePhone = 50.0;
+    });
+    return null;
+  }
+
   String? _validatorKeterangan(dynamic value) {
     if (value == null || value.isEmpty) {
       setState(() {
@@ -745,7 +785,7 @@ class _FormPengajuanBantuanKomunikasiState
           padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
           child: TitleWidget(
             title: 'Diajukan Oleh : ',
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w700,
             fontSize: textMedium,
           ),
         ),
@@ -880,7 +920,7 @@ class _FormPengajuanBantuanKomunikasiState
           padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
           child: TitleWidget(
             title: 'Fasilitas Komunikasi Diberikan Kepada : ',
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w700,
             fontSize: textMedium,
           ),
         ),
@@ -1316,10 +1356,24 @@ class _FormPengajuanBantuanKomunikasiState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: TitleWidget(
-                      title: 'Merek Mobile Phone ',
-                      fontWeight: FontWeight.w300,
-                      fontSize: textMedium,
+                    child: Row(
+                      children: [
+                        TitleWidget(
+                          title: 'Merek Mobile Phone ',
+                          fontWeight: FontWeight.w300,
+                          fontSize: textMedium,
+                        ),
+                        Text(
+                          '*',
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                              color: Colors.red,
+                              fontSize: textMedium,
+                              fontFamily: 'Poppins',
+                              letterSpacing: 0.6,
+                              fontWeight: FontWeight.w300),
+                        )
+                      ],
                     ),
                   ),
                   SizedBox(
@@ -1332,6 +1386,9 @@ class _FormPengajuanBantuanKomunikasiState
                       controller: _merekMobilePhoneController,
                       maxHeightConstraints: maxHeightMerekMobilePhone,
                       hintText: 'masukkan merek',
+                      validator: _isMobilePhoneChecked!
+                          ? _validatorMerekMobilePhone
+                          : null,
                     ),
                   ),
                   SizedBox(
@@ -1340,10 +1397,24 @@ class _FormPengajuanBantuanKomunikasiState
                   Padding(
                     padding: EdgeInsets.symmetric(
                         horizontal: paddingHorizontalNarrow),
-                    child: TitleWidget(
-                      title: 'Jenis Mobile Phone ',
-                      fontWeight: FontWeight.w300,
-                      fontSize: textMedium,
+                    child: Row(
+                      children: [
+                        TitleWidget(
+                          title: 'Jenis Mobile Phone ',
+                          fontWeight: FontWeight.w300,
+                          fontSize: textMedium,
+                        ),
+                        Text(
+                          '*',
+                          textAlign: TextAlign.start,
+                          style: TextStyle(
+                              color: Colors.red,
+                              fontSize: textMedium,
+                              fontFamily: 'Poppins',
+                              letterSpacing: 0.6,
+                              fontWeight: FontWeight.w300),
+                        )
+                      ],
                     ),
                   ),
                   SizedBox(
@@ -1507,7 +1578,7 @@ class _FormPengajuanBantuanKomunikasiState
           padding: EdgeInsets.symmetric(horizontal: paddingHorizontalNarrow),
           child: TitleWidget(
             title: 'Diajukan Kepada : ',
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w700,
             fontSize: textMedium,
           ),
         ),

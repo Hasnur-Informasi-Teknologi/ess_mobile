@@ -1,17 +1,12 @@
 import 'dart:convert';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
 import 'package:mobile_ess/screens/admin/componentDashboard/TaskMenuDashboard.dart';
 import 'package:mobile_ess/screens/admin/componentDashboard/demografiAttendance.dart';
 import 'package:mobile_ess/screens/admin/componentDashboard/employeeMonitoring.dart';
-import 'package:mobile_ess/screens/admin/componentDashboard/ijinCutiKaryawan.dart';
-import 'package:mobile_ess/screens/admin/componentDashboard/kehadiranKaryawanTable.dart';
-import 'package:mobile_ess/screens/admin/componentDashboard/kehadiranTanpaKeterangan.dart';
 import 'package:mobile_ess/screens/admin/componentDashboard/kontrakKaryawan.dart';
 import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/header_profile_widget.dart';
@@ -124,19 +119,37 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
     }
   }
 
+  bool isNewVersion(String localVersion, String remoteVersion) {
+    List<int> localParts = localVersion.split('.').map(int.parse).toList();
+    List<int> remoteParts = remoteVersion.split('.').map(int.parse).toList();
+    print(localParts);
+    print(remoteParts);
+
+    for (int i = 0; i < localParts.length; i++) {
+      if (localParts[i] < remoteParts[i]) {
+        return false;
+      } else if (localParts[i] > remoteParts[i]) {
+        return true;
+      }
+    }
+    return true;
+  }
+
   void compareVersions() {
     print("saat ini $versionMobile");
     if (versionMobile == null) {
       _isNewVersion = true;
     } else {
-      if ((_packageInfo.version != versionMobile)) {
-        _isNewVersion = false;
-        print('Different versions: ${_packageInfo.version} != $versionMobile');
-      } else {
-        print(
-            'Versions are the same: ${_packageInfo.version} == $versionMobile');
-        _isNewVersion = true;
-      }
+      String localVersion = _packageInfo.version;
+      String remoteVersion = versionMobile!;
+      _isNewVersion = isNewVersion(localVersion, remoteVersion);
+      print(_isNewVersion);
+
+      // if ((_packageInfo.version != versionMobile)) {
+      //   _isNewVersion = false;
+      // } else {
+      //   _isNewVersion = true;
+      // }
     }
   }
 
@@ -203,7 +216,6 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
         '2': 'User',
       };
     }
-    String? token = prefs.getString('token');
     x.karyawan.value =
         jsonDecode(prefs.getString('userData').toString())['data'];
   }
@@ -248,7 +260,6 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var userLogin = Hive.box('userLogin');
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double paddingHorizontalNarrow = size.width * 0.035;
@@ -267,34 +278,28 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
         : _isNewVersion
             ? Scaffold(
                 backgroundColor: Colors.white,
-                appBar: AppBar(
-                  elevation: 0,
-                  backgroundColor: Colors.white,
-                  title: Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: paddingHorizontalNarrow),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Obx(
-                          () => Text(
-                            x.karyawan['pt'] ?? 'PT Hasnur Informasi Teknologi',
-                            style: TextStyle(
-                                fontSize: textMedium,
-                                fontWeight: FontWeight.w500,
-                                fontFamily: 'Quicksand'),
-                          ),
-                        ),
-                        // IconButton(
-                        //   icon: const Icon(Icons.notifications),
-                        //   onPressed: () {
-                        //     getToken();
-                        //   },
-                        // ),
-                      ],
-                    ),
-                  ),
-                ),
+                // appBar: AppBar(
+                //   elevation: 0,
+                //   backgroundColor: Colors.white,
+                //   title: Padding(
+                //     padding: EdgeInsets.symmetric(
+                //         horizontal: paddingHorizontalNarrow),
+                //     child: Row(
+                //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //       children: [
+                //         Obx(
+                //           () => Text(
+                //             x.karyawan['pt'] ?? 'PT Hasnur Informasi Teknologi',
+                //             style: TextStyle(
+                //                 fontSize: textMedium,
+                //                 fontWeight: FontWeight.w500,
+                //                 fontFamily: 'Quicksand'),
+                //           ),
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                // ),
                 body: RefreshIndicator(
                   onRefresh: _handleRefresh,
                   child: ListView(
@@ -309,7 +314,7 @@ class _AdminHeaderScreenState extends State<AdminHeaderScreen> {
                           children: [
                             Obx(() => HeaderProfileWidget(
                                   userName: x.karyawan['nama'] ?? 'Admin',
-                                  posision: x.karyawan['pernr'] ?? '7822000',
+                                  nrp: x.karyawan['pernr'] ?? '7822000',
                                   imageUrl: '',
                                   webUrl: '',
                                 )),

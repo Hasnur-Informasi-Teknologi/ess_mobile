@@ -6,8 +6,6 @@ import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data
 import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_screen.dart';
 import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_pic_hrgs.dart';
 import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_rawat_inap.dart';
-import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_rawat_jalan.dart';
-import 'package:mobile_ess/screens/admin/administrator/master%20data/master_data_uang_makan_dalam_negeri.dart';
 import 'package:mobile_ess/screens/admin/administrator/master%20data/tab%20rawat%20jalan/tabsRawatJalan.dart';
 import 'package:mobile_ess/screens/admin/administrator/master%20data/tab%20uang%20makan/TabsUangMakan.dart';
 import 'package:mobile_ess/screens/admin/administrator/user%20management/user_management_list.dart';
@@ -19,6 +17,7 @@ import 'package:mobile_ess/screens/test.dart';
 import 'package:mobile_ess/screens/user/home/documents/documents_screen.dart';
 import 'package:mobile_ess/screens/admin/administrator/administrator_screen.dart';
 import 'package:mobile_ess/screens/user/home/online_form/aplikasi_recruitment/form_aplikasi_recruitment_screen.dart';
+import 'package:mobile_ess/screens/user/home/online_form/aplikasi_recruitment/rekrutmen.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_bantuan_komunikasi/form_pengajuan_bantuan_komunikasi.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_cuti/form_pengajuan_cuti.dart';
 import 'package:mobile_ess/screens/user/home/online_form/pengajuan_cuti/form_pengajuan_perpanjangan_cuti.dart';
@@ -48,23 +47,32 @@ import 'package:mobile_ess/screens/user/home/request_attendance/request_attendan
 import 'package:mobile_ess/screens/user/home/request_attendance/ubah_data_kehadiran_screen.dart';
 import 'package:mobile_ess/screens/user/home/transactions/transactions_screen.dart';
 import 'package:mobile_ess/screens/user/main/main_screen_with_animation.dart';
+import 'package:mobile_ess/screens/user/permintaan/detail_aplikasi_rekrutmen_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_hardware_software_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_im_perjalanan_dinas_daftar_permintaan.dart';
+import 'package:mobile_ess/screens/user/permintaan/detail_lembur_karyawan_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_lpj_perjalanan_dinas_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_pengajuan_cuti_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_pengajuan_training_daftar_permintaan.dart';
+import 'package:mobile_ess/screens/user/permintaan/detail_penilaian_kinerja_karyawan_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_rawat_inap_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_rawat_jalan_daftar_permintaan.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_surat_izin_keluar_daftar_permintaan.dart';
+import 'package:mobile_ess/screens/user/permintaan/detail_surat_keterangan_daftar_permintaan.dart';
+import 'package:mobile_ess/screens/user/persetujuan/detail_aplikasi_rekrutmen_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_bantuan_komunikasi_daftar_persetujuan.dart';
+import 'package:mobile_ess/screens/user/persetujuan/detail_hardware_software_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_im_perjalanan_dinas_daftar_persetujuan.dart';
+import 'package:mobile_ess/screens/user/persetujuan/detail_lembur_karyawan_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_lpj_perjalanan_dinas_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_pengajuan_cuti_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_pengajuan_training_daftar_persetujuan.dart';
+import 'package:mobile_ess/screens/user/persetujuan/detail_penilaian_kinerja_karyawan_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_perpanjangan_cuti_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_rawat_inap_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_rawat_jalan_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/persetujuan/detail_surat_izin_keluar_daftar_persetujuan.dart';
+import 'package:mobile_ess/screens/user/persetujuan/detail_surat_keterangan_daftar_persetujuan.dart';
 import 'package:mobile_ess/screens/user/profile/profile_edit_screen.dart';
 import 'package:mobile_ess/screens/user/profile/profile_screen.dart';
 import 'package:mobile_ess/screens/user/permintaan/detail_bantuan_komunikasi_daftar_permintaan.dart';
@@ -81,8 +89,10 @@ Map<String, Widget Function(BuildContext)> routers() {
     '/user/main/home/online_form': (context) => const OnlineFormScreen(),
     '/user/main/home/online_form/aplikasi_training': (context) =>
         const FormAplikasiTrainingScreen(),
-    '/user/main/home/online_form/aplikasi_recruitment': (context) =>
-        const FormAplikasiRecruitmentScreen(),
+    '/user/main/home/online_form/rekrutmen': (context) => const Rekrutmen(),
+    '/user/main/home/online_form/rekrutmen/form_aplikasi_rekrutmen':
+        (context) => const FormAplikasiRecruitmentScreen(),
+
     '/user/main/home/online_form/pengajuan_perjalanan_dinas': (context) =>
         const PengajuanPerjalananDinas(),
     '/user/main/home/online_form/pengajuan_perjalanan_dinas/form_rencana_biaya_perjalanan_dinas':
@@ -150,6 +160,15 @@ Map<String, Widget Function(BuildContext)> routers() {
         const DetailSuratIzinKeluarDaftarPermintaan(),
     '/user/main/daftar_permintaan/detail_hardware_software': (context) =>
         const DetailHardwareSoftwareDaftarPermintaan(),
+    '/user/main/daftar_permintaan/detail_lembur_karyawan': (context) =>
+        const DetailLemburKaryawanDaftarPermintaan(),
+    '/user/main/daftar_permintaan/detail_surat_keterangan': (context) =>
+        const DetailSuratKeteranganDaftarPermintaan(),
+    '/user/main/daftar_permintaan/detail_penilaian_kinerja_karyawan':
+        (context) => const DetailPenilaianKinerjaKaryawanDaftarPermintaan(),
+    '/user/main/daftar_permintaan/detail_aplikasi_rekrutmen': (context) =>
+        const DetailAplikasiRekrutmenDaftarPermintaan(),
+
     '/user/main/daftar_persetujuan/detail_rawat_inap': (context) =>
         const DetailRawatInapDaftarPersetujuan(),
     '/user/main/daftar_persetujuan/detail_rawat_jalan': (context) =>
@@ -168,6 +187,16 @@ Map<String, Widget Function(BuildContext)> routers() {
         const DetailPengajuanTrainingDaftarPersetujuan(),
     '/user/main/daftar_persetujuan/detail_surat_izin_keluar': (context) =>
         const DetailSuratIzinKeluarDaftarPersetujuan(),
+    '/user/main/daftar_persetujuan/detail_hardware_software': (context) =>
+        const DetailHardwareSoftwareDaftarPersetujuan(),
+    '/user/main/daftar_persetujuan/detail_lembur_karyawan': (context) =>
+        const DetailLemburKaryawanDaftarPersetujuan(),
+    '/user/main/daftar_persetujuan/detail_surat_keterangan': (context) =>
+        const DetailSuratKeteranganDaftarPersetujuan(),
+    '/user/main/daftar_persetujuan/detail_penilaian_kinerja_karyawan':
+        (context) => const DetailPenilaianKinerjaKaryawanDaftarPersetujuan(),
+    '/user/main/daftar_persetujuan/detail_aplikasi_rekrutmen': (context) =>
+        const DetailAplikasiRekrutmenDaftarPersetujuan(),
 
     // '/user/main/submition/aplikasi_training/detail_aplikasi_training':
     //     (context) => const DetailFormPengajuanLembur(),

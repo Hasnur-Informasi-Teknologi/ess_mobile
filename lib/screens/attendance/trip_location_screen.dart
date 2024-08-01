@@ -1,6 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:get/get.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/screens/attendance/take_selfie_screen.dart';
@@ -31,34 +32,38 @@ class _TripLocationScreenState extends State<TripLocationScreen> {
   String? lat, long, address;
   bool _isLoading = false;
   String _timeZone = 'WIB';
+  String timeZone = 'WIB';
 
   @override
   void initState() {
     super.initState();
-    _getTimeZone();
+    // _getTimeZone();
   }
 
-  void _getTimeZone() {
-    var now = DateTime.now();
-    var timeZoneName = now.timeZoneName;
-    setState(() {
-      _timeZone = timeZoneName;
-    });
-  }
+  // void _getTimeZone() {
+  //   var now = DateTime.now();
+  //   var timeZoneName = now.timeZoneName;
+  //   setState(() {
+  //     _timeZone = timeZoneName;
+  //   });
+  // }
 
   Future<void> getLocation() async {
     final locationService = LocationService();
     final locationData = await locationService.getLocation();
 
     if (locationData != null) {
-      final placeMark =
-          await locationService.getPlaceMark(locationData: locationData);
-
       lat = locationData.latitude!.toStringAsFixed(7);
       long = locationData.longitude!.toStringAsFixed(7);
 
-      address =
-          '${placeMark?.street}, ${placeMark?.subLocality}, ${placeMark?.locality}, ${placeMark?.subAdministrativeArea}, ${placeMark?.administrativeArea}, ${placeMark?.postalCode}';
+      try {
+        final placeMark =
+            await locationService.getPlaceMark(locationData: locationData);
+        address =
+            '${placeMark?.street}, ${placeMark?.subLocality}, ${placeMark?.locality}, ${placeMark?.subAdministrativeArea}, ${placeMark?.administrativeArea}, ${placeMark?.postalCode}';
+      } catch (e) {
+        address = 'Unable to determine address';
+      }
     }
   }
 
@@ -81,54 +86,55 @@ class _TripLocationScreenState extends State<TripLocationScreen> {
     });
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      Map<String, String> headers = {"Content-type": "application/json"};
+      final ioClient = createIOClientWithInsecureConnection();
+      final response = await ioClient.get(
+          Uri.parse('https://hitfaceapi.my.id/api/get/server_date'),
+          headers: headers);
+      DateTime sdate = DateTime.parse(response.body);
+      int stimestamp = sdate.millisecondsSinceEpoch;
+      // var timeZone = _timeZone;
+      var now = DateTime.now();
+      timeZone = now.timeZoneName;
+      if (timeZone == 'WITA') {
+        stimestamp = stimestamp + (1 * 60 * 60 * 1000);
+      } else if (timeZone == 'WIT') {
+        stimestamp = stimestamp + (2 * 60 * 60 * 1000);
+      }
+      var clockIn = DateFormat('yyyy-MM-dd HH:mm:ss')
+          .format(DateTime.fromMillisecondsSinceEpoch(stimestamp));
 
-    Map<String, String> headers = {"Content-type": "application/json"};
-    final ioClient = createIOClientWithInsecureConnection();
-    final response = await ioClient.get(
-        Uri.parse('https://hitfaceapi.my.id/api/get/server_date'),
-        headers: headers);
-    print('=======TIMESTAMP ======');
-    DateTime sdate = DateTime.parse(response.body);
-    int stimestamp = sdate.millisecondsSinceEpoch;
-    // var timeZone = prefs.getString('timeZone');
-    // var timezone = await FlutterTimezone.getLocalTimezone();
-    // if (timezone == 'Asia/Jakarta') {
-    //   timeZone = 'WIB'; // Western Indonesia Time
-    // } else if (timezone == 'Asia/Makassar') {
-    //   timeZone = 'WITA'; // Central Indonesia Time
-    // } else if (timezone == 'Asia/Jayapura') {
-    //   timeZone = 'WIT'; // Eastern Indonesia Time
-    // } else {
-    //   timeZone = 'Unknown'; // Unknown or not applicable
-    // }
-    var timeZone = _timeZone;
-    if (timeZone == 'WITA') {
-      stimestamp = stimestamp + (1 * 60 * 60 * 1000);
-    } else if (timeZone == 'WIT') {
-      stimestamp = stimestamp + (2 * 60 * 60 * 1000);
+      var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
+      final userId = karyawan['pernr'];
+
+      Map<String, Object> clockInData = {
+        'pernr': userId.toString(),
+        'lat': lat!,
+        'long': long!,
+        'clock_in_time': clockIn,
+        'working_location': widget.workLocation,
+      };
+
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (ctx) => TakeSelfieScreen(
+                  clockInType: 'In', attendanceData: clockInData)));
+    } catch (e) {
+      Get.snackbar(
+        'Information',
+        'Maaf, Server lagi Down mohon lakukan absen beberapa saat lagi!',
+        snackPosition: SnackPosition.TOP,
+        duration: const Duration(seconds: 20),
+        backgroundColor: Colors.red,
+        icon: const Icon(
+          Icons.info,
+          color: Colors.white,
+        ),
+        shouldIconPulse: false,
+      );
     }
-    print('----------------- before ---------------------');
-    var clockIn = DateFormat('yyyy-MM-dd HH:mm:ss')
-        .format(DateTime.fromMillisecondsSinceEpoch(stimestamp));
-    print('----------------- time ---------------------');
-    print(clockIn);
-
-    var karyawan = jsonDecode(prefs.getString('userData').toString())['data'];
-    final userId = karyawan['pernr'];
-
-    Map<String, Object> clockInData = {
-      'pernr': userId.toString(),
-      'lat': lat!,
-      'long': long!,
-      'clock_in_time': clockIn,
-      'working_location': widget.workLocation,
-    };
-
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (ctx) => TakeSelfieScreen(
-                clockInType: 'In', attendanceData: clockInData)));
 
     setState(() {
       _isLoading = false;

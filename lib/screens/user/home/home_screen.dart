@@ -116,16 +116,37 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  bool isNewVersion(String localVersion, String remoteVersion) {
+    List<int> localParts = localVersion.split('.').map(int.parse).toList();
+    List<int> remoteParts = remoteVersion.split('.').map(int.parse).toList();
+    print(localParts);
+    print(remoteParts);
+
+    for (int i = 0; i < localParts.length; i++) {
+      if (localParts[i] < remoteParts[i]) {
+        return false;
+      } else if (localParts[i] > remoteParts[i]) {
+        return true;
+      }
+    }
+    return true;
+  }
+
   void compareVersions() {
     print("saat ini $versionMobile");
     if (versionMobile == null) {
       _isNewVersion = true;
     } else {
-      if ((_packageInfo.version != versionMobile)) {
-        _isNewVersion = false;
-      } else {
-        _isNewVersion = true;
-      }
+      String localVersion = _packageInfo.version;
+      String remoteVersion = versionMobile!;
+      _isNewVersion = isNewVersion(localVersion, remoteVersion);
+      print(_isNewVersion);
+
+      // if ((_packageInfo.version != versionMobile)) {
+      //   _isNewVersion = false;
+      // } else {
+      //   _isNewVersion = true;
+      // }
     }
   }
 
@@ -191,10 +212,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Future<void> getToken() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  // }
-
   Future<void> _handleRefresh() async {
     setState(() {
       _isLoading = true;
@@ -211,6 +228,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Size size = MediaQuery.of(context).size;
     double textSmall = size.width * 0.027;
     double textMedium = size.width * 0.0329;
+    double textLarge = size.width * 0.04;
     double paddingHorizontalNarrow = size.width * 0.035;
     double paddingHorizontalWide = size.width * 0.0585;
     double padding10 = size.width * 0.023;
@@ -227,33 +245,27 @@ class _HomeScreenState extends State<HomeScreen> {
         : _isNewVersion
             ? Scaffold(
                 backgroundColor: Colors.white,
-                appBar: AppBar(
-                  elevation: 0,
-                  backgroundColor: Colors.white,
-                  title: Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: paddingHorizontalNarrow),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Obx(() => Text(
-                              x.karyawan['pt'] ??
-                                  'PT Hasnur Informasi Teknologi',
-                              style: TextStyle(
-                                  fontSize: textMedium,
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: 'Quicksand'),
-                            )),
-                        // IconButton(
-                        //   icon: const Icon(Icons.notifications),
-                        //   onPressed: () {
-                        //     getToken();
-                        //   },
-                        // ),
-                      ],
-                    ),
-                  ),
-                ),
+                // appBar: AppBar(
+                //   elevation: 0,
+                //   backgroundColor: Colors.white,
+                //   title: Padding(
+                //     padding: EdgeInsets.symmetric(
+                //         horizontal: paddingHorizontalNarrow),
+                //     child: Row(
+                //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //       children: [
+                //         Obx(() => Text(
+                //               x.karyawan['pt'] ??
+                //                   'PT Hasnur Informasi Teknologi',
+                //               style: TextStyle(
+                //                   fontSize: textLarge,
+                //                   fontWeight: FontWeight.w500,
+                //                   fontFamily: 'Quicksand'),
+                //             )),
+                //       ],
+                //     ),
+                //   ),
+                // ),
                 body: RefreshIndicator(
                   onRefresh: _handleRefresh,
                   child: ListView(
@@ -272,7 +284,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 HeaderProfileWidget(
                                   userName:
                                       x.karyawan['nama'] ?? 'M. Abdullah Sani',
-                                  posision: x.karyawan['pernr'] ?? '7822000',
+                                  nrp: x.karyawan['pernr'] ?? '7822000',
                                   imageUrl: x.karyawan['pernr'] ?? '',
                                   webUrl: '',
                                 ),

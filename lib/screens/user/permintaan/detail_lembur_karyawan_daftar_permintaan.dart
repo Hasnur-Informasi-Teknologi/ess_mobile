@@ -2,46 +2,74 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:mobile_ess/helpers/http_override.dart';
 import 'package:mobile_ess/helpers/url_helper.dart';
+import 'package:mobile_ess/themes/colors.dart';
 import 'package:mobile_ess/widgets/line_widget.dart';
 import 'package:mobile_ess/widgets/row_with_semicolon_widget.dart';
 import 'package:mobile_ess/widgets/title_center_widget.dart';
 import 'package:mobile_ess/widgets/title_center_with_badge_long_widget.dart';
 import 'package:mobile_ess/widgets/title_widget.dart';
+import 'package:scrollable_table_view/scrollable_table_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 
-class DetailBantuanKomunikasiDaftarPermintaan extends StatefulWidget {
-  const DetailBantuanKomunikasiDaftarPermintaan({super.key});
+class DetailLemburKaryawanDaftarPermintaan extends StatefulWidget {
+  const DetailLemburKaryawanDaftarPermintaan({super.key});
 
   @override
-  State<DetailBantuanKomunikasiDaftarPermintaan> createState() =>
-      _DetailBantuanKomunikasiDaftarPermintaanState();
+  State<DetailLemburKaryawanDaftarPermintaan> createState() =>
+      _DetailLemburKaryawanDaftarPermintaanState();
 }
 
-class _DetailBantuanKomunikasiDaftarPermintaanState
-    extends State<DetailBantuanKomunikasiDaftarPermintaan> {
+class _DetailLemburKaryawanDaftarPermintaanState
+    extends State<DetailLemburKaryawanDaftarPermintaan> {
   final String _apiUrl = API_URL;
-  Map<String, dynamic> masterDataDetailBantuanKomunikasi = {};
-  String? nominalFormated;
+  Map<String, dynamic> masterDataDetailLemburKaryawan = {};
+  List<Map<String, dynamic>> masterDataDetailPerintahLemburTable = [];
   final Map<String, dynamic> arguments = Get.arguments;
+
+  List perintahLemburTableHeader = [
+    'No',
+    'NRP',
+    'Nama',
+    'Entitas',
+    'Tanggal/Jam Mulai',
+    'Tanggal/Jam Berakhir',
+    'Keterangan',
+  ];
+
+  List perintahLemburTableKey = [
+    'index',
+    'nrp_karyawan',
+    'nama_karyawan',
+    'entitas_karyawan',
+    'tgl_mulai',
+    'tgl_berakhir',
+    'keterangan',
+  ];
 
   @override
   void initState() {
     super.initState();
-    getDataDetailBantuanKomunikasi();
+    getDataDetailLemburKaryawan();
   }
 
-  Future<void> getDataDetailBantuanKomunikasi() async {
+  String formatDate(String dateStr) {
+    DateTime dateTime = DateTime.parse(dateStr);
+    DateFormat formatter = DateFormat('yyyy-MM-dd');
+    return formatter.format(dateTime);
+  }
+
+  Future<void> getDataDetailLemburKaryawan() async {
     final token = await _getToken();
     if (token == null) return;
 
     final id = int.parse(arguments['id'].toString());
 
     try {
-      final response = await _fetchDataDetailBantuanKomunikasi(token, id);
+      final response = await _fetchDataDetailLemburKaryawan(token, id);
       if (response.statusCode == 200) {
         _handleSuccessResponse(response);
       } else {
@@ -57,11 +85,10 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
     return prefs.getString('token');
   }
 
-  Future<http.Response> _fetchDataDetailBantuanKomunikasi(
-      String token, int id) {
+  Future<http.Response> _fetchDataDetailLemburKaryawan(String token, int id) {
     final ioClient = createIOClientWithInsecureConnection();
 
-    final url = Uri.parse("$_apiUrl/bantuan-komunikasi/detail/$id");
+    final url = Uri.parse("$_apiUrl/perintah-lembur/detail/$id");
     return ioClient.get(
       url,
       headers: {
@@ -73,12 +100,14 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
 
   void _handleSuccessResponse(http.Response response) {
     final responseData = jsonDecode(response.body);
-    final dataDetailBantuanKomunikasiApi = responseData['dkomunikasi'];
+    final dataDetailLemburKaryawanApi = responseData['parent'];
+    final dataDetailPerintahLemburTableApi = responseData['child'];
+
     setState(() {
-      masterDataDetailBantuanKomunikasi =
-          Map<String, dynamic>.from(dataDetailBantuanKomunikasiApi);
-      final nominal = masterDataDetailBantuanKomunikasi['nominal'];
-      nominalFormated = NumberFormat.decimalPattern('id-ID').format(nominal);
+      masterDataDetailLemburKaryawan =
+          Map<String, dynamic>.from(dataDetailLemburKaryawanApi);
+      masterDataDetailPerintahLemburTable =
+          List<Map<String, dynamic>>.from(dataDetailPerintahLemburTableApi);
     });
   }
 
@@ -111,7 +140,7 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
           },
         ),
         title: Text(
-          'Detail Permintaan Bantuan Komunikasi',
+          'Detail Permintaan Perintah Lembur',
           style: TextStyle(
             color: Colors.black,
             fontSize: textLarge,
@@ -128,9 +157,9 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               diajukanOlehWidget(context),
-              diberikanKepadaWidget(context),
-              detailFasilitasKomunikasiWidget(context),
-              keteranganWidget(context),
+              atasanWidget(context),
+              hcgsWidget(context),
+              perintahLemburTable(context),
               footerWidget(context),
             ],
           ),
@@ -147,20 +176,20 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
 
     List<Map<String, String>> data = [
       {
-        'label': 'NRP',
-        'value': masterDataDetailBantuanKomunikasi['nrp_user'] ?? '-'
+        'label': 'NRP Pemohon',
+        'value': masterDataDetailLemburKaryawan['nrp_user'] ?? '-'
       },
       {
-        'label': 'Nama',
-        'value': masterDataDetailBantuanKomunikasi['nama_user'] ?? '-'
+        'label': 'Entitas Pemohon',
+        'value': masterDataDetailLemburKaryawan['entitas_user'] ?? '-'
       },
       {
-        'label': 'Tanggal Pengajuan',
-        'value': masterDataDetailBantuanKomunikasi['tgl_pengajuan'] ?? '-'
+        'label': 'Nama Pemohon',
+        'value': masterDataDetailLemburKaryawan['nama_user'] ?? '-'
       },
       {
-        'label': 'No Dokumen',
-        'value': masterDataDetailBantuanKomunikasi['no_doc'] ?? '-'
+        'label': 'Jabatan Pemohon',
+        'value': masterDataDetailLemburKaryawan['jabatan_user'] ?? '-'
       },
     ];
 
@@ -185,7 +214,7 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
     );
   }
 
-  Widget diberikanKepadaWidget(BuildContext context) {
+  Widget atasanWidget(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
@@ -193,31 +222,23 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
 
     List<Map<String, String>> data = [
       {
-        'label': 'NRP',
-        'value': masterDataDetailBantuanKomunikasi['nrp_penerima'] ?? '-'
+        'label': 'NRP Atasan',
+        'value': masterDataDetailLemburKaryawan['nrp_atasan'] ?? '-'
       },
       {
-        'label': 'Nama',
-        'value': masterDataDetailBantuanKomunikasi['nama_penerima'] ?? '-'
+        'label': 'Nama Atasan',
+        'value': masterDataDetailLemburKaryawan['nama_atasan'] ?? '-'
       },
       {
-        'label': 'Jabatan',
-        'value': masterDataDetailBantuanKomunikasi['jabatan_penerima'] ?? '-'
-      },
-      {
-        'label': 'Entitas',
-        'value': masterDataDetailBantuanKomunikasi['entitas_penerima'] ?? '-'
-      },
-      {
-        'label': 'Pangkat',
-        'value': masterDataDetailBantuanKomunikasi['pangkat_penerima'] ?? '-'
+        'label': 'Entitas Atasan',
+        'value': masterDataDetailLemburKaryawan['entitas_atasan'] ?? '-'
       },
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const TitleWidget(title: 'Diberikan Kepada'),
+        const TitleWidget(title: 'Atasan'),
         SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
         const SizedBox(height: 15),
@@ -235,57 +256,34 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
     );
   }
 
-  Widget detailFasilitasKomunikasiWidget(BuildContext context) {
+  Widget hcgsWidget(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
     double sizedBoxHeightExtraTall = size.height * 0.0215;
-    double sizedBoxHeightTall = 15;
 
     List<Map<String, String>> data = [
       {
-        'label': 'Kelompok Jabatan',
-        'value': masterDataDetailBantuanKomunikasi['pangkat_komunikasi'] ?? '-'
-      },
-      {'label': 'Nominal (IDR)', 'value': nominalFormated ?? '-'},
-      {
-        'label': 'Jenis Fasilitas',
-        'value': masterDataDetailBantuanKomunikasi['nama_fasilitas'] ?? '-'
+        'label': 'NRP HCGS',
+        'value': masterDataDetailLemburKaryawan['nrp_hrgs'] ?? '-'
       },
       {
-        'label': 'Jenis Mobile Phone',
-        'value': masterDataDetailBantuanKomunikasi['jenis_phone_name'] ?? '-'
-      },
-      if (masterDataDetailBantuanKomunikasi['merek_phone'] != null)
-        {
-          'label': 'Merek Mobile Phone',
-          'value': masterDataDetailBantuanKomunikasi['merek_phone'] ?? '-'
-        },
-      {
-        'label': 'Prioritas',
-        'value': getPrioritas(masterDataDetailBantuanKomunikasi['prioritas'])
+        'label': 'Nama HCGS',
+        'value': masterDataDetailLemburKaryawan['nama_hrgs'] ?? '-'
       },
       {
-        'label': 'Tujuan Komunikasi Internal',
-        'value': masterDataDetailBantuanKomunikasi['tujuan_internal'] ?? '-'
-      },
-      {
-        'label': 'Tujuan Komunikasi Eksternal',
-        'value': masterDataDetailBantuanKomunikasi['tujuan_eksternal'] ?? '-'
-      },
-      {
-        'label': 'Keterangan',
-        'value': masterDataDetailBantuanKomunikasi['keterangan'] ?? '-'
+        'label': 'Entitas HCGS',
+        'value': masterDataDetailLemburKaryawan['entitas_hrgs'] ?? '-'
       },
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const TitleWidget(title: 'Detail Fasilitas Komunikasi'),
+        const TitleWidget(title: 'HCGS'),
         SizedBox(height: sizedBoxHeightShort),
         const LineWidget(),
-        SizedBox(height: sizedBoxHeightTall),
+        const SizedBox(height: 15),
         ...data.map((item) => Padding(
               padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
               child: RowWithSemicolonWidget(
@@ -300,58 +298,87 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
     );
   }
 
-  String getPrioritas(String? prioritas) {
-    switch (prioritas) {
-      case '0':
-        return 'Rendah';
-      case '1':
-        return 'Sedang';
-      case '2':
-        return 'Tinggi';
-      default:
-        return '-';
-    }
-  }
-
-  Widget keteranganWidget(BuildContext context) {
+  Widget perintahLemburTable(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
-    double sizedBoxHeightShort = size.height * 0.0086;
-    double sizedBoxHeightExtraTall = size.height * 0.0215;
+    double padding7 = size.width * 0.018;
+    double paddingHorizontalNarrow = size.width * 0.035;
     double sizedBoxHeightTall = 15;
-
-    List<Map<String, String>> data = [
-      {
-        'label': 'Tujuan Komunikasi Internal',
-        'value': masterDataDetailBantuanKomunikasi['tujuan_internal'] ?? '-'
-      },
-      {
-        'label': 'Tujuan Komunikasi Eksternal',
-        'value': masterDataDetailBantuanKomunikasi['tujuan_eksternal'] ?? '-'
-      },
-      {
-        'label': 'Keterangan',
-        'value': masterDataDetailBantuanKomunikasi['keterangan'] ?? '-'
-      },
-    ];
+    double sizedBoxHeightShort = 8;
+    double sizedBoxHeightExtraTall = 20;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const TitleWidget(title: 'Keterangan'),
-        SizedBox(height: sizedBoxHeightShort),
+        const TitleWidget(title: 'Detail Perintah Lembur'),
+        SizedBox(
+          height: sizedBoxHeightShort,
+        ),
         const LineWidget(),
-        SizedBox(height: sizedBoxHeightTall),
-        ...data.map((item) => Padding(
-              padding: EdgeInsets.only(bottom: sizedBoxHeightShort),
-              child: RowWithSemicolonWidget(
-                textLeft: item['label']!,
-                textRight: item['value'].toString()!,
-                fontSizeLeft: textMedium,
-                fontSizeRight: textMedium,
-              ),
-            )),
-        SizedBox(height: sizedBoxHeightExtraTall),
+        SizedBox(
+          height: sizedBoxHeightTall,
+        ),
+        SizedBox(
+          width: MediaQuery.of(context).size.width,
+          child: masterDataDetailPerintahLemburTable.isNotEmpty
+              ? Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: paddingHorizontalNarrow, vertical: padding7),
+                  child: SizedBox(
+                    height: 200,
+                    child: ScrollableTableView(
+                      headers: perintahLemburTableHeader.map((column) {
+                        return TableViewHeader(
+                          label: column,
+                        );
+                      }).toList(),
+                      rows: masterDataDetailPerintahLemburTable
+                          .asMap()
+                          .entries
+                          .map((entry) {
+                        int index = entry.key;
+                        Map<String, dynamic> data = entry.value;
+                        return TableViewRow(
+                          height: 60,
+                          cells: perintahLemburTableKey.map((column) {
+                            if (column == 'index') {
+                              return TableViewCell(
+                                child: Text(
+                                  (index + 1).toString(),
+                                  style: TextStyle(
+                                    color: const Color(primaryBlack),
+                                    fontSize: textMedium,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ),
+                              );
+                            } else {
+                              return TableViewCell(
+                                child: Text(
+                                  data[column].toString(),
+                                  style: TextStyle(
+                                    color: const Color(primaryBlack),
+                                    fontSize: textMedium,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                                ),
+                              );
+                            }
+                          }).toList(),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                )
+              : const SizedBox(
+                  height: 0,
+                ),
+        ),
+        SizedBox(
+          height: sizedBoxHeightExtraTall,
+        ),
       ],
     );
   }
@@ -360,21 +387,16 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
     Size size = MediaQuery.of(context).size;
     double textMedium = size.width * 0.0329;
     double sizedBoxHeightShort = size.height * 0.0086;
-    double sizedBoxHeightTall = 15;
-
-    Map<String, String> data = {
-      'Status Pengajuan':
-          masterDataDetailBantuanKomunikasi['status_approve'] ?? '-',
-      'Pada': ': ${masterDataDetailBantuanKomunikasi['created_at'] ?? '-'}',
-    };
+    double sizedBoxHeightExtraTall = size.height * 0.0215;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: sizedBoxHeightTall),
+        SizedBox(height: sizedBoxHeightExtraTall),
         TitleCenterWithLongBadgeWidget(
           textLeft: 'Status Pengajuan',
-          textRight: data['Status Pengajuan']!,
+          textRight:
+              '${masterDataDetailLemburKaryawan['status_approve'] ?? '-'}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
           color: Colors.yellow,
@@ -382,11 +404,12 @@ class _DetailBantuanKomunikasiDaftarPermintaanState
         SizedBox(height: sizedBoxHeightShort),
         TitleCenterWidget(
           textLeft: 'Pada',
-          textRight: data['Pada']!,
+          textRight:
+              ': ${masterDataDetailLemburKaryawan['created_at'] != null ? formatDate(masterDataDetailLemburKaryawan['created_at']) : ''}',
           fontSizeLeft: textMedium,
           fontSizeRight: textMedium,
         ),
-        SizedBox(height: sizedBoxHeightShort),
+        SizedBox(height: sizedBoxHeightExtraTall),
       ],
     );
   }

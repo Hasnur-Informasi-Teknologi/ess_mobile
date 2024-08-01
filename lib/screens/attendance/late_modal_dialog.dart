@@ -36,13 +36,30 @@ class _LateModalDialogState extends State<LateModalDialog> {
   // Metode untuk mengambil gambar dari kamera
   Future<void> _getImage() async {
     XFile? image = await ImagePicker().pickImage(
-      source: ImageSource.camera,
+      // source: ImageSource.camera,
+      source: ImageSource.gallery,
     );
 
     setState(() {
       _imageFile = image;
       _isFileNull = false;
     });
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      XFile? image = await ImagePicker().pickImage(
+        source: source,
+      );
+
+      setState(() {
+        _imageFile = image;
+        _isFileNull = image == null;
+      });
+    } catch (e) {
+      // Handle errors
+      print('Error picking image: $e');
+    }
   }
 
   Future<void> _submit() async {
@@ -210,7 +227,10 @@ class _LateModalDialogState extends State<LateModalDialog> {
                     ),
                     Center(
                       child: ElevatedButton(
-                        onPressed: _getImage,
+                        // onPressed: _getImage,
+                        onPressed: () {
+                          _showPicker(context);
+                        },
                         child: Text('Take Picture'),
                       ),
                     ),
@@ -258,5 +278,35 @@ class _LateModalDialogState extends State<LateModalDialog> {
               ),
             ),
           );
+  }
+
+  void _showPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text('Photo Library'),
+                onTap: () {
+                  _pickImage(ImageSource.gallery);
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.photo_camera),
+                title: Text('Camera'),
+                onTap: () {
+                  _pickImage(ImageSource.camera);
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

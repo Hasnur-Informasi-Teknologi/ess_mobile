@@ -1601,7 +1601,6 @@ class _DetailRawatJalanDaftarPersetujuanState
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // Icon(Icons.approval),
                   Text(
                     'Approve',
                     style: TextStyle(

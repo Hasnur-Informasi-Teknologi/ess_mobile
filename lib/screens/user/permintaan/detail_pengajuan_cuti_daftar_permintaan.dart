@@ -133,7 +133,6 @@ class _DetailPengajuanCutiDaftarPermintaanState
                     tanggalPengajuanCutiWidget(context),
                     keteranganCutiWidget(context),
                     atasanWidget(context),
-                    atasanWidget(context),
                     catatanCutiWidget(context),
                     karyawanPenggantiWidget(context),
                     footerWidget(context),
