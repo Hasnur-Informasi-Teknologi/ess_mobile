@@ -502,7 +502,7 @@ class _DetailHardwareSoftwareDaftarPersetujuanState
               ),
               Center(
                 child: Text(
-                  'Approve Pengajuan Rawat Jalan',
+                  'Approve Pengajuan Hardware & Software',
                   style: TextStyle(
                     color: Color(primaryBlack),
                     fontSize: textLarge,

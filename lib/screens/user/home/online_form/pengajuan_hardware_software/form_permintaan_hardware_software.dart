@@ -299,6 +299,14 @@ class _FormPermintaanHardwareSoftwareState
     });
 
     if (validationMessages.values.any((msg) => msg != null)) {
+      Get.snackbar('Information', 'Harap mengisi inputan yang required',
+          snackPosition: SnackPosition.TOP,
+          backgroundColor: Colors.amber,
+          icon: const Icon(
+            Icons.info,
+            color: Colors.white,
+          ),
+          shouldIconPulse: false);
       return;
     }
 
